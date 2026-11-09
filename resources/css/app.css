@@ -1,0 +1,13 @@
+/* Minimal application styles. The admin layout loads Inter from Google Fonts.
+   Remove invalid @import rules and @theme which break the CSS parser in editors. */
+
+html, body {
+    height: 100%;
+    margin: 0;
+    font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+    background: #f6f7fb;
+    color: #0b2a2a;
+}
+
+/* Utility: card background used in blades */
+.card { background: #fff; border-radius: 12px; box-shadow: 0 6px 18px rgba(11,42,42,0.06); padding: 16px; }

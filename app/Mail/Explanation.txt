@@ -1,0 +1,44 @@
+Folder	What's inside
+⭐ app/	Your actual code — Models, Controllers, business logic
+⭐ routes/	URL definitions. web.php is where you map /dashboard to a controller
+⭐ resources/	Blade views, CSS, JavaScript — everything the user sees
+⭐ database/	Migrations (table structure), seeders (test data), factories
+⭐ config/	Settings files. database.php, app.php, etc. Read values from .env
+⭐public/	The only folder exposed to the web. Holds index.php — every request enters here
+⭐storage/	Logs, file uploads, cached views. Includes your laravel.log
+⭐bootstrap/	Starts the app. app.php is the wiring you saw in artisan
+⭐tests/	Automated tests
+⭐vendor/	Composer packages, including Laravel itself. Never edit, never commit
+⭐node_modules/	npm packages for frontend. Never edit, never commit
+
+
+In one line: middleware answers "are you allowed in?",
+It runs before the controller and can block the request entirely.
+
+the controller answers "okay, what do you want?"
+When someone visits a URL, the controller decides what happens.
+
+DRY — Don't Repeat Yourself.
+
+VSCODE_HELPING_TOOLS
+Ctrl + , to open Settings
+
+What you need running
+Apache — yes, still needed via XAMPP. Apache is the web server that serves your Laravel app to the browser — that has nothing to do with which database you use. Open the XAMPP Control Panel and click Start next to Apache, same as before.
+
+MySQL in XAMPP — no longer needed. Since .env now points to pgsql, the app never touches MySQL anymore. You can leave that row in XAMPP Control Panel stopped/untouched. (Your old MySQL data is still sitting there untouched as a backup, just unused.)
+
+PostgreSQL — nothing to start manually. I checked: the postgresql-x64-18 service is set to Automatic startup, meaning Windows starts it on its own every time you boot the computer, running quietly in the background as a service (not a window you open). You'd only need to think about it if you ever see a "connection refused" error — in that case, open Services (Windows key → type "Services") and check that postgresql-x64-18 says "Running."
+
+Day to day
+So your actual routine now is: open XAMPP Control Panel → Start Apache only, then visit http://localhost/projectlinkfinal/my-laravel-app/public. Postgres is already running by itself. pgAdmin (from last time) is only for when you want to look at the database — it doesn't need to be open for the app to work, same as phpMyAdmin never needed to be open before either.
+
+XAMPP's MySQL (in the typical default setup) runs as a plain process launched by the XAMPP Control Panel itself — it isn't registered with Windows as a real service. That means Windows has no built-in way to tell it "shut down cleanly" when you restart/shut down the PC. Unless you clicked Stop in the Control Panel first, MySQL just gets abruptly killed when Windows tears down remaining processes — which is exactly the kind of abrupt termination that caused the corruption we found and fixed earlier.
+
+PostgreSQL here is different: I confirmed it's registered as an actual Windows service (postgresql-x64-18, Automatic). Windows services have a proper lifecycle — when you shut down or restart, Windows' Service Control Manager sends every running service a real "please stop now" signal before the OS powers down, giving PostgreSQL time to flush and close cleanly on its own. You never have to remember to stop it, because the OS does it for you as part of a normal shutdown.
+
+What if it does get killed abruptly anyway (power loss, Task Manager "End Task")?
+Even then, PostgreSQL is much more resilient by design than what bit you with MySQL. It uses write-ahead logging (WAL) — every change is durably logged before it's applied, specifically so that if the process dies mid-write, PostgreSQL automatically detects the unclean shutdown on its next start and replays the log to repair itself, with no action needed from you. This is a core, heavily-tested part of how PostgreSQL works, not an edge case. The corruption you saw before was actually in a specific fragile replication subsystem in MariaDB — a much more unusual failure mode than ordinary crash recovery, and not something PostgreSQL's setup here even has active (you're not using replication).
+
+Bottom line
+You don't need to manually stop PostgreSQL, ever, for normal PC shutdowns/restarts — it's handled automatically. The one thing still worth doing, matching what fixed things for XAMPP: add C:\Program Files\PostgreSQL to your antivirus's exclusion list, since real-time scanning locking a data file mid-write is a generic Windows risk that applies to any database, not something specific to how MySQL was set up
