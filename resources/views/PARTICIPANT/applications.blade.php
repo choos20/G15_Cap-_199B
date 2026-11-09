@@ -37,6 +37,10 @@
         <div style="display:grid; gap:14px">
             @foreach($applications as $application)
                 @php [$bg, $color] = $statusColors[$application->status] ?? ['#f1f5f9', '#475569']; @endphp
+                @php
+                    $projectId = $application->announcement?->project_id;
+                    $hasAttendance = $projectId && $attendedProjectIds->contains((int) $projectId);
+                @endphp
                 <div class="card" style="display:flex; justify-content:space-between; align-items:center; gap:16px; padding:20px 22px; flex-wrap:wrap">
                     <div style="min-width:0; flex:1">
                         <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap">
@@ -68,7 +72,11 @@
                             </div>
                         @endif
                     </div>
-                    @if(in_array($application->status, ['pending', 'approved']))
+                    @if(in_array($application->status, ['pending', 'approved']) && $hasAttendance)
+                        <div style="max-width:260px; color:#92400e; font-size:0.88rem; font-weight:600">
+                            Withdrawal unavailable: attendance recorded.
+                        </div>
+                    @elseif(in_array($application->status, ['pending', 'approved']))
                         <form method="post" action="{{ route('participant.applications.withdraw', $application) }}"
                               data-confirm
                               data-confirm-title="Withdraw application?"

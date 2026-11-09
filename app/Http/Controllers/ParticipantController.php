@@ -9,6 +9,7 @@ use App\Models\VolunteerApplicationAttachment;
 use App\Notifications\ProjectStatusChanged;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Storage;
 
@@ -386,12 +387,22 @@ class ParticipantController extends Controller
     {
         $this->ensureParticipant($request);
 
-        $applications = VolunteerApplication::where('user_id', $request->user()->id)
+        $userId = $request->user()->id;
+        $applications = VolunteerApplication::where('user_id', $userId)
             ->with('announcement.project', 'announcement.creator', 'attachments')
             ->orderByDesc('created_at')
             ->get();
 
-        return view('PARTICIPANT.applications', ['applications' => $applications]);
+        $attendedProjectIds = DB::table('attendance_records as records')
+            ->join('attendance_sessions as sessions', 'sessions.id', '=', 'records.session_id')
+            ->where('records.user_id', $userId)
+            ->whereNotNull('sessions.project_id');
+        $this->whereCheckInRecorded($attendedProjectIds, 'records.');
+
+        return view('PARTICIPANT.applications', [
+            'applications' => $applications,
+            'attendedProjectIds' => $attendedProjectIds->distinct()->pluck('sessions.project_id'),
+        ]);
     }
 
     public function attendanceHistory(Request $request)
@@ -421,17 +432,67 @@ class ParticipantController extends Controller
     {
         $this->ensureParticipant($request);
 
-        if ($application->user_id !== $request->user()->id) {
-            abort(403);
+        $result = DB::transaction(function () use ($request, $application): string {
+            $lockedApplication = VolunteerApplication::whereKey($application->id)
+                ->lockForUpdate()
+                ->firstOrFail();
+
+            if ($lockedApplication->user_id !== $request->user()->id) {
+                abort(403);
+            }
+
+            if (! in_array($lockedApplication->status, ['pending', 'approved'], true)) {
+                return 'unavailable';
+            }
+
+            $projectId = $lockedApplication->announcement()->value('project_id');
+            if ($projectId && $this->hasCheckInAttendance($lockedApplication->user_id, $projectId)) {
+                return 'attended';
+            }
+
+            $lockedApplication->update(['status' => 'withdrawn']);
+
+            return 'withdrawn';
+        });
+
+        if ($result === 'attended') {
+            return back()->withErrors([
+                'withdraw' => 'This application can no longer be withdrawn because attendance has been recorded for this activity.',
+            ]);
         }
 
-        if (! in_array($application->status, ['pending', 'approved'])) {
+        if ($result !== 'withdrawn') {
             return back()->withErrors(['withdraw' => 'This application can no longer be withdrawn.']);
         }
 
-        $application->update(['status' => 'withdrawn']);
-
         return redirect()->route('participant.applications')->with('status', 'Application withdrawn.');
+    }
+
+    private function hasCheckInAttendance(int $userId, int $projectId): bool
+    {
+        $query = AttendanceRecord::query()
+            ->where('user_id', $userId)
+            ->whereHas('session', fn ($session) => $session->where('project_id', $projectId));
+
+        $this->whereCheckInRecorded($query);
+
+        return $query->exists();
+    }
+
+    private function whereCheckInRecorded($query, string $prefix = '')
+    {
+        return $query->where(function ($attendance) use ($prefix) {
+            $attendance->whereNotNull($prefix.'check_in_at')
+                ->orWhere(function ($attendance) use ($prefix) {
+                    $attendance->where($prefix.'attendance_source', 'qr')
+                        ->whereIn($prefix.'status', ['valid', 'completed'])
+                        ->whereNotNull($prefix.'scanned_at');
+                })
+                ->orWhere(function ($attendance) use ($prefix) {
+                    $attendance->whereIn($prefix.'attendance_source', AttendanceRecord::CSV_SOURCES)
+                        ->where($prefix.'check_in_status', 'Present');
+                });
+        });
     }
 
     public function scanner(Request $request)

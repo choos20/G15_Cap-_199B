@@ -129,6 +129,122 @@ class ParticipantAttendanceTest extends TestCase
             ->assertDontSee('Community Activity');
     }
 
+    public function test_participant_cannot_withdraw_application_after_check_in(): void
+    {
+        [$participant, $session] = $this->createAttendanceSetup();
+        $application = VolunteerApplication::where('user_id', $participant->id)->firstOrFail();
+
+        $checkIn = $this->postJson(route('attendance.scan.submit', $session->qr_token), [
+            'action' => 'check_in',
+            'scan_challenge' => $this->issueChallenge($session, $participant),
+            'latitude' => $session->latitude,
+            'longitude' => $session->longitude,
+        ]);
+        $checkIn->assertOk()->assertJsonPath('status', 'valid');
+
+        $this->from(route('participant.applications'))
+            ->post(route('participant.applications.withdraw', $application))
+            ->assertRedirect(route('participant.applications'))
+            ->assertSessionHasErrors('withdraw');
+
+        $this->assertDatabaseHas('volunteer_applications', [
+            'id' => $application->id,
+            'status' => 'approved',
+        ]);
+
+        $this->get(route('participant.applications'))
+            ->assertOk()
+            ->assertSee('Withdrawal unavailable: attendance has been recorded for this activity.')
+            ->assertDontSee('data-confirm-title="Withdraw application?"');
+    }
+
+    public function test_participant_cannot_withdraw_application_after_check_out(): void
+    {
+        [$participant, $session] = $this->createAttendanceSetup();
+        $application = VolunteerApplication::where('user_id', $participant->id)->firstOrFail();
+
+        $checkIn = $this->postJson(route('attendance.scan.submit', $session->qr_token), [
+            'action' => 'check_in',
+            'scan_challenge' => $this->issueChallenge($session, $participant),
+            'latitude' => $session->latitude,
+            'longitude' => $session->longitude,
+        ]);
+        $checkIn->assertOk();
+
+        $checkOut = $this->postJson(route('attendance.scan.submit', $session->qr_token), [
+            'action' => 'check_out',
+            'scan_challenge' => $checkIn->json('scan_challenge'),
+            'latitude' => $session->latitude,
+            'longitude' => $session->longitude,
+        ]);
+        $checkOut->assertOk()->assertJsonPath('status', 'completed');
+
+        $this->from(route('participant.applications'))
+            ->post(route('participant.applications.withdraw', $application))
+            ->assertRedirect(route('participant.applications'))
+            ->assertSessionHasErrors('withdraw');
+
+        $this->assertDatabaseHas('volunteer_applications', [
+            'id' => $application->id,
+            'status' => 'approved',
+        ]);
+    }
+
+    public function test_participant_can_withdraw_application_before_attendance_is_recorded(): void
+    {
+        [$participant] = $this->createAttendanceSetup();
+        $application = VolunteerApplication::where('user_id', $participant->id)->firstOrFail();
+
+        $this->from(route('participant.applications'))
+            ->post(route('participant.applications.withdraw', $application))
+            ->assertRedirect(route('participant.applications'))
+            ->assertSessionHas('status', 'Application withdrawn.');
+
+        $this->assertDatabaseHas('volunteer_applications', [
+            'id' => $application->id,
+            'status' => 'withdrawn',
+        ]);
+    }
+
+    public function test_attendance_for_another_project_does_not_prevent_withdrawal(): void
+    {
+        [$participant, $session] = $this->createAttendanceSetup();
+        $application = VolunteerApplication::where('user_id', $participant->id)->firstOrFail();
+        $otherProject = Project::create([
+            'title' => 'Another Activity',
+            'created_by' => $session->project->created_by,
+            'status' => 'approved',
+        ]);
+        $otherSession = AttendanceSession::create([
+            'project_id' => $otherProject->id,
+            'qr_token' => Str::random(40),
+            'latitude' => 14.5995,
+            'longitude' => 120.9842,
+            'radius_meters' => 50,
+            'opens_at' => now()->subHour(),
+            'closes_at' => now()->addHour(),
+            'status' => 'open',
+        ]);
+        AttendanceRecord::create([
+            'session_id' => $otherSession->id,
+            'user_id' => $participant->id,
+            'status' => 'valid',
+            'attendance_source' => 'qr',
+            'check_in_status' => 'Present',
+            'check_in_at' => now(),
+        ]);
+
+        $this->from(route('participant.applications'))
+            ->post(route('participant.applications.withdraw', $application))
+            ->assertRedirect(route('participant.applications'))
+            ->assertSessionHas('status', 'Application withdrawn.');
+
+        $this->assertDatabaseHas('volunteer_applications', [
+            'id' => $application->id,
+            'status' => 'withdrawn',
+        ]);
+    }
+
     private function createAttendanceSetup(): array
     {
         $organizer = User::factory()->create(['role' => 'student_org']);
