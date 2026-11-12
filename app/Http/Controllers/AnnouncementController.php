@@ -8,6 +8,8 @@ use App\Models\Project;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 class AnnouncementController extends Controller
@@ -24,7 +26,20 @@ class AnnouncementController extends Controller
         $announcements = Announcement::where('created_by', $user->id)
             ->orderByDesc('created_at')
             ->with('project', 'attachments')
+            ->withCount(['applications as approved_volunteers' => fn ($query) => $query->where('status', 'approved')])
             ->get();
+
+        $existingRecruitments = Announcement::query()
+            ->whereIn('project_id', $approvedProjects->modelKeys())
+            ->where('category', 'Volunteer recruitment')
+            ->get(['id', 'project_id', 'title', 'status'])
+            ->groupBy('project_id')
+            ->map(fn ($recruitments) => $recruitments->map(fn (Announcement $announcement) => [
+                'id' => $announcement->id,
+                'title' => $announcement->title,
+                'status' => $announcement->status,
+                'url' => route('student_org.announcements.edit', $announcement),
+            ])->values());
 
         $broadcastAnnouncements = Announcement::whereNull('project_id')
             ->where('status', 'published')
@@ -36,6 +51,7 @@ class AnnouncementController extends Controller
         return view('STUDENT_ORGANIZATION_PRESIDENT.announcements', [
             'approvedProjects' => $approvedProjects,
             'announcements' => $announcements,
+            'existingRecruitments' => $existingRecruitments,
             'broadcastAnnouncements' => $broadcastAnnouncements,
         ]);
     }
@@ -95,7 +111,28 @@ class AnnouncementController extends Controller
             $validated['published_at'] = now();
         }
 
-        $announcement = Announcement::create($validated);
+        $announcement = DB::transaction(function () use ($validated, $isRecruitment, $user): Announcement {
+            if ($isRecruitment) {
+                Project::query()
+                    ->where('created_by', $user->id)
+                    ->whereIn('status', ['approved', 'csa_cleared'])
+                    ->lockForUpdate()
+                    ->findOrFail($validated['project_id']);
+
+                $alreadyHasRecruitment = Announcement::query()
+                    ->where('project_id', $validated['project_id'])
+                    ->where('category', 'Volunteer recruitment')
+                    ->exists();
+
+                if ($alreadyHasRecruitment) {
+                    throw ValidationException::withMessages([
+                        'project_id' => 'This activity already has a volunteer-recruitment announcement. Edit the existing announcement instead.',
+                    ]);
+                }
+            }
+
+            return Announcement::create($validated);
+        });
 
         $this->storeAttachments($request, $announcement);
 
@@ -146,6 +183,18 @@ class AnnouncementController extends Controller
             'attachments.*' => 'file|mimes:jpg,png,pdf|max:5120',
         ], $this->announcementValidationMessages());
 
+        if (
+            $announcement->category === 'Volunteer recruitment'
+            && (
+                ! $isRecruitment
+                || (int) ($validated['project_id'] ?? 0) !== (int) $announcement->project_id
+            )
+        ) {
+            throw ValidationException::withMessages([
+                'category' => 'A volunteer-recruitment announcement must remain linked to its activity. Edit its details instead of changing its type or activity.',
+            ]);
+        }
+
         if ($isRecruitment && (int) $validated['slots_needed'] < $announcement->approvedCount()) {
             return back()
                 ->withErrors([
@@ -161,20 +210,44 @@ class AnnouncementController extends Controller
                 ->withInput();
         }
 
-        $announcement->update([
-            'title' => $validated['title'],
-            'description' => $validated['description'] ?? null,
-            'category' => $validated['category'],
-            'project_id' => $validated['project_id'] ?? null,
-            'slots_needed' => $isRecruitment ? ($validated['slots_needed'] ?? null) : null,
-            'application_deadline' => $isRecruitment && ! empty($validated['application_deadline'])
-                ? Carbon::createFromFormat('Y-m-d\TH:i', $validated['application_deadline'], 'Asia/Manila')->utc()
-                : null,
-            'event_date' => $isRecruitment ? ($validated['event_date'] ?? null) : null,
-            'event_location' => $isRecruitment ? ($validated['event_location'] ?? null) : null,
-            'latitude' => $isRecruitment ? ($validated['latitude'] ?? null) : null,
-            'longitude' => $isRecruitment ? ($validated['longitude'] ?? null) : null,
-        ]);
+        DB::transaction(function () use ($announcement, $validated, $isRecruitment, $user): void {
+            $projectId = $validated['project_id'] ?? null;
+
+            if ($isRecruitment && $announcement->category !== 'Volunteer recruitment') {
+                Project::query()
+                    ->where('created_by', $user->id)
+                    ->whereIn('status', ['approved', 'csa_cleared'])
+                    ->lockForUpdate()
+                    ->findOrFail($projectId);
+
+                $alreadyHasRecruitment = Announcement::query()
+                    ->where('project_id', $projectId)
+                    ->where('category', 'Volunteer recruitment')
+                    ->where('id', '<>', $announcement->id)
+                    ->exists();
+
+                if ($alreadyHasRecruitment) {
+                    throw ValidationException::withMessages([
+                        'project_id' => 'This activity already has a volunteer-recruitment announcement. Edit that announcement instead.',
+                    ]);
+                }
+            }
+
+            $announcement->update([
+                'title' => $validated['title'],
+                'description' => $validated['description'] ?? null,
+                'category' => $validated['category'],
+                'project_id' => $projectId,
+                'slots_needed' => $isRecruitment ? ($validated['slots_needed'] ?? null) : null,
+                'application_deadline' => $isRecruitment && ! empty($validated['application_deadline'])
+                    ? Carbon::createFromFormat('Y-m-d\TH:i', $validated['application_deadline'], 'Asia/Manila')->utc()
+                    : null,
+                'event_date' => $isRecruitment ? ($validated['event_date'] ?? null) : null,
+                'event_location' => $isRecruitment ? ($validated['event_location'] ?? null) : null,
+                'latitude' => $isRecruitment ? ($validated['latitude'] ?? null) : null,
+                'longitude' => $isRecruitment ? ($validated['longitude'] ?? null) : null,
+            ]);
+        });
 
         $this->storeAttachments($request, $announcement);
 
@@ -198,9 +271,44 @@ class AnnouncementController extends Controller
             'status' => 'required|in:draft,published',
         ]);
 
-        $announcement->status = $validated['status'];
-        $announcement->published_at = $validated['status'] === 'published' ? now() : null;
-        $announcement->save();
+        $updateResult = DB::transaction(function () use ($announcement, $validated, $user): string {
+            if ($validated['status'] === 'published' && $announcement->category === 'Volunteer recruitment') {
+                $project = Project::query()
+                    ->where('created_by', $user->id)
+                    ->lockForUpdate()
+                    ->findOrFail($announcement->project_id);
+
+                if (! in_array($project->status, ['approved', 'csa_cleared'], true)) {
+                    return 'project_not_approved';
+                }
+
+                if (Announcement::query()
+                    ->where('project_id', $announcement->project_id)
+                    ->where('category', 'Volunteer recruitment')
+                    ->where('id', '<>', $announcement->id)
+                    ->exists()) {
+                    return 'duplicate';
+                }
+            }
+
+            $announcement->update([
+                'status' => $validated['status'],
+                'published_at' => $validated['status'] === 'published' ? now() : null,
+            ]);
+
+            return 'updated';
+        });
+
+        if ($updateResult === 'duplicate') {
+            return back()->withErrors([
+                'status' => 'Another volunteer-recruitment announcement already exists for this activity. Edit that post instead.',
+            ]);
+        }
+        if ($updateResult === 'project_not_approved') {
+            return back()->withErrors([
+                'status' => 'This activity must pass CELP/CSA approval before its recruitment announcement can be published.',
+            ]);
+        }
 
         $message = $validated['status'] === 'published'
             ? 'Announcement published successfully.'
@@ -243,6 +351,12 @@ class AnnouncementController extends Controller
     public function destroy(Request $request, Announcement $announcement)
     {
         $this->ensureAnnouncementOwner($request, $announcement);
+
+        if ($announcement->category === 'Volunteer recruitment') {
+            return back()->withErrors([
+                'announcement' => 'Volunteer-recruitment announcements are retained for this activity. Unpublish or edit the existing post instead of removing it.',
+            ]);
+        }
 
         foreach ($announcement->attachments as $attachment) {
             Storage::disk('public')->delete($attachment->file_path);
