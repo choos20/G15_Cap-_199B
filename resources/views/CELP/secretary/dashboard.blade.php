@@ -330,7 +330,7 @@
                                     <div class="csd-queue-meta">
                                         <x-organization-avatar :organization="$project->creator" :size="28" />
                                         <span>{{ $project->creator->organization_name ?? $project->creator->name ?? 'Unknown organization' }}</span>
-                                        <span>· Submitted {{ $project->created_at->diffForHumans() }}</span>
+                                        <span>· Submitted {{ $project->created_at?->diffForHumans() ?? 'Date unavailable' }}</span>
                                         <span>· {{ $project->attachments_count }} {{ \Illuminate\Support\Str::plural('attachment', $project->attachments_count) }}</span>
                                     </div>
                                 </div>
@@ -354,7 +354,7 @@
                             @foreach($recentTemplates as $template)
                                 <li>
                                     <a class="csd-template-link csd-focus" href="{{ route('templates.download', $template->id) }}">{{ $template->original_name }}</a>
-                                    <div class="csd-template-date">{{ $template->created_at->format('M j, Y') }}</div>
+                                    <div class="csd-template-date">{{ $template->created_at?->format('M j, Y') ?? 'Date unavailable' }}</div>
                                 </li>
                             @endforeach
                         </ul>
@@ -399,7 +399,7 @@
                         <div class="csd-oldest-meta">
                             <x-organization-avatar :organization="$oldestPending->creator" :size="28" />
                             <span>{{ $oldestPending->creator->organization_name ?? $oldestPending->creator->name ?? 'Unknown organization' }}</span>
-                            <span>· Waiting {{ $oldestPending->created_at->diffForHumans() }}</span>
+                            <span>· Waiting {{ $oldestPending->created_at?->diffForHumans() ?? 'Date unavailable' }}</span>
                         </div>
                     </div>
                     <a class="csd-review-link csd-focus" href="{{ route('projects.show_review', $oldestPending) }}">Review now</a>

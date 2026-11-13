@@ -312,7 +312,7 @@
                                 <div class="csa-queue-meta">
                                     <x-organization-avatar :organization="$project->creator" :size="28" />
                                     <span>{{ $project->creator->organization_name ?? $project->creator->name ?? 'Unknown organization' }}</span>
-                                    <span>· Submitted {{ $project->created_at->diffForHumans() }}</span>
+                                    <span>· Submitted {{ $project->created_at?->diffForHumans() ?? 'Date unavailable' }}</span>
                                     <span>· {{ $project->attachments_count }} {{ \Illuminate\Support\Str::plural('attachment', $project->attachments_count) }}</span>
                                 </div>
                             </div>
@@ -339,7 +339,7 @@
                                     <x-organization-avatar :organization="$org" :size="34" />
                                     <span class="csa-org-name">{{ $org->organization_name ?? $org->name }}</span>
                                 </a>
-                                <div class="csa-org-meta">Added {{ $org->created_at->diffForHumans() }}</div>
+                                <div class="csa-org-meta">Added {{ $org->created_at?->diffForHumans() ?? 'Date unavailable' }}</div>
                             </li>
                         @endforeach
                     </ul>

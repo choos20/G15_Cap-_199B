@@ -242,7 +242,7 @@
                 @else
                     <ul class="cd-queue">
                         @foreach($queue as $project)
-                            @php $daysPending = $project->created_at->diffInDays(now()); @endphp
+                            @php $daysPending = $project->created_at?->diffInDays(now()) ?? 0; @endphp
                             <li class="cd-queue-item {{ $loop->first ? 'is-oldest' : '' }}">
                                 <div class="cd-queue-main">
                                     <div class="cd-queue-titleline">
@@ -254,7 +254,7 @@
                                     <div class="cd-queue-meta">
                                         <x-organization-avatar :organization="$project->creator" :size="28" />
                                         <span>{{ $project->creator->organization_name ?? $project->creator->name ?? 'Unknown organization' }}</span>
-                                        <span>· Submitted {{ $project->created_at->diffForHumans() }}</span>
+                                        <span>· Submitted {{ $project->created_at?->diffForHumans() ?? 'Date unavailable' }}</span>
                                         <span>· {{ $project->attachments_count }} {{ \Illuminate\Support\Str::plural('attachment', $project->attachments_count) }}</span>
                                     </div>
                                 </div>
@@ -283,7 +283,7 @@
                         <div class="cd-oldest-title">{{ $oldestPending->title }}</div>
                         <div class="cd-oldest-meta">
                             {{ $oldestPending->creator->organization_name ?? $oldestPending->creator->name ?? 'Unknown organization' }}
-                            · Waiting {{ $oldestPending->created_at->diffForHumans() }}
+                            · Waiting {{ $oldestPending->created_at?->diffForHumans() ?? 'Date unavailable' }}
                         </div>
                         <a class="cd-review-link cd-focus" style="display:inline-flex; margin-top:10px" href="{{ route('projects.show_review', $oldestPending) }}">Review now</a>
                     </div>
@@ -417,7 +417,7 @@
                         @foreach($announcements as $announcement)
                             <li class="cd-announcement">
                                 <div class="cd-announcement-title">{{ $announcement->title }}</div>
-                                <div class="cd-announcement-date">{{ $announcement->published_at?->diffForHumans() ?? $announcement->created_at->diffForHumans() }}</div>
+                                <div class="cd-announcement-date">{{ $announcement->published_at?->diffForHumans() ?? $announcement->created_at?->diffForHumans() ?? 'Date unavailable' }}</div>
                             </li>
                         @endforeach
                     </ul>

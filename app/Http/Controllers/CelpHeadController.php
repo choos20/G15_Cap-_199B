@@ -65,7 +65,7 @@ class CelpHeadController extends Controller
         for ($offset = 5; $offset >= 0; $offset--) {
             $month = now()->startOfMonth()->subMonths($offset);
             $projectsInMonth = $trendProjects->filter(
-                fn (Project $project) => $project->created_at->format('Y-m') === $month->format('Y-m')
+                fn (Project $project) => $project->created_at?->format('Y-m') === $month->format('Y-m')
             );
 
             $projectTrend[] = [
@@ -81,10 +81,10 @@ class CelpHeadController extends Controller
         for ($offset = 6; $offset >= 1; $offset--) {
             $month = now()->startOfMonth()->subMonths($offset);
             $completedMonthProjectCounts[] = $trendProjects->filter(
-                fn (Project $project) => $project->created_at->format('Y-m') === $month->format('Y-m')
+                fn (Project $project) => $project->created_at?->format('Y-m') === $month->format('Y-m')
             )->count();
             $completedMonthAccountCounts[] = $trendAccounts->filter(
-                fn (User $account) => $account->created_at->format('Y-m') === $month->format('Y-m')
+                fn (User $account) => $account->created_at?->format('Y-m') === $month->format('Y-m')
             )->count();
         }
 

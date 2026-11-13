@@ -62,7 +62,7 @@ class CelpCoordinatorController extends Controller
         for ($offset = 5; $offset >= 0; $offset--) {
             $month = now()->startOfMonth()->subMonths($offset);
             $eventsInMonth = $reviewEvents->filter(
-                fn (AuditLog $event) => $event->created_at->format('Y-m') === $month->format('Y-m')
+                fn (AuditLog $event) => $event->created_at?->format('Y-m') === $month->format('Y-m')
             );
 
             $reviewTrend[] = [

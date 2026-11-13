@@ -379,7 +379,7 @@
                                 <div class="chd-project-main">
                                     <a class="chd-project-name chd-focus" href="{{ route('projects.all') }}">{{ $project->title }}</a>
                                     <div class="chd-project-org">{{ $project->creator->organization_name ?? $project->creator->name ?? 'Organization' }}</div>
-                                    <div class="chd-project-date">{{ $project->created_at->diffForHumans() }}</div>
+                                    <div class="chd-project-date">{{ $project->created_at?->diffForHumans() ?? 'Date unavailable' }}</div>
                                 </div>
                                 <span class="chd-project-status {{ $statusClass }}">{{ $statusLabel }}</span>
                             </li>
@@ -509,7 +509,7 @@
                         <div class="chd-oldest-meta">
                             <x-organization-avatar :organization="$oldestPending->creator" :size="26" />
                             <span>{{ $oldestPending->creator->organization_name ?? $oldestPending->creator->name ?? 'Unknown organization' }}</span>
-                            <span>· Waiting {{ $oldestPending->created_at->diffForHumans() }}</span>
+                            <span>· Waiting {{ $oldestPending->created_at?->diffForHumans() ?? 'Date unavailable' }}</span>
                             <a class="chd-panel-link chd-focus" href="{{ route('projects.show_review', $oldestPending) }}">Review now</a>
                         </div>
                     @else
