@@ -153,7 +153,6 @@
                     <option value="all">All offices</option>
                     <option value="celp">CELP</option>
                     <option value="csa">CSA</option>
-                    <option value="unknown">Source unavailable</option>
                 </select>
             </div>
 
