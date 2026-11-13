@@ -16,6 +16,8 @@ use Illuminate\Support\Facades\Auth;
  * @property string|null $subject_label
  * @property string $summary
  * @property array|null $context
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
  */
 class AuditLog extends Model
 {
