@@ -213,40 +213,77 @@ class StudentOrgController extends Controller
     {
         $this->ensureOrg($request);
         $user = $request->user();
-        $application->load('announcement.project', 'applicant');
 
-        if ($application->announcement->created_by !== $user->id) {
-            abort(403);
-        }
+        $result = DB::transaction(function () use ($application, $user): array {
+            $announcement = Announcement::query()
+                ->whereKey($application->announcement_id)
+                ->lockForUpdate()
+                ->firstOrFail();
 
-        if ($application->status !== 'pending') {
+            if ($announcement->created_by !== $user->id) {
+                abort(403);
+            }
+
+            $lockedApplication = VolunteerApplication::query()
+                ->whereKey($application->id)
+                ->lockForUpdate()
+                ->with('applicant')
+                ->firstOrFail();
+
+            if ($lockedApplication->status !== 'pending') {
+                return ['status' => 'decided'];
+            }
+
+            if ($announcement->isFull()) {
+                return ['status' => 'full'];
+            }
+
+            $lockedApplication->update([
+                'status' => 'approved',
+                'decided_by' => $user->id,
+                'decided_at' => now(),
+            ]);
+            $lockedApplication->setRelation('announcement', $announcement->load('project'));
+
+            $declinedApplications = collect();
+            if ($announcement->fresh()->isFull()) {
+                $declinedApplications = $announcement->applications()
+                    ->where('status', 'pending')
+                    ->with('applicant')
+                    ->lockForUpdate()
+                    ->get();
+
+                foreach ($declinedApplications as $pending) {
+                    $pending->update([
+                        'status' => 'declined',
+                        'decision_notes' => 'No slots available',
+                        'decided_by' => $user->id,
+                        'decided_at' => now(),
+                    ]);
+                    $pending->setRelation('announcement', $announcement);
+                }
+            }
+
+            return [
+                'status' => 'approved',
+                'application' => $lockedApplication,
+                'declined_applications' => $declinedApplications,
+            ];
+        });
+
+        if ($result['status'] === 'decided') {
             return back()->withErrors(['approve' => 'This application has already been decided.']);
         }
 
-        if ($application->announcement->isFull()) {
+        if ($result['status'] === 'full') {
             return back()->withErrors(['approve' => 'No slots remain for this activity.']);
         }
 
-        $application->update([
-            'status' => 'approved',
-            'decided_by' => $user->id,
-            'decided_at' => now(),
-        ]);
-
+        $application = $result['application'];
         $this->notifyApplicant($application, 'Volunteer application approved', "Your application for \"{$application->announcement->title}\" has been approved.");
 
-        // If this approval filled the last slot, the remaining pending applicants can no longer be accepted.
-        if ($application->announcement->fresh()->isFull()) {
-            $remaining = $application->announcement->applications()->where('status', 'pending')->with('applicant', 'announcement.project')->get();
-            foreach ($remaining as $pending) {
-                $pending->update([
-                    'status' => 'declined',
-                    'decision_notes' => 'No slots available',
-                    'decided_by' => $user->id,
-                    'decided_at' => now(),
-                ]);
-                $this->notifyApplicant($pending, 'No slots available', "\"{$application->announcement->title}\" has reached its volunteer capacity. Your application was not accepted this time.");
-            }
+        foreach ($result['declined_applications'] as $pending) {
+            $this->notifyApplicant($pending, 'No slots available', "\"{$application->announcement->title}\" has reached its volunteer capacity. Your application was not accepted this time.");
         }
 
         return back()->with('status', 'Application approved.');

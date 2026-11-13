@@ -37,6 +37,13 @@
             {{ session('status') }}
         </div>
     @endif
+    @if($errors->any())
+        <div class="card" role="alert" style="border-left:4px solid #dc2626; background:#fef2f2; color:#7f1d1d; padding:16px 20px; margin-bottom:20px">
+            @foreach($errors->all() as $error)
+                <div>{{ $error }}</div>
+            @endforeach
+        </div>
+    @endif
 
     <div class="card" style="padding:28px; margin-bottom:20px">
         <div class="ann-header">
@@ -63,6 +70,9 @@
                         {{ $announcement->status === 'published' ? 'Unpublish' : 'Publish' }}
                     </button>
                 </form>
+                @if($announcement->category === 'Volunteer recruitment')
+                    <span style="align-self:center; color:#64748b; font-size:0.85rem;">Recruitment retained for this activity</span>
+                @else
                 <form action="{{ route('student_org.announcements.destroy', $announcement) }}" method="POST" data-confirm
                       data-confirm-title="Remove announcement?"
                       data-confirm-body="{name} will be deleted and will no longer be visible to volunteers."
@@ -74,6 +84,7 @@
                     @method('DELETE')
                     <button type="submit" style="padding:10px 16px; border-radius:10px; background:#fef2f2; color:#b91c1c; border:1px solid #fecaca; font-weight:600; cursor:pointer;">Remove</button>
                 </form>
+                @endif
             </div>
         </div>
 
@@ -92,10 +103,16 @@
         </div>
 
         @if($announcement->slots_needed)
-            @php $visibilityIssue = $announcement->participantVisibilityIssue(); @endphp
+            @php
+                $visibilityIssue = $announcement->participantVisibilityIssue();
+                $applicationIssue = $announcement->participantApplicationIssue();
+            @endphp
             @if($visibilityIssue)
                 <div style="margin-top:16px; padding:12px 16px; border-radius:12px; background:#fffbeb; border:1px solid #fde68a; color:#92400e; font-size:0.9rem; font-weight:600;">
                     ⚠️ {{ $visibilityIssue }}
+            @elseif($applicationIssue)
+                <div style="margin-top:16px; padding:12px 16px; border-radius:12px; background:#fffbeb; border:1px solid #fde68a; color:#92400e; font-size:0.9rem; font-weight:600;">
+                    ⚠️ {{ $applicationIssue }} The post remains visible in the activity feed.
                 </div>
             @else
                 <div style="margin-top:16px; padding:12px 16px; border-radius:12px; background:#ecfdf5; border:1px solid #a7f3d0; color:#065f46; font-size:0.9rem; font-weight:600;">

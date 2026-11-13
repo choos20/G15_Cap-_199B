@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Http\Controllers\AnnouncementController;
 use App\Http\Controllers\ParticipantController;
 use App\Models\Announcement;
+use App\Models\Project;
 use App\Models\User;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Http\RedirectResponse;
@@ -103,6 +104,225 @@ class AnnouncementStatusTest extends TestCase
             'created_by' => $owner->id,
             'status' => 'draft',
             'published_at' => null,
+        ]);
+    }
+
+    public function test_only_one_volunteer_recruitment_announcement_can_be_created_per_project(): void
+    {
+        $owner = User::factory()->create(['role' => 'student_org']);
+        $projectId = $this->createProject($owner);
+        $this->mockAnnouncementRedirect();
+        $request = Request::create('/student-org/announcements', 'POST', [
+            'title' => 'First recruitment',
+            'category' => 'Volunteer recruitment',
+            'project_id' => $projectId,
+            'slots_needed' => 5,
+            'status' => 'draft',
+        ]);
+        $request->setUserResolver(fn () => $owner);
+
+        app(AnnouncementController::class)->store($request);
+
+        $duplicateRequest = Request::create('/student-org/announcements', 'POST', [
+            'title' => 'Duplicate recruitment',
+            'category' => 'Volunteer recruitment',
+            'project_id' => $projectId,
+            'slots_needed' => 10,
+            'status' => 'published',
+        ]);
+        $duplicateRequest->setUserResolver(fn () => $owner);
+
+        try {
+            app(AnnouncementController::class)->store($duplicateRequest);
+            $this->fail('A project must not have a second recruitment announcement.');
+        } catch (\Illuminate\Validation\ValidationException $exception) {
+            $this->assertArrayHasKey('project_id', $exception->errors());
+        }
+
+        $this->assertDatabaseCount('announcements', 1);
+        $this->assertDatabaseHas('announcements', [
+            'project_id' => $projectId,
+            'title' => 'First recruitment',
+            'status' => 'draft',
+        ]);
+    }
+
+    public function test_a_different_approved_project_can_have_its_own_recruitment(): void
+    {
+        $owner = User::factory()->create(['role' => 'student_org']);
+        $firstProjectId = $this->createProject($owner);
+        $secondProjectId = $this->createProject($owner);
+
+        foreach ([$firstProjectId, $secondProjectId] as $index => $projectId) {
+            $this->mockAnnouncementRedirect();
+            $request = Request::create('/student-org/announcements', 'POST', [
+                'title' => 'Recruitment '.($index + 1),
+                'category' => 'Volunteer recruitment',
+                'project_id' => $projectId,
+                'slots_needed' => 5,
+                'status' => 'draft',
+            ]);
+            $request->setUserResolver(fn () => $owner);
+
+            app(AnnouncementController::class)->store($request);
+        }
+
+        $this->assertDatabaseCount('announcements', 2);
+        $this->assertDatabaseHas('announcements', [
+            'project_id' => $firstProjectId,
+            'category' => 'Volunteer recruitment',
+        ]);
+        $this->assertDatabaseHas('announcements', [
+            'project_id' => $secondProjectId,
+            'category' => 'Volunteer recruitment',
+        ]);
+    }
+
+    public function test_existing_recruitment_can_be_edited_to_change_slot_count(): void
+    {
+        $owner = User::factory()->create(['role' => 'student_org']);
+        $projectId = $this->createProject($owner);
+        $announcement = Announcement::create([
+            'project_id' => $projectId,
+            'created_by' => $owner->id,
+            'title' => 'Existing recruitment',
+            'category' => 'Volunteer recruitment',
+            'status' => 'draft',
+            'slots_needed' => 5,
+        ]);
+        Announcement::create([
+            'project_id' => $projectId,
+            'created_by' => $owner->id,
+            'title' => 'Legacy duplicate',
+            'category' => 'Volunteer recruitment',
+            'status' => 'draft',
+            'slots_needed' => 5,
+        ]);
+        $redirector = \Mockery::mock(Redirector::class);
+        $response = new RedirectResponse('/student-org/announcements/'.$announcement->id);
+        $response->setSession($this->app['session.store']);
+        $redirector->shouldReceive('route')
+            ->once()
+            ->with('student_org.announcements.show', $announcement)
+            ->andReturn($response);
+        $this->app->instance('redirect', $redirector);
+
+        $request = Request::create('/student-org/announcements/'.$announcement->id, 'PUT', [
+            'title' => 'Existing recruitment',
+            'category' => 'Volunteer recruitment',
+            'project_id' => $projectId,
+            'slots_needed' => 8,
+        ]);
+        $request->setUserResolver(fn () => $owner);
+
+        app(AnnouncementController::class)->update($request, $announcement);
+
+        $this->assertDatabaseHas('announcements', [
+            'id' => $announcement->id,
+            'slots_needed' => 8,
+        ]);
+    }
+
+    public function test_existing_recruitment_cannot_be_moved_or_converted_to_general(): void
+    {
+        $owner = User::factory()->create(['role' => 'student_org']);
+        $projectId = $this->createProject($owner);
+        $otherProjectId = $this->createProject($owner);
+        $announcement = Announcement::create([
+            'project_id' => $projectId,
+            'created_by' => $owner->id,
+            'title' => 'Existing recruitment',
+            'category' => 'Volunteer recruitment',
+            'status' => 'draft',
+            'slots_needed' => 5,
+        ]);
+
+        foreach ([
+            ['category' => 'General', 'project_id' => $projectId],
+            ['category' => 'Volunteer recruitment', 'project_id' => $otherProjectId],
+        ] as $change) {
+            $request = Request::create('/student-org/announcements/'.$announcement->id, 'PUT', [
+                'title' => 'Edited recruitment',
+                ...$change,
+            ]);
+            $request->setUserResolver(fn () => $owner);
+
+            try {
+                app(AnnouncementController::class)->update($request, $announcement);
+                $this->fail('A recruitment announcement must remain attached to its original activity.');
+            } catch (\Illuminate\Validation\ValidationException $exception) {
+                $this->assertArrayHasKey('category', $exception->errors());
+            }
+        }
+
+        $this->assertDatabaseHas('announcements', [
+            'id' => $announcement->id,
+            'project_id' => $projectId,
+            'category' => 'Volunteer recruitment',
+        ]);
+    }
+
+    public function test_expired_or_full_recruitment_is_not_mislabeled_as_invisible(): void
+    {
+        $project = new Project(['status' => 'approved']);
+        $announcement = new Announcement([
+            'category' => 'Volunteer recruitment',
+            'project_id' => 1,
+            'status' => 'published',
+            'application_deadline' => now()->subHour(),
+            'slots_needed' => 5,
+            'approved_volunteers' => 2,
+        ]);
+        $announcement->setAttribute('approved_volunteers', 2);
+        $announcement->setRelation('project', $project);
+
+        $this->assertNull($announcement->participantVisibilityIssue());
+        $this->assertSame(
+            'Applications closed — the deadline has passed.',
+            $announcement->participantApplicationIssue()
+        );
+
+        $announcement->setAttribute('application_deadline', null);
+        $announcement->setAttribute('slots_needed', 2);
+
+        $this->assertNull($announcement->participantVisibilityIssue());
+        $this->assertSame(
+            'Recruitment full — no slots remain.',
+            $announcement->participantApplicationIssue()
+        );
+    }
+
+    public function test_duplicate_draft_recruitment_cannot_be_published(): void
+    {
+        $owner = User::factory()->create(['role' => 'student_org']);
+        $projectId = $this->createProject($owner);
+        Announcement::create([
+            'project_id' => $projectId,
+            'created_by' => $owner->id,
+            'title' => 'Existing recruitment',
+            'category' => 'Volunteer recruitment',
+            'status' => 'published',
+            'slots_needed' => 5,
+        ]);
+        $duplicate = Announcement::create([
+            'project_id' => $projectId,
+            'created_by' => $owner->id,
+            'title' => 'Duplicate draft',
+            'category' => 'Volunteer recruitment',
+            'status' => 'draft',
+            'slots_needed' => 5,
+        ]);
+        $this->mockBackRedirect();
+        $request = Request::create('/student-org/announcements/'.$duplicate->id.'/status', 'PATCH', [
+            'status' => 'published',
+        ]);
+        $request->setUserResolver(fn () => $owner);
+
+        app(AnnouncementController::class)->updateStatus($request, $duplicate);
+
+        $this->assertDatabaseHas('announcements', [
+            'id' => $duplicate->id,
+            'status' => 'draft',
         ]);
     }
 
@@ -328,6 +548,18 @@ class AnnouncementStatusTest extends TestCase
         $redirector->shouldReceive('route')
             ->once()
             ->with('student_org.announcements')
+            ->andReturn($response);
+
+        $this->app->instance('redirect', $redirector);
+    }
+
+    private function mockBackRedirect(): void
+    {
+        $redirector = \Mockery::mock(Redirector::class);
+        $response = new RedirectResponse('/student-org/announcements');
+        $response->setSession($this->app['session.store']);
+        $redirector->shouldReceive('back')
+            ->once()
             ->andReturn($response);
 
         $this->app->instance('redirect', $redirector);

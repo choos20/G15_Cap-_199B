@@ -137,22 +137,50 @@ class Announcement extends Model
      */
     public function participantVisibilityIssue(): ?string
     {
-        if ($this->slots_needed === null || $this->project_id === null) {
+        if (
+            $this->category !== 'Volunteer recruitment'
+            || $this->slots_needed === null
+            || $this->project_id === null
+        ) {
             return null;
         }
 
         if ($this->status !== 'published') {
-            return 'Still a draft — publish it to make it visible to volunteers.';
+            return 'Draft — publish it to make the recruitment visible to volunteers.';
         }
 
         if (! $this->project || ! in_array($this->project->status, ['approved', 'csa_cleared'])) {
             $projectTitle = $this->project?->title ?? 'the linked activity';
 
-            return "Not visible yet — \"{$projectTitle}\" hasn't finished CELP/CSA approval.";
+            return "Not visible — \"{$projectTitle}\" has not finished CELP/CSA approval.";
+        }
+
+        return null;
+    }
+
+    public function participantApplicationIssue(): ?string
+    {
+        if (
+            $this->category !== 'Volunteer recruitment'
+            || $this->slots_needed === null
+            || $this->project_id === null
+            || $this->status !== 'published'
+            || ! $this->project
+            || ! in_array($this->project->status, ['approved', 'csa_cleared'])
+        ) {
+            return null;
         }
 
         if ($this->application_deadline && $this->application_deadline->isPast()) {
-            return 'Not visible — the application deadline has already passed.';
+            return 'Applications closed — the deadline has passed.';
+        }
+
+        if ($this->event_date && $this->event_date->isPast()) {
+            return 'Applications closed — this activity has already started.';
+        }
+
+        if ($this->isFull()) {
+            return 'Recruitment full — no slots remain.';
         }
 
         return null;

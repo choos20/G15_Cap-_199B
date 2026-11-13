@@ -76,6 +76,9 @@
                 <div class="ann-edit-eyebrow">Announcement settings</div>
                 <h2 class="ann-edit-title">Edit your announcement</h2>
                 <p class="ann-edit-intro">Update the post and choose whether it is a volunteer opportunity or a general notice.</p>
+                @if($announcement->category === 'Volunteer recruitment')
+                    <p class="ann-edit-intro">This activity's recruitment is a single retained post. You can update its details and volunteer slots, but cannot move it to another activity or change it to a general announcement.</p>
+                @endif
             </div>
         </div>
         <form id="announcement-edit-form" method="POST" action="{{ route('student_org.announcements.update', $announcement) }}" enctype="multipart/form-data"
@@ -97,7 +100,7 @@
                             <span><strong>Volunteer recruitment</strong><span>Invite participants to apply for an approved activity.</span></span>
                         </label>
                         <label class="ann-edit-category">
-                            <input type="radio" name="category" value="General" required @checked($selectedCategory === 'General')>
+                            <input type="radio" name="category" value="General" required @checked($selectedCategory === 'General') @disabled($announcement->category === 'Volunteer recruitment')>
                             <span><strong>General announcement</strong><span>Share news and reminders, with an optional activity link.</span></span>
                         </label>
                     </div>
@@ -111,7 +114,7 @@
 
                 <div class="ann-edit-field" data-category-fields="linked-activity">
                     <label for="project_id">Link an approved activity <span style="font-weight:500; color:#74857d">(optional for general announcements)</span></label>
-                    <select id="project_id" name="project_id">
+                    <select id="project_id" name="project_id" @disabled($announcement->category === 'Volunteer recruitment')>
                         <option value="">No linked activity</option>
                         @foreach($projects as $project)
                             <option value="{{ $project->id }}" @selected((string) old('project_id', $announcement->project_id) === (string) $project->id)>
@@ -119,6 +122,9 @@
                             </option>
                         @endforeach
                     </select>
+                    @if($announcement->category === 'Volunteer recruitment')
+                        <input type="hidden" name="project_id" value="{{ $announcement->project_id }}">
+                    @endif
                     <div class="ann-edit-help" id="edit-project-help">Select the approved activity participants will apply to.</div>
                     @error('project_id')<div class="ann-edit-error">{{ $message }}</div>@enderror
                 </div>

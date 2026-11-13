@@ -82,6 +82,13 @@
             <div>{{ session('status') }}</div>
         </div>
     @endif
+    @if($errors->any())
+        <div class="card" role="alert" style="border-left:4px solid #dc2626; background:#fef2f2; color:#7f1d1d; padding:16px 20px; margin-bottom:20px">
+            @foreach($errors->all() as $error)
+                <div>{{ $error }}</div>
+            @endforeach
+        </div>
+    @endif
 
     <div class="card ann-create-card">
         <div class="ann-create-head">
@@ -134,10 +141,14 @@
                     <select id="announcement-project" name="project_id">
                         <option value="">No linked activity</option>
                         @foreach($approvedProjects as $project)
-                            <option value="{{ $project->id }}" @selected((string) old('project_id') === (string) $project->id)>{{ $project->title }} — {{ ucfirst(str_replace('_', ' ', $project->status)) }}</option>
+                            <option value="{{ $project->id }}" @selected((string) old('project_id') === (string) $project->id)>
+                                {{ $project->title }} — {{ ucfirst(str_replace('_', ' ', $project->status)) }}
+                                @if($existingRecruitments->has($project->id)) (recruitment already exists) @endif
+                            </option>
                         @endforeach
                     </select>
                     <div class="ann-create-help" id="announcement-project-help">Select the approved activity participants will apply to.</div>
+                    <div class="ann-create-help" id="existing-recruitment-notice" role="status" aria-live="polite" hidden></div>
                     @error('project_id')<div role="alert" style="color:#b91c1c; font-size:.88rem; margin-top:6px">{{ $message }}</div>@enderror
                 </div>
 
@@ -262,10 +273,12 @@
                                 <div style="font-size:1rem; font-weight:700; color:#0f172a;">{{ $announcement->title }}</div>
                                 @if($announcement->slots_needed)
                                     @if($announcement->participantVisibilityIssue())
-                                        <span style="font-size:0.75rem; font-weight:700; padding:3px 9px; border-radius:999px; background:#fffbeb; color:#92400e;">⚠️ Not visible to volunteers</span>
-                                    @else
-                                        <span style="font-size:0.75rem; font-weight:700; padding:3px 9px; border-radius:999px; background:#ecfdf5; color:#065f46;">✅ Visible to volunteers</span>
-                                    @endif
+                                            <span title="{{ $announcement->participantVisibilityIssue() }}" style="font-size:0.75rem; font-weight:700; padding:3px 9px; border-radius:999px; background:#fffbeb; color:#92400e;">⚠️ {{ $announcement->participantVisibilityIssue() }}</span>
+                                        @elseif($announcement->participantApplicationIssue())
+                                            <span title="{{ $announcement->participantApplicationIssue() }}" style="font-size:0.75rem; font-weight:700; padding:3px 9px; border-radius:999px; background:#fffbeb; color:#92400e;">⚠️ {{ $announcement->participantApplicationIssue() }}</span>
+                                        @else
+                                            <span style="font-size:0.75rem; font-weight:700; padding:3px 9px; border-radius:999px; background:#ecfdf5; color:#065f46;">✅ Visible to volunteers</span>
+                                        @endif
                                 @endif
                             </div>
                             <div style="font-size:0.9rem; color:#64748b; margin-top:6px;">{{ $announcement->category }} · {{ ucfirst($announcement->status) }} · {{ $announcement->created_at->diffForHumans() }}</div>
@@ -273,6 +286,9 @@
                         <div style="display:flex; gap:10px; align-items:center;">
                             <span style="font-size:0.85rem; color:#475569;">{{ $announcement->attachments->count() }} files</span>
                             <a href="{{ route('student_org.announcements.show', $announcement) }}" style="color:#2563eb; text-decoration:none; font-weight:700;">View</a>
+                            @if($announcement->category === 'Volunteer recruitment')
+                                <a href="{{ route('student_org.announcements.edit', $announcement) }}" style="color:#0b7656; text-decoration:none; font-weight:700;">Edit</a>
+                            @endif
                             <form action="{{ route('student_org.announcements.status', $announcement) }}" method="POST"
                                   @if($announcement->status === 'published')
                                       data-confirm
@@ -289,6 +305,9 @@
                                     {{ $announcement->status === 'published' ? 'Unpublish' : 'Publish' }}
                                 </button>
                             </form>
+                            @if($announcement->category === 'Volunteer recruitment')
+                                <span style="font-size:0.82rem; color:#64748b;">Recruitment retained for this activity</span>
+                            @else
                             <form action="{{ route('student_org.announcements.destroy', $announcement) }}" method="POST" data-confirm
                                   data-confirm-title="Remove announcement?"
                                   data-confirm-body="{name} will be deleted and will no longer be visible to volunteers."
@@ -300,6 +319,7 @@
                                 @method('DELETE')
                                 <button type="submit" style="color:#b91c1c; background:none; border:none; padding:0; font-weight:700; cursor:pointer; font-size:0.95rem; text-decoration:underline;">Remove</button>
                             </form>
+                            @endif
                         </div>
                     </div>
                 @endforeach
@@ -406,8 +426,12 @@
             if (!categoryInputs.length || !project || !projectHelp || !categoryHint) return;
             const recruitmentFields = document.querySelectorAll('[data-category-fields="recruitment"]');
             const slotsNeeded = document.getElementById('announcement-slots-needed');
+            const existingRecruitments = @json($existingRecruitments->all());
+            const recruitmentNotice = document.getElementById('existing-recruitment-notice');
+            const submitButtons = document.querySelectorAll('button[type="submit"][name="status"]');
             const syncCategoryFields = () => {
                 const isRecruitment = document.querySelector('input[name="category"]:checked')?.value === 'Volunteer recruitment';
+                const existing = isRecruitment ? existingRecruitments[project.value] || [] : [];
 
                 project.required = isRecruitment;
                 slotsNeeded.required = isRecruitment;
@@ -425,6 +449,26 @@
                     });
                 });
 
+                submitButtons.forEach((button) => {
+                    button.disabled = existing.length > 0;
+                });
+                recruitmentNotice.hidden = existing.length === 0;
+                recruitmentNotice.replaceChildren();
+                if (existing.length > 0) {
+                    recruitmentNotice.append(document.createTextNode(
+                        'This activity already has a recruitment announcement. Edit the existing post instead: '
+                    ));
+                    existing.forEach((announcement, index) => {
+                        if (index > 0) recruitmentNotice.append(document.createTextNode(' · '));
+                        const link = document.createElement('a');
+                        link.href = announcement.url;
+                        link.textContent = announcement.title + ' (' + announcement.status + ')';
+                        link.style.color = '#08734e';
+                        link.style.fontWeight = '700';
+                        recruitmentNotice.append(link);
+                    });
+                }
+
                 const map = document.getElementById('ann-location-map')?._leafletMap;
                 if (isRecruitment && map) {
                     window.setTimeout(() => map.invalidateSize(), 150);
@@ -432,6 +476,7 @@
             };
 
             categoryInputs.forEach((input) => input.addEventListener('change', syncCategoryFields));
+            project.addEventListener('change', syncCategoryFields);
             syncCategoryFields();
         });
     </script>
