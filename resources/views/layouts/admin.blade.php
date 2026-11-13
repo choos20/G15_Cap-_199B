@@ -9,6 +9,7 @@
         :root{--sidebar:#0b2926;--sidebar-deep:#08211f;--accent:#13b886;--muted:#6b7280;--card:#ffffff;--text:#0b2a2a}
         *{box-sizing:border-box}
         body{font-family:Inter,system-ui,Segoe UI,Roboto,Arial; margin:0; background:#f6f7fb; color:var(--text); font-size:15px}
+        body.nav-open{overflow:hidden}
         .app-shell{display:flex; min-height:100vh}
         .sidebar{position:sticky; top:0; width:260px; height:100vh; flex:0 0 260px; overflow:hidden; background:radial-gradient(ellipse at 15% 0%,#12463d 0%,transparent 42%),linear-gradient(180deg,var(--sidebar) 0%,var(--sidebar-deep) 100%); color:#e6f7f2; padding:22px 16px 16px; display:flex; flex-direction:column; border-right:1px solid rgba(255,255,255,0.06);}
         .brand{display:flex; align-items:center; gap:12px; margin-bottom:18px; padding:0 4px}
@@ -48,7 +49,8 @@
         .profile-avatar-action{width:100%; margin-top:9px; padding:8px 10px; border:1px solid #0b7656; border-radius:8px; background:#0b7656; color:#fff; font:inherit; font-size:.8rem; font-weight:700; cursor:pointer}
         .profile-avatar-action.is-remove{border-color:#fecaca; background:#fff; color:#b91c1c}
         .profile-avatar-error{margin-top:8px; color:#b91c1c; font-size:.75rem; line-height:1.4}
-        .main{flex:1; padding:28px}
+        .main{flex:1; min-width:0; padding:28px}
+        .content{min-width:0; max-width:100%; overflow-x:hidden}
         .topbar{display:flex; align-items:center; justify-content:space-between; margin-bottom:18px; gap:14px; flex-wrap:wrap}
         .topbar input{padding:10px 12px; border-radius:10px; border:1px solid #e6e9ef; min-width:180px; transition:border-color 180ms ease, box-shadow 180ms ease}
         .topbar-actions{display:flex; align-items:center; gap:12px; flex-wrap:nowrap; min-width:0}
@@ -81,36 +83,45 @@
         .search-dropdown .item-subtitle{font-size:0.9rem; color:#64748b}
         .search-empty{padding:18px 16px; color:#64748b; font-size:0.95rem}
         .search-hint{font-size:0.82rem; color:#475569; opacity:0.85; margin-top:4px}
+        .mobile-menu-toggle,.mobile-nav-backdrop{display:none}
         @media (max-width:900px){
-            .app-shell{flex-direction:column}
-            .sidebar{position:relative; top:auto; width:100%; height:auto; min-width:auto; flex:0 0 auto; overflow:visible; padding:18px 16px}
-            .main{padding:18px 16px}
-            .topbar{flex-direction:column; align-items:stretch; gap:14px}
-            .topbar > div{width:100%; display:flex; flex-wrap:wrap; justify-content:space-between; gap:12px}
+            .sidebar{position:fixed; inset:0 auto 0 0; z-index:100; width:min(86vw,320px); height:100dvh; min-width:0; flex:0 0 auto; overflow-y:auto; padding:18px 16px; transform:translateX(-105%); transition:transform 180ms ease; box-shadow:14px 0 34px rgba(2,8,8,0.22)}
+            .sidebar.is-open{transform:translateX(0)}
+            .sidebar-footer{order:1; margin:0 0 10px; padding:12px 0; border-top:0; border-bottom:1px solid rgba(255,255,255,0.1)}
+            .sidebar-footer .profile-avatar-menu{margin-top:0 !important}
+            .nav{order:2; overflow:visible}
+            .main{width:100%; padding:18px 16px}
+            .mobile-menu-toggle{display:inline-flex; align-items:center; justify-content:center; flex:0 0 auto; width:42px; height:42px; padding:0; border:1px solid #dce5e2; border-radius:11px; background:#fff; color:#0b2a2a; cursor:pointer}
+            .mobile-menu-toggle svg{width:21px; height:21px}
+            .mobile-nav-backdrop{position:fixed; inset:0; z-index:90; background:rgba(2,8,8,0.42)}
+            .mobile-nav-backdrop.is-visible{display:block}
+            .topbar{position:sticky; top:0; z-index:50; align-items:center; padding:6px 0 12px; background:#f6f7fb; gap:10px}
+            .topbar .title-group{display:flex; align-items:center; min-width:0; flex:1}
+            .topbar .title-group h2{min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:clamp(1.05rem,4vw,1.35rem)}
+            .topbar .title-group > div{display:none}
+            .topbar-actions{margin-left:auto; gap:8px}
+            .topbar a.logout{padding:8px 10px; font-size:.82rem}
+            .topbar > div{min-width:0}
             .topbar input{min-width:0; width:100%}
-            .cards{grid-template-columns:repeat(2,1fr)}
+            .cards{grid-template-columns:repeat(2,minmax(0,1fr))}
             .chart-row, .two-col-panel{grid-template-columns:1fr}
-            .sidebar .nav{flex-direction:row; flex-wrap:wrap; gap:8px; overflow:visible}
-            .sidebar .nav a{flex:1 1 calc(50% - 8px); white-space:nowrap}
-            .sidebar .nav .nav-group{flex:1 1 calc(50% - 8px)}
-            .sidebar .nav .nav-group summary{white-space:nowrap}
-            .sidebar .nav .nav-group-links a{flex:initial; white-space:normal}
-            .sidebar-footer{margin-top:18px}
         }
         @media (max-width:640px){
             .cards{grid-template-columns:1fr}
-            .sidebar .nav a{flex:1 1 100%}
-            .sidebar .nav .nav-group{flex:1 1 100%}
-            .topbar > div{flex-direction:column; align-items:stretch}
             .main{padding:16px 12px}
             .sidebar{padding:14px 12px}
             .button-row a{min-width:0; width:100%}
+            .topbar-actions .logout{font-size:0; width:42px; height:42px; padding:0; display:inline-flex; align-items:center; justify-content:center}
+            .topbar-actions .logout::before{content:'↪'; font-size:1.2rem}
+            .responsive-grid-2{grid-template-columns:1fr}
+            .quick-action-card{min-height:88px; padding:14px}
+            .content table{display:block; max-width:100%; overflow-x:auto; white-space:nowrap}
         }
     </style>
 </head>
 <body>
 <div class="app-shell">
-    <aside class="sidebar">
+    <aside class="sidebar" id="mobile-sidebar">
         <div class="brand">
             <img src="{{ asset('images/Logo_nobg.png') }}" alt="ProjectLink logo" style="width:44px; height:44px; border-radius:10px; object-fit:contain; background:#ffffff; padding:6px" />
             <div>
@@ -222,9 +233,14 @@
         </div>
     </aside>
 
+    <div class="mobile-nav-backdrop" id="mobile-nav-backdrop"></div>
+
     <main class="main">
         <div class="topbar">
-            <div style="display:flex; align-items:center; gap:14px">
+            <div class="title-group" style="display:flex; align-items:center; gap:14px">
+                <button type="button" class="mobile-menu-toggle" id="mobile-menu-toggle" aria-label="Open navigation" aria-controls="mobile-sidebar" aria-expanded="false">
+                    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                </button>
                 <h2 style="margin:0">@yield('title')</h2>
                 <div style="color:var(--muted)">@yield('subtitle','')</div>
             </div>
@@ -275,6 +291,32 @@
     </main>
 </div>
 <script>
+    (() => {
+        const menuButton = document.getElementById('mobile-menu-toggle');
+        const sidebar = document.getElementById('mobile-sidebar');
+        const backdrop = document.getElementById('mobile-nav-backdrop');
+        if (!menuButton || !sidebar || !backdrop) return;
+
+        const closeMenu = () => {
+            sidebar.classList.remove('is-open');
+            backdrop.classList.remove('is-visible');
+            document.body.classList.remove('nav-open');
+            menuButton.setAttribute('aria-expanded', 'false');
+        };
+
+        menuButton.addEventListener('click', () => {
+            const open = sidebar.classList.toggle('is-open');
+            backdrop.classList.toggle('is-visible', open);
+            document.body.classList.toggle('nav-open', open);
+            menuButton.setAttribute('aria-expanded', open ? 'true' : 'false');
+        });
+        backdrop.addEventListener('click', closeMenu);
+        sidebar.querySelectorAll('a').forEach((link) => link.addEventListener('click', closeMenu));
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape') closeMenu();
+        });
+    })();
+
     // The global search box was removed from the topbar; its script was deleted
     // with it. Anything added here must null-guard its elements - an uncaught
     // TypeError in this block stops every later handler from registering.
