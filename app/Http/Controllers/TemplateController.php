@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Template;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 
 /**
@@ -94,6 +95,18 @@ class TemplateController extends Controller
 
         $file = $request->file('template');
         $originalName = $file->getClientOriginalName();
+        $storedPath = $file->store('templates', 'public');
+        $attributes = [
+            'original_name' => $originalName,
+            'file_path' => $storedPath,
+            'uploaded_by' => $request->user()->id,
+            'source' => Template::sourceForRole($request->user()->role),
+        ];
+
+        if ($this->ensureFileDataColumns()) {
+            $attributes['file_data'] = $file->get();
+            $attributes['file_mime'] = $file->getMimeType();
+        }
 
         if (Template::where('original_name', $originalName)->exists()) {
             return back()
@@ -101,12 +114,7 @@ class TemplateController extends Controller
                 ->withInput();
         }
 
-        Template::create([
-            'original_name' => $originalName,
-            'file_path' => $file->store('templates', 'public'),
-            'uploaded_by' => $request->user()->id,
-            'source' => Template::sourceForRole($request->user()->role),
-        ]);
+        Template::create($attributes);
 
         return redirect()->route('templates.manage')->with('status', 'Template uploaded.');
     }
@@ -124,11 +132,18 @@ class TemplateController extends Controller
 
         $file = $request->file('template');
         $oldPath = $template->file_path;
-
-        $template->update([
+        $newPath = $file->store('templates', 'public');
+        $attributes = [
             'original_name' => $file->getClientOriginalName(),
-            'file_path' => $file->store('templates', 'public'),
-        ]);
+            'file_path' => $newPath,
+        ];
+
+        if ($this->ensureFileDataColumns()) {
+            $attributes['file_data'] = $file->get();
+            $attributes['file_mime'] = $file->getMimeType();
+        }
+
+        $template->update($attributes);
 
         // Only drop the previous file once the new one is safely recorded.
         if ($oldPath && $oldPath !== $template->file_path) {
@@ -151,12 +166,43 @@ class TemplateController extends Controller
     /** Downloading is open to every authenticated user. */
     public function download(Request $request, Template $template)
     {
-        $path = storage_path('app/public/' . $template->file_path);
+        if ($this->ensureFileDataColumns() && $template->file_data) {
+            $data = $template->file_data;
 
-        if (! file_exists($path)) {
+            if (is_resource($data)) {
+                $data = stream_get_contents($data);
+            }
+            if (is_string($data) && str_starts_with($data, '\\x')) {
+                $data = hex2bin(substr($data, 2));
+            }
+
+            return response()->streamDownload(
+                static function () use ($data): void {
+                    echo $data;
+                },
+                $template->original_name,
+                ['Content-Type' => $template->file_mime ?: 'application/octet-stream']
+            );
+        }
+
+        if (! $template->file_path || ! Storage::disk('public')->exists($template->file_path)) {
             abort(404);
         }
 
-        return response()->download($path, $template->original_name);
+        return Storage::disk('public')->download($template->file_path, $template->original_name);
+    }
+
+    private function ensureFileDataColumns(): bool
+    {
+        if (Schema::hasColumn('templates', 'file_data')) {
+            return true;
+        }
+
+        Schema::table('templates', function ($table): void {
+            $table->binary('file_data')->nullable();
+            $table->string('file_mime', 150)->nullable();
+        });
+
+        return true;
     }
 }

@@ -22,7 +22,7 @@ class Template extends Model
         'csa' => 'CSA',
     ];
 
-    protected $fillable = ['original_name', 'file_path', 'uploaded_by', 'source'];
+    protected $fillable = ['original_name', 'file_path', 'file_data', 'file_mime', 'uploaded_by', 'source'];
 
     public static function sourceForRole(string $role): ?string
     {
