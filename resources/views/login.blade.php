@@ -6,6 +6,11 @@
     <style>
         .password-field { position: relative; }
         .password-field input { padding-right: 50px; }
+        .password-field input::-ms-reveal,
+        .password-field input::-ms-clear,
+        .password-field input::-webkit-credentials-auto-fill-button {
+            display: none !important;
+        }
         /* Cover browser-native password controls so the app has one consistent icon. */
         .password-field::after {
             content: '';
