@@ -43,7 +43,7 @@ return [
             // in production so uploads survive App Platform rebuilds.
             'driver' => env('FILESYSTEM_PUBLIC_DRIVER', 'local'),
             'root' => storage_path('app/public'),
-            'url' => env('FILESYSTEM_PUBLIC_URL', rtrim(env('APP_URL', 'http://localhost'), '/').'/storage'),
+            'url' => env('FILESYSTEM_PUBLIC_URL', env('AWS_URL', rtrim(env('APP_URL', 'http://localhost'), '/').'/storage')),
             'visibility' => 'public',
             'key' => env('AWS_ACCESS_KEY_ID'),
             'secret' => env('AWS_SECRET_ACCESS_KEY'),
