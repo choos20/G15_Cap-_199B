@@ -106,8 +106,23 @@
             const toggle = document.getElementById('password-toggle');
             if (!password || !toggle) return;
 
+            const updateIcon = () => {
+                const isVisible = password.type === 'text';
+                toggle.innerHTML = isVisible
+                    ? '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><circle cx="12" cy="12" r="2.5" stroke="currentColor" stroke-width="1.8"/><path d="m3 3 18 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>'
+                    : '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><circle cx="12" cy="12" r="2.5" stroke="currentColor" stroke-width="1.8"/></svg>';
+            };
+
             const updateToggle = () => {
-                toggle.hidden = password.value.length === 0;
+                if (password.value.length === 0) {
+                    password.type = 'password';
+                    toggle.setAttribute('aria-label', 'Show password');
+                    toggle.setAttribute('aria-pressed', 'false');
+                    toggle.hidden = true;
+                } else {
+                    toggle.hidden = false;
+                }
+                updateIcon();
             };
 
             password.addEventListener('input', updateToggle);
@@ -116,6 +131,7 @@
                 password.type = isVisible ? 'password' : 'text';
                 toggle.setAttribute('aria-label', isVisible ? 'Show password' : 'Hide password');
                 toggle.setAttribute('aria-pressed', isVisible ? 'false' : 'true');
+                updateIcon();
             });
             updateToggle();
         })();
