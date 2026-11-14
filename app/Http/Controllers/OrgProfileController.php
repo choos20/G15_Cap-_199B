@@ -81,7 +81,9 @@ class OrgProfileController extends Controller
 
         if ($request->hasFile('org_logo')) {
             $this->deleteLogo($org);
-            $org->org_logo = $request->file('org_logo')->store('org_logos', 'public');
+            $org->org_logo = null;
+            $org->org_logo_data = $request->file('org_logo')->get();
+            $org->org_logo_mime = $request->file('org_logo')->getMimeType();
         }
 
         $org->fill([
@@ -127,6 +129,8 @@ class OrgProfileController extends Controller
         $this->deleteLogo($org);
 
         $org->org_logo = null;
+        $org->org_logo_data = null;
+        $org->org_logo_mime = null;
         $org->org_profile_updated_at = now();
         $org->save();
 

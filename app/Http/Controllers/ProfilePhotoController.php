@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 
 class ProfilePhotoController extends Controller
 {
@@ -14,15 +13,10 @@ class ProfilePhotoController extends Controller
         ]);
 
         $user = $request->user();
-        $newPath = $validated['profile_photo']->store('profile_photos', 'public');
-        if (! is_string($newPath) || $newPath === '') {
-            throw new \RuntimeException('The profile photo could not be stored.');
-        }
-
-        $oldPath = $user->profile_photo_path;
-        $user->profile_photo_path = $newPath;
+        $user->profile_photo_path = null;
+        $user->profile_photo_data = $validated['profile_photo']->get();
+        $user->profile_photo_mime = $validated['profile_photo']->getMimeType();
         $user->save();
-        $this->deleteStoredPhoto($oldPath, 'profile_photos/');
 
         return back()->with('status', 'Profile photo updated.');
     }
@@ -30,18 +24,11 @@ class ProfilePhotoController extends Controller
     public function destroy(Request $request)
     {
         $user = $request->user();
-        $oldPath = $user->profile_photo_path;
         $user->profile_photo_path = null;
+        $user->profile_photo_data = null;
+        $user->profile_photo_mime = null;
         $user->save();
-        $this->deleteStoredPhoto($oldPath, 'profile_photos/');
 
         return back()->with('status', 'Profile photo removed.');
-    }
-
-    private function deleteStoredPhoto(?string $path, string $directory): void
-    {
-        if ($path && str_starts_with($path, $directory)) {
-            Storage::disk('public')->delete($path);
-        }
     }
 }

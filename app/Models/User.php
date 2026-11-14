@@ -60,6 +60,10 @@ class User extends Authenticatable
         'organization_name',
         'org_logo',
         'profile_photo_path',
+        'profile_photo_data',
+        'profile_photo_mime',
+        'org_logo_data',
+        'org_logo_mime',
         'org_description',
         'org_acronym',
         'org_college',
@@ -245,6 +249,10 @@ class User extends Authenticatable
      */
     public function orgLogoUrl(): ?string
     {
+        if ($this->org_logo_data) {
+            return $this->imageDataUrl($this->org_logo_data, $this->org_logo_mime);
+        }
+
         if (! $this->org_logo) {
             return null;
         }
@@ -256,9 +264,22 @@ class User extends Authenticatable
 
     public function profilePhotoUrl(): ?string
     {
+        if ($this->profile_photo_data) {
+            return $this->imageDataUrl($this->profile_photo_data, $this->profile_photo_mime);
+        }
+
         return $this->profile_photo_path
             ? Storage::disk('public')->url($this->profile_photo_path)
             : null;
+    }
+
+    private function imageDataUrl(mixed $data, ?string $mime): string
+    {
+        if (is_resource($data)) {
+            $data = stream_get_contents($data);
+        }
+
+        return 'data:' . ($mime ?: 'application/octet-stream') . ';base64,' . base64_encode((string) $data);
     }
 
     /** Goals are stored one per line; split for display. */
