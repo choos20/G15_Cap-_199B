@@ -132,6 +132,14 @@ class TemplateController extends Controller
         $request->validate(['template' => self::UPLOAD_RULES], self::UPLOAD_MESSAGES);
 
         $file = $request->file('template');
+        $newContents = $file->get();
+
+        if ($this->isSameTemplateFile($template, $newContents)) {
+            return back()
+                ->withErrors(['template' => 'This is already the current file. Please choose a different file to replace it.'])
+                ->withInput();
+        }
+
         $oldPath = $template->file_path;
         $newPath = $file->store('templates', 'public');
         $attributes = [
@@ -140,7 +148,7 @@ class TemplateController extends Controller
         ];
 
         if ($this->ensureFileDataColumns()) {
-            $attributes['file_data'] = $this->binaryValue($file->get());
+            $attributes['file_data'] = $this->binaryValue($newContents);
             $attributes['file_mime'] = $file->getMimeType();
         }
 
@@ -210,5 +218,35 @@ class TemplateController extends Controller
     private function binaryValue(string $data): mixed
     {
         return DB::raw("decode('" . base64_encode($data) . "', 'base64')");
+    }
+
+    private function isSameTemplateFile(Template $template, string $newContents): bool
+    {
+        $currentContents = $this->templateContents($template);
+
+        return $currentContents !== null
+            && hash('sha256', $currentContents) === hash('sha256', $newContents);
+    }
+
+    private function templateContents(Template $template): ?string
+    {
+        if ($this->ensureFileDataColumns() && $template->file_data) {
+            $data = $template->file_data;
+
+            if (is_resource($data)) {
+                $data = stream_get_contents($data);
+            }
+            if (is_string($data) && str_starts_with($data, '\\x')) {
+                $data = hex2bin(substr($data, 2));
+            }
+
+            return is_string($data) ? $data : null;
+        }
+
+        if ($template->file_path && Storage::disk('public')->exists($template->file_path)) {
+            return Storage::disk('public')->get($template->file_path);
+        }
+
+        return null;
     }
 }
