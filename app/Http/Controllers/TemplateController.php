@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Template;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 
@@ -104,7 +105,7 @@ class TemplateController extends Controller
         ];
 
         if ($this->ensureFileDataColumns()) {
-            $attributes['file_data'] = $file->get();
+            $attributes['file_data'] = $this->binaryValue($file->get());
             $attributes['file_mime'] = $file->getMimeType();
         }
 
@@ -139,7 +140,7 @@ class TemplateController extends Controller
         ];
 
         if ($this->ensureFileDataColumns()) {
-            $attributes['file_data'] = $file->get();
+            $attributes['file_data'] = $this->binaryValue($file->get());
             $attributes['file_mime'] = $file->getMimeType();
         }
 
@@ -204,5 +205,10 @@ class TemplateController extends Controller
         });
 
         return true;
+    }
+
+    private function binaryValue(string $data): mixed
+    {
+        return DB::raw("decode('" . base64_encode($data) . "', 'base64')");
     }
 }

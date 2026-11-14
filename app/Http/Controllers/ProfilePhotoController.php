@@ -47,7 +47,7 @@ class ProfilePhotoController extends Controller
 
         if (Schema::hasColumn('users', 'profile_photo_data')) {
             $user->profile_photo_path = null;
-            $user->profile_photo_data = $validated['profile_photo']->get();
+            $user->profile_photo_data = DB::raw("decode('" . base64_encode($validated['profile_photo']->get()) . "', 'base64')");
             $user->profile_photo_mime = $validated['profile_photo']->getMimeType();
         } else {
             $user->profile_photo_path = $validated['profile_photo']->store('profile_photos', 'public');
