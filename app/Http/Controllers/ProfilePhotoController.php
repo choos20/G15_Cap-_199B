@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class ProfilePhotoController extends Controller
 {
@@ -23,11 +24,14 @@ class ProfilePhotoController extends Controller
 
     public function destroy(Request $request)
     {
-        $user = $request->user();
-        $user->profile_photo_path = null;
-        $user->profile_photo_data = null;
-        $user->profile_photo_mime = null;
-        $user->save();
+        DB::table('users')
+            ->where('id', $request->user()->id)
+            ->update([
+                'profile_photo_path' => null,
+                'profile_photo_data' => null,
+                'profile_photo_mime' => null,
+                'updated_at' => now(),
+            ]);
 
         return back()->with('status', 'Profile photo removed.');
     }

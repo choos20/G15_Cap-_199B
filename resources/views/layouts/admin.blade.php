@@ -212,7 +212,7 @@
                                 @enderror
                                 <button class="profile-avatar-action" type="submit">Save image</button>
                             </form>
-                            @if(auth()->user()->profile_photo_path)
+                            @if(auth()->user()->profile_photo_path || auth()->user()->profile_photo_data)
                                 <form method="POST" action="{{ route('account.profile-photo.destroy') }}" data-confirm
                                       data-confirm-title="Remove profile photo?"
                                       data-confirm-body="Your account will return to its initials avatar."
