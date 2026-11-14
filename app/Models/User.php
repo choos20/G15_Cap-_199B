@@ -264,13 +264,11 @@ class User extends Authenticatable
 
     public function profilePhotoUrl(): ?string
     {
-        if ($this->profile_photo_data) {
-            return $this->imageDataUrl($this->profile_photo_data, $this->profile_photo_mime);
+        if ($this->profile_photo_data || $this->profile_photo_path) {
+            return route('account.profile-photo.show');
         }
 
-        return $this->profile_photo_path
-            ? Storage::disk('public')->url($this->profile_photo_path)
-            : null;
+        return null;
     }
 
     private function imageDataUrl(mixed $data, ?string $mime): string
