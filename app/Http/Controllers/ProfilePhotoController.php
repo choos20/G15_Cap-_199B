@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Storage;
 
 class ProfilePhotoController extends Controller
 {
@@ -14,24 +16,47 @@ class ProfilePhotoController extends Controller
         ]);
 
         $user = $request->user();
-        $user->profile_photo_path = null;
-        $user->profile_photo_data = $validated['profile_photo']->get();
-        $user->profile_photo_mime = $validated['profile_photo']->getMimeType();
+        $oldPath = $user->profile_photo_path;
+
+        if (Schema::hasColumn('users', 'profile_photo_data')) {
+            $user->profile_photo_path = null;
+            $user->profile_photo_data = $validated['profile_photo']->get();
+            $user->profile_photo_mime = $validated['profile_photo']->getMimeType();
+        } else {
+            $user->profile_photo_path = $validated['profile_photo']->store('profile_photos', 'public');
+        }
+
         $user->save();
+
+        if ($oldPath && Storage::disk('public')->exists($oldPath)) {
+            Storage::disk('public')->delete($oldPath);
+        }
 
         return back()->with('status', 'Profile photo updated.');
     }
 
     public function destroy(Request $request)
     {
-        DB::table('users')
-            ->where('id', $request->user()->id)
-            ->update([
-                'profile_photo_path' => null,
-                'profile_photo_data' => null,
-                'profile_photo_mime' => null,
-                'updated_at' => now(),
-            ]);
+        $user = $request->user();
+        $oldPath = $user->profile_photo_path;
+
+        if (Schema::hasColumn('users', 'profile_photo_data')) {
+            DB::table('users')
+                ->where('id', $user->id)
+                ->update([
+                    'profile_photo_path' => null,
+                    'profile_photo_data' => null,
+                    'profile_photo_mime' => null,
+                    'updated_at' => now(),
+                ]);
+        } else {
+            $user->profile_photo_path = null;
+            $user->save();
+        }
+
+        if ($oldPath && Storage::disk('public')->exists($oldPath)) {
+            Storage::disk('public')->delete($oldPath);
+        }
 
         return back()->with('status', 'Profile photo removed.');
     }
