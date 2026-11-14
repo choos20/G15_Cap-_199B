@@ -55,8 +55,10 @@
         .topbar input{padding:10px 12px; border-radius:10px; border:1px solid #e6e9ef; min-width:180px; transition:border-color 180ms ease, box-shadow 180ms ease}
         .topbar-actions{display:flex; align-items:center; gap:12px; flex-wrap:nowrap; min-width:0}
         .search-wrapper{position:relative; max-width:360px; width:100%; min-width:0}
-        .topbar a.logout{color:#0b2a2a; background:#f8fdf6; padding:8px 12px; border-radius:8px; text-decoration:none; border:1px solid transparent; transition:background 180ms ease, border-color 180ms ease, color 180ms ease, box-shadow 180ms ease}
-        .topbar a.logout:hover{background:#dcf9e2; border-color:#12b886; color:#064134; box-shadow:0 8px 20px rgba(18,184,134,0.16)}
+        .topbar a.logout{display:inline-flex; align-items:center; gap:8px; color:#0b2a2a; background:#fff; padding:9px 13px; border:1px solid #dce5e2; border-radius:11px; text-decoration:none; font-size:.86rem; font-weight:700; line-height:1; transition:background 180ms ease, border-color 180ms ease, color 180ms ease, box-shadow 180ms ease, transform 180ms ease}
+        .topbar a.logout svg{width:18px; height:18px; flex:0 0 18px; color:#087c5b; transition:transform 180ms ease}
+        .topbar a.logout:hover{background:#ecfdf5; border-color:#6ee7b7; color:#064134; box-shadow:0 8px 20px rgba(18,184,134,0.16); transform:translateY(-1px)}
+        .topbar a.logout:hover svg{transform:translateX(2px)}
         .topbar input:focus{border-color:#12b886; box-shadow:0 0 0 4px rgba(18,184,134,0.12)}
         .cards{display:grid; grid-template-columns:repeat(5,1fr); gap:18px; margin-bottom:22px}
         .card{background:var(--card); padding:18px; border-radius:12px; box-shadow:0 6px 18px rgba(11,42,42,0.06); transition:box-shadow 180ms ease, border-color 180ms ease}
@@ -112,7 +114,7 @@
             .sidebar{padding:14px 12px}
             .button-row a{min-width:0; width:100%}
             .topbar-actions .logout{font-size:0; width:42px; height:42px; padding:0; display:inline-flex; align-items:center; justify-content:center}
-            .topbar-actions .logout::before{content:'↪'; font-size:1.2rem}
+            .topbar-actions .logout svg{width:20px; height:20px; flex-basis:20px}
             .responsive-grid-2{grid-template-columns:1fr}
             .quick-action-card{min-height:88px; padding:14px}
             .content table{display:block; max-width:100%; overflow-x:auto; white-space:nowrap}
@@ -281,7 +283,13 @@
                     </div>
                 </div>
 
-                <a href="{{ route('logout') }}" class="logout">Logout</a>
+                <a href="{{ route('logout') }}" class="logout" aria-label="Logout" title="Logout">
+                    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                        <path d="M13 5H6.5A1.5 1.5 0 0 0 5 6.5v11A1.5 1.5 0 0 0 6.5 19H13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        <path d="M12 12h8m0 0-3.5-3.5M20 12l-3.5 3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <span>Logout</span>
+                </a>
             </div>
         </div>
 
