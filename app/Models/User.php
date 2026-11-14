@@ -7,6 +7,7 @@ use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Storage;
 
 /**
  * App\Models\User
@@ -250,13 +251,13 @@ class User extends Authenticatable
 
         return preg_match('#^https?://#i', $this->org_logo)
             ? $this->org_logo
-            : asset('storage/' . $this->org_logo);
+            : Storage::disk('public')->url($this->org_logo);
     }
 
     public function profilePhotoUrl(): ?string
     {
         return $this->profile_photo_path
-            ? asset('storage/' . $this->profile_photo_path)
+            ? Storage::disk('public')->url($this->profile_photo_path)
             : null;
     }
 
