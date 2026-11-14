@@ -5,11 +5,19 @@
 @section('content')
     <style>
         .password-field { position: relative; }
-        .password-field input { padding-right: 50px; }
+        .password-field input {
+            padding-right: 50px;
+            appearance: none;
+            -webkit-appearance: none;
+            -ms-appearance: none;
+        }
         .password-field input::-ms-reveal,
         .password-field input::-ms-clear,
         .password-field input::-webkit-credentials-auto-fill-button {
             display: none !important;
+            visibility: hidden !important;
+            width: 0 !important;
+            height: 0 !important;
         }
         .password-toggle {
             position: absolute;
@@ -126,6 +134,7 @@
             };
 
             password.addEventListener('input', updateToggle);
+            toggle.addEventListener('mousedown', (event) => event.preventDefault());
             toggle.addEventListener('click', () => {
                 const isVisible = password.type === 'text';
                 password.type = isVisible ? 'password' : 'text';
