@@ -1222,7 +1222,7 @@ Route::middleware('auth')->group(function () {
 
     Route::post('/account/profile-photo', [ProfilePhotoController::class, 'update'])
         ->name('account.profile-photo.update');
-    Route::get('/account/profile-photo/view', [ProfilePhotoController::class, 'show'])
+    Route::get('/account/profile-photo/view/{user}', [ProfilePhotoController::class, 'show'])
         ->name('account.profile-photo.show');
     Route::delete('/account/profile-photo', [ProfilePhotoController::class, 'destroy'])
         ->name('account.profile-photo.destroy');

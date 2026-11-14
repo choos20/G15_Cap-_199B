@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
@@ -9,9 +10,8 @@ use Illuminate\Support\Facades\Storage;
 
 class ProfilePhotoController extends Controller
 {
-    public function show(Request $request)
+    public function show(Request $request, User $user)
     {
-        $user = $request->user();
         $mime = $user->profile_photo_mime ?: 'image/jpeg';
         $data = $user->profile_photo_data;
 

@@ -265,7 +265,7 @@ class User extends Authenticatable
     public function profilePhotoUrl(): ?string
     {
         if ($this->profile_photo_data || $this->profile_photo_path) {
-            return route('account.profile-photo.show');
+            return route('account.profile-photo.show', ['user' => $this->getKey()]);
         }
 
         return null;
