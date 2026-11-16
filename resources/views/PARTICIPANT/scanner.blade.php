@@ -5,6 +5,11 @@
 
 @section('content')
     <style>
+        .qs-invalid{display:flex;align-items:center;gap:12px;padding:14px 16px;margin:0 auto 20px;max-width:1120px;box-sizing:border-box;border:1px solid #fecaca;border-radius:15px;background:#fdf5f5;color:#171717}
+        .qs-invalid-icon{display:flex;align-items:center;justify-content:center;flex:0 0 38px;width:38px;height:38px;border-radius:11px;background:#fee2e2;color:#ef4444}
+        .qs-invalid-copy{flex:1;min-width:0}.qs-invalid-copy strong{font-size:.9rem;font-weight:600}.qs-invalid-copy p{margin:5px 0 0;font-size:.8rem;color:#525252;line-height:1.5}
+        .qs-invalid-badge{flex-shrink:0;padding:3px 8px;border-radius:999px;background:#fecaca;color:#dc2626;font-size:.68rem;letter-spacing:.02em}
+        @media(max-width:480px){.qs-invalid{gap:10px;padding:12px}.qs-invalid-copy strong{font-size:.85rem}.qs-invalid-badge{padding:3px 6px}}
         .qs-layout { display:grid; grid-template-columns:minmax(0,1.2fr) minmax(300px,0.8fr); gap:20px; align-items:start; }
         .qs-card { min-width:0; padding:24px; }
         .qs-guide { display:flex; flex-direction:column; gap:18px; }
@@ -52,7 +57,16 @@
         }
     </style>
 
-    @if($errors->any())
+    @if($errors->has('code'))
+        <div class="qs-invalid" role="alert">
+            <span class="qs-invalid-icon" aria-hidden="true">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 4H5a1 1 0 0 0-1 1v3m12-4h3a1 1 0 0 1 1 1v3M4 16v3a1 1 0 0 0 1 1h3m8 0h3a1 1 0 0 0 1-1v-3M8 12h8"/></svg>
+            </span>
+            <div class="qs-invalid-copy"><strong>QR Code Not Recognized</strong><p>Please scan a valid ProjectLink attendance QR code.</p></div>
+            <span class="qs-invalid-badge">Invalid</span>
+        </div>
+    @endif
+    @if($errors->any() && ! $errors->has('code'))
         <div class="card" style="border-left:4px solid #dc2626; background:#fef2f2; color:#7f1d1d; padding:16px 20px; margin-bottom:20px">
             @foreach($errors->all() as $error)
                 <div>{{ $error }}</div>
@@ -120,6 +134,11 @@
     </div>
 
     <style>
+        .qs-invalid{display:flex;align-items:center;gap:12px;padding:14px 16px;margin:0 auto 20px;max-width:1120px;box-sizing:border-box;border:1px solid #fecaca;border-radius:15px;background:#fdf5f5;color:#171717}
+        .qs-invalid-icon{display:flex;align-items:center;justify-content:center;flex:0 0 38px;width:38px;height:38px;border-radius:11px;background:#fee2e2;color:#ef4444}
+        .qs-invalid-copy{flex:1;min-width:0}.qs-invalid-copy strong{font-size:.9rem;font-weight:600}.qs-invalid-copy p{margin:5px 0 0;font-size:.8rem;color:#525252;line-height:1.5}
+        .qs-invalid-badge{flex-shrink:0;padding:3px 8px;border-radius:999px;background:#fecaca;color:#dc2626;font-size:.68rem;letter-spacing:.02em}
+        @media(max-width:480px){.qs-invalid{gap:10px;padding:12px}.qs-invalid-copy strong{font-size:.85rem}.qs-invalid-badge{padding:3px 6px}}
     .qs-layout{max-width:1120px;margin:auto}.qs-card>p{font-size:.9rem;line-height:1.5}.qs-reticle{inset:auto;top:50%;left:50%;width:210px;height:210px;transform:translate(-50%,-50%);border:0;border-radius:16px}.qs-reticle i{position:absolute;width:32px;height:32px;border:4px solid #34d399}.qs-reticle i:nth-child(1){top:0;left:0;border-right:0;border-bottom:0;border-radius:12px 0 0}.qs-reticle i:nth-child(2){top:0;right:0;border-left:0;border-bottom:0;border-radius:0 12px 0 0}.qs-reticle i:nth-child(3){bottom:0;left:0;border-right:0;border-top:0;border-radius:0 0 0 12px}.qs-reticle i:nth-child(4){bottom:0;right:0;border-left:0;border-top:0;border-radius:0 0 12px}.qs-reticle span{position:absolute;top:10px;left:8px;right:8px;height:2px;background:#6ee7b7;box-shadow:0 0 14px #34d399;animation:qs-sweep 2.5s ease-in-out infinite alternate}@keyframes qs-sweep{to{transform:translateY(188px)}}#qs-start{width:100%;font-size:1rem;box-shadow:0 6px 16px #08734e22}.qs-secondary{background:#f8fafc;color:#334155;border:1px solid #cbd5e1}.qs-status.busy:before{content:'';display:inline-block;width:12px;height:12px;border:2px solid #a7f3d0;border-top-color:#047857;border-radius:50%;margin-right:8px;animation:qs-spin .8s linear infinite}@keyframes qs-spin{to{transform:rotate(360deg)}}.qs-guide summary{cursor:pointer;font-weight:700}.qs-idle{box-sizing:border-box;max-width:320px;margin:auto;line-height:1.6}.qs-fallback label{display:block;font-size:.85rem;margin-bottom:8px}.qs-fallback input{box-sizing:border-box}@media(prefers-reduced-motion:reduce){.qs-reticle span,.qs-status.busy:before{animation:none}}@media(max-width:760px){.qs-card{padding:18px}.qs-guide{gap:12px}.qs-guide-card{padding:18px}}
     </style>
     <script src="https://unpkg.com/jsqr@1.4.0/dist/jsQR.js" crossorigin="anonymous"></script>
