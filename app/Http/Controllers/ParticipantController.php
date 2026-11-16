@@ -139,20 +139,10 @@ class ParticipantController extends Controller
             })
             ->get([
                 'attendance_sessions.project_id',
-                'attendance_sessions.closes_at',
-                'projects.title as project_title',
+                'projects.created_by as organization_id',
                 'attendance_sessions.opens_at',
             ]);
-        $completedActivityIds = $attendanceRecords
-            ->filter(fn ($record) => ! $record->closes_at || Carbon::parse($record->closes_at)->isPast())
-            ->pluck('project_id')->filter()->unique();
-        $ongoingActivityIds = $attendanceRecords
-            ->filter(fn ($record) => $record->closes_at && Carbon::parse($record->opens_at)->lte(now()) && Carbon::parse($record->closes_at)->gte(now()))
-            ->pluck('project_id')->filter()->unique();
-        $completedActivityIds = $completedActivityIds->diff($ongoingActivityIds);
-        $timelineActivities = $attendanceRecords
-            ->filter(fn ($record) => filled($record->project_id))
-            ->sortByDesc('opens_at')->unique('project_id')->take(3)->values();
+        $organizationsSupported = $attendanceRecords->pluck('organization_id')->filter()->unique()->count();
 
         $participationMonths = collect(range(0, 5))
             ->map(function (int $offset) use ($monthStart) {
@@ -199,11 +189,12 @@ class ParticipantController extends Controller
             'participantAnnouncements' => $participantAnnouncements,
             'participationMonths' => $participationMonths,
             'totalAttendedActivities' => $participationMonths->sum('count'),
+            'organizationsSupported' => $organizationsSupported,
             'upcomingCount' => $upcomingCount,
-            'completedActivityCount' => $completedActivityIds->count(),
-            'ongoingActivityCount' => $ongoingActivityIds->count(),
-            'involvementTotal' => $completedActivityIds->count() + $ongoingActivityIds->count() + $upcomingCount,
-            'timelineActivities' => $timelineActivities,
+            'completedActivityCount' => $participationMonths->sum('count'),
+            'ongoingActivityCount' => 0,
+            'involvementTotal' => $participationMonths->sum('count') + $upcomingCount,
+            'timelineActivities' => collect(),
         ]);
     }
 
