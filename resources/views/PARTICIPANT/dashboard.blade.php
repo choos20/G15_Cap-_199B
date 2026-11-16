@@ -29,6 +29,11 @@
         .pd-stat-label { color:#475569; font-size:0.85rem; font-weight:700; line-height:1.4; }
         .pd-stat-value { margin-top:3px; color:#102e2a; font-size:1.8rem; font-weight:800; line-height:1.1; }
         .pd-stat-arrow { margin-left:auto; color:#678179; font-size:1.2rem; }
+        .pd-impact { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; margin:-2px 0 20px; }
+        .pd-impact-card { display:flex; align-items:center; gap:13px; min-width:0; padding:16px 18px; border:1px solid #dcece4; border-radius:15px; background:linear-gradient(115deg,#fff 0%,#f4faf6 100%); }
+        .pd-impact-icon { display:flex; align-items:center; justify-content:center; width:42px; height:42px; flex:0 0 42px; border-radius:13px; background:#e1f3e9; color:#08734e; }
+        .pd-impact-label { color:#64766f; font-size:.78rem; font-weight:700; line-height:1.35; }
+        .pd-impact-value { display:block; margin-top:2px; color:#123d33; font-size:1.35rem; font-weight:850; line-height:1.15; }
         .pd-panels { display:grid; grid-template-columns:minmax(0,1.8fr) minmax(280px,0.9fr); gap:18px; align-items:stretch; }
         .pd-panel { min-width:0; padding:22px; border:1px solid #e8edf0; border-radius:16px; background:#fff; box-shadow:0 6px 18px rgba(11,42,42,0.045); }
         .pd-panel-head { display:flex; align-items:center; justify-content:space-between; gap:14px; margin-bottom:16px; }
@@ -36,12 +41,14 @@
         .pd-panel-icon { display:flex; align-items:center; justify-content:center; width:36px; height:36px; flex:0 0 36px; border-radius:12px; background:#e9f7f0; color:#08734e; }
         .pd-panel-link { color:#08734e; font-size:0.84rem; font-weight:700; text-decoration:none; white-space:nowrap; }
         .pd-panel-link:hover { text-decoration:underline; }
-        .pd-opportunities { display:flex; flex-direction:column; gap:10px; }
-        .pd-opportunity { display:flex; align-items:center; justify-content:space-between; gap:14px; padding:14px 15px; border:1px solid #e6edf0; border-radius:12px; background:#fbfdfc; }
+        .pd-opportunities { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
+        .pd-opportunity { display:flex; flex-direction:column; gap:14px; min-width:0; padding:16px; border:1px solid #e2ece7; border-radius:14px; background:linear-gradient(145deg,#fff 0%,#f8fcf9 100%); transition:transform 160ms ease,box-shadow 160ms ease; }
+        .pd-opportunity:hover { transform:translateY(-2px); box-shadow:0 10px 22px rgba(11,65,45,.07); }
+        .pd-opportunity-kicker { display:inline-flex; align-items:center; gap:6px; width:max-content; max-width:100%; padding:5px 9px; border-radius:999px; background:#eaf7ef; color:#08734e; font-size:.72rem; font-weight:800; }
         .pd-opportunity-org { display:flex; align-items:center; gap:8px; min-width:0; }
         .pd-opportunity-title { color:#172f2a; font-size:0.92rem; font-weight:700; line-height:1.4; }
         .pd-opportunity-meta { margin-top:4px; color:#71817c; font-size:0.82rem; line-height:1.45; }
-        .pd-view-link { flex-shrink:0; color:#08734e; font-size:0.84rem; font-weight:700; text-decoration:none; }
+        .pd-view-link { display:inline-flex; align-items:center; gap:7px; width:max-content; margin-top:auto; padding:9px 12px; border:1px solid #cfe5d8; border-radius:9px; background:#fff; color:#08734e; font-size:0.82rem; font-weight:750; text-decoration:none; }
         .pd-view-link:hover { text-decoration:underline; }
         .pd-empty { display:flex; align-items:center; gap:20px; min-height:188px; padding:24px; border-radius:12px; background:linear-gradient(120deg,#f8fcf9,#f2f8f5); }
         .pd-empty-art { display:flex; align-items:center; justify-content:center; width:112px; height:112px; flex:0 0 112px; border-radius:50%; background:#e1f2e9; color:#16815a; }
@@ -80,6 +87,8 @@
         }
         @media (max-width:700px) {
             .pd-stats { grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
+            .pd-impact { gap:9px; }
+            .pd-impact-card { align-items:flex-start; flex-direction:column; gap:9px; padding:13px; }
             .pd-stat { padding:15px 13px; gap:10px; }
             .pd-stat-icon { width:42px; height:42px; flex-basis:42px; }
             .pd-stat-label { font-size:0.78rem; }
@@ -89,6 +98,9 @@
         }
         @media (max-width:480px) {
             .pd-stats { grid-template-columns:minmax(0,1fr); }
+            .pd-impact { grid-template-columns:minmax(0,1fr); }
+            .pd-impact-card { align-items:center; flex-direction:row; }
+            .pd-opportunities { grid-template-columns:minmax(0,1fr); }
             .pd-panel { padding:17px; }
             .pd-empty { flex-direction:column; align-items:flex-start; gap:14px; padding:18px; }
             .pd-empty-art { width:76px; height:76px; flex-basis:76px; }
@@ -140,6 +152,27 @@
         </a>
     </section>
 
+    <section class="pd-impact" aria-label="Your community impact">
+        <article class="pd-impact-card">
+            <span class="pd-impact-icon" aria-hidden="true">
+                <svg width="21" height="21" viewBox="0 0 24 24" fill="none"><path d="M4 19V5m0 14h16M8 15l4-4 3 2 5-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </span>
+            <span><span class="pd-impact-label">Activities attended · last 6 months</span><span class="pd-impact-value">{{ $totalAttendedActivities }}</span></span>
+        </article>
+        <article class="pd-impact-card">
+            <span class="pd-impact-icon" aria-hidden="true">
+                <svg width="21" height="21" viewBox="0 0 24 24" fill="none"><path d="M16 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2m7-10a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm7-7.5a4 4 0 0 1 0 7.75M17 15h1a4 4 0 0 1 4 4v2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+            </span>
+            <span><span class="pd-impact-label">Organizations supported</span><span class="pd-impact-value">{{ $organizationsSupported }}</span></span>
+        </article>
+        <article class="pd-impact-card">
+            <span class="pd-impact-icon" aria-hidden="true">
+                <svg width="21" height="21" viewBox="0 0 24 24" fill="none"><rect x="4" y="5" width="16" height="16" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="M8 3v4m8-4v4M4 10h16m-8 3v4m-2-2h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+            </span>
+            <span><span class="pd-impact-label">Upcoming activities</span><span class="pd-impact-value">{{ $upcomingCount }}</span></span>
+        </article>
+    </section>
+
     <section class="pd-panels">
         <div class="pd-panel">
             <div class="pd-panel-head">
@@ -171,6 +204,7 @@
                     @foreach($feedPreview as $opportunity)
                         <li class="pd-opportunity">
                             <div style="min-width:0">
+                                <span class="pd-opportunity-kicker">Volunteer opportunity</span>
                                 <div class="pd-opportunity-title">{{ $opportunity->title }}</div>
                                 <div class="pd-opportunity-meta pd-opportunity-org">
                                     <x-organization-avatar :organization="$opportunity->creator" :size="28" />
@@ -180,7 +214,13 @@
                                     @endif
                                 </div>
                             </div>
-                            <a class="pd-view-link" href="{{ route('participant.activities.show', $opportunity) }}">View details</a>
+                            @if($opportunity->event_location)
+                                <div class="pd-opportunity-meta">{{ $opportunity->event_location }}</div>
+                            @endif
+                            @if($opportunity->slots_needed)
+                                <div class="pd-opportunity-meta">{{ max(0, $opportunity->slots_needed - $opportunity->approved_volunteers) }} spots available</div>
+                            @endif
+                            <a class="pd-view-link" href="{{ route('participant.activities.show', $opportunity) }}">View opportunity <span aria-hidden="true">→</span></a>
                         </li>
                     @endforeach
                 </ul>
@@ -269,7 +309,7 @@
                     <span class="pd-panel-icon" aria-hidden="true">
                         <svg width="19" height="19" viewBox="0 0 24 24" fill="none"><path d="M4 19V5m0 14h17M8 15l4-4 3 2 5-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
                     </span>
-                    My participation
+                    Activity timeline
                 </h3>
                 <p class="pd-chart-summary">Activities attended per month · last 6 months</p>
             </div>

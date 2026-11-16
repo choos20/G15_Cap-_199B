@@ -95,6 +95,9 @@ class ParticipantController extends Controller
             ->filter(fn ($a) => $a->announcement && $a->announcement->event_date && $a->announcement->event_date->isFuture())
             ->sortBy(fn ($a) => $a->announcement->event_date)
             ->first();
+        $upcomingCount = $applications->where('status', 'approved')
+            ->filter(fn ($a) => $a->announcement && $a->announcement->event_date && $a->announcement->event_date->isFuture())
+            ->count();
 
         $feedPreview = $this->filterParticipantOpportunitiesByStatus(
             $this->participantOpportunities(),
@@ -116,6 +119,7 @@ class ParticipantController extends Controller
         $participationByMonth = collect();
         $attendanceRecords = AttendanceRecord::query()
             ->join('attendance_sessions', 'attendance_sessions.id', '=', 'attendance_records.session_id')
+            ->leftJoin('projects', 'projects.id', '=', 'attendance_sessions.project_id')
             ->where('attendance_records.user_id', $user->id)
             ->whereBetween('attendance_sessions.opens_at', [$monthStart, now()])
             ->where(function ($query) {
@@ -135,8 +139,10 @@ class ParticipantController extends Controller
             })
             ->get([
                 'attendance_sessions.project_id',
+                'projects.created_by as organization_id',
                 'attendance_sessions.opens_at',
             ]);
+        $organizationsSupported = $attendanceRecords->pluck('organization_id')->filter()->unique()->count();
 
         $participationMonths = collect(range(0, 5))
             ->map(function (int $offset) use ($monthStart) {
@@ -183,6 +189,8 @@ class ParticipantController extends Controller
             'participantAnnouncements' => $participantAnnouncements,
             'participationMonths' => $participationMonths,
             'totalAttendedActivities' => $participationMonths->sum('count'),
+            'organizationsSupported' => $organizationsSupported,
+            'upcomingCount' => $upcomingCount,
         ]);
     }
 
