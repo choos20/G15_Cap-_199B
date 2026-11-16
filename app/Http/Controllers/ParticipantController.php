@@ -280,7 +280,14 @@ class ParticipantController extends Controller
             && $announcement->project
             && in_array($announcement->project->status, ['approved', 'csa_cleared'], true);
 
-        if ($announcement->status !== 'published' || (! $isGeneralAnnouncement && ! $isRecruitmentAnnouncement)) {
+        $isParticipantApplication = VolunteerApplication::where('announcement_id', $announcement->id)
+            ->where('user_id', $request->user()->id)
+            ->exists();
+
+        if (
+            (! $isParticipantApplication && $announcement->status !== 'published')
+            || (! $isParticipantApplication && ! $isGeneralAnnouncement && ! $isRecruitmentAnnouncement)
+        ) {
             abort(404);
         }
 
