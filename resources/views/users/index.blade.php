@@ -210,8 +210,8 @@
                         <tr class="ua-row" data-role="{{ $u->role }}">
                             <td data-label="Name">
                                 <div class="ua-name-cell">
-                                    @if($u->orgLogoUrl())
-                                        <img src="{{ $u->orgLogoUrl() }}" alt="" class="ua-logo-thumb">
+                                    @if($u->role === 'student_org')
+                                        <x-organization-avatar :organization="$u" :size="38" />
                                     @else
                                         <x-profile-avatar :name="$u->name" :photo-url="$u->profilePhotoUrl()" :size="38" />
                                     @endif
