@@ -86,10 +86,7 @@
             @endif
 
             <div class="ac-actions">
-                <a href="{{ route(dashboard_route_for(auth()->user())) }}" class="ac-btn ac-primary">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M3 11l9-8 9 8M5 10v10h14V10" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
-                    Back to dashboard
-                </a>
+                <x-back-button href="{{ route(dashboard_route_for(auth()->user())) }}">Back to dashboard</x-back-button>
                 <a href="{{ route('users.create') }}" class="ac-btn ac-secondary">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
                     Create another account

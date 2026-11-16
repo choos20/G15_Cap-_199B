@@ -55,7 +55,7 @@
         .sv-modal-note a { color:#93c5fd; }
     </style>
 
-    <a href="{{ route('participant.activities') }}" style="display:inline-flex; align-items:center; gap:8px; color:#2563eb; text-decoration:none; font-weight:700; margin-bottom:18px;">&larr; Back to activities</a>
+    <x-back-button href="{{ route('participant.activities') }}">Back to activities</x-back-button>
 
     @if(session('status'))
         <div class="card" style="border-left:4px solid #16a34a; background:#ecfdf5; color:#134e4a; padding:16px 20px; margin-bottom:20px">

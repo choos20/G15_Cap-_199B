@@ -290,7 +290,7 @@
                     @error('attachments.*')<div class="error-text">{{ $message }}</div>@enderror
                 </div>
                 <div class="upload-actions">
-                    <a href="{{ route('student_org.dashboard') }}" class="button-secondary">Back to Dashboard</a>
+                    <x-back-button href="{{ route('student_org.dashboard') }}">Back to Dashboard</x-back-button>
                     <button type="submit" class="button-primary">Submit</button>
                 </div>
             </form>

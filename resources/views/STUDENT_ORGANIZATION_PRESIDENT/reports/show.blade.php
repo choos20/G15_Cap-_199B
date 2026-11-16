@@ -34,7 +34,7 @@
         @media(max-width:700px) { .or-actions { width:100%; margin-left:0; } .or-actions>* { flex:1; } .or-feedback { grid-template-columns:1fr; } .or-criterion { grid-template-columns:1fr 48px; gap:6px 10px; } .or-track { grid-column:1/-1; grid-row:2; } }
         @media print { .sidebar,.topbar,.or-toolbar,.or-back,.or-no-print { display:none!important; } .main,.content,body { padding:0!important; margin:0!important; background:#fff!important; } }
     </style>
-    <a class="or-back" href="{{ route('student_org.reports') }}">&larr; All performance reports</a>
+    <x-back-button href="{{ route('student_org.reports') }}">Back to performance reports</x-back-button>
     <form method="GET" class="or-toolbar">
         <div class="or-field">
             <label for="ay">Academic year</label>

@@ -22,7 +22,7 @@
         .leaflet-control-attribution { padding:2px 5px !important; font-size:10px !important; line-height:1.3 !important; }
     </style>
 
-    <a href="{{ route('activities.index') }}" style="display:inline-flex; align-items:center; gap:8px; color:#2563eb; text-decoration:none; font-weight:700; margin-bottom:18px;">&larr; Back to activities</a>
+    <x-back-button href="{{ route('activities.index') }}">Back to activities</x-back-button>
 
     @php
         $isRecruiting = $announcement->slots_needed !== null;

@@ -37,7 +37,7 @@
         @media print { .sidebar, .topbar, .cr-toolbar, .cr-back, .cr-no-print { display:none !important; } .main, .content, body { padding:0!important; margin:0!important; background:#fff!important; } }
     </style>
 
-    <a class="cr-back" href="{{ route($reportRoutes['index']) }}">&larr; All reports</a>
+    <x-back-button href="{{ route($reportRoutes['index']) }}">Back to reports</x-back-button>
 
     <form method="GET" class="cr-toolbar">
         <div class="cr-field">

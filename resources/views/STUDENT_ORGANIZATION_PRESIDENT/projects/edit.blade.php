@@ -286,7 +286,7 @@
                 @endif
 
                 <div class="upload-actions">
-                    <a href="{{ route('student_org.notifications') }}" class="button-secondary">Back to Notifications</a>
+                    <x-back-button href="{{ route('student_org.notifications') }}">Back to Notifications</x-back-button>
                     <button type="submit" class="button-primary">Resubmit Proposal</button>
                 </div>
             </form>

@@ -175,7 +175,7 @@
             </div>
 
             <div class="cu-actions">
-                <a href="{{ route('users.index') }}" class="cu-btn-secondary">Back to user list</a>
+                <x-back-button href="{{ route('users.index') }}">Back to user list</x-back-button>
                 <button type="submit" class="cu-btn-primary">Save changes</button>
             </div>
         </div>

@@ -30,7 +30,7 @@
         .ann-lightbox-close { position:absolute; top:24px; right:32px; color:#fff; font-size:2rem; background:none; border:none; cursor:pointer; line-height:1; }
     </style>
 
-    <a href="{{ route('student_org.announcements') }}" class="ann-back">&larr; Back to announcements</a>
+    <x-back-button href="{{ route('student_org.announcements') }}">Back to announcements</x-back-button>
 
     @if(session('status'))
         <div class="card" style="border-left:4px solid #16a34a; background:#ecfdf5; color:#134e4a; padding:16px 20px; margin-bottom:20px">

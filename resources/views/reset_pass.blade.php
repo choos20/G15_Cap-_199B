@@ -4,7 +4,7 @@
 
 @section('content')
     <div class="page-card">
-        <a class="back-link" href="{{ route('login') }}">&larr; Back</a>
+        <x-back-button href="{{ route('login') }}">Back to login</x-back-button>
         <div class="section-title">Reset Password</div>
 
         @if(session('status'))

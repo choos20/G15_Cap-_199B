@@ -66,7 +66,7 @@
         .op-back-link:focus-visible { outline:3px solid rgba(37,99,235,0.35); outline-offset:2px; }
     </style>
 
-    <a class="op-back-link" href="{{ route('organizations.index') }}">Back to all organizations</a>
+    <x-back-button href="{{ route('organizations.index') }}">Back to all organizations</x-back-button>
 
     <div class="op-hero"></div>
     <div class="op-head">

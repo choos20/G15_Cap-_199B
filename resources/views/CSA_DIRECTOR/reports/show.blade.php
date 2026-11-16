@@ -40,12 +40,12 @@
 
     <div class="csr-page csa-report-shell">
         <div class="csr-toolbar">
-            <a class="csr-back" href="{{ route('csa.reports.index', array_filter([
+            <x-back-button href="{{ route('csa.reports.index', array_filter([
                 'organization' => $filters['organization'],
                 'ay' => $filters['ay'],
                 'from' => $filters['from'],
                 'to' => $filters['to'],
-            ])) }}">← All reports</a>
+            ])) }}">Back to reports</x-back-button>
             <div class="csr-actions">
                 <a class="csr-button" href="{{ route('csa.reports.show', array_merge(['report' => $report], array_filter(request()->query(), fn ($value) => $value !== '' && $value !== null), ['format' => 'csv'])) }}">Download CSV</a>
                 <button class="csr-button csr-button-primary" type="button" onclick="window.print()">Print / Save PDF</button>

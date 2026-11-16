@@ -23,7 +23,7 @@
         @media(max-width:600px) { .attendance-import-stepper { grid-template-columns:repeat(2,1fr); } }
     </style>
 
-    <a href="{{ route('student_org.attendance') }}" style="display:inline-flex; color:#2563eb; text-decoration:none; font-weight:700; margin-bottom:18px;">&larr; Back to attendance sessions</a>
+    <x-back-button href="{{ route('student_org.attendance') }}">Back to attendance sessions</x-back-button>
 
     <div class="card" style="padding:24px;">
         <h2 style="margin:0 0 8px; color:#0f172a;">Review imported attendance</h2>

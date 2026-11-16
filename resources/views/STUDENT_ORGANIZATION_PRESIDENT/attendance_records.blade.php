@@ -30,7 +30,7 @@
         .ar-pill { display:inline-flex; padding:5px 12px; border-radius:999px; font-size:0.8rem; font-weight:700; white-space:nowrap; }
     </style>
 
-    <a href="{{ route('student_org.attendance') }}" style="display:inline-flex; align-items:center; gap:8px; color:#2563eb; text-decoration:none; font-weight:700; margin-bottom:18px;">&larr; Back to attendance sessions</a>
+    <x-back-button href="{{ route('student_org.attendance') }}">Back to attendance sessions</x-back-button>
 
     <div class="cards" style="grid-template-columns:repeat(3,1fr)">
         <div class="card" style="padding:22px">

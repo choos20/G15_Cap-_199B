@@ -1,10 +1,10 @@
-﻿@extends('layouts.app')
+@extends('layouts.app')
 
 @section('title', 'Verify OTP')
 
 @section('content')
     <div class="page-card">
-        <a class="back-link" href="{{ route('password.request') }}">&larr; Back</a>
+        <x-back-button href="{{ route('password.request') }}">Back to password reset</x-back-button>
         <div class="section-title">Verify OTP</div>
         <div class="section-subtitle">Enter the 6-digit code sent to your email.</div>
 

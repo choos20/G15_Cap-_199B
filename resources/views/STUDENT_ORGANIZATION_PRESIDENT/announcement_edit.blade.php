@@ -52,7 +52,7 @@
     </style>
 
     <div class="ann-edit">
-        <a href="{{ route('student_org.announcements.show', $announcement) }}" style="color:#2563eb; text-decoration:none; font-weight:700;">&larr; Back to announcement</a>
+        <x-back-button href="{{ route('student_org.announcements.show', $announcement) }}">Back to announcement</x-back-button>
 
         @if(session('status'))
             <div class="card" style="border-left:4px solid #16a34a; background:#ecfdf5; color:#134e4a; padding:15px 18px">{{ session('status') }}</div>

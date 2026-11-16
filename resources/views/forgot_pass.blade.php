@@ -1,4 +1,4 @@
-﻿@extends('layouts.app')
+@extends('layouts.app')
 
 @section('title', 'Forgot Password')
 
@@ -31,7 +31,7 @@
         </form>
 
         <div class="links">
-            <p><a href="{{ route('login') }}">Back to Login</a></p>
+            <p><x-back-button href="{{ route('login') }}">Back to Login</x-back-button></p>
         </div>
     </div>
 @endsection
