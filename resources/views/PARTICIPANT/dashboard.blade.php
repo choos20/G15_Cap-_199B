@@ -4,7 +4,7 @@
 @section('subtitle', 'Your community, at a glance')
 
 @section('content')
-    <link rel="stylesheet" href="{{ asset('css/participant-dashboard.css') }}?v=1">
+    <link rel="stylesheet" href="{{ asset('css/participant-dashboard.css') }}?v=2">
     <div class="participant-home">
         @if(session('status'))
             <div class="ph-notice" role="status">{{ session('status') }}</div>
@@ -15,10 +15,6 @@
                 <p class="ph-eyebrow">YOUR COMMUNITY JOURNEY</p>
                 <h2>Welcome back, {{ auth()->user()->first_name ?: auth()->user()->name }}<span class="ph-welcome-dot">.</span></h2>
                 <p>Find your next opportunity. Keep your participation on track.</p>
-            </div>
-            <div class="ph-welcome-actions">
-                <a href="{{ route('participant.activities') }}" class="ph-button ph-button-primary"><x-ui-icon name="search" :size="18" /> Browse activities</a>
-                <a href="{{ route('participant.scanner') }}" class="ph-button ph-button-secondary"><x-ui-icon name="qr" :size="18" /> Scan QR</a>
             </div>
         </header>
 
