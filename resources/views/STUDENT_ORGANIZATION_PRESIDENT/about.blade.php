@@ -157,9 +157,9 @@
                                 <input type="file" name="org_logo" id="ab-logo-input" accept="image/png,image/jpeg,image/webp" style="display:none">
                                 <div class="ab-logo-actions">
                                     <button type="button" class="ab-link-btn is-go" onclick="document.getElementById('ab-logo-input').click()">
-                                        {{ $org->org_logo ? 'Replace' : 'Upload logo' }}
+                                        {{ $org->org_logo ? 'Replace' : 'Upload organization logo' }}
                                     </button>
-                                    @if($org->org_logo)
+                                    @if($logoUrl)
                                         <span style="color:#cbd5e1">·</span>
                                         <button type="submit" form="ab-logo-remove" class="ab-link-btn is-danger"
                                                 data-confirm

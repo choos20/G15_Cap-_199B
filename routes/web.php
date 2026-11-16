@@ -905,7 +905,7 @@ Route::middleware('auth')->group(function () {
             }
             if (Schema::hasColumn('users', 'org_logo_data')) {
                 $user->org_logo = null;
-                $user->org_logo_data = $request->file('org_logo')->get();
+                $user->org_logo_data = User::imageDatabaseValue($request->file('org_logo')->get());
                 $user->org_logo_mime = $request->file('org_logo')->getMimeType();
             } else {
                 $user->org_logo = $request->file('org_logo')->store('org_logos', 'public');
@@ -1380,7 +1380,7 @@ Route::middleware('auth')->group(function () {
         $orgLogoMime = null;
         if ($request->hasFile('org_logo')) {
             if (Schema::hasColumn('users', 'org_logo_data')) {
-                $orgLogoData = $request->file('org_logo')->get();
+                $orgLogoData = User::imageDatabaseValue($request->file('org_logo')->get());
                 $orgLogoMime = $request->file('org_logo')->getMimeType();
             } else {
                 $orgLogoPath = $request->file('org_logo')->store('org_logos', 'public');

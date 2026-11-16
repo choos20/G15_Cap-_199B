@@ -205,7 +205,7 @@
                         @else
                             <form method="POST" action="{{ route('account.profile-photo.update') }}" enctype="multipart/form-data">
                                 @csrf
-                                <label for="profile-photo-upload">Choose an image</label>
+                                <label for="profile-photo-upload">Personal profile photo</label>
                                 <input id="profile-photo-upload" type="file" name="profile_photo" accept="image/jpeg,image/png,image/webp" required>
                                 @error('profile_photo')
                                     <div class="profile-avatar-error">{{ $message }}</div>

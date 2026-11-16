@@ -262,6 +262,22 @@ class User extends Authenticatable
             : Storage::disk('public')->url($this->org_logo);
     }
 
+    public static function imageDatabaseValue(string $bytes): mixed
+    {
+        if ((new static)->getConnection()->getDriverName() === 'pgsql') {
+            return \Illuminate\Support\Facades\DB::raw("decode('" . base64_encode($bytes) . "', 'base64')");
+        }
+
+        return $bytes;
+    }
+
+    public function monitoringImageUrl(): ?string
+    {
+        return in_array($this->role, ['student_org', 'college_department'], true)
+            ? $this->orgLogoUrl()
+            : $this->profilePhotoUrl();
+    }
+
     public function profilePhotoUrl(): ?string
     {
         if ($this->profile_photo_data || $this->profile_photo_path) {

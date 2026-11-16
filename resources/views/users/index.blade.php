@@ -213,7 +213,7 @@
                                     @if($u->role === 'student_org')
                                         <x-organization-avatar :organization="$u" :size="38" />
                                     @else
-                                        <x-profile-avatar :name="$u->name" :photo-url="$u->profilePhotoUrl()" :size="38" />
+                                        <x-profile-avatar :name="in_array($u->role, ['student_org', 'college_department'], true) ? ($u->organization_name ?: $u->name) : $u->name" :photo-url="$u->monitoringImageUrl()" :size="38" />
                                     @endif
                                     <span style="font-weight:600; color:#0f172a">{{ $u->name }}</span>
                                 </div>

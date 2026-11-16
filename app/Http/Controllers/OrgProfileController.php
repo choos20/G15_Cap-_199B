@@ -80,9 +80,9 @@ class OrgProfileController extends Controller
         ]);
 
         if ($request->hasFile('org_logo')) {
-            $this->deleteLogo($org);
+            $oldLogoPath = $org->org_logo;
             $org->org_logo = null;
-            $org->org_logo_data = $request->file('org_logo')->get();
+            $org->org_logo_data = User::imageDatabaseValue($request->file('org_logo')->get());
             $org->org_logo_mime = $request->file('org_logo')->getMimeType();
         }
 
@@ -99,6 +99,10 @@ class OrgProfileController extends Controller
             'org_profile_updated_at' => now(),
         ]);
         $org->save();
+
+        if (isset($oldLogoPath) && ! preg_match('#^https?://#i', $oldLogoPath) && Storage::disk('public')->exists($oldLogoPath)) {
+            Storage::disk('public')->delete($oldLogoPath);
+        }
 
         return redirect()
             ->route('org.about.edit')

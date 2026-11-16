@@ -24,13 +24,13 @@ class ProfilePhotoController extends Controller
         }
 
         if ($data) {
-            return response($data)->header('Content-Type', $mime)->header('Cache-Control', 'private, max-age=300');
+            return response($data)->header('Content-Type', $mime)->header('Cache-Control', 'private, no-cache');
         }
 
         if ($user->profile_photo_path && Storage::disk('public')->exists($user->profile_photo_path)) {
             return response(Storage::disk('public')->get($user->profile_photo_path))
                 ->header('Content-Type', Storage::disk('public')->mimeType($user->profile_photo_path))
-                ->header('Cache-Control', 'private, max-age=300');
+                ->header('Cache-Control', 'private, no-cache');
         }
 
         abort(404);
@@ -47,7 +47,7 @@ class ProfilePhotoController extends Controller
 
         if (Schema::hasColumn('users', 'profile_photo_data')) {
             $user->profile_photo_path = null;
-            $user->profile_photo_data = DB::raw("decode('" . base64_encode($validated['profile_photo']->get()) . "', 'base64')");
+            $user->profile_photo_data = User::imageDatabaseValue($validated['profile_photo']->get());
             $user->profile_photo_mime = $validated['profile_photo']->getMimeType();
         } else {
             $user->profile_photo_path = $validated['profile_photo']->store('profile_photos', 'public');

@@ -160,7 +160,7 @@
                             <span>PNG or JPG, up to 2MB</span>
                         </div>
                     </div>
-                    @if($user->org_logo)
+                    @if($user->orgLogoUrl())
                         <button type="button" class="cu-remove-logo" id="cu-remove-logo">
                             Remove current logo
                         </button>
