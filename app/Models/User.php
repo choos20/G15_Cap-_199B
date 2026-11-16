@@ -271,13 +271,6 @@ class User extends Authenticatable
         return $bytes;
     }
 
-    public function monitoringImageUrl(): ?string
-    {
-        return in_array($this->role, ['student_org', 'college_department'], true)
-            ? $this->orgLogoUrl()
-            : $this->profilePhotoUrl();
-    }
-
     public function profilePhotoUrl(): ?string
     {
         if ($this->profile_photo_data || $this->profile_photo_path) {
