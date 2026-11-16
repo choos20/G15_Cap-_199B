@@ -135,7 +135,7 @@
                 @endphp
                 <div class="card" style="padding:22px">
                     <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:16px; flex-wrap:wrap">
-                        <div style="flex:1; min-width:260px">
+                        <div style="flex:1; min-width:min(260px,100%)">
                             <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap">
                                 <div style="font-weight:700; font-size:1.1rem; color:#0f172a">{{ $opportunity->title }}</div>
                                 <span style="font-size:0.78rem; font-weight:700; padding:4px 10px; border-radius:999px; background:#eef2ff; color:#4338ca">{{ $opportunity->category }}</span>

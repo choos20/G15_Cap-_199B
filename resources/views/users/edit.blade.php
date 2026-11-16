@@ -186,7 +186,7 @@
     @if($user->id !== auth()->id())
         <div class="card" style="max-width:760px; margin-top:18px; padding:24px">
             <div style="display:flex; align-items:flex-start; gap:16px; flex-wrap:wrap">
-                <div style="flex:1; min-width:260px">
+                <div style="flex:1; min-width:min(260px,100%)">
                     <h3 style="margin:0 0 6px; font-size:1rem; color:#0f172a">Sign-in access</h3>
                     <div style="color:#64748b; font-size:0.9rem; line-height:1.6">
                         @if($user->must_change_password)
@@ -203,7 +203,7 @@
                     @enderror
                 </div>
 
-                <form method="POST" action="{{ route('users.password.reset', $user) }}" style="flex-shrink:0"
+                <form method="POST" action="{{ route('users.password.reset', $user) }}" style="max-width:100%"
                       data-confirm
                       data-confirm-title="Issue a new temporary password?"
                       data-confirm-body="{name}'s current password stops working immediately, and a new one is emailed to them."

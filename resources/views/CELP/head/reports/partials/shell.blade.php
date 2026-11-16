@@ -6,11 +6,11 @@
 <style>
     .rp-bar { display:flex; align-items:flex-end; gap:12px; flex-wrap:wrap; padding:16px 18px; background:#fff;
               border-radius:14px; box-shadow:0 6px 18px rgba(11,42,42,0.06); margin-bottom:18px; }
-    .rp-field { display:flex; flex-direction:column; gap:5px; }
+    .rp-field { display:flex; flex:1 1 150px; min-width:0; max-width:100%; flex-direction:column; gap:5px; }
     .rp-field label { font-size:0.74rem; font-weight:700; color:#94a3b8; text-transform:uppercase; letter-spacing:0.04em; }
     .rp-field select, .rp-field input { border:1px solid #e2e8f0; border-radius:10px; padding:8px 11px; font:inherit;
-                                        font-size:0.88rem; color:#0f172a; background:#fff; min-width:130px; }
-    .rp-actions { margin-left:auto; display:flex; gap:8px; align-items:center; }
+                                        font-size:0.88rem; color:#0f172a; background:#fff; min-width:0; width:100%; }
+    .rp-actions { margin-left:auto; display:flex; flex-wrap:wrap; gap:8px; align-items:center; }
     .rp-btn { display:inline-flex; align-items:center; gap:7px; padding:9px 15px; border-radius:10px; border:1px solid #e2e8f0;
               background:#fff; color:#334155; font:inherit; font-size:0.86rem; font-weight:700; cursor:pointer; text-decoration:none; }
     .rp-btn:hover { border-color:#cbd5e1; background:#f8fafc; }

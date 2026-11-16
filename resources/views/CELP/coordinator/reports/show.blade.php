@@ -6,10 +6,10 @@
 @section('content')
     <style>
         .cr-toolbar { display:flex; align-items:flex-end; gap:11px; flex-wrap:wrap; margin-bottom:18px; padding:16px; border:1px solid #e5ebe8; border-radius:14px; background:#fff; }
-        .cr-field { display:flex; flex-direction:column; gap:5px; }
+        .cr-field { display:flex; flex:1 1 150px; min-width:0; max-width:100%; flex-direction:column; gap:5px; }
         .cr-field label { color:#71817c; font-size:.73rem; font-weight:750; letter-spacing:.04em; text-transform:uppercase; }
-        .cr-field input, .cr-field select { min-width:135px; min-height:39px; padding:8px 10px; border:1px solid #dfe7e3; border-radius:9px; background:#fff; color:#253c34; font:inherit; font-size:.84rem; }
-        .cr-actions { display:flex; gap:8px; margin-left:auto; }
+        .cr-field input, .cr-field select { min-width:0; width:100%; min-height:39px; padding:8px 10px; border:1px solid #dfe7e3; border-radius:9px; background:#fff; color:#253c34; font:inherit; font-size:.84rem; }
+        .cr-actions { display:flex; flex-wrap:wrap; gap:8px; margin-left:auto; }
         .cr-button { display:inline-flex; align-items:center; justify-content:center; min-height:39px; padding:8px 14px; border:1px solid #dfe7e3; border-radius:9px; background:#fff; color:#334b42; font:inherit; font-size:.84rem; font-weight:750; text-decoration:none; cursor:pointer; }
         .cr-button-primary { border-color:#0b7656; background:#0b7656; color:#fff; }
         .cr-back { display:inline-flex; margin-bottom:14px; color:#08734e; font-size:.85rem; font-weight:700; text-decoration:none; }

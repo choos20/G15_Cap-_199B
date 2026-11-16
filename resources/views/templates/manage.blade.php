@@ -11,7 +11,7 @@
     @endphp
 
     <style>
-        .tpl-manage { display:grid; gap:18px; }
+        .tpl-manage { display:grid; grid-template-columns:minmax(0,1fr); gap:18px; }
         .tpl-summary { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; }
         .tpl-summary-card { display:flex; align-items:center; gap:13px; min-height:82px; padding:15px 17px; border:1px solid #e5eaf0; border-radius:13px; background:#fff; }
         .tpl-summary-icon { display:flex; align-items:center; justify-content:center; width:40px; height:40px; flex:0 0 40px; border-radius:11px; background:#edf7f2; color:#08734e; }
@@ -65,7 +65,7 @@
         .tpl-source-celp { background:#eaf3ff; color:#2456a6; }
         .tpl-source-csa { background:#e7f8ef; color:#08734e; }
         .tpl-source-unknown { background:#f1f5f9; color:#64748b; }
-        .tpl-actions { display:flex; align-items:center; gap:8px; }
+        .tpl-actions { display:flex; flex-wrap:wrap; align-items:center; gap:8px; }
         .tpl-download-btn, .tpl-replace-btn, .tpl-remove-btn { display:inline-flex; align-items:center; justify-content:center; padding:8px 11px; border-radius:8px; font:inherit; font-size:0.8rem; font-weight:700; text-decoration:none; cursor:pointer; }
         .tpl-download-btn { border:1px solid #cce8d8; background:#eef8f2; color:#08734e; }
         .tpl-download-btn:hover { background:#e1f2e8; }

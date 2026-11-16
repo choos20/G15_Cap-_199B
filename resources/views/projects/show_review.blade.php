@@ -14,7 +14,7 @@
                     <span>· 🕒 Submitted {{ $project->created_at->diffForHumans() }}</span>
                 </div>
             </div>
-            <span style="font-size:0.85rem; font-weight:700; padding:6px 14px; border-radius:999px; background:#eff6ff; color:#1d4ed8; white-space:nowrap">
+            <span style="font-size:0.85rem; font-weight:700; padding:6px 14px; border-radius:999px; background:#eff6ff; color:#1d4ed8">
                 {{ ucwords(str_replace('_', ' ', $project->status)) }}
             </span>
         </div>
@@ -28,7 +28,7 @@
             @if($project->attachments->isEmpty())
                 <div style="padding:16px 18px; border-radius:14px; background:#fffbeb; border:1px solid #fde68a; color:#92400e;">No files were attached to this submission.</div>
             @else
-                <div style="display:grid; gap:10px">
+                <div style="display:grid; grid-template-columns:minmax(0,1fr); gap:10px">
                     @foreach($project->attachments as $attachment)
                         <a href="{{ asset('storage/'.$attachment->file_path) }}" target="_blank" rel="noopener" style="display:flex; align-items:center; gap:14px; padding:14px 16px; border-radius:14px; border:1px solid #e5e7eb; background:#ffffff; text-decoration:none; color:inherit">
                             <div style="width:42px; height:42px; border-radius:12px; background:#eef2ff; color:#4338ca; display:flex; align-items:center; justify-content:center; font-size:1.1rem; flex-shrink:0;">📄</div>
@@ -50,7 +50,7 @@
                         <label style="display:block; font-weight:700; margin-bottom:8px">Comments (optional)</label>
                         <textarea name="comments" rows="4" style="width:100%; padding:14px; border:1px solid #d1d5db; border-radius:12px;"></textarea>
                     </div>
-                    <div style="display:flex; gap:12px">
+                    <div style="display:flex; gap:12px; flex-wrap:wrap">
                         <button name="action" value="endorse" style="padding:12px 22px; border-radius:12px; background:#0b6a4a; color:#fff; border:none; font-weight:700; cursor:pointer;">Endorse</button>
                         <button name="action" value="return" style="padding:12px 22px; border-radius:12px; background:#fff7ed; color:#9a3412; border:1px solid #fed7aa; font-weight:700; cursor:pointer;">Return to applicant</button>
                     </div>
@@ -62,7 +62,7 @@
                         <label style="display:block; font-weight:700; margin-bottom:8px">Comments (optional)</label>
                         <textarea name="comments" rows="4" style="width:100%; padding:14px; border:1px solid #d1d5db; border-radius:12px;"></textarea>
                     </div>
-                    <div style="display:flex; gap:12px">
+                    <div style="display:flex; gap:12px; flex-wrap:wrap">
                         <button name="action" value="approve" style="padding:12px 22px; border-radius:12px; background:#0b6a4a; color:#fff; border:none; font-weight:700; cursor:pointer;">Approve</button>
                         <button name="action" value="return" style="padding:12px 22px; border-radius:12px; background:#fff7ed; color:#9a3412; border:1px solid #fed7aa; font-weight:700; cursor:pointer;">Return to applicant</button>
                     </div>
@@ -74,7 +74,7 @@
                         <label style="display:block; font-weight:700; margin-bottom:8px">Comments (optional)</label>
                         <textarea name="comments" rows="4" style="width:100%; padding:14px; border:1px solid #d1d5db; border-radius:12px;"></textarea>
                     </div>
-                    <div style="display:flex; gap:12px">
+                    <div style="display:flex; gap:12px; flex-wrap:wrap">
                         <button name="action" value="approve" style="padding:12px 22px; border-radius:12px; background:#0b6a4a; color:#fff; border:none; font-weight:700; cursor:pointer;">Approve</button>
                         <button name="action" value="return" style="padding:12px 22px; border-radius:12px; background:#fff7ed; color:#9a3412; border:1px solid #fed7aa; font-weight:700; cursor:pointer;">Return to applicant</button>
                     </div>

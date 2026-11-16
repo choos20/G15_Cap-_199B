@@ -19,7 +19,9 @@
         .ann-create-eyebrow { margin:1px 0 5px; color:#08734e; font-size:.72rem; font-weight:800; letter-spacing:.1em; text-transform:uppercase; }
         .ann-create-title { margin:0; color:#173b30; font-size:1.28rem; font-weight:800; letter-spacing:-.02em; }
         .ann-create-intro { margin:5px 0 0; color:#647a71; font-size:.9rem; line-height:1.5; }
-        .ann-create-body { display:grid; gap:22px; padding:26px 28px 28px; }
+        .ann-create-body { display:grid; grid-template-columns:minmax(0,1fr); gap:22px; padding:26px 28px 28px; }
+        .ann-create-body > *, .ann-create-field { min-width:0; }
+        .ann-recruitment-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:18px; }
         .ann-category-label, .ann-form-label { display:block; margin-bottom:9px; color:#203b32; font-size:.89rem; font-weight:750; }
         .ann-category-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
         .ann-category-card { position:relative; display:flex; align-items:flex-start; gap:12px; min-height:104px; padding:16px; border:1px solid #dfe9e4; border-radius:15px; background:#fff; cursor:pointer; transition:border-color .18s ease,background .18s ease,box-shadow .18s ease; }
@@ -38,7 +40,7 @@
         .ann-create-actions { display:flex; justify-content:flex-end; gap:10px; flex-wrap:wrap; padding-top:2px; }
         .ann-create-actions button { padding:12px 19px !important; border-radius:10px !important; font-size:.9rem; transition:transform .15s ease,box-shadow .15s ease; }
         .ann-create-actions button:hover { transform:translateY(-1px); box-shadow:0 6px 16px rgba(15,55,43,.12); }
-        @media(max-width:640px) { .ann-create-head { padding:20px; } .ann-create-body { padding:20px; } .ann-category-grid { grid-template-columns:1fr; } }
+        @media(max-width:640px) { .ann-create-head { padding:20px; } .ann-create-body { padding:20px; } .ann-category-grid, .ann-recruitment-grid { grid-template-columns:minmax(0,1fr); } }
         .ann-map-search-wrap { position:relative; }
         .ann-map-search-results {
             display:none; position:absolute; top:calc(100% + 6px); left:0; right:0; z-index:2000;
@@ -49,6 +51,8 @@
         .ann-map-search-item:last-child { border-bottom:none; }
         .ann-map-search-item:hover { background:#eff6ff; }
         #ann-location-map {
+            width:100%;
+            min-width:0;
             aspect-ratio: 4 / 3;
             max-height:480px;
             min-height:320px;
@@ -165,7 +169,7 @@
                     @error('description')<div role="alert" style="color:#b91c1c; font-size:.88rem; margin-top:6px">{{ $message }}</div>@enderror
                 </div>
 
-                <div data-category-fields="recruitment" style="display:grid; grid-template-columns:1fr 1fr; gap:18px;">
+                <div data-category-fields="recruitment" class="ann-recruitment-grid">
                     <div>
                         <label for="announcement-slots-needed" style="display:block; font-weight:700; margin-bottom:8px">Volunteers needed <span style="color:#b91c1c">*</span></label>
                         <input id="announcement-slots-needed" type="number" name="slots_needed" min="1" step="1" value="{{ old('slots_needed') }}" style="width:100%; padding:14px; border:1px solid #d1d5db; border-radius:12px;" />

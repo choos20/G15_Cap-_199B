@@ -68,10 +68,10 @@
         .csd-review-link:hover { background:#086247; }
         .csd-chart-grid { display:grid; grid-template-columns:minmax(0,1.65fr) minmax(260px,0.95fr); gap:14px; align-items:stretch; }
         .csd-chart-panel { min-width:0; padding:19px; border:1px solid #e4ebf0; border-radius:16px; background:#fff; box-shadow:0 5px 17px rgba(24,50,71,0.045); }
-        .csd-chart-head { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:8px; }
+        .csd-chart-head { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:8px 12px; margin-bottom:8px; }
         .csd-chart-title { display:flex; align-items:center; gap:9px; margin:0; color:#203b50; font-size:0.98rem; letter-spacing:-.01em; }
         .csd-chart-icon { display:flex; align-items:center; justify-content:center; width:34px; height:34px; flex:0 0 34px; border-radius:11px; background:#edf6f3; color:#087f67; }
-        .csd-chart-period { color:#718096; font-size:0.72rem; white-space:nowrap; }
+        .csd-chart-period { color:#718096; font-size:0.72rem; }
         .csd-trend-chart { display:block; width:100%; height:auto; margin-top:8px; overflow:visible; }
         .csd-trend-plot { fill:#f3f6f8; }
         .csd-trend-gridline { stroke:#dce5eb; stroke-width:1; }

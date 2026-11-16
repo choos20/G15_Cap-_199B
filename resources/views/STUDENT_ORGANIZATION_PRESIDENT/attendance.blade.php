@@ -54,6 +54,8 @@
         .map-search-item.map-search-empty { color:#94a3b8; cursor:default; }
         .map-search-item.map-search-empty:hover { background:transparent; }
         #location-map {
+            width:100%;
+            min-width:0;
             aspect-ratio: 4 / 3;
             max-height:480px;
             min-height:320px;
@@ -76,10 +78,11 @@
         .map-locate-btn:disabled { opacity:0.6; cursor:progress; }
         .attendance-grid {
             display:grid;
-            grid-template-columns:1fr 360px;
+            grid-template-columns:minmax(0,1fr) minmax(0,360px);
             gap:24px;
         }
         .attendance-card {
+            min-width:0;
             background:#ffffff;
             border:1px solid #e5e7eb;
             border-radius:28px;
@@ -259,10 +262,17 @@
             font-size:0.9rem;
             margin-bottom:12px;
         }
-        @media (max-width:980px) {
-            .attendance-grid { grid-template-columns:1fr; }
+        .attendance-grid > * { min-width:0; }
+        @media (max-width:1200px) {
+            .attendance-grid { grid-template-columns:minmax(0,1fr); }
             .session-strip { grid-template-columns:1fr; }
         }
+        @media (max-width:600px) {
+            .attendance-card { padding:18px; border-radius:18px; }
+            #location-map { min-height:220px; }
+            .sv-viewer { height:clamp(180px,45dvh,320px); }
+        }
+        .qr-modal, .sv-modal { max-height:calc(100dvh - 40px); overflow-y:auto; }
     </style>
 
     @if(session('status'))

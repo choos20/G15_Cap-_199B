@@ -16,7 +16,7 @@
 
     <style>
         .al-toolbar { display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:16px; }
-        .al-search { display:flex; align-items:center; gap:8px; background:#fff; border:1px solid #e2e8f0; border-radius:999px; padding:8px 14px; min-width:280px; }
+        .al-search { display:flex; align-items:center; gap:8px; background:#fff; border:1px solid #e2e8f0; border-radius:999px; padding:8px 14px; min-width:0; width:min(100%,360px); }
         .al-search input { border:none; outline:none; font:inherit; font-size:0.92rem; width:100%; background:transparent; color:#0f172a; }
         .al-chips { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:18px; }
         .al-chip { display:inline-flex; align-items:center; gap:7px; padding:7px 14px; border-radius:999px; background:#fff;

@@ -7,14 +7,14 @@
     <style>
         .ad-toolbar { display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:18px; }
         .ad-form { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
-        .ad-search { display:flex; align-items:center; gap:8px; background:#fff; border:1px solid #e2e8f0; border-radius:999px; padding:8px 14px; min-width:280px; }
+        .ad-search { display:flex; align-items:center; gap:8px; background:#fff; border:1px solid #e2e8f0; border-radius:999px; padding:8px 14px; min-width:0; width:min(100%,360px); }
         .ad-search input { border:none; outline:none; font:inherit; font-size:0.92rem; width:100%; background:transparent; color:#0f172a; }
         .ad-select { background:#fff; border:1px solid #e2e8f0; border-radius:999px; padding:9px 14px; font:inherit; font-size:0.9rem; font-weight:600; color:#334155; cursor:pointer; max-width:260px; }
         .ad-date { background:#fff; border:1px solid #e2e8f0; border-radius:999px; padding:9px 14px; font:inherit; font-size:0.9rem; color:#334155; }
         .ad-clear { color:#2563eb; font-weight:700; font-size:0.86rem; text-decoration:none; }
         .ad-clear:hover { text-decoration:underline; }
 
-        .ad-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(340px,1fr)); gap:16px; }
+        .ad-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(min(340px,100%),1fr)); gap:16px; }
         .ad-card { background:#fff; border-radius:16px; box-shadow:0 6px 18px rgba(11,42,42,0.06); padding:22px; display:flex; flex-direction:column; }
         .ad-card:hover { box-shadow:0 12px 26px rgba(11,42,42,0.11); }
         .ad-tags { display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:10px; }

@@ -27,11 +27,11 @@
     @endif
 
     <div class="card" style="padding:24px; margin-bottom:20px">
-        <div style="display:flex; align-items:center; gap:14px">
+        <div style="display:flex; align-items:center; gap:14px; flex-wrap:wrap">
             <div style="width:48px; height:48px; border-radius:16px; display:flex; align-items:center; justify-content:center; background:#eff6ff; color:#1d4ed8; flex-shrink:0;">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 4h7l3 3h6v13H4V4z" fill="currentColor"/></svg>
             </div>
-            <div>
+            <div style="flex:1; min-width:min(180px,100%)">
                 <h3 style="margin:0">{{ $queueTitles[$queueKey] ?? 'Pending project submissions' }}</h3>
                 <div style="color:#64748b; margin-top:4px">{{ $queueBlurbs[$queueKey] ?? '' }}</div>
             </div>
@@ -50,7 +50,7 @@
         <div style="display:grid; gap:14px">
             @foreach($projects as $p)
                 <div class="card" style="display:flex; justify-content:space-between; align-items:center; gap:18px; padding:20px 22px; flex-wrap:wrap">
-                    <div style="flex:1; min-width:260px">
+                    <div style="flex:1; min-width:min(260px,100%)">
                         <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap">
                             <div style="font-weight:700; font-size:1.05rem; color:#0f172a">{{ $p->title }}</div>
                             <span style="font-size:0.78rem; font-weight:700; text-transform:uppercase; letter-spacing:0.04em; padding:4px 10px; border-radius:999px; background:{{ $p->attachments_count > 0 ? '#dcfce7' : '#fef3c7' }}; color:{{ $p->attachments_count > 0 ? '#166534' : '#92400e' }}">

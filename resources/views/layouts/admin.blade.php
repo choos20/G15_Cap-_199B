@@ -50,10 +50,15 @@
         .profile-avatar-action.is-remove{border-color:#fecaca; background:#fff; color:#b91c1c}
         .profile-avatar-error{margin-top:8px; color:#b91c1c; font-size:.75rem; line-height:1.4}
         .main{flex:1; min-width:0; padding:28px}
-        .content{min-width:0; max-width:100%; overflow-x:hidden}
+        .content{min-width:0; max-width:100%; overflow-wrap:anywhere}
+        .content :where(input,select,textarea){min-width:0; max-width:100%}
+        .content fieldset{min-inline-size:0}
+        .content :where(img,video,canvas,iframe){max-width:100%}
         .topbar{display:flex; align-items:center; justify-content:space-between; margin-bottom:18px; gap:14px; flex-wrap:wrap}
+        .topbar .title-group{min-width:0; max-width:100%; flex-wrap:wrap; overflow-wrap:anywhere}
+        .topbar .title-group > *{min-width:0}
         .topbar input{padding:10px 12px; border-radius:10px; border:1px solid #e6e9ef; min-width:180px; transition:border-color 180ms ease, box-shadow 180ms ease}
-        .topbar-actions{display:flex; align-items:center; gap:12px; flex-wrap:nowrap; min-width:0}
+        .topbar-actions{display:flex; align-items:center; gap:12px; flex-wrap:nowrap; min-width:0; margin-left:auto}
         .search-wrapper{position:relative; max-width:360px; width:100%; min-width:0}
         .topbar a.logout{display:inline-flex; align-items:center; gap:8px; color:#0b2a2a; background:#fff; padding:9px 13px; border:1px solid #dce5e2; border-radius:11px; text-decoration:none; font-size:.86rem; font-weight:700; line-height:1; transition:background 180ms ease, border-color 180ms ease, color 180ms ease, box-shadow 180ms ease, transform 180ms ease}
         .topbar a.logout svg{width:18px; height:18px; flex:0 0 18px; color:#087c5b; transition:transform 180ms ease}
@@ -61,7 +66,7 @@
         .topbar a.logout:hover svg{transform:translateX(2px)}
         .topbar input:focus{border-color:#12b886; box-shadow:0 0 0 4px rgba(18,184,134,0.12)}
         .cards{display:grid; grid-template-columns:repeat(5,1fr); gap:18px; margin-bottom:22px}
-        .card{background:var(--card); padding:18px; border-radius:12px; box-shadow:0 6px 18px rgba(11,42,42,0.06); transition:box-shadow 180ms ease, border-color 180ms ease}
+        .card{min-width:0; background:var(--card); padding:18px; border-radius:12px; box-shadow:0 6px 18px rgba(11,42,42,0.06); transition:box-shadow 180ms ease, border-color 180ms ease}
         .card:hover{box-shadow:0 10px 22px rgba(11,42,42,0.1)}
         .chart-row{display:grid; grid-template-columns:2fr 1fr; gap:18px}
         .two-col-panel{display:grid; grid-template-columns:1fr 320px; gap:18px}
@@ -85,25 +90,31 @@
         .search-dropdown .item-subtitle{font-size:0.9rem; color:#64748b}
         .search-empty{padding:18px 16px; color:#64748b; font-size:0.95rem}
         .search-hint{font-size:0.82rem; color:#475569; opacity:0.85; margin-top:4px}
+        .notif-wrapper{position:relative}
+        #notif-dropdown{right:0; left:auto; width:340px}
         .mobile-menu-toggle,.mobile-nav-backdrop{display:none}
         @media (max-width:900px){
             .sidebar{position:fixed; inset:0 auto 0 0; z-index:100; width:min(86vw,320px); height:100dvh; min-width:0; flex:0 0 auto; overflow-y:auto; padding:18px 16px; transform:translateX(-105%); transition:transform 180ms ease; box-shadow:14px 0 34px rgba(2,8,8,0.22)}
             .sidebar.is-open{transform:translateX(0)}
             .sidebar-footer{order:1; margin:0 0 10px; padding:12px 0; border-top:0; border-bottom:1px solid rgba(255,255,255,0.1)}
             .sidebar-footer .profile-avatar-menu{margin-top:0 !important}
+            .profile-avatar-dropdown{top:calc(100% + 10px); bottom:auto; max-height:calc(100dvh - 190px); overflow-y:auto}
             .nav{order:2; overflow:visible}
+            .nav .nav-group-links a{min-height:44px}
             .main{width:100%; padding:18px 16px}
             .mobile-menu-toggle{display:inline-flex; align-items:center; justify-content:center; flex:0 0 auto; width:42px; height:42px; padding:0; border:1px solid #dce5e2; border-radius:11px; background:#fff; color:#0b2a2a; cursor:pointer}
             .mobile-menu-toggle svg{width:21px; height:21px}
             .mobile-nav-backdrop{position:fixed; inset:0; z-index:90; background:rgba(2,8,8,0.42)}
             .mobile-nav-backdrop.is-visible{display:block}
             .topbar{position:sticky; top:0; z-index:50; align-items:center; padding:6px 0 12px; background:#f6f7fb; gap:10px}
-            .topbar .title-group{display:flex; align-items:center; min-width:0; flex:1}
+            .topbar .title-group{display:flex; align-items:center; min-width:0; flex:1; flex-wrap:nowrap}
             .topbar .title-group h2{min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:clamp(1.05rem,4vw,1.35rem)}
             .topbar .title-group > div{display:none}
             .topbar-actions{margin-left:auto; gap:8px}
             .topbar a.logout{padding:8px 10px; font-size:.82rem}
             .topbar > div{min-width:0}
+            .topbar .notif-wrapper{position:static}
+            #notif-dropdown{left:0; right:0; width:min(340px,100%); margin-left:auto; max-height:min(420px,calc(100dvh - 110px))}
             .topbar input{min-width:0; width:100%}
             .cards{grid-template-columns:repeat(2,minmax(0,1fr))}
             .chart-row, .two-col-panel{grid-template-columns:1fr}
@@ -113,9 +124,11 @@
             .main{padding:16px 12px}
             .sidebar{padding:14px 12px}
             .button-row a{min-width:0; width:100%}
-            .topbar-actions .logout{font-size:0; width:42px; height:42px; padding:0; display:inline-flex; align-items:center; justify-content:center}
+            .topbar-actions a.logout{font-size:0; width:42px; height:42px; padding:0; display:inline-flex; align-items:center; justify-content:center}
+            .topbar-actions .logout span{display:none}
             .topbar-actions .logout svg{width:20px; height:20px; flex-basis:20px}
             .responsive-grid-2{grid-template-columns:1fr}
+            .content :is(input,select,textarea){font-size:1rem}
             .quick-action-card{min-height:88px; padding:14px}
             .content table{display:block; max-width:100%; overflow-x:auto; white-space:nowrap}
         }
@@ -256,14 +269,14 @@
             </div>
             <div class="topbar-actions">
 
-                <div class="notif-wrapper" style="position:relative">
-                    <button type="button" id="notif-bell" aria-label="Notifications" style="position:relative; width:40px; height:40px; border-radius:10px; border:1px solid #e6e9ef; background:#fff; cursor:pointer; display:flex; align-items:center; justify-content:center;">
+                <div class="notif-wrapper">
+                    <button type="button" id="notif-bell" aria-label="Notifications" aria-controls="notif-dropdown" aria-expanded="false" style="position:relative; width:40px; height:40px; border-radius:10px; border:1px solid #e6e9ef; background:#fff; cursor:pointer; display:flex; align-items:center; justify-content:center;">
                         <svg width="19" height="19" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 22a2 2 0 0 0 2-2H10a2 2 0 0 0 2 2zm6-6V10c0-3.3-2.7-6-6-6S6 6.7 6 10v6l-2 2v1h16v-1l-2-2z" fill="#0b2a2a"/></svg>
                         @if($navUnreadCount > 0)
                             <span style="position:absolute; top:-4px; right:-4px; min-width:18px; height:18px; padding:0 4px; border-radius:9px; background:#ef4444; color:#fff; font-size:0.7rem; font-weight:700; display:flex; align-items:center; justify-content:center;">{{ $navUnreadCount > 9 ? '9+' : $navUnreadCount }}</span>
                         @endif
                     </button>
-                    <div id="notif-dropdown" class="search-dropdown" style="right:0; left:auto; width:340px;">
+                    <div id="notif-dropdown" class="search-dropdown">
                         <div style="padding:14px 16px; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #f1f5f9;">
                             <strong style="font-size:0.95rem; color:#0f172a;">Notifications</strong>
                             <a href="{{ route('notifications.index') }}" style="font-size:0.85rem; color:#2563eb; text-decoration:none; font-weight:600;">View all</a>
@@ -312,24 +325,35 @@
         const sidebar = document.getElementById('mobile-sidebar');
         const backdrop = document.getElementById('mobile-nav-backdrop');
         if (!menuButton || !sidebar || !backdrop) return;
+        const mobileViewport = window.matchMedia('(max-width:900px)');
+        sidebar.inert = mobileViewport.matches;
 
-        const closeMenu = () => {
+        const closeMenu = (restoreFocus = false) => {
             sidebar.classList.remove('is-open');
             backdrop.classList.remove('is-visible');
             document.body.classList.remove('nav-open');
             menuButton.setAttribute('aria-expanded', 'false');
+            sidebar.inert = mobileViewport.matches;
+            if (restoreFocus) menuButton.focus();
         };
 
         menuButton.addEventListener('click', () => {
-            const open = sidebar.classList.toggle('is-open');
-            backdrop.classList.toggle('is-visible', open);
-            document.body.classList.toggle('nav-open', open);
-            menuButton.setAttribute('aria-expanded', open ? 'true' : 'false');
+            if (sidebar.classList.contains('is-open')) {
+                closeMenu();
+                return;
+            }
+            sidebar.inert = false;
+            sidebar.classList.add('is-open');
+            backdrop.classList.add('is-visible');
+            document.body.classList.add('nav-open');
+            menuButton.setAttribute('aria-expanded', 'true');
+            sidebar.querySelector('a')?.focus();
         });
-        backdrop.addEventListener('click', closeMenu);
-        sidebar.querySelectorAll('a').forEach((link) => link.addEventListener('click', closeMenu));
+        backdrop.addEventListener('click', () => closeMenu(true));
+        sidebar.querySelectorAll('a').forEach((link) => link.addEventListener('click', () => closeMenu()));
+        mobileViewport.addEventListener('change', () => closeMenu());
         document.addEventListener('keydown', (event) => {
-            if (event.key === 'Escape') closeMenu();
+            if (event.key === 'Escape' && sidebar.classList.contains('is-open')) closeMenu(true);
         });
     })();
 
@@ -341,15 +365,31 @@
         const bell = document.getElementById('notif-bell');
         const dropdown = document.getElementById('notif-dropdown');
         if (!bell || !dropdown) return;
+        const fitDropdown = () => {
+            if (!dropdown.classList.contains('active')) return;
+            const availableHeight = window.innerHeight - dropdown.getBoundingClientRect().top - 12;
+            dropdown.style.maxHeight = Math.max(0, Math.min(420, availableHeight)) + 'px';
+        };
 
         bell.addEventListener('click', (event) => {
             event.stopPropagation();
-            dropdown.classList.toggle('active');
+            const open = dropdown.classList.toggle('active');
+            bell.setAttribute('aria-expanded', String(open));
+            fitDropdown();
         });
+        window.addEventListener('resize', fitDropdown);
 
         document.addEventListener('click', (event) => {
             if (!event.target.closest('.notif-wrapper')) {
                 dropdown.classList.remove('active');
+                bell.setAttribute('aria-expanded', 'false');
+            }
+        });
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape' && dropdown.classList.contains('active')) {
+                dropdown.classList.remove('active');
+                bell.setAttribute('aria-expanded', 'false');
+                bell.focus();
             }
         });
     })();

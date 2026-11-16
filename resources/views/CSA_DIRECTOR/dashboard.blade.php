@@ -52,10 +52,10 @@
         .csa-chart-layout { display:grid; grid-template-columns:minmax(0,1.55fr) minmax(250px,0.9fr); gap:18px; align-items:stretch; }
         .csa-layout { display:grid; grid-template-columns:minmax(0,1.8fr) minmax(280px,0.9fr); gap:18px; align-items:start; }
         .csa-panel { min-width:0; padding:21px; border:1px solid #e8edf0; border-radius:15px; background:#fff; box-shadow:0 5px 16px rgba(11,42,42,0.04); }
-        .csa-panel-head { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:8px; }
+        .csa-panel-head { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:8px 12px; margin-bottom:8px; }
         .csa-panel-head h3 { margin:0; color:#123d33; font-size:1.02rem; }
         .csa-panel-link { color:#08734e; font-size:0.83rem; font-weight:700; text-decoration:none; white-space:nowrap; }
-        .csa-chart-period { color:#71817c; font-size:0.72rem; white-space:nowrap; }
+        .csa-chart-period { color:#71817c; font-size:0.72rem; }
         .csa-chart-panel { min-width:0; padding:20px; border:1px solid #e8edf0; border-radius:15px; background:#fff; box-shadow:0 5px 16px rgba(11,42,42,0.04); }
         .csa-chart-title { display:flex; align-items:center; gap:9px; margin:0; color:#123d33; font-size:0.98rem; }
         .csa-chart-icon { display:flex; align-items:center; justify-content:center; width:34px; height:34px; flex:0 0 34px; border-radius:11px; background:#edf6f3; color:#087f67; }
@@ -103,7 +103,7 @@
         .csa-checklist li { display:flex; align-items:flex-start; gap:8px; color:#52645e; font-size:0.81rem; line-height:1.45; }
         .csa-check { color:#0b8a5f; font-weight:800; }
         .csa-empty { padding:18px; border:1px dashed #dbe7e1; border-radius:11px; background:#f8fbf9; color:#64756e; font-size:0.88rem; }
-        @media(max-width:1000px) {
+        @media(max-width:1150px) {
             .csa-stats { grid-template-columns:repeat(2,minmax(0,1fr)); }
             .csa-chart-layout { grid-template-columns:minmax(0,1fr); }
             .csa-layout { grid-template-columns:minmax(0,1fr); }

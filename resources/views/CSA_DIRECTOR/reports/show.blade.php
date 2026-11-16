@@ -5,7 +5,7 @@
 
 @section('content')
     <style>
-        .csr-page { display:grid; gap:16px; }
+        .csr-page { display:grid; grid-template-columns:minmax(0,1fr); gap:16px; }
         .csr-toolbar { display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; }
         .csr-back { color:#08734e; font-size:0.86rem; font-weight:700; text-decoration:none; }
         .csr-back:hover { text-decoration:underline; }
@@ -24,7 +24,8 @@
         .csr-count { color:#64756e; font-size:0.83rem; }
         .csr-empty { padding:38px 20px; color:#71817c; text-align:center; }
         .csr-print-heading { display:none; }
-        @media(max-width:900px) { .csr-filter { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+        .csr-filter > div { min-width:0; }
+        @media(max-width:1200px) { .csr-filter { grid-template-columns:repeat(2,minmax(0,1fr)); } }
         @media(max-width:520px) { .csr-filter { grid-template-columns:1fr; } .csr-actions, .csr-actions .csr-button { width:100%; } }
         @media print {
             body { background:#fff !important; }

@@ -75,7 +75,7 @@
                     $sourceClass = $t->source ? 'tpl-source-' . $t->source : 'tpl-source-unknown';
                 @endphp
                 <div class="tpl-row">
-                    <div style="display:flex; align-items:center; gap:14px; flex:1; min-width:260px">
+                    <div style="display:flex; align-items:center; gap:14px; flex:1; min-width:min(260px,100%)">
                         <div class="tpl-row-icon">{{ $ext === 'PDF' ? '📄' : '📝' }}</div>
                         <div style="min-width:0">
                             <div style="display:flex; align-items:center; gap:9px; flex-wrap:wrap">

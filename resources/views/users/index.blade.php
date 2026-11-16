@@ -54,12 +54,12 @@
             align-items:center; justify-content:center; padding:20px;
         }
         .ua-modal-overlay.active { display:flex; }
-        .ua-modal { background:#fff; border-radius:20px; padding:28px; max-width:420px; width:100%; box-shadow:0 30px 60px rgba(15,23,42,0.25); }
+        .ua-modal { background:#fff; border-radius:20px; padding:28px; max-width:420px; width:100%; max-height:calc(100dvh - 40px); overflow-y:auto; box-shadow:0 30px 60px rgba(15,23,42,0.25); }
         .ua-modal-icon { width:44px; height:44px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.2rem; margin-bottom:16px; }
         .ua-modal-title { margin:0 0 8px; font-size:1.15rem; font-weight:700; color:#0f172a; line-height:1.4; }
         .ua-modal-desc { margin:0; color:#64748b; font-size:0.92rem; line-height:1.6; }
         .ua-modal-warning { display:flex; align-items:center; gap:8px; margin-top:14px; padding:10px 14px; border-radius:10px; background:#fffbeb; color:#92400e; font-size:0.85rem; font-weight:600; }
-        .ua-modal-actions { display:flex; justify-content:flex-end; gap:10px; margin-top:22px; }
+        .ua-modal-actions { display:flex; flex-wrap:wrap; justify-content:flex-end; gap:10px; margin-top:22px; }
         .ua-modal-cancel { padding:11px 20px; border-radius:10px; background:#fff; color:#0f172a; border:1px solid #d1d5db; font-weight:700; cursor:pointer; }
         .ua-modal-confirm { padding:11px 20px; border-radius:10px; border:none; font-weight:700; cursor:pointer; color:#fff; }
 
@@ -77,7 +77,7 @@
         .uf-badge[hidden] { display:none; }
         .uf-panel { position:absolute; top:calc(100% + 8px); left:0; z-index:40; min-width:262px; padding:8px;
                     background:#fff; border:1px solid #e5e7eb; border-radius:14px;
-                    box-shadow:0 18px 40px rgba(15,23,42,0.14); display:none; }
+                    box-shadow:0 18px 40px rgba(15,23,42,0.14); display:none; max-height:min(420px,calc(100dvh - 200px)); overflow-y:auto; }
         .uf-panel.active { display:block; }
         .uf-panel-head { display:flex; align-items:center; justify-content:space-between; gap:12px;
                          padding:8px 10px 10px; border-bottom:1px solid #f1f5f9; margin-bottom:6px; }
@@ -91,9 +91,13 @@
         .uf-opt-count { margin-left:auto; color:#94a3b8; font-size:0.82rem; font-variant-numeric:tabular-nums; }
         .ua-no-match td { padding:34px; text-align:center; color:#64748b; }
         .ua-no-match[hidden] { display:none; }
+        @media(max-width:640px) {
+            .uf-wrap { position:static; }
+            .uf-panel { left:0; min-width:0; width:min(300px,100%); }
+        }
         @media(max-width:760px) {
             .ua-table-wrap { overflow:visible !important; background:transparent; box-shadow:none; }
-            .ua-table, .ua-table tbody { display:block; width:100%; }
+            .ua-table, .ua-table tbody { display:block; width:100%; white-space:normal; }
             .ua-table thead { display:none; }
             .ua-table tr.ua-row {
                 display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:0 14px;
@@ -146,7 +150,7 @@
             ->values();
     @endphp
 
-    <div style="display:flex; align-items:center; gap:14px; margin-bottom:18px">
+    <div style="display:flex; align-items:center; gap:14px; margin-bottom:18px; flex-wrap:wrap; position:relative">
         <span id="ua-count" style="background:#f1f5f9; color:#334155; font-weight:700; padding:8px 16px; border-radius:999px; font-size:0.9rem">{{ $users->count() }} {{ \Illuminate\Support\Str::plural('account', $users->count()) }}</span>
 
         @if($filterRoles->count() > 1)

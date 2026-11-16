@@ -22,7 +22,7 @@
 
     <style>
         .ap-toolbar { display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:16px; }
-        .ap-search { display:flex; align-items:center; gap:8px; background:#fff; border:1px solid #e2e8f0; border-radius:999px; padding:8px 14px; min-width:280px; }
+        .ap-search { display:flex; align-items:center; gap:8px; background:#fff; border:1px solid #e2e8f0; border-radius:999px; padding:8px 14px; min-width:0; width:min(100%,360px); }
         .ap-search input { border:none; outline:none; font:inherit; font-size:0.92rem; width:100%; background:transparent; color:#0f172a; }
         .ap-chips { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:18px; }
         .ap-chip { display:inline-flex; align-items:center; gap:7px; padding:7px 14px; border-radius:999px; background:#fff;
@@ -85,7 +85,7 @@
             @foreach($projects as $p)
                 @php [$tBg, $tFg] = $statusTones[$p->status] ?? ['#f1f5f9', '#334155']; @endphp
                 <div class="ap-row">
-                    <div style="flex:1; min-width:260px">
+                    <div style="flex:1; min-width:min(260px,100%)">
                         <div class="ap-title">{{ $p->title }}</div>
                         <div class="ap-meta" style="display:flex; align-items:center; gap:8px; flex-wrap:wrap">
                             <x-organization-avatar :organization="$p->creator" :size="28" />

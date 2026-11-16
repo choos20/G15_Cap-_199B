@@ -43,7 +43,7 @@
                    animation:cfm-fade-in .16s ease-out; }
     .cfm-overlay[hidden] { display:none; }
     .cfm-box { background:#fff; border:1px solid rgba(226,232,240,.9); border-radius:20px;
-               padding:28px; max-width:440px; width:100%;
+               padding:28px; max-width:440px; width:100%; max-height:calc(100dvh - 40px); overflow-y:auto; overflow-wrap:anywhere;
                box-shadow:0 24px 70px rgba(15,23,42,.28), 0 4px 12px rgba(15,23,42,.08);
                animation:cfm-rise-in .2s cubic-bezier(.2,.8,.2,1); }
     .cfm-heading { display:flex; align-items:center; gap:14px; margin-bottom:16px; }
@@ -58,7 +58,7 @@
     .cfm-body strong { color:#0f172a; font-weight:700; }
     .cfm-note { margin:10px 0 0; padding:10px 12px; border-radius:10px;
                 background:#f8fafc; color:#64748b; font-size:.9rem; line-height:1.55; }
-    .cfm-actions { display:flex; justify-content:flex-end; gap:10px; margin-top:24px;
+    .cfm-actions { display:flex; flex-wrap:wrap; justify-content:flex-end; gap:10px; margin-top:24px;
                    padding-top:18px; border-top:1px solid #f1f5f9; }
     .cfm-cancel, .cfm-ok { min-height:44px; padding:10px 18px; border-radius:10px;
                            font:inherit; font-weight:700; font-size:.9rem; cursor:pointer;

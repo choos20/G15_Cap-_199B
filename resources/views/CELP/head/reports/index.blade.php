@@ -50,7 +50,7 @@
     @endphp
 
     <style>
-        .rh-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(360px,1fr)); gap:16px; }
+        .rh-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(min(360px,100%),1fr)); gap:16px; }
         .rh-card { display:flex; gap:16px; padding:22px; background:#fff; border-radius:16px;
                    box-shadow:0 6px 18px rgba(11,42,42,0.06); text-decoration:none; color:inherit;
                    transition:box-shadow 180ms ease, transform 180ms ease; }

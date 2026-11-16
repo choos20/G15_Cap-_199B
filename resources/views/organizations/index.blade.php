@@ -22,7 +22,7 @@
         .od-chip:hover { border-color:#cbd5e1; background:#f8fafc; }
         .od-chip.is-on { background:#0b6a4a; border-color:#0b6a4a; color:#fff; }
 
-        .od-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(330px,1fr)); gap:16px; }
+        .od-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(min(330px,100%),1fr)); gap:16px; }
         .od-card { display:flex; flex-direction:column; background:#fff; border-radius:16px; padding:22px;
                    box-shadow:0 6px 18px rgba(11,42,42,0.06); text-decoration:none; color:inherit;
                    transition:box-shadow 180ms ease, transform 180ms ease; }

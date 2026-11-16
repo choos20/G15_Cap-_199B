@@ -10,6 +10,8 @@
     @endif
     <style>
         #activity-map {
+            width:100%;
+            min-width:0;
             aspect-ratio: 4 / 3;
             max-height:440px;
             min-height:300px;

@@ -15,7 +15,7 @@
         .av-tag { font-size:0.76rem; font-weight:700; padding:4px 11px; border-radius:999px; white-space:nowrap; }
         .av-notice { margin-top:26px; padding:14px 18px; border-radius:14px; background:#f8fafc;
                      border:1px solid #e2e8f0; color:#475569; font-size:0.9rem; display:flex; gap:10px; align-items:flex-start; }
-        #av-map { aspect-ratio:16/9; max-height:380px; min-height:260px; border-radius:16px; margin-top:20px; border:1px solid #d1d5db; }
+        #av-map { width:100%; min-width:0; aspect-ratio:16/9; max-height:380px; min-height:260px; border-radius:16px; margin-top:20px; border:1px solid #d1d5db; }
         .leaflet-control-layers { border-radius:12px !important; overflow:hidden; box-shadow:0 10px 25px rgba(15,23,42,0.15) !important; border:none !important; }
         .leaflet-bar { border-radius:10px !important; overflow:hidden; border:none !important; box-shadow:0 6px 16px rgba(15,23,42,0.15) !important; }
         .leaflet-control-scale-line { border-radius:0 0 6px 6px !important; background:rgba(255,255,255,0.85) !important; }

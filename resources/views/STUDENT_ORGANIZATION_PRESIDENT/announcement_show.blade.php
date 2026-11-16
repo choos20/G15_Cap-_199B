@@ -51,7 +51,7 @@
                 <h2 style="margin:0 0 8px; font-size:1.5rem; color:#0f172a;">{{ $announcement->title }}</h2>
                 <span class="ann-badge {{ $announcement->status === 'published' ? 'ann-badge-published' : 'ann-badge-draft' }}">{{ ucfirst($announcement->status) }}</span>
             </div>
-            <div style="display:flex; gap:10px;">
+            <div style="display:flex; gap:10px; flex-wrap:wrap;">
                 <a href="{{ route('student_org.announcements') }}" style="padding:10px 16px; border-radius:10px; background:#f8fafc; color:#0f172a; border:1px solid #e2e8f0; text-decoration:none; font-weight:600;">Close</a>
                 <a href="{{ route('student_org.announcements.edit', $announcement) }}" style="padding:10px 16px; border-radius:10px; background:#eff6ff; color:#1d4ed8; border:1px solid #bfdbfe; text-decoration:none; font-weight:600;">Edit</a>
                 <form action="{{ route('student_org.announcements.status', $announcement) }}" method="POST"

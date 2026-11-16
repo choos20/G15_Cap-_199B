@@ -33,10 +33,12 @@
 
         html, body {
             margin: 0;
-            height: 100vh;
+            min-height: 100%;
         }
 
         body {
+            min-height: 100vh;
+            min-height: 100dvh;
             font-family: var(--font-sans);
             background:
                 radial-gradient(circle at top left, rgba(141, 245, 184, 0.22), transparent 1%), /*(141, 245, 184, 0.22), orig*/
@@ -294,6 +296,10 @@
 
             .page-card {
                 padding: 30px 24px;
+            }
+
+            input {
+                font-size: 1rem;
             }
         }
     </style>
