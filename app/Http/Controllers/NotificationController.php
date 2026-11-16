@@ -54,6 +54,8 @@ class NotificationController extends Controller
         $notifications = $query->latest()->paginate(20)->withQueryString();
 
         return view('notifications.index', [
+            'unreadCount' => $request->user()->unreadNotifications()->count(),
+            'hasNotifications' => $request->user()->notifications()->exists(),
             'notifications' => $notifications,
             'filter' => $filter,
             'search' => $search,
@@ -98,7 +100,13 @@ class NotificationController extends Controller
 
     public function markAllRead(Request $request)
     {
-        $request->user()->unreadNotifications->markAsRead();
+        $updated = $request->user()->unreadNotifications()->update(['read_at' => now()]);
+
+        if ($updated === 0) {
+            return back()->with('status', $request->user()->notifications()->exists()
+                ? 'All notifications are already read.'
+                : 'No notifications to mark as read.');
+        }
 
         return back()->with('status', 'All notifications marked as read.');
     }

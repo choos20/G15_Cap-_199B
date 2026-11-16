@@ -4,14 +4,23 @@
 @section('subtitle', 'All your notifications in one place')
 
 @section('content')
+    <style>
+        .notification-read-all{padding:10px 16px;border-radius:10px;background:#f8fafc;color:#0f172a;border:1px solid #e2e8f0;font-weight:600;cursor:pointer}
+        .notification-read-all:disabled{color:#94a3b8;background:#f8fafc;cursor:not-allowed}
+        .notification-caught-up{display:flex;align-items:center;gap:8px;margin-bottom:16px;padding:12px 14px;background:#ecfdf5;color:#065f46;border:1px solid #d1fae5;border-radius:12px;font-size:.88rem}
+    </style>
     <div class="card" style="padding:24px;">
         <div style="display:flex; justify-content:space-between; align-items:center; gap:16px; flex-wrap:wrap; margin-bottom:18px">
             <h3 style="margin:0">Notifications</h3>
             <form action="{{ route('notifications.read_all') }}" method="POST">
                 @csrf
-                <button type="submit" style="padding:10px 16px; border-radius:10px; background:#f8fafc; color:#0f172a; border:1px solid #e2e8f0; font-weight:600; cursor:pointer;">Mark all as read</button>
+                <button type="submit" class="notification-read-all" @disabled($unreadCount === 0) title="{{ $unreadCount === 0 ? ($hasNotifications ? 'All notifications are already read.' : 'No notifications to mark as read.') : 'Mark all unread notifications as read' }}">Mark all as read</button>
             </form>
         </div>
+
+        @if($unreadCount === 0 && $hasNotifications)
+            <div class="notification-caught-up" role="status"><span aria-hidden="true">✓</span> You’re all caught up. All notifications have been read.</div>
+        @endif
 
         @if(session('status'))
             <div style="margin-bottom:16px; padding:10px 14px; background:#ecfdf5; color:#134e4a; border-radius:8px">{{ session('status') }}</div>
