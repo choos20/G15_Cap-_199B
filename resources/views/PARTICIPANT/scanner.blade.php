@@ -21,7 +21,7 @@
         .qs-browse-link { display:inline-flex; align-items:center; gap:6px; margin-top:18px; color:#08734e; font-size:0.9rem; font-weight:700; text-decoration:none; }
         .qs-browse-link:hover { text-decoration:underline; }
         .qs-video-frame {
-            position:relative; width:100%; aspect-ratio:4/3; border-radius:24px; overflow:hidden;
+            position:relative; width:100%; height:clamp(260px,38vh,340px); border-radius:24px; overflow:hidden;
             background:#0f172a; border:1px solid #e2e8f0;
         }
         .qs-video-frame video { width:100%; height:100%; object-fit:contain; background:#0f172a; }
@@ -66,30 +66,30 @@
             <p style="color:#64748b; margin-bottom:18px">Point your camera at the QR code the organizer is displaying. Once it opens the attendance page, choose <strong>Check in</strong> when you arrive or <strong>Check out</strong> when you leave.</p>
 
             <div class="qs-video-frame" id="qs-frame">
-                <div class="qs-idle" id="qs-idle">Camera preview will appear here.</div>
+                <div class="qs-idle" id="qs-idle">Your camera is off. Allow camera access when prompted to scan the QR code.</div>
                 <video id="qs-video" playsinline muted disablepictureinpicture disableremoteplayback style="display:none"></video>
-                <div class="qs-reticle" id="qs-reticle" style="display:none"></div>
+                <div class="qs-reticle" id="qs-reticle" style="display:none"><i></i><i></i><i></i><i></i><span></span></div>
             </div>
             <canvas id="qs-canvas" style="display:none"></canvas>
 
-            <div class="qs-status" id="qs-status" role="status" aria-live="polite">Tap "Start scanner" to allow camera access.</div>
+
             <div style="display:flex; gap:10px; flex-wrap:wrap;">
-                <button type="button" class="qs-btn" id="qs-start">Start scanner</button>
-                <button type="button" class="qs-btn" id="qs-switch" style="display:none; background:#f8fafc; color:#0f172a; border:1px solid #cbd5e1;">Switch camera</button>
+                <button type="button" class="qs-btn" id="qs-start">Start Scanning</button>
+                <button type="button" class="qs-btn qs-secondary" id="qs-stop" style="display:none">Stop</button><button type="button" class="qs-btn" id="qs-switch" style="display:none; background:#f8fafc; color:#0f172a; border:1px solid #cbd5e1;">Switch camera</button>
             </div>
-            <div id="qs-camera-list" style="margin-top:10px; font-size:0.85rem; color:#94a3b8;"></div>
+            <div class="qs-status" id="qs-status" role="status" aria-live="polite">Start scanning when ready. Your browser will ask for camera access.</div><div id="qs-camera-list" style="margin-top:10px; font-size:0.85rem; color:#94a3b8;"></div>
 
             <div class="qs-divider">or paste the link / code instead</div>
 
             <form method="GET" action="{{ route('participant.scanner.resolve') }}" class="qs-fallback">
-                <input type="text" name="code" placeholder="Paste the scan link or code here" required>
+                <label for="qs-code">Attendance link or code</label><input id="qs-code" type="text" name="code" placeholder="Paste the scan link or code here" required>
                 <button type="submit">Continue</button>
             </form>
         </section>
 
         <aside class="qs-guide" aria-label="Check-in guidance">
-            <section class="card qs-guide-card">
-                <h3 class="qs-guide-title">Before you scan</h3>
+            <details class="card qs-guide-card"><summary class="qs-guide-title">How to scan</summary>
+
                 <p class="qs-guide-copy">Use the same activity QR code to check in when you arrive and check out when you leave.</p>
                 <ol class="qs-steps">
                     <li class="qs-step">
@@ -98,14 +98,13 @@
                     </li>
                     <li class="qs-step">
                         <span class="qs-step-number" aria-hidden="true">2</span>
-                        <div><strong>Scan the code</strong><p>Select “Start scanner” and hold your camera steady over the QR code.</p></div>
+                        <div><strong>Scan the code</strong><p>Select “Start Scanning” and hold your camera steady over the QR code.</p></div>
                     </li>
                     <li class="qs-step">
                         <span class="qs-step-number" aria-hidden="true">3</span>
                         <div><strong>Choose your attendance action</strong><p>Choose check-in when you arrive or check-out when you leave, then allow location access if prompted.</p></div>
                     </li>
-                </ol>
-            </section>
+                </ol></details>
 
             <section class="qs-help" aria-labelledby="qs-help-title">
                 <h4 id="qs-help-title">Having trouble?</h4>
@@ -120,180 +119,9 @@
         </aside>
     </div>
 
-    <script src="https://unpkg.com/jsqr@1.4.0/dist/jsQR.js" integrity="sha256-vEDIoVGWI2sjFNsIVvcsoLSZgM1UE7jIUqc0n1/uCFk=" crossorigin=""></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const startBtn = document.getElementById('qs-start');
-            const switchBtn = document.getElementById('qs-switch');
-            const cameraListEl = document.getElementById('qs-camera-list');
-            const statusEl = document.getElementById('qs-status');
-            const idleEl = document.getElementById('qs-idle');
-            const video = document.getElementById('qs-video');
-            const reticle = document.getElementById('qs-reticle');
-            const canvas = document.getElementById('qs-canvas');
-            const ctx = canvas.getContext('2d', { willReadFrequently: true });
-
-            let stream = null;
-            let rafId = null;
-            let scanning = false;
-            let cameras = [];
-            let cameraIndex = 0;
-
-            // Chrome can auto-pop an active camera stream into a floating
-            // Picture-in-Picture window when the tab loses focus. The video
-            // and its attributes opt out of that, but force it back inline
-            // if it ever slips through anyway.
-            video.addEventListener('enterpictureinpicture', () => {
-                if (document.pictureInPictureElement) {
-                    document.exitPictureInPicture().catch(() => {});
-                }
-            });
-
-            const setStatus = (text, kind) => {
-                statusEl.textContent = text;
-                statusEl.className = 'qs-status' + (kind ? ' ' + kind : '');
-            };
-
-            const tokenPattern = /([a-zA-Z0-9]{40})/;
-
-            const stopScanning = () => {
-                if (rafId) cancelAnimationFrame(rafId);
-                if (stream) stream.getTracks().forEach((track) => track.stop());
-                rafId = null;
-                stream = null;
-                scanning = false;
-                idleEl.style.display = 'flex';
-                video.style.display = 'none';
-                reticle.style.display = 'none';
-                switchBtn.style.display = 'none';
-                cameraListEl.textContent = '';
-                startBtn.textContent = 'Start scanner';
-                startBtn.disabled = false;
-            };
-
-            const tick = () => {
-                if (video.readyState === video.HAVE_ENOUGH_DATA) {
-                    canvas.width = video.videoWidth;
-                    canvas.height = video.videoHeight;
-                    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-                    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-                    const code = window.jsQR ? jsQR(imageData.data, imageData.width, imageData.height) : null;
-
-                    if (code && code.data) {
-                        const match = code.data.match(tokenPattern);
-                        if (match) {
-                            setStatus('QR code recognized. Opening check-in...', 'success');
-                            stopScanning();
-                            window.location.href = '{{ route("participant.scanner.resolve") }}?code=' + encodeURIComponent(match[1]);
-                            return;
-                        }
-                    }
-                }
-                if (scanning) rafId = requestAnimationFrame(tick);
-            };
-
-            // Labels are only populated by the browser after permission has
-            // been granted once, so this is called (and re-called) after a
-            // successful getUserMedia to build the switchable camera list.
-            const refreshCameraList = async () => {
-                if (!navigator.mediaDevices.enumerateDevices) return;
-                const devices = await navigator.mediaDevices.enumerateDevices();
-                cameras = devices.filter((d) => d.kind === 'videoinput');
-                switchBtn.style.display = cameras.length > 1 ? 'inline-flex' : 'none';
-                cameraListEl.textContent = cameras.length
-                    ? cameras.length + ' camera' + (cameras.length === 1 ? '' : 's') + ' found: ' + cameras.map((c) => c.label || 'unnamed camera').join(', ')
-                    : '';
-            };
-
-            const openStream = async (constraints) => {
-                if (stream) stream.getTracks().forEach((track) => track.stop());
-                stream = await navigator.mediaDevices.getUserMedia(constraints);
-
-                video.srcObject = stream;
-                video.muted = true;
-                if ('disablePictureInPicture' in video) video.disablePictureInPicture = true;
-                await video.play();
-
-                // Wait for real frame dimensions before scanning — drawing a
-                // 0x0 video to the canvas would look like a black box.
-                if (!video.videoWidth) {
-                    await new Promise((resolve) => video.addEventListener('loadedmetadata', resolve, { once: true }));
-                }
-
-                const track = stream.getVideoTracks()[0];
-                const label = track ? (track.label || 'camera') : 'camera';
-
-                idleEl.style.display = 'none';
-                video.style.display = 'block';
-                reticle.style.display = 'block';
-                setStatus('Using ' + label + ' (' + video.videoWidth + '×' + video.videoHeight + '). Point it at the QR code.');
-
-                await refreshCameraList();
-
-                // Keep cameraIndex pointed at whichever device is actually active.
-                if (track && cameras.length) {
-                    const settings = track.getSettings ? track.getSettings() : {};
-                    const activeIndex = cameras.findIndex((c) => c.deviceId === settings.deviceId);
-                    if (activeIndex !== -1) cameraIndex = activeIndex;
-                }
-            };
-
-            startBtn.addEventListener('click', async () => {
-                if (scanning) {
-                    stopScanning();
-                    setStatus('Scanner stopped.');
-                    return;
-                }
-
-                if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-                    setStatus('Camera access is not supported on this browser. Use the paste option below instead.', 'error');
-                    return;
-                }
-
-                startBtn.disabled = true;
-                setStatus('Requesting camera access...');
-
-                // Prefer the rear camera (phones), but most laptops only have
-                // a front webcam — fall back to "any camera" instead of failing.
-                try {
-                    try {
-                        await openStream({ video: { facingMode: { ideal: 'environment' } }, audio: false });
-                    } catch (firstError) {
-                        await openStream({ video: true, audio: false });
-                    }
-                } catch (error) {
-                    setStatus('Could not access any camera (' + (error.name || 'error') + ': ' + (error.message || 'unknown') + '). Check your browser/OS camera permissions, or use the paste option below.', 'error');
-                    startBtn.disabled = false;
-                    return;
-                }
-
-                startBtn.textContent = 'Stop scanner';
-                startBtn.disabled = false;
-                scanning = true;
-                rafId = requestAnimationFrame(tick);
-            });
-
-            switchBtn.addEventListener('click', async () => {
-                if (!cameras.length) return;
-                switchBtn.disabled = true;
-                cameraIndex = (cameraIndex + 1) % cameras.length;
-                const nextDeviceId = cameras[cameraIndex].deviceId;
-
-                try {
-                    await openStream({ video: { deviceId: { exact: nextDeviceId } }, audio: false });
-                    if (!scanning) {
-                        scanning = true;
-                        rafId = requestAnimationFrame(tick);
-                    }
-                } catch (error) {
-                    setStatus('Could not switch to that camera (' + (error.name || 'error') + '). Try again or use the paste option below.', 'error');
-                }
-                switchBtn.disabled = false;
-            });
-
-            document.addEventListener('visibilitychange', () => {
-                if (document.hidden) stopScanning();
-            });
-        });
-    </script>
+    <style>
+    .qs-layout{max-width:1120px;margin:auto}.qs-card>p{font-size:.9rem;line-height:1.5}.qs-reticle{inset:auto;top:50%;left:50%;width:210px;height:210px;transform:translate(-50%,-50%);border:0;border-radius:16px}.qs-reticle i{position:absolute;width:32px;height:32px;border:4px solid #34d399}.qs-reticle i:nth-child(1){top:0;left:0;border-right:0;border-bottom:0;border-radius:12px 0 0}.qs-reticle i:nth-child(2){top:0;right:0;border-left:0;border-bottom:0;border-radius:0 12px 0 0}.qs-reticle i:nth-child(3){bottom:0;left:0;border-right:0;border-top:0;border-radius:0 0 0 12px}.qs-reticle i:nth-child(4){bottom:0;right:0;border-left:0;border-top:0;border-radius:0 0 12px}.qs-reticle span{position:absolute;top:10px;left:8px;right:8px;height:2px;background:#6ee7b7;box-shadow:0 0 14px #34d399;animation:qs-sweep 2.5s ease-in-out infinite alternate}@keyframes qs-sweep{to{transform:translateY(188px)}}#qs-start{width:100%;font-size:1rem;box-shadow:0 6px 16px #08734e22}.qs-secondary{background:#f8fafc;color:#334155;border:1px solid #cbd5e1}.qs-status.busy:before{content:'';display:inline-block;width:12px;height:12px;border:2px solid #a7f3d0;border-top-color:#047857;border-radius:50%;margin-right:8px;animation:qs-spin .8s linear infinite}@keyframes qs-spin{to{transform:rotate(360deg)}}.qs-guide summary{cursor:pointer;font-weight:700}.qs-idle{box-sizing:border-box;max-width:320px;margin:auto;line-height:1.6}.qs-fallback label{display:block;font-size:.85rem;margin-bottom:8px}.qs-fallback input{box-sizing:border-box}@media(prefers-reduced-motion:reduce){.qs-reticle span,.qs-status.busy:before{animation:none}}@media(max-width:760px){.qs-card{padding:18px}.qs-guide{gap:12px}.qs-guide-card{padding:18px}}
+    </style>
+    <script src="https://unpkg.com/jsqr@1.4.0/dist/jsQR.js" crossorigin="anonymous"></script>
+    <script src="{{ asset('js/attendance-scanner.js') }}?v=2" data-resolve="{{ route('participant.scanner.resolve') }}" defer></script>
 @endsection

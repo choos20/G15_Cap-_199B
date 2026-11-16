@@ -64,12 +64,16 @@
             display:grid;
             gap:10px;
         }
-    </style>
+     .scan-actions button:disabled{opacity:.45;cursor:not-allowed}.scan-actions button:focus-visible{outline:3px solid #a7f3d0;outline-offset:3px}.scan-actions button{background:#047857}.scan-card{padding:26px;border-radius:20px}.scan-data{padding:16px;background:#f8fafc;border-radius:14px}.scan-hint{font-size:.9rem}@media(max-width:600px){.scan-card{padding:18px}.scan-actions button{flex:1;min-width:130px}.scan-card h3{font-size:1.1rem}} </style>
 
     <div class="scan-page">
         <div class="scan-card">
-            <h3>Attendance scan</h3>
-            <p class="scan-hint">Choose check-in or check-out. Both scans use your account, a short-lived one-use challenge, the session window, and your device’s reported GPS location. Location is a helpful signal, but browser GPS is not tamper-proof.</p>
+            <a href="{{ route('participant.scanner') }}" style="display:inline-block;margin-bottom:20px;color:#047857;font-weight:700">&larr; Scan another code</a>
+            <div style="display:flex;align-items:center;gap:14px;margin-bottom:18px">
+                <x-organization-avatar :organization="$session->project->creator" :size="48" />
+                <div><small style="color:#047857;font-weight:700">QR CODE DETECTED</small><h3 style="margin:5px 0">{{ $session->project->title }}</h3><span style="color:#64748b">{{ $session->project->creator?->organization_name ?: $session->project->creator?->name }}</span></div>
+            </div>
+            <p class="scan-hint">Confirm your attendance below. Allow location access so we can verify that you are at the activity venue.</p>
             @if($attendanceRecord && in_array($attendanceRecord->attendance_source, \App\Models\AttendanceRecord::CSV_SOURCES, true))
                 <div class="scan-status">The organizer has already recorded your attendance for this session. Use My Attendance to view the record.</div>
             @elseif($attendanceRecord && $canCheckOut)
@@ -78,12 +82,13 @@
                 <div class="scan-status">Your attendance for this session is already complete.</div>
             @endif
 
-            <div class="scan-status" id="scan-message">Ready to scan.</div>
+            <div class="scan-status" id="scan-message" role="status" aria-live="polite">QR code validated. Preparing your attendance action.</div>
+            <div class="scan-status" id="attendance-state" style="margin-top:12px">{{ $canCheckOut ? 'Checked in — check-out available' : ($canCheckIn ? 'Not checked in' : 'Attendance already recorded') }}</div>
             <div class="scan-data">
                 <div><strong>Checking in as:</strong> {{ auth()->user()->name }} ({{ auth()->user()->email }})</div>
                 <div><strong>Session:</strong> {{ $session->project->title }}</div>
                 <div><strong>Status:</strong> {{ ucfirst($session->status) }}</div>
-                <div><strong>Open until:</strong> {{ $session->closes_at->format('M d, Y H:i') }}</div>
+                <div><strong>Open until:</strong> {{ $session->closes_at?->format('M d, Y g:i A') ?? 'Not specified' }}</div>
                 <div><strong>Allowed radius:</strong> {{ $session->radius_meters }} meters</div>
             </div>
 
@@ -108,6 +113,7 @@
             let scanChallenge = @json($scanChallenge);
             let canCheckIn = @json($canCheckIn);
             let canCheckOut = @json($canCheckOut);
+            let submitting = false;
 
             const updateMessage = (text, status = 'info') => {
                 scanMessage.textContent = text;
@@ -132,7 +138,7 @@
                 navigator.geolocation.getCurrentPosition((position) => {
                     currentCoords = position.coords;
                     updateData(currentCoords);
-                    updateMessage('Location ready. Tap Scan to submit.', 'success');
+                    updateMessage('Location ready. Choose Check in or Check out below.', 'success');
                 }, (error) => {
                     updateMessage('Unable to fetch your location. Make sure location access is allowed and refresh the page.', 'error');
                 }, {
@@ -143,12 +149,14 @@
             };
 
             const sendScan = (action) => {
+                if (submitting) return;
                 if (!currentCoords) {
                     updateMessage('Please allow location access before scanning.', 'error');
                     return;
                 }
 
                 updateMessage('Submitting attendance...');
+                submitting = true;
                 checkInButton.disabled = true;
                 checkOutButton.disabled = true;
                 fetch(`{{ route('attendance.scan.submit', ['token' => $session->qr_token]) }}`, {
@@ -174,6 +182,7 @@
                     return data;
                 })
                 .then((data) => {
+                    submitting = false;
                     scanChallenge = data.scan_challenge;
                     canCheckIn = data.can_check_in;
                     canCheckOut = data.can_check_out;
@@ -181,6 +190,7 @@
                     checkOutButton.disabled = !canCheckOut;
                     if (data.status === 'valid' || data.status === 'completed') {
                         updateMessage(data.message, 'success');
+                        document.getElementById('attendance-state').textContent = data.status === 'completed' ? 'Checked out — attendance complete' : 'Checked in — check-out available';
                     } else {
                         updateMessage(data.message, 'error');
                     }
@@ -189,6 +199,7 @@
                     }
                 })
                 .catch((error) => {
+                    submitting = false;
                     checkInButton.disabled = !canCheckIn;
                     checkOutButton.disabled = !canCheckOut;
                     updateMessage(error.message || 'Could not submit the scan. Reload this page to get a fresh scan challenge.', 'error');

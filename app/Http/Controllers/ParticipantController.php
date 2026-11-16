@@ -532,8 +532,16 @@ class ParticipantController extends Controller
 
         $code = trim((string) $request->query('code', ''));
 
-        if (preg_match('/([a-zA-Z0-9]{40})/', $code, $matches)) {
-            return redirect()->route('attendance.scan.view', ['token' => $matches[1]]);
+        $token = $code;
+        if (filter_var($code, FILTER_VALIDATE_URL)) {
+            $path = parse_url($code, PHP_URL_PATH);
+            $token = preg_match('#^/attendance/scan/([a-zA-Z0-9]{40})/?$#', (string) $path, $matches)
+                ? $matches[1] : '';
+        }
+
+        if (preg_match('/^[a-zA-Z0-9]{40}$/', $token)
+            && \App\Models\AttendanceSession::where('qr_token', $token)->exists()) {
+            return redirect()->route('attendance.scan.view', ['token' => $token]);
         }
 
         return redirect()->route('participant.scanner')
