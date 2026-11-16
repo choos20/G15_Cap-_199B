@@ -277,6 +277,17 @@ class User extends Authenticatable
             $data = stream_get_contents($data);
         }
 
+        // PostgreSQL returns bytea values as a hex string (\\x followed by
+        // the encoded bytes) in some PDO configurations. Convert it back to
+        // the original image bytes before embedding it in a data URL.
+        if (is_string($data) && str_starts_with($data, '\\x')) {
+            $decoded = hex2bin(substr($data, 2));
+
+            if ($decoded !== false) {
+                $data = $decoded;
+            }
+        }
+
         return 'data:' . ($mime ?: 'application/octet-stream') . ';base64,' . base64_encode((string) $data);
     }
 
