@@ -317,7 +317,7 @@ class User extends Authenticatable
     public function profileCompleteness(): array
     {
         $checks = [
-            'Add a logo' => filled($this->org_logo),
+            'Add a logo' => filled($this->org_logo) || filled($this->org_logo_data),
             'Write a short description' => filled($this->org_description),
             'Add your college or department' => filled($this->org_college),
             'Add your vision' => filled($this->org_vision),

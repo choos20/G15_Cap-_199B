@@ -33,6 +33,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
@@ -902,12 +903,22 @@ Route::middleware('auth')->group(function () {
             if ($user->org_logo && ! preg_match('#^https?://#i', $user->org_logo) && Storage::disk('public')->exists($user->org_logo)) {
                 Storage::disk('public')->delete($user->org_logo);
             }
-            $user->org_logo = $request->file('org_logo')->store('org_logos', 'public');
+            if (Schema::hasColumn('users', 'org_logo_data')) {
+                $user->org_logo = null;
+                $user->org_logo_data = $request->file('org_logo')->get();
+                $user->org_logo_mime = $request->file('org_logo')->getMimeType();
+            } else {
+                $user->org_logo = $request->file('org_logo')->store('org_logos', 'public');
+            }
         } elseif ($request->boolean('remove_org_logo')) {
             if ($user->org_logo && ! preg_match('#^https?://#i', $user->org_logo) && Storage::disk('public')->exists($user->org_logo)) {
                 Storage::disk('public')->delete($user->org_logo);
             }
             $user->org_logo = null;
+            if (Schema::hasColumn('users', 'org_logo_data')) {
+                $user->org_logo_data = null;
+                $user->org_logo_mime = null;
+            }
         }
 
         $idNumberChanged = $user->role === 'participant'
@@ -1110,6 +1121,10 @@ Route::middleware('auth')->group(function () {
             Storage::disk('public')->delete($user->org_logo);
         }
         $user->org_logo = null;
+        if (Schema::hasColumn('users', 'org_logo_data')) {
+            $user->org_logo_data = null;
+            $user->org_logo_mime = null;
+        }
         $user->save();
 
         return redirect()->route('users.edit', $user)->with('status', 'Organization logo removed.');
@@ -1361,8 +1376,15 @@ Route::middleware('auth')->group(function () {
         $plainPassword = Str::password(14, symbols: false);
 
         $orgLogoPath = null;
+        $orgLogoData = null;
+        $orgLogoMime = null;
         if ($request->hasFile('org_logo')) {
-            $orgLogoPath = $request->file('org_logo')->store('org_logos', 'public');
+            if (Schema::hasColumn('users', 'org_logo_data')) {
+                $orgLogoData = $request->file('org_logo')->get();
+                $orgLogoMime = $request->file('org_logo')->getMimeType();
+            } else {
+                $orgLogoPath = $request->file('org_logo')->store('org_logos', 'public');
+            }
         }
 
         $created = User::create([
@@ -1379,6 +1401,8 @@ Route::middleware('auth')->group(function () {
             'created_by' => $user->id,
             'organization_name' => $request->organization_name,
             'org_logo' => $orgLogoPath,
+            'org_logo_data' => $orgLogoData,
+            'org_logo_mime' => $orgLogoMime,
             'org_description' => $request->org_description,
             // Classification/detail fields only apply to their own account type;
             // the form hides the rest, and validation nulls them out here.

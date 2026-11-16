@@ -223,7 +223,7 @@
                                     <button class="profile-avatar-action is-remove" type="submit">Remove photo</button>
                                 </form>
                             @endif
-                            <p style="margin:8px 0 0; color:#64748b; font-size:.73rem; line-height:1.4">JPG, PNG, or WebP; at least 256 × 256 pixels; maximum 2 MB. Use the original photo for the clearest result.</p>
+                            <p style="margin:8px 0 0; color:#64748b; font-size:.73rem; line-height:1.4">JPG, PNG, or WebP; maximum 2 MB. Square images work best.</p>
                         @endif
                     </div>
                 </details>
