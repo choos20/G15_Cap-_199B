@@ -195,6 +195,7 @@ class ParticipantController extends Controller
             'ongoingActivityCount' => 0,
             'involvementTotal' => $participationMonths->sum('count') + $upcomingCount,
             'timelineActivities' => collect(),
+            'dashboardNotifications' => $user->notifications()->latest()->take(3)->get(),
         ]);
     }
 

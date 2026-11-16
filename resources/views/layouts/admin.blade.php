@@ -153,7 +153,11 @@
 
             @unless(in_array($userRole, ['student_org', 'college_department'], true))
                 <a href="{{ $dashboardRoute }}" class="{{ request()->routeIs('*dashboard') ? 'active' : '' }}">
-                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="m3 11 9-8 9 8v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1v-9Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+                    @if($userRole === 'participant')
+                        <x-ui-icon name="home" :size="19" />
+                    @else
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="m3 11 9-8 9 8v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1v-9Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+                    @endif
                     <span>Dashboard</span>
                 </a>
             @endunless
@@ -185,7 +189,11 @@
                 @endif
 
                 <a href="{{ route('account.password') }}" class="{{ request()->routeIs('account.password') ? 'active' : '' }}">
-                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M16.24 3.76l4 4L18 10l-4-4L9.76 9.24 8 7.48 11.52 4 7 0.48 8.76-0.28 12.24 3.76zm-5.1 5.1L3 16.99V21h4.01l8.39-8.39-4.26-4.26z" fill="currentColor"/></svg>
+                    @if($userRole === 'participant')
+                        <x-ui-icon name="settings" :size="19" />
+                    @else
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M16.24 3.76l4 4L18 10l-4-4L9.76 9.24 8 7.48 11.52 4 7 0.48 8.76-0.28 12.24 3.76zm-5.1 5.1L3 16.99V21h4.01l8.39-8.39-4.26-4.26z" fill="currentColor"/></svg>
+                    @endif
                     <span>Tools</span>
                 </a>
         </nav>

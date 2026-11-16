@@ -1,19 +1,20 @@
-<a href="{{ route('participant.activities') }}" class="{{ request()->routeIs('participant.activities*') ? 'active' : '' }}">
-    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 4h7l3 3h6v13H4V4z" fill="currentColor"/></svg>
-    <span>Browse Activities</span>
-</a>
-@include('partials.nav_organizations')
-@include('partials.nav_templates')
-<a href="{{ route('participant.applications') }}" class="{{ request()->routeIs('participant.applications*') ? 'active' : '' }}">
-    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 3h9l6 6v12a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z" fill="currentColor"/><path d="M14 3v6h6" fill="currentColor"/></svg>
-    <span>My Applications</span>
-</a>
-<a href="{{ route('participant.scanner') }}" class="{{ request()->routeIs('participant.scanner*') ? 'active' : '' }}">
-    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 4h4v2H6v2H4V4zm12 0h4v4h-2V6h-2V4zM4 16h2v2h2v2H4v-4zm14 2v-2h2v4h-4v-2h2zM9 9h6v6H9V9z" fill="currentColor"/></svg>
-    <span>Scanner</span>
-</a>
-<a href="{{ route('participant.attendance') }}" class="{{ request()->routeIs('participant.attendance') ? 'active' : '' }}">
-    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 5h16v15H4zM8 3v4m8-4v4M7 11h3m4 0h3m-10 4h3m4 0h3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-    <span>My Attendance</span>
-</a>
-@include('partials.nav_notifications')
+@php
+    $participantNavigation = [
+        ['route' => 'participant.activities', 'pattern' => 'participant.activities*', 'label' => 'Browse Activities', 'icon' => 'search'],
+        ['route' => 'organizations.index', 'pattern' => 'organizations.*', 'label' => 'Organizations', 'icon' => 'building'],
+        ['route' => 'templates.index', 'pattern' => 'templates.*', 'label' => 'Forms & Requirements', 'icon' => 'file'],
+        ['route' => 'participant.applications', 'pattern' => 'participant.applications*', 'label' => 'My Applications', 'icon' => 'clipboard'],
+        ['route' => 'participant.scanner', 'pattern' => 'participant.scanner*', 'label' => 'Scanner', 'icon' => 'qr'],
+        ['route' => 'participant.attendance', 'pattern' => 'participant.attendance', 'label' => 'My Attendance', 'icon' => 'calendar-check'],
+        ['route' => 'notifications.index', 'pattern' => 'notifications.index', 'label' => 'Notifications', 'icon' => 'bell'],
+    ];
+@endphp
+@foreach($participantNavigation as $item)
+    <a href="{{ route($item['route']) }}" class="{{ request()->routeIs($item['pattern']) ? 'active' : '' }}" @if($item['route'] === 'notifications.index' && ($navUnreadCount ?? 0) > 0) aria-label="Notifications, {{ $navUnreadCount }} unread" @endif>
+        <x-ui-icon :name="$item['icon']" :size="19" />
+        <span>{{ $item['label'] }}</span>
+        @if($item['route'] === 'notifications.index' && ($navUnreadCount ?? 0) > 0)
+            <span style="margin-left:auto;min-width:20px;height:20px;padding:0 6px;border-radius:999px;background:#ef4444;color:#fff;font-size:.72rem;font-weight:700;display:inline-flex;align-items:center;justify-content:center;font-variant-numeric:tabular-nums">{{ $navUnreadCount > 99 ? '99+' : $navUnreadCount }}</span>
+        @endif
+    </a>
+@endforeach
