@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+﻿@extends('layouts.admin')
 
 @section('title', 'Dashboard')
 @section('subtitle', 'Find and track community extension activities')
@@ -16,7 +16,7 @@
         .pd-welcome h3 { margin:0; color:#103b32; font-size:1.45rem; line-height:1.3; }
         .pd-welcome p { margin:7px 0 0; color:#54746a; font-size:0.92rem; line-height:1.55; }
         .pd-welcome-art { position:absolute; right:36px; top:50%; width:190px; height:130px; transform:translateY(-50%); color:#14815b; opacity:0.14; }
-        .pd-stats { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:14px; margin-bottom:18px; }
+        .pd-stats { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:16px; margin-bottom:20px; }
         .pd-stat { position:relative; display:flex; align-items:center; gap:14px; min-width:0; padding:19px; border:1px solid; border-radius:15px; text-decoration:none; transition:transform 160ms ease,box-shadow 160ms ease; }
         .pd-stat:hover { transform:translateY(-2px); box-shadow:0 12px 24px rgba(15,23,42,0.08); }
         .pd-stat-pending { background:#fffaf0; border-color:#f5dfaa; }
@@ -29,72 +29,66 @@
         .pd-stat-label { color:#475569; font-size:0.85rem; font-weight:700; line-height:1.4; }
         .pd-stat-value { margin-top:3px; color:#102e2a; font-size:1.8rem; font-weight:800; line-height:1.1; }
         .pd-stat-arrow { margin-left:auto; color:#678179; font-size:1.2rem; }
-        .pd-dashboard-grid { display:grid; grid-template-columns:minmax(0,1.35fr) minmax(340px,1fr); gap:16px; align-items:stretch; }
-        .pd-overview-body { display:grid; grid-template-columns:minmax(205px,.85fr) minmax(0,1.4fr); gap:12px; align-items:center; }
-        .pd-involvement { display:flex; align-items:center; justify-content:center; gap:15px; min-width:0; }
-        .pd-ring { position:relative; display:grid; place-items:center; width:124px; height:124px; flex:0 0 124px; border-radius:50%; background:conic-gradient(#09965e 0 var(--pd-complete),#6bd39c var(--pd-complete) var(--pd-ongoing),#dce5e0 var(--pd-ongoing) 100%); }
-        .pd-ring::before { position:absolute; inset:11px; border-radius:50%; background:#fff; content:''; }
-        .pd-ring-center { position:relative; z-index:1; text-align:center; }
-        .pd-ring-value { display:block; color:#102e2a; font-size:1.7rem; font-weight:850; line-height:1.1; }
-        .pd-ring-label { color:#71817c; font-size:.76rem; }
-        .pd-legend { display:grid; gap:10px; min-width:92px; }
-        .pd-legend-row { display:grid; grid-template-columns:10px minmax(0,1fr) auto; gap:7px; align-items:center; color:#53635d; font-size:.78rem; }
-        .pd-legend-dot { width:9px; height:9px; border-radius:3px; background:#09965e; }
-        .pd-legend-dot.is-ongoing { background:#6bd39c; }
-        .pd-legend-dot.is-upcoming { background:#d1d9d5; }
-        .pd-mini-chart-title { margin-bottom:2px; color:#344b43; font-size:.8rem; font-weight:750; }
-        .pd-mini-chart { display:block; width:100%; height:auto; overflow:visible; }
-        .pd-mini-line { fill:none; stroke:#09965e; stroke-width:3; stroke-linecap:round; stroke-linejoin:round; }
-        .pd-mini-area { fill:url(#pd-chart-gradient); }
-        .pd-mini-dot { fill:#09965e; }
-        .pd-event-card { display:grid; grid-template-columns:112px minmax(0,1fr); gap:14px; align-items:center; min-height:126px; padding:12px; border:1px solid #e4ece8; border-radius:14px; background:linear-gradient(140deg,#fff,#f8fbf9); }
-        .pd-event-art { display:flex; align-items:center; justify-content:center; position:relative; height:104px; overflow:hidden; border-radius:11px; background:linear-gradient(145deg,#08734e,#0eaa74); color:#fff; }
-        .pd-event-date { position:absolute; top:7px; left:7px; display:grid; place-items:center; width:42px; height:48px; border:1px solid rgba(255,255,255,.25); border-radius:8px; background:rgba(5,68,47,.88); color:#fff; font-size:.64rem; font-weight:800; line-height:1.05; text-align:center; text-transform:uppercase; }
-        .pd-event-date strong { display:block; font-size:1.05rem; }
-        .pd-event-copy { min-width:0; }
-        .pd-event-title { margin:0 0 6px; color:#18372f; font-size:.95rem; line-height:1.35; }
-        .pd-event-detail { display:flex; align-items:flex-start; gap:6px; margin-top:5px; color:#71817c; font-size:.76rem; line-height:1.35; }
-        .pd-event-open { display:flex; align-items:center; justify-content:center; width:30px; height:30px; margin:8px 0 0 auto; border-radius:50%; background:#e9f7f0; color:#08734e; text-decoration:none; }
-        .pd-event-empty { display:grid; place-items:center; min-height:126px; padding:18px; border:1px dashed #d7e7de; border-radius:14px; background:#f8fbf9; color:#71817c; text-align:center; }
-        .pd-bottom-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:16px; margin-top:16px; }
-        .pd-quick-actions { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:9px; }
-        .pd-quick-action { display:flex; align-items:center; gap:9px; min-width:0; padding:11px; border:1px solid #edf2ef; border-radius:11px; background:#f8fbf9; color:#18372f; text-decoration:none; transition:background 140ms ease,transform 140ms ease; }
-        .pd-quick-action:hover { transform:translateY(-1px); background:#eff8f2; }
-        .pd-quick-icon { display:grid; place-items:center; width:34px; height:34px; flex:0 0 34px; border-radius:10px; background:#e2f4e9; color:#0b8a59; }
-        .pd-quick-title { display:block; font-size:.76rem; font-weight:800; }
-        .pd-quick-subtitle { display:block; margin-top:2px; color:#77857f; font-size:.66rem; line-height:1.35; }
-        .pd-timeline { position:relative; display:grid; gap:0; padding-left:22px; }
-        .pd-timeline::before { position:absolute; top:12px; bottom:12px; left:7px; width:2px; background:#e5eee9; content:''; }
-        .pd-timeline-item { position:relative; display:block; padding:3px 0 15px 10px; color:inherit; text-decoration:none; }
-        .pd-timeline-item:last-child { padding-bottom:3px; }
-        .pd-timeline-dot { position:absolute; top:5px; left:-20px; width:16px; height:16px; border:2px solid #d7e1dc; border-radius:50%; background:#fff; }
-        .pd-timeline-dot.is-complete { border-color:#0a9a60; background:#0a9a60; box-shadow:inset 0 0 0 3px #fff; }
-        .pd-timeline-title { color:#263b34; font-size:.78rem; font-weight:800; }
-        .pd-timeline-meta { display:block; margin-top:3px; color:#77857f; font-size:.7rem; line-height:1.4; }
-        .pd-update-list { display:grid; gap:0; }
-        .pd-update { display:flex; align-items:flex-start; gap:9px; padding:10px 0; border-bottom:1px solid #edf1ef; color:inherit; text-decoration:none; }
-        .pd-update:first-child { padding-top:0; }
-        .pd-update:last-child { padding-bottom:0; border-bottom:0; }
-        .pd-update-icon { display:grid; place-items:center; width:32px; height:32px; flex:0 0 32px; border-radius:10px; background:#e7f7ed; color:#11965f; }
-        .pd-update-title { color:#263b34; font-size:.75rem; font-weight:800; line-height:1.35; }
-        .pd-update-meta { display:block; margin-top:3px; color:#77857f; font-size:.67rem; }
+        .pd-impact { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; margin:-2px 0 20px; }
+        .pd-impact-card { display:flex; align-items:center; gap:13px; min-width:0; padding:16px 18px; border:1px solid #dcece4; border-radius:15px; background:linear-gradient(115deg,#fff 0%,#f4faf6 100%); }
+        .pd-impact-icon { display:flex; align-items:center; justify-content:center; width:42px; height:42px; flex:0 0 42px; border-radius:13px; background:#e1f3e9; color:#08734e; }
+        .pd-impact-label { color:#64766f; font-size:.78rem; font-weight:700; line-height:1.35; }
+        .pd-impact-value { display:block; margin-top:2px; color:#123d33; font-size:1.35rem; font-weight:850; line-height:1.15; }
+        .pd-panels { display:grid; grid-template-columns:minmax(0,1.8fr) minmax(280px,0.9fr); gap:18px; align-items:stretch; }
         .pd-panel { min-width:0; padding:22px; border:1px solid #e8edf0; border-radius:16px; background:#fff; box-shadow:0 6px 18px rgba(11,42,42,0.045); }
         .pd-panel-head { display:flex; align-items:center; justify-content:space-between; gap:14px; margin-bottom:16px; }
         .pd-panel-title { display:flex; align-items:center; gap:10px; margin:0; color:#123d33; font-size:1.02rem; }
         .pd-panel-icon { display:flex; align-items:center; justify-content:center; width:36px; height:36px; flex:0 0 36px; border-radius:12px; background:#e9f7f0; color:#08734e; }
         .pd-panel-link { color:#08734e; font-size:0.84rem; font-weight:700; text-decoration:none; white-space:nowrap; }
         .pd-panel-link:hover { text-decoration:underline; }
+        .pd-opportunities { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
+        .pd-opportunity { display:flex; flex-direction:column; gap:14px; min-width:0; padding:16px; border:1px solid #e2ece7; border-radius:14px; background:linear-gradient(145deg,#fff 0%,#f8fcf9 100%); transition:transform 160ms ease,box-shadow 160ms ease; }
+        .pd-opportunity:hover { transform:translateY(-2px); box-shadow:0 10px 22px rgba(11,65,45,.07); }
+        .pd-opportunity-kicker { display:inline-flex; align-items:center; gap:6px; width:max-content; max-width:100%; padding:5px 9px; border-radius:999px; background:#eaf7ef; color:#08734e; font-size:.72rem; font-weight:800; }
+        .pd-opportunity-org { display:flex; align-items:center; gap:8px; min-width:0; }
+        .pd-opportunity-title { color:#172f2a; font-size:0.92rem; font-weight:700; line-height:1.4; }
+        .pd-opportunity-meta { margin-top:4px; color:#71817c; font-size:0.82rem; line-height:1.45; }
+        .pd-view-link { display:inline-flex; align-items:center; gap:7px; width:max-content; margin-top:auto; padding:9px 12px; border:1px solid #cfe5d8; border-radius:9px; background:#fff; color:#08734e; font-size:0.82rem; font-weight:750; text-decoration:none; }
+        .pd-view-link:hover { text-decoration:underline; }
+        .pd-empty { display:flex; align-items:center; gap:20px; min-height:188px; padding:24px; border-radius:12px; background:linear-gradient(120deg,#f8fcf9,#f2f8f5); }
+        .pd-empty-art { display:flex; align-items:center; justify-content:center; width:112px; height:112px; flex:0 0 112px; border-radius:50%; background:#e1f2e9; color:#16815a; }
+        .pd-empty-copy { max-width:320px; }
+        .pd-empty-copy h4 { margin:0; color:#173e34; font-size:0.98rem; }
+        .pd-empty-copy p { margin:6px 0 12px; color:#71817c; font-size:0.86rem; line-height:1.55; }
+        .pd-empty-action { color:#08734e; font-size:0.86rem; font-weight:700; text-decoration:none; }
+        .pd-empty-action:hover { text-decoration:underline; }
+        .pd-next-card { display:flex; flex-direction:column; min-height:188px; padding:18px; border:1px solid #e5eeea; border-radius:12px; background:#f8fbf9; }
+        .pd-next-date { color:#08734e; font-size:0.8rem; font-weight:800; letter-spacing:0.04em; text-transform:uppercase; }
+        .pd-next-title { margin:7px 0 0; color:#172f2a; font-size:1rem; line-height:1.45; }
+        .pd-next-meta { margin-top:8px; color:#71817c; font-size:0.85rem; line-height:1.5; }
+        .pd-next-link { align-self:flex-start; margin-top:auto; padding-top:16px; color:#08734e; font-size:0.85rem; font-weight:700; text-decoration:none; }
+        .pd-next-link:hover { text-decoration:underline; }
+        .pd-next-empty { position:relative; display:flex; flex:1; flex-direction:column; align-items:center; justify-content:center; gap:12px; min-height:188px; overflow:hidden; padding:22px; border:1px solid #e1eee7; border-radius:12px; background:linear-gradient(145deg,#f7fbf8 0%,#edf7f1 100%); text-align:center; }
+        .pd-next-empty::before, .pd-next-empty::after { position:absolute; content:''; width:112px; height:112px; border:1px solid rgba(8,115,78,0.09); border-radius:50%; pointer-events:none; }
+        .pd-next-empty::before { top:-68px; right:-38px; }
+        .pd-next-empty::after { bottom:-78px; left:-48px; }
+        .pd-next-empty-icon-wrap { display:flex; align-items:center; justify-content:center; width:58px; height:58px; border:1px solid #d4e9dc; border-radius:18px; background:rgba(255,255,255,0.8); color:#23815e; box-shadow:0 5px 14px rgba(15,70,49,0.05); }
+        .pd-next-empty-title { margin:0; color:#173e34; font-size:0.98rem; font-weight:750; }
+        .pd-next-empty p { max-width:245px; margin:0; color:#71817c; font-size:0.85rem; line-height:1.55; }
+        .pd-next-empty .pd-empty-action { position:relative; z-index:1; display:inline-flex; align-items:center; gap:7px; padding:9px 13px; border:1px solid #cde5d7; border-radius:9px; background:#fff; }
+        .pd-next-empty .pd-empty-action:hover { background:#f4fbf6; text-decoration:none; }
+        .pd-chart-panel { margin-top:18px; }
+        .pd-chart-summary { margin:0 0 6px; color:#71817c; font-size:0.84rem; }
+        .pd-participation-chart { display:block; width:100%; max-width:560px; height:auto; margin:8px auto 0; overflow:visible; }
+        .pd-chart-gridline { stroke:#e9f0ed; stroke-width:1; }
+        .pd-chart-bar { fill:#12a878; }
+        .pd-chart-value { fill:#36564b; font-size:12px; font-weight:700; text-anchor:middle; }
+        .pd-chart-month { fill:#71817c; font-size:12px; font-weight:700; text-anchor:middle; }
         .pd-chart-empty { display:flex; align-items:center; gap:15px; padding:20px; border-radius:12px; background:#f8fbf9; color:#71817c; }
+        .pd-chart-empty-icon { display:flex; align-items:center; justify-content:center; width:46px; height:46px; flex:0 0 46px; border-radius:14px; background:#e9f7f0; color:#08734e; }
+        .pd-chart-empty strong { display:block; margin-bottom:4px; color:#173e34; }
         @media (max-width:980px) {
-            .pd-stats { grid-template-columns:repeat(2,minmax(0,1fr)); }
-            .pd-dashboard-grid { grid-template-columns:minmax(0,1fr); }
-            .pd-bottom-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+            .pd-panels { grid-template-columns:minmax(0,1fr); }
         }
         @media (max-width:700px) {
             .pd-stats { grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
-            .pd-bottom-grid { grid-template-columns:minmax(0,1fr); }
-            .pd-overview-body { grid-template-columns:minmax(0,1fr); }
-            .pd-involvement { justify-content:flex-start; }
+            .pd-impact { gap:9px; }
+            .pd-impact-card { align-items:flex-start; flex-direction:column; gap:9px; padding:13px; }
             .pd-stat { padding:15px 13px; gap:10px; }
             .pd-stat-icon { width:42px; height:42px; flex-basis:42px; }
             .pd-stat-label { font-size:0.78rem; }
@@ -104,11 +98,14 @@
         }
         @media (max-width:480px) {
             .pd-stats { grid-template-columns:minmax(0,1fr); }
+            .pd-impact { grid-template-columns:minmax(0,1fr); }
+            .pd-impact-card { align-items:center; flex-direction:row; }
             .pd-opportunities { grid-template-columns:minmax(0,1fr); }
             .pd-panel { padding:17px; }
             .pd-empty { flex-direction:column; align-items:flex-start; gap:14px; padding:18px; }
             .pd-empty-art { width:76px; height:76px; flex-basis:76px; }
             .pd-empty-art svg { width:40px; height:40px; }
+            .pd-opportunity { align-items:flex-start; }
         }
     </style>
 
@@ -153,132 +150,198 @@
             <span><span class="pd-stat-label">Total applications</span><span class="pd-stat-value" style="display:block">{{ $totalApplications }}</span></span>
             <span class="pd-stat-arrow" aria-hidden="true">›</span>
         </a>
-        <a class="pd-stat" style="background:#f8f2ff; border-color:#e5d5fb" href="{{ route('participant.applications') }}">
-            <span class="pd-stat-icon" style="background:#9453e8" aria-hidden="true">
-                <svg width="23" height="23" viewBox="0 0 24 24" fill="none"><rect x="4" y="5" width="16" height="16" rx="2" stroke="currentColor" stroke-width="2"/><path d="M8 3v4m8-4v4M4 10h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-            </span>
-            <span><span class="pd-stat-label">Upcoming activities</span><span class="pd-stat-value" style="display:block">{{ $upcomingCount }}</span></span>
-            <span class="pd-stat-arrow" aria-hidden="true">›</span>
-        </a>
     </section>
 
-    <section class="pd-dashboard-grid">
-        <article class="pd-panel">
+    <section class="pd-impact" aria-label="Your community impact">
+        <article class="pd-impact-card">
+            <span class="pd-impact-icon" aria-hidden="true">
+                <svg width="21" height="21" viewBox="0 0 24 24" fill="none"><path d="M4 19V5m0 14h16M8 15l4-4 3 2 5-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </span>
+            <span><span class="pd-impact-label">Activities attended · last 6 months</span><span class="pd-impact-value">{{ $totalAttendedActivities }}</span></span>
+        </article>
+        <article class="pd-impact-card">
+            <span class="pd-impact-icon" aria-hidden="true">
+                <svg width="21" height="21" viewBox="0 0 24 24" fill="none"><path d="M16 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2m7-10a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm7-7.5a4 4 0 0 1 0 7.75M17 15h1a4 4 0 0 1 4 4v2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+            </span>
+            <span><span class="pd-impact-label">Organizations supported</span><span class="pd-impact-value">{{ $organizationsSupported }}</span></span>
+        </article>
+        <article class="pd-impact-card">
+            <span class="pd-impact-icon" aria-hidden="true">
+                <svg width="21" height="21" viewBox="0 0 24 24" fill="none"><rect x="4" y="5" width="16" height="16" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="M8 3v4m8-4v4M4 10h16m-8 3v4m-2-2h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+            </span>
+            <span><span class="pd-impact-label">Upcoming activities</span><span class="pd-impact-value">{{ $upcomingCount }}</span></span>
+        </article>
+    </section>
+
+    <section class="pd-panels">
+        <div class="pd-panel">
             <div class="pd-panel-head">
                 <h3 class="pd-panel-title">
-                    <span class="pd-panel-icon" aria-hidden="true"><svg width="19" height="19" viewBox="0 0 24 24" fill="none"><path d="M12 21V11m0 5c-4 0-6-2-6-6 4 0 6 2 6 6Zm0-3c4 0 6-2 6-6-4 0-6 2-6 6Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-                    My Involvement Overview
+                    <span class="pd-panel-icon" aria-hidden="true">
+                        <svg width="19" height="19" viewBox="0 0 24 24" fill="none"><path d="M12 21V11m0 5c-4 0-6-2-6-6 4 0 6 2 6 6Zm0-3c4 0 6-2 6-6-4 0-6 2-6 6Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </span>
+                    Open volunteer opportunities
                 </h3>
-                <span class="pd-panel-link" style="padding:7px 10px; border:1px solid #e5ece8; border-radius:9px">Last 6 months</span>
+                <a class="pd-panel-link" href="{{ route('participant.activities') }}">Browse all</a>
             </div>
-            @php
-                $completedPercent = $involvementTotal > 0 ? (int) round($completedActivityCount / $involvementTotal * 100) : 0;
-                $ongoingPercent = $involvementTotal > 0 ? (int) round(($completedActivityCount + $ongoingActivityCount) / $involvementTotal * 100) : 0;
-                $chartMax = max(1, (int) $participationMonths->max('count'));
-                $chartPoints = $participationMonths->map(fn ($month, $index) => (40 + $index * 88).','. (132 - (int) round($month['count'] / $chartMax * 76)))->implode(' ');
-            @endphp
-            <div class="pd-overview-body">
-                <div class="pd-involvement">
-                    <div class="pd-ring" style="--pd-complete:{{ $completedPercent }}%; --pd-ongoing:{{ $ongoingPercent }}%" role="img" aria-label="{{ $completedActivityCount }} activities attended, {{ $ongoingActivityCount }} ongoing, {{ $upcomingCount }} upcoming">
-                        <div class="pd-ring-center"><span class="pd-ring-value">{{ $completedActivityCount }}</span><span class="pd-ring-label">Activities</span></div>
-                    </div>
-                    <div class="pd-legend" aria-label="Activity breakdown">
-                        <div class="pd-legend-row"><span class="pd-legend-dot"></span><span>Completed</span><strong>{{ $completedActivityCount }}</strong></div>
-                        <div class="pd-legend-row"><span class="pd-legend-dot is-ongoing"></span><span>Ongoing</span><strong>{{ $ongoingActivityCount }}</strong></div>
-                        <div class="pd-legend-row"><span class="pd-legend-dot is-upcoming"></span><span>Upcoming</span><strong>{{ $upcomingCount }}</strong></div>
-                    </div>
-                </div>
-                <div>
-                    <div class="pd-mini-chart-title">Activities per month</div>
-                    @if($totalAttendedActivities > 0)
-                        <svg class="pd-mini-chart" viewBox="0 0 520 175" role="img" aria-label="Activities attended per month over the last six months">
-                            <defs><linearGradient id="pd-chart-gradient" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="#19ad70" stop-opacity=".22"/><stop offset="100%" stop-color="#19ad70" stop-opacity="0"/></linearGradient></defs>
-                            <line x1="22" y1="134" x2="510" y2="134" stroke="#e6eeea" stroke-width="1"/>
-                            <polygon class="pd-mini-area" points="40,134 {{ $chartPoints }} 480,134"/>
-                            <polyline class="pd-mini-line" points="{{ $chartPoints }}"/>
-                            @foreach($participationMonths as $index => $month)
-                                @php $chartX = 40 + ($index * 88); $chartY = 132 - (int) round($month['count'] / $chartMax * 76); @endphp
-                                <circle class="pd-mini-dot" cx="{{ $chartX }}" cy="{{ $chartY }}" r="3.5"/>
-                                <text x="{{ $chartX }}" y="158" text-anchor="middle" fill="#77857f" font-size="11" font-weight="700">{{ $month['label'] }}</text>
-                            @endforeach
-                        </svg>
-                    @else
-                        <div class="pd-chart-empty" style="margin-top:8px; padding:12px; font-size:.75rem">Your activity trend will appear after your first attendance.</div>
-                    @endif
-                </div>
-            </div>
-        </article>
 
-        <article class="pd-panel">
-            <div class="pd-panel-head">
-                <h3 class="pd-panel-title"><span class="pd-panel-icon" aria-hidden="true"><svg width="19" height="19" viewBox="0 0 24 24" fill="none"><rect x="4" y="5" width="16" height="16" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="M8 3v4m8-4v4M4 10h16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></span>Upcoming Activity</h3>
-                <a class="pd-panel-link" href="{{ route('participant.activities') }}">View all <span aria-hidden="true">→</span></a>
-            </div>
-            @if($nextEnrolled)
-                @php $upcomingAnnouncement = $nextEnrolled->announcement; @endphp
-                <div class="pd-event-card">
-                    <div class="pd-event-art" aria-hidden="true">
-                        @if($upcomingAnnouncement->creator?->orgLogoUrl())
-                            <img src="{{ $upcomingAnnouncement->creator->orgLogoUrl() }}" alt="" style="width:100%;height:100%;object-fit:cover" onerror="this.hidden=true; this.nextElementSibling.hidden=false">
-                        @endif
-                        <svg @if($upcomingAnnouncement->creator?->orgLogoUrl()) hidden @endif width="54" height="54" viewBox="0 0 54 54" fill="none"><path d="M27 45V23m0 14c-9 0-14-5-15-14 9 0 14 5 15 14Zm0-9c9 0 14-5 15-14-9 0-14 5-15 14Z" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M13 45h28" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
-                        <span class="pd-event-date">{{ $upcomingAnnouncement->event_date->format('M') }}<strong>{{ $upcomingAnnouncement->event_date->format('d') }}</strong></span>
+            @if($feedPreview->isEmpty())
+                <div class="pd-empty">
+                    <div class="pd-empty-art" aria-hidden="true">
+                        <svg width="54" height="54" viewBox="0 0 54 54" fill="none">
+                            <path d="M27 45V23m0 14c-9 0-14-5-15-14 9 0 14 5 15 14Zm0-9c9 0 14-5 15-14-9 0-14 5-15 14Z" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M13 45h28" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+                        </svg>
                     </div>
-                    <div class="pd-event-copy">
-                        <h4 class="pd-event-title">{{ $upcomingAnnouncement->title }}</h4>
-                        @if($upcomingAnnouncement->event_location)<div class="pd-event-detail"><span aria-hidden="true">⌖</span>{{ $upcomingAnnouncement->event_location }}</div>@endif
-                        <div class="pd-event-detail"><span aria-hidden="true">◷</span>{{ $upcomingAnnouncement->event_date->format('g:i A') }}</div>
-                        <a class="pd-event-open" href="{{ route('participant.activities.show', $upcomingAnnouncement) }}" aria-label="View {{ $upcomingAnnouncement->title }} details">→</a>
+                    <div class="pd-empty-copy">
+                        <h4>No activities open right now</h4>
+                        <p>New opportunities are added throughout the year. Check the activity list to see what’s available.</p>
+                        <a class="pd-empty-action" href="{{ route('participant.activities') }}">Explore activities</a>
                     </div>
                 </div>
             @else
-                <div class="pd-event-empty">No upcoming activity yet. Browse opportunities and find your next way to help.</div>
+                <ul class="pd-opportunities" style="list-style:none; margin:0; padding:0">
+                    @foreach($feedPreview as $opportunity)
+                        <li class="pd-opportunity">
+                            <div style="min-width:0">
+                                <span class="pd-opportunity-kicker">Volunteer opportunity</span>
+                                <div class="pd-opportunity-title">{{ $opportunity->title }}</div>
+                                <div class="pd-opportunity-meta pd-opportunity-org">
+                                    <x-organization-avatar :organization="$opportunity->creator" :size="28" />
+                                    <span>{{ $opportunity->creator->organization_name ?? $opportunity->creator->name ?? 'Unknown organization' }}</span>
+                                    @if($opportunity->event_date)
+                                        <span>· {{ $opportunity->event_date->format('M j, Y') }}</span>
+                                    @endif
+                                </div>
+                            </div>
+                            @if($opportunity->event_location)
+                                <div class="pd-opportunity-meta">{{ $opportunity->event_location }}</div>
+                            @endif
+                            @if($opportunity->slots_needed)
+                                <div class="pd-opportunity-meta">{{ max(0, $opportunity->slots_needed - $opportunity->approved_volunteers) }} spots available</div>
+                            @endif
+                            <a class="pd-view-link" href="{{ route('participant.activities.show', $opportunity) }}">View opportunity <span aria-hidden="true">→</span></a>
+                        </li>
+                    @endforeach
+                </ul>
             @endif
-        </article>
+        </div>
+
+        <div class="pd-panel">
+            <div class="pd-panel-head">
+                <h3 class="pd-panel-title">
+                    <span class="pd-panel-icon" aria-hidden="true">
+                        <svg width="19" height="19" viewBox="0 0 24 24" fill="none"><rect x="4" y="5" width="16" height="16" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="M8 3v4m8-4v4M4 10h16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+                    </span>
+                    Next activity
+                </h3>
+            </div>
+
+            @if($nextEnrolled)
+                <div class="pd-next-card">
+                    <div class="pd-next-date">{{ $nextEnrolled->announcement->event_date->format('D, M j · g:i A') }}</div>
+                    <h4 class="pd-next-title">{{ $nextEnrolled->announcement->title }}</h4>
+                    @if($nextEnrolled->announcement->event_location)
+                        <div class="pd-next-meta">{{ $nextEnrolled->announcement->event_location }}</div>
+                    @endif
+                    @if($nextEnrolled->announcement->creator)
+                        <div class="pd-next-meta pd-opportunity-org">
+                            <x-organization-avatar :organization="$nextEnrolled->announcement->creator" :size="28" />
+                            <span>{{ $nextEnrolled->announcement->creator->organization_name ?? $nextEnrolled->announcement->creator->name ?? 'Organization' }}</span>
+                        </div>
+                    @endif
+                    <a class="pd-next-link" href="{{ route('participant.activities.show', $nextEnrolled->announcement) }}">View activity details</a>
+                </div>
+            @else
+                <div class="pd-next-empty">
+                    <span class="pd-next-empty-icon-wrap" aria-hidden="true">
+                        <svg width="32" height="32" viewBox="0 0 48 48" fill="none">
+                            <rect x="7" y="10" width="28" height="29" rx="4" stroke="currentColor" stroke-width="2"/>
+                            <path d="M14 6v8m14-8v8M7 19h28" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            <circle cx="34" cy="33" r="9" fill="#fff" stroke="currentColor" stroke-width="2"/>
+                            <path d="M34 28v5l3 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                    </span>
+                    <h4 class="pd-next-empty-title">Your next activity starts here</h4>
+                    <p>You’re not enrolled in an upcoming activity yet. Find a community opportunity that fits your interests.</p>
+                    <a class="pd-empty-action" href="{{ route('participant.activities') }}">Find an activity</a>
+                </div>
+            @endif
+        </div>
     </section>
 
-    <section class="pd-bottom-grid">
-        <article class="pd-panel">
-            <div class="pd-panel-head"><h3 class="pd-panel-title"><span class="pd-panel-icon" aria-hidden="true">⚡</span>Quick Actions</h3></div>
-            <div class="pd-quick-actions">
-                <a class="pd-quick-action" href="{{ route('participant.activities') }}"><span class="pd-quick-icon">＋</span><span><span class="pd-quick-title">Find Activities</span><span class="pd-quick-subtitle">Browse and join programs</span></span></a>
-                <a class="pd-quick-action" href="{{ route('participant.attendance') }}"><span class="pd-quick-icon">▣</span><span><span class="pd-quick-title">Track Attendance</span><span class="pd-quick-subtitle">View your participation</span></span></a>
-                <a class="pd-quick-action" href="{{ route('participant.applications') }}"><span class="pd-quick-icon">▤</span><span><span class="pd-quick-title">My Applications</span><span class="pd-quick-subtitle">Check your application status</span></span></a>
-                <a class="pd-quick-action" href="{{ route('participant.scanner') }}"><span class="pd-quick-icon">⌗</span><span><span class="pd-quick-title">Scan QR</span><span class="pd-quick-subtitle">Check in to activities</span></span></a>
+    @if($participantAnnouncements->isNotEmpty())
+        <section class="pd-panel" style="margin-top:18px" aria-labelledby="pd-announcements-title">
+            <div class="pd-panel-head">
+                <h3 class="pd-panel-title" id="pd-announcements-title">
+                    <span class="pd-panel-icon" aria-hidden="true">
+                        <svg width="19" height="19" viewBox="0 0 24 24" fill="none"><path d="M4 5h16v14H4zM8 9h8m-8 4h8m-8 3h5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </span>
+                    Community announcements
+                </h3>
+                <a class="pd-panel-link" href="{{ route('participant.activities') }}">Browse all</a>
             </div>
-        </article>
+            <ul class="pd-opportunities" style="list-style:none; margin:0; padding:0">
+                @foreach($participantAnnouncements as $participantAnnouncement)
+                    <li class="pd-opportunity">
+                        <div style="min-width:0">
+                            <div class="pd-opportunity-title">{{ $participantAnnouncement->title }}</div>
+                            <div class="pd-opportunity-meta pd-opportunity-org">
+                                <x-organization-avatar :organization="$participantAnnouncement->creator" :size="28" />
+                                <span>{{ $participantAnnouncement->creator->organization_name ?? $participantAnnouncement->creator->name ?? 'Unknown organization' }}</span>
+                                <span>· {{ $participantAnnouncement->category }}</span>
+                            </div>
+                            @if($participantAnnouncement->project)
+                                <div class="pd-opportunity-meta">Activity: {{ $participantAnnouncement->project->title }}</div>
+                            @endif
+                        </div>
+                        <a class="pd-view-link" href="{{ route('participant.activities.show', $participantAnnouncement) }}">View announcement</a>
+                    </li>
+                @endforeach
+            </ul>
+        </section>
+    @endif
 
-        <article class="pd-panel">
-            <div class="pd-panel-head"><h3 class="pd-panel-title"><span class="pd-panel-icon" aria-hidden="true">♧</span>Activity Timeline</h3><a class="pd-panel-link" href="{{ route('participant.attendance') }}">View all <span aria-hidden="true">→</span></a></div>
-            <div class="pd-timeline">
-                @if($nextEnrolled)
-                    <a class="pd-timeline-item" href="{{ route('participant.activities.show', $nextEnrolled->announcement) }}"><span class="pd-timeline-dot"></span><span class="pd-timeline-title">{{ $nextEnrolled->announcement->title }}</span><span class="pd-timeline-meta">Next activity · {{ $nextEnrolled->announcement->event_date->format('M j, Y') }}</span></a>
-                @endif
-                @forelse($timelineActivities as $timelineActivity)
-                    <a class="pd-timeline-item" href="{{ route('participant.attendance') }}"><span class="pd-timeline-dot is-complete"></span><span class="pd-timeline-title">{{ $timelineActivity->project_title ?: 'Community activity' }}</span><span class="pd-timeline-meta">Attended · {{ \Illuminate\Support\Carbon::parse($timelineActivity->opens_at)->format('M j, Y') }}</span></a>
-                @empty
-                    @unless($nextEnrolled)<div class="pd-chart-empty" style="font-size:.76rem">Your activity history will appear here.</div>@endunless
-                @endforelse
+    <section class="pd-panel pd-chart-panel" aria-labelledby="pd-participation-title">
+        <div class="pd-panel-head">
+            <div>
+                <h3 class="pd-panel-title" id="pd-participation-title">
+                    <span class="pd-panel-icon" aria-hidden="true">
+                        <svg width="19" height="19" viewBox="0 0 24 24" fill="none"><path d="M4 19V5m0 14h17M8 15l4-4 3 2 5-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </span>
+                    Activity timeline
+                </h3>
+                <p class="pd-chart-summary">Activities attended per month · last 6 months</p>
             </div>
-        </article>
+            <a class="pd-panel-link" href="{{ route('participant.attendance') }}">View attendance</a>
+        </div>
 
-        <article class="pd-panel">
-            <div class="pd-panel-head"><h3 class="pd-panel-title"><span class="pd-panel-icon" aria-hidden="true">♧</span>Recent Updates</h3><a class="pd-panel-link" href="{{ route('notifications.index') }}">View all <span aria-hidden="true">→</span></a></div>
-            <div class="pd-update-list">
-                @forelse($navRecentNotifications->take(3) as $notification)
-                    <form action="{{ route('notifications.read', $notification->id) }}" method="POST" class="pd-update">
-                        @csrf
-                        <button type="submit" style="display:flex;align-items:flex-start;gap:9px;width:100%;padding:0;border:0;background:transparent;text-align:left;cursor:pointer">
-                            <span class="pd-update-icon" aria-hidden="true">{{ str_contains(strtolower($notification->data['title'] ?? ''), 'approv') ? '✓' : '↗' }}</span>
-                            <span><span class="pd-update-title">{{ $notification->data['title'] ?? 'ProjectLink update' }}</span><span class="pd-update-meta">{{ $notification->created_at->diffForHumans() }}</span></span>
-                        </button>
-                    </form>
-                @empty
-                    <div class="pd-chart-empty" style="font-size:.76rem">You’re all caught up. New updates will appear here.</div>
-                @endforelse
+        @if($totalAttendedActivities > 0)
+            <svg class="pd-participation-chart" viewBox="0 0 560 205" role="img" aria-label="You attended {{ $totalAttendedActivities }} {{ $totalAttendedActivities === 1 ? 'activity' : 'activities' }} over the last six months.">
+                <line class="pd-chart-gridline" x1="20" y1="36" x2="540" y2="36"/>
+                <line class="pd-chart-gridline" x1="20" y1="76" x2="540" y2="76"/>
+                <line class="pd-chart-gridline" x1="20" y1="116" x2="540" y2="116"/>
+                <line class="pd-chart-gridline" x1="20" y1="156" x2="540" y2="156"/>
+                @foreach($participationMonths as $month)
+                    @php
+                        $barTop = 156 - $month['bar_height'];
+                        $valueY = max(26, $barTop - 8);
+                    @endphp
+                    <rect class="pd-chart-bar" x="{{ $month['bar_x'] }}" y="{{ $barTop }}" width="48" height="{{ $month['bar_height'] }}" rx="7"/>
+                    <text class="pd-chart-value" x="{{ $month['bar_x'] + 24 }}" y="{{ $valueY }}">{{ $month['count'] }}</text>
+                    <text class="pd-chart-month" x="{{ $month['bar_x'] + 24 }}" y="184">{{ $month['label'] }}</text>
+                @endforeach
+            </svg>
+        @else
+            <div class="pd-chart-empty">
+                <span class="pd-chart-empty-icon" aria-hidden="true">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M4 19V5m0 14h17M8 15l4-4 3 2 5-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </span>
+                <div>
+                    <strong>No attendance history yet</strong>
+                    Once you attend an activity, your participation will appear here.
+                </div>
             </div>
-        </article>
+        @endif
     </section>
-
-
 @endsection
