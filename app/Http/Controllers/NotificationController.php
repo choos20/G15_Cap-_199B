@@ -65,9 +65,35 @@ class NotificationController extends Controller
         $notification = $request->user()->notifications()->findOrFail($id);
         $notification->markAsRead();
 
-        $url = $notification->data['url'] ?? route('dashboard');
+        $url = $notification->data['url'] ?? null;
+        $path = is_string($url) ? parse_url($url, PHP_URL_PATH) : null;
+        $host = is_string($url) ? parse_url($url, PHP_URL_HOST) : null;
+        $allowedHosts = array_filter([
+            $request->getHost(),
+            '127.0.0.1',
+            'localhost',
+            '::1',
+        ]);
 
-        return redirect($url);
+        // Older notification rows may contain absolute development URLs such as
+        // http://127.0.0.1:8000/... . Redirect to their app-relative path so the
+        // browser stays on the deployed host. Reject external or malformed URLs.
+        if (! is_string($path) || ! str_starts_with($path, '/') || str_starts_with($path, '//')
+            || ($host !== null && ! in_array($host, $allowedHosts, true))) {
+            return redirect()->route('dashboard');
+        }
+
+        $target = $path;
+        $query = parse_url($url, PHP_URL_QUERY);
+        $fragment = parse_url($url, PHP_URL_FRAGMENT);
+        if (is_string($query) && $query !== '') {
+            $target .= '?'.$query;
+        }
+        if (is_string($fragment) && $fragment !== '') {
+            $target .= '#'.$fragment;
+        }
+
+        return redirect()->to($target);
     }
 
     public function markAllRead(Request $request)

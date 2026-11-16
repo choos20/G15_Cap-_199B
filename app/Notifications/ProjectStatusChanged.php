@@ -41,11 +41,28 @@ class ProjectStatusChanged extends Notification
 
     public function toArray($notifiable)
     {
+        // Database notifications should remain on whichever host serves this
+        // app. Persist only the path so local development URLs never leak into
+        // deployed notification links.
+        $notificationPath = parse_url($this->url, PHP_URL_PATH);
+        $notificationQuery = parse_url($this->url, PHP_URL_QUERY);
+        $notificationFragment = parse_url($this->url, PHP_URL_FRAGMENT);
+        $storedUrl = is_string($notificationPath) && str_starts_with($notificationPath, '/')
+            && ! str_starts_with($notificationPath, '//')
+            ? $notificationPath
+            : '/';
+        if ($storedUrl !== '/' && is_string($notificationQuery) && $notificationQuery !== '') {
+            $storedUrl .= '?'.$notificationQuery;
+        }
+        if ($storedUrl !== '/' && is_string($notificationFragment) && $notificationFragment !== '') {
+            $storedUrl .= '#'.$notificationFragment;
+        }
+
         return [
             'project_id' => $this->project->id,
             'title' => $this->title,
             'body' => $this->body,
-            'url' => $this->url,
+            'url' => $storedUrl,
         ];
     }
 }
