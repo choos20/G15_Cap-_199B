@@ -39,17 +39,6 @@
 
     <style>
         .cd-dashboard { display:grid; gap:16px; }
-        .cd-welcome {
-            position:relative; display:flex; align-items:center; min-height:104px; overflow:hidden;
-            padding:20px 24px; border:1px solid #d8e8f3; border-radius:16px;
-            background:linear-gradient(105deg,#f1f7ff 0%,#f7faff 55%,#e7f5f1 100%);
-        }
-        .cd-welcome-copy { position:relative; z-index:1; max-width:650px; }
-        .cd-welcome h3 { margin:0; color:#12304f; font-size:1.35rem; line-height:1.35; }
-        .cd-welcome p { margin:5px 0 0; color:#58718d; font-size:0.88rem; line-height:1.5; }
-        .cd-welcome-meta { position:relative; z-index:1; margin-left:auto; padding-left:20px; color:#365c72; font-size:0.8rem; line-height:1.6; text-align:right; }
-        .cd-welcome-meta strong { display:block; color:#214b43; }
-        .cd-welcome-art { position:absolute; right:180px; top:50%; width:168px; height:100px; transform:translateY(-50%); color:#14815b; opacity:0.12; }
         .cd-stats { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px; }
         .cd-stat { position:relative; display:flex; align-items:center; gap:11px; min-width:0; padding:14px; border:1px solid; border-radius:14px; text-decoration:none; transition:transform 150ms ease,box-shadow 150ms ease; }
         .cd-stat:hover { transform:translateY(-2px); box-shadow:0 9px 20px rgba(15,23,42,0.08); }
@@ -137,10 +126,7 @@
             .cd-chart-layout { grid-template-columns:minmax(0,1fr); }
         }
         @media(max-width:640px) {
-            .cd-welcome { align-items:flex-start; min-height:120px; padding:18px; }
-            .cd-welcome-meta { display:none; }
-            .cd-welcome-art { right:-24px; top:0; transform:none; }
-            .cd-stats { grid-template-columns:minmax(0,1fr); }
+        .cd-stats { grid-template-columns:minmax(0,1fr); }
             .cd-panel { padding:15px; }
             .cd-status-overview { grid-template-columns:120px minmax(0,1fr); gap:10px; }
             .cd-donut { width:120px; height:120px; }
@@ -159,20 +145,7 @@
             </div>
         @endif
 
-        <section class="cd-welcome" aria-label="Welcome">
-            <div class="cd-welcome-copy">
-                <h3>{{ $greeting }}, {{ $user->first_name ?: $user->name }}!</h3>
-                <p>Here’s what’s happening with your coordinator dashboard.</p>
-            </div>
-            <svg class="cd-welcome-art" viewBox="0 0 180 110" fill="none" aria-hidden="true">
-                <path d="M20 83h142M32 83V42l24-18 24 18v41m-40 0V55h32v28m17 0V31h41v52m-31-39h8m-8 14h8m-8 14h8" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M114 31V15h23v16" stroke="currentColor" stroke-width="5" stroke-linejoin="round"/>
-            </svg>
-            <div class="cd-welcome-meta">
-                <strong>{{ now()->format('D, M j, Y') }}</strong>
-                Holy Name University
-            </div>
-        </section>
+        <x-dashboard-welcome />
 
         <section class="cd-stats" aria-label="Coordinator dashboard summary">
             <a class="cd-stat cd-stat-pending cd-focus" href="{{ route('projects.coordinator_review') }}">

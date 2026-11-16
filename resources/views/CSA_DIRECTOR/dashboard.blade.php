@@ -128,6 +128,8 @@
         </div>
     @endif
 
+    <x-dashboard-welcome />
+
     <div class="csa-stats">
         <div class="csa-stat">
             <div class="csa-stat-icon" aria-hidden="true">

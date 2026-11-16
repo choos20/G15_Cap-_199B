@@ -119,6 +119,8 @@
             </div>
         @endif
 
+        <x-dashboard-welcome />
+
         <section class="org-stats" aria-label="Proposal summary">
             <article class="org-stat">
                 <div class="org-stat-icon" aria-hidden="true">

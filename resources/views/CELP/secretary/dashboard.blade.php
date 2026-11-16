@@ -38,16 +38,6 @@
 
     <style>
         .csd-dashboard { display:grid; gap:18px; }
-        .csd-welcome {
-            position:relative; display:flex; align-items:center; min-height:130px; overflow:hidden;
-            padding:24px 28px; border:1px solid #d8eee5; border-radius:17px;
-            background:linear-gradient(105deg,#effaf4 0%,#f5fbf7 58%,#e3f4eb 100%);
-        }
-        .csd-welcome-copy { position:relative; z-index:1; max-width:650px; }
-        .csd-eyebrow { margin:0 0 7px; color:#08734e; font-size:0.75rem; font-weight:800; letter-spacing:0.1em; text-transform:uppercase; }
-        .csd-welcome h3 { margin:0; color:#103b32; font-size:1.45rem; line-height:1.3; }
-        .csd-welcome p { margin:7px 0 0; color:#54746a; font-size:0.91rem; line-height:1.55; }
-        .csd-welcome-art { position:absolute; top:50%; right:35px; width:170px; height:120px; transform:translateY(-50%); color:#14815b; opacity:0.14; }
         .csd-stats { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:14px; }
         .csd-stat { display:flex; align-items:center; gap:12px; min-width:0; padding:16px; border:1px solid #e5eaf0; border-radius:14px; background:#fff; }
         .csd-stat-icon { display:flex; align-items:center; justify-content:center; width:44px; height:44px; flex:0 0 44px; border:1px solid #e2e8f0; border-radius:13px; background:#f8fafc; color:#475569; }
@@ -131,9 +121,7 @@
             .csd-aside { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); align-items:start; }
         }
         @media(max-width:640px) {
-            .csd-welcome { min-height:120px; padding:21px; }
-            .csd-welcome-art { right:-25px; top:6px; transform:none; }
-            .csd-stats, .csd-aside { grid-template-columns:minmax(0,1fr); }
+        .csd-stats, .csd-aside { grid-template-columns:minmax(0,1fr); }
             .csd-panel { padding:16px; }
             .csd-chart-panel { padding:15px; }
             .csd-status-overview { grid-template-columns:115px minmax(0,1fr); gap:8px; padding:8px; }
@@ -153,18 +141,7 @@
             </div>
         @endif
 
-        <section class="csd-welcome" aria-label="Welcome">
-            <div class="csd-welcome-copy">
-                <p class="csd-eyebrow">CELP Secretary workspace</p>
-                <h3>Welcome back, {{ $user->first_name ?: $user->name }}.</h3>
-                <p>Review incoming proposals, check baseline requirements, and keep evaluation resources organized.</p>
-            </div>
-            <svg class="csd-welcome-art" viewBox="0 0 180 130" fill="none" aria-hidden="true">
-                <path d="M42 28h76v83H42z" stroke="currentColor" stroke-width="6" stroke-linejoin="round"/>
-                <path d="M59 51h42M59 68h42M59 85h25" stroke="currentColor" stroke-width="6" stroke-linecap="round"/>
-                <path d="m113 87 13 13 27-31" stroke="currentColor" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-        </section>
+        <x-dashboard-welcome />
 
         <section class="csd-stats" aria-label="Secretary dashboard summary">
             <div class="csd-stat">

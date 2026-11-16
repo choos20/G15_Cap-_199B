@@ -63,18 +63,6 @@
             --chd-brand:#087f67; --chd-brand-soft:#eaf6f2;
             display:grid; gap:17px; color:var(--chd-ink);
         }
-        .chd-welcome {
-            position:relative; display:flex; align-items:center; min-height:104px; overflow:hidden;
-            padding:22px 26px; border:1px solid #d8e9e3; border-radius:17px;
-            background:linear-gradient(110deg,#f3faf7 0%,#eef7f4 58%,#e5f1ed 100%);
-            box-shadow:0 6px 18px rgba(24,50,71,0.035);
-        }
-        .chd-welcome-copy { position:relative; z-index:1; max-width:650px; }
-        .chd-welcome h3 { margin:0; color:#173b3b; font-size:1.4rem; letter-spacing:-.025em; line-height:1.35; }
-        .chd-welcome p { margin:5px 0 0; color:#607b78; font-size:0.88rem; line-height:1.5; }
-        .chd-welcome-meta { position:relative; z-index:1; margin-left:auto; padding-left:20px; color:#637b8a; font-size:0.8rem; line-height:1.6; text-align:right; }
-        .chd-welcome-meta strong { display:block; color:#284c52; }
-        .chd-welcome-art { position:absolute; right:175px; top:50%; width:180px; height:110px; transform:translateY(-50%); color:#0d806b; opacity:0.1; }
         .chd-stats { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px; }
         .chd-stat { position:relative; display:flex; align-items:center; gap:12px; min-width:0; padding:15px; border:1px solid var(--chd-line); border-radius:15px; background:#fff; box-shadow:0 4px 13px rgba(24,50,71,0.035); text-decoration:none; transition:transform 170ms ease,border-color 170ms ease,box-shadow 170ms ease; }
         .chd-stat:hover { transform:translateY(-2px); border-color:#cbd9df; box-shadow:0 11px 24px rgba(24,50,71,0.09); }
@@ -186,10 +174,7 @@
             .chd-content-grid { grid-template-columns:minmax(0,1fr); }
         }
         @media(max-width:640px) {
-            .chd-welcome { align-items:flex-start; min-height:120px; padding:18px; }
-            .chd-welcome-meta { display:none; }
-            .chd-welcome-art { right:-25px; top:0; transform:none; }
-            .chd-stats { grid-template-columns:minmax(0,1fr); }
+        .chd-stats { grid-template-columns:minmax(0,1fr); }
             .chd-panel { padding:15px; }
             .chd-chart-grid { grid-template-columns:minmax(0,1fr); }
             .chd-overview-chart { grid-template-columns:120px minmax(0,1fr); gap:10px; }
@@ -209,20 +194,7 @@
             </div>
         @endif
 
-        <section class="chd-welcome" aria-label="Welcome">
-            <div class="chd-welcome-copy">
-                <h3>{{ $greeting }}, {{ $user->first_name ?: $user->name }}!</h3>
-                <p>Here’s what’s happening with your CELP dashboard.</p>
-            </div>
-            <svg class="chd-welcome-art" viewBox="0 0 180 110" fill="none" aria-hidden="true">
-                <path d="M20 83h142M32 83V42l24-18 24 18v41m-40 0V55h32v28m17 0V31h41v52m-31-39h8m-8 14h8m-8 14h8" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M114 31V15h23v16" stroke="currentColor" stroke-width="5" stroke-linejoin="round"/>
-            </svg>
-            <div class="chd-welcome-meta">
-                <strong>{{ now()->format('D, M j, Y') }}</strong>
-                Holy Name University
-            </div>
-        </section>
+        <x-dashboard-welcome />
 
         <section class="chd-stats" aria-label="CELP Head dashboard summary">
             <a class="chd-stat chd-stat-review chd-focus" href="{{ route('projects.celp_head_review') }}">

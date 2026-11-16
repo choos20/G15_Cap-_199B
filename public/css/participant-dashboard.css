@@ -1,3 +1,4 @@
+.ph-welcome-banner { margin-bottom: 16px; }
 body{
     background:#f4f7f5
 }
@@ -28,14 +29,6 @@ body{
     color:#145346;
     font-size:.88rem
 }
-.ph-welcome{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    gap:20px;
-    margin-bottom:18px;
-    padding:6px 0 4px
-}
 .ph-eyebrow{
     display:block;
     margin:0 0 6px;
@@ -43,21 +36,6 @@ body{
     font-size:.65rem;
     font-weight:700;
     letter-spacing:.12em
-}
-.ph-welcome h2{
-    margin:0;
-    font-size:clamp(1.35rem,2.2vw,1.7rem);
-    line-height:1.3;
-    letter-spacing:-.035em
-}
-.ph-welcome-dot{
-    color:#0aa77a
-}
-.ph-welcome p:not(.ph-eyebrow){
-    margin:7px 0 0;
-    color:var(--ph-muted);
-    font-size:.85rem;
-    line-height:1.5
 }
 .ph-button{
     display:inline-flex;
@@ -721,18 +699,6 @@ body{
     }
 }
 @media(max-width:540px){
-    .ph-welcome{
-        align-items:flex-start;
-        flex-direction:column;
-        gap:12px;
-        margin-bottom:16px
-    }
-    .ph-welcome h2{
-        font-size:1.4rem
-    }
-    .ph-welcome p:not(.ph-eyebrow){
-        font-size:.77rem
-    }
     .ph-stat{
         gap:8px;
         padding:12px 10px;

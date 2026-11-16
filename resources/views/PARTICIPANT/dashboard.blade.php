@@ -4,19 +4,13 @@
 @section('subtitle', 'Your community, at a glance')
 
 @section('content')
-    <link rel="stylesheet" href="{{ asset('css/participant-dashboard.css') }}?v=2">
+    <link rel="stylesheet" href="{{ asset('css/participant-dashboard.css') }}?v=3">
     <div class="participant-home">
         @if(session('status'))
             <div class="ph-notice" role="status">{{ session('status') }}</div>
         @endif
 
-        <header class="ph-welcome">
-            <div>
-                <p class="ph-eyebrow">YOUR COMMUNITY JOURNEY</p>
-                <h2>Welcome back, {{ auth()->user()->first_name ?: auth()->user()->name }}<span class="ph-welcome-dot">.</span></h2>
-                <p>Find your next opportunity. Keep your participation on track.</p>
-            </div>
-        </header>
+        <x-dashboard-welcome class="ph-welcome-banner" />
 
         <section class="ph-stats" aria-label="Your participation summary">
             <a class="ph-stat ph-amber" href="{{ route('participant.applications') }}">
