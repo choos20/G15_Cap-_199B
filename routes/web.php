@@ -165,7 +165,7 @@ function dashboard_route_for(?User $user): string
  * Open by default: not everyone being registered has an institutional mailbox,
  * and rejecting a personal address would leave those people unable to be
  * enrolled at all. Typos are caught instead by the retyped confirmation field
- * and by `email:rfc,dns`, which rejects a domain that cannot receive mail.
+ * and by `email:rfc`, which checks the address format.
  *
  * Restrict again in .env if a policy ever requires it:
  *     ACCOUNT_EMAIL_DOMAINS=hnu.edu.ph            (one domain)
@@ -839,9 +839,6 @@ Route::middleware('auth')->group(function () {
                 Rule::unique('users', 'email')->ignore($user->id),
                 'confirmed',
             ];
-            if (strcasecmp(trim((string) $request->input('email')), $user->email) !== 0) {
-                $rules['email'][] = 'dns';
-            }
             if ($domains = allowed_account_email_domains()) {
                 $rules['email'][] = 'ends_with:'.implode(',', array_map(fn ($domain) => '@'.$domain, $domains));
             }
@@ -857,7 +854,7 @@ Route::middleware('auth')->group(function () {
         }
 
         $validated = $request->validate($rules, [
-            'email.email' => 'That email address does not exist or its domain cannot receive mail. Please check the spelling.',
+            'email.email' => 'Please enter a valid email address.',
             'email.confirmed' => 'The two email addresses do not match. Please retype it to confirm.',
             'email.ends_with' => 'This account must use an email address from an allowed domain.',
             'email.unique' => 'That email address is already registered to another account.',
@@ -1290,12 +1287,12 @@ Route::middleware('auth')->group(function () {
             abort(403, 'You are not authorized to create accounts.');
         }
 
-        // Institutional and personal addresses are both accepted. `email:rfc,dns`
-        // rejects a domain that cannot receive mail, and the retyped confirmation
+        // Institutional and personal addresses are both accepted. `email:rfc`
+        // checks the address format, and the retyped confirmation
         // catches a mistyped mailbox — the two together are what stand in for the
         // OTP step these staff-created accounts deliberately skip.
         $domains = allowed_account_email_domains();
-        $emailRules = ['required', 'email:rfc,dns', 'max:255', 'unique:users,email', 'confirmed'];
+        $emailRules = ['required', 'email:rfc', 'max:255', 'unique:users,email', 'confirmed'];
         if ($domains) {
             $emailRules[] = 'ends_with:'.implode(',', array_map(fn ($d) => '@'.$d, $domains));
         }
