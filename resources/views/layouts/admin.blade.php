@@ -11,11 +11,11 @@
         html{min-width:0; overflow-x:hidden}
         body{font-family:Inter,system-ui,Segoe UI,Roboto,Arial; margin:0; background:#f6f7fb; color:var(--text); font-size:15px; min-width:0; overflow-x:hidden}
         body.nav-open{overflow:hidden}
-        .app-shell{display:flex; min-height:100vh}
-        .sidebar{position:sticky; top:0; width:260px; height:100vh; flex:0 0 260px; overflow:hidden; background:radial-gradient(ellipse at 15% 0%,#12463d 0%,transparent 42%),linear-gradient(180deg,var(--sidebar) 0%,var(--sidebar-deep) 100%); color:#e6f7f2; padding:22px 16px 16px; display:flex; flex-direction:column; border-right:1px solid rgba(255,255,255,0.06);}
+        .app-shell{min-height:100vh}
+        .sidebar{position:fixed; inset:0 auto 0 0; z-index:100; width:260px; height:auto; overflow:hidden; background:radial-gradient(ellipse at 15% 0%,#12463d 0%,transparent 42%),linear-gradient(180deg,var(--sidebar) 0%,var(--sidebar-deep) 100%); color:#e6f7f2; padding:22px 16px 16px; display:flex; flex-direction:column; border-right:1px solid rgba(255,255,255,0.06);}
         .brand{display:flex; align-items:center; gap:12px; margin-bottom:18px; padding:0 4px}
         .brand .logo{width:44px; height:44px; background:linear-gradient(135deg,#10b981,#0ea5a0); border-radius:10px; display:flex; align-items:center; justify-content:center; font-weight:800; color:#05201f}
-        .nav{margin-top:10px; padding:0 2px 8px; display:flex; flex-direction:column; gap:5px; min-height:0; overflow-y:auto; scrollbar-width:thin; scrollbar-color:rgba(148,163,184,0.35) transparent}
+        .nav{flex:1 1 auto; margin-top:10px; padding:0 2px 8px; display:flex; flex-direction:column; gap:5px; min-height:0; overflow-y:auto; scrollbar-width:thin; scrollbar-color:rgba(148,163,184,0.35) transparent}
         .nav a{position:relative; min-height:44px; color:#d5e8e2; text-decoration:none; padding:10px 12px; border:1px solid transparent; border-radius:11px; display:flex; align-items:center; gap:12px; font-weight:600; font-size:0.9rem; line-height:1.3; transition:background 160ms ease,color 160ms ease,border-color 160ms ease,transform 160ms ease}
         .nav a svg{width:19px; height:19px; flex-shrink:0; opacity:0.86; color:#a8c9bd; transition:color 160ms ease,opacity 160ms ease}
         .nav a:hover{background:rgba(255,255,255,0.07); color:#fff; border-color:rgba(255,255,255,0.06); transform:translateX(2px)}
@@ -54,7 +54,7 @@
         .profile-avatar-action{width:100%; margin-top:9px; padding:8px 10px; border:1px solid #0b7656; border-radius:8px; background:#0b7656; color:#fff; font:inherit; font-size:.8rem; font-weight:700; cursor:pointer}
         .profile-avatar-action.is-remove{border-color:#fecaca; background:#fff; color:#b91c1c}
         .profile-avatar-error{margin-top:8px; color:#b91c1c; font-size:.75rem; line-height:1.4}
-        .main{flex:1; min-width:0; padding:28px}
+        .main{min-width:0; min-height:100vh; margin-left:260px; padding:28px}
         .content{min-width:0; max-width:100%; overflow-wrap:anywhere}
         .content :where(input,select,textarea){min-width:0; max-width:100%}
         .content fieldset{min-inline-size:0}
@@ -101,14 +101,14 @@
         #notif-dropdown{right:0; left:auto; width:340px}
         .mobile-menu-toggle,.mobile-nav-backdrop{display:none}
         @media (max-width:900px){
-            .sidebar{position:fixed; inset:0 auto 0 0; z-index:100; width:min(86vw,320px); height:100dvh; min-width:0; flex:0 0 auto; overflow-y:auto; padding:18px 16px; transform:translateX(-105%); transition:transform 180ms ease; box-shadow:14px 0 34px rgba(2,8,8,0.22)}
+            .sidebar{width:min(86vw,320px); height:100dvh; min-width:0; overflow-y:auto; padding:18px 16px; transform:translateX(-105%); transition:transform 180ms ease; box-shadow:14px 0 34px rgba(2,8,8,0.22)}
             .sidebar.is-open{transform:translateX(0)}
             .sidebar-footer{order:1; margin:0 0 10px; padding:12px 0; border-top:0; border-bottom:1px solid rgba(255,255,255,0.1)}
             .sidebar-footer .profile-avatar-menu{margin-top:0}
             .profile-avatar-dropdown{top:calc(100% + 10px); bottom:auto; max-height:calc(100dvh - 190px); overflow-y:auto}
             .nav{order:2; overflow:visible}
             .nav .nav-group-links a{min-height:44px}
-            .main{width:100%; padding:18px 16px}
+            .main{width:100%; margin-left:0; padding:18px 16px}
             .mobile-menu-toggle{display:inline-flex; align-items:center; justify-content:center; flex:0 0 auto; width:42px; height:42px; padding:0; border:1px solid #dce5e2; border-radius:11px; background:#fff; color:#0b2a2a; cursor:pointer}
             .mobile-menu-toggle svg{width:21px; height:21px}
             .mobile-nav-backdrop{position:fixed; inset:0; z-index:90; background:rgba(2,8,8,0.42)}
