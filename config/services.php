@@ -41,4 +41,11 @@ return [
 
     'initial_celp_head_password' => env('INITIAL_CELP_HEAD_PASSWORD'),
 
+    'ip_geolocation' => [
+        'enabled' => (bool) env('IP_GEOLOCATION_ENABLED', true),
+        'url' => env('IP_GEOLOCATION_URL', 'https://ipwho.is'),
+        'connect_timeout' => (float) env('IP_GEOLOCATION_CONNECT_TIMEOUT', 0.5),
+        'timeout' => (float) env('IP_GEOLOCATION_TIMEOUT', 1.2),
+    ],
+
 ];

@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\LoginActivity;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Schema;
 
 final class LoginActivityRecorder
@@ -115,10 +116,7 @@ final class LoginActivityRecorder
 
     private function locationLabel(Request $request): string
     {
-        // These headers are populated only by a trusted edge proxy such as
-        // Cloudflare. We deliberately do not call a public geo API during
-        // login: it would slow authentication and leak every IP to a third
-        // party. The captured IP remains available to authorized reviewers.
+        // Prefer a trusted edge proxy when it already provides a location.
         $city = trim((string) $request->header('CF-IPCity', ''));
         $country = trim((string) $request->header('CF-IPCountry', ''));
 
@@ -128,6 +126,52 @@ final class LoginActivityRecorder
 
         if ($country !== '') {
             return $country;
+        }
+
+        if (! config('services.ip_geolocation.enabled', true)) {
+            return 'Approximate location unavailable';
+        }
+
+        $ip = $request->ip();
+
+        // Private, reserved, and malformed addresses cannot be geolocated.
+        if (! is_string($ip) || filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) === false) {
+            return 'Approximate location unavailable';
+        }
+
+        $baseUrl = trim((string) config('services.ip_geolocation.url', ''));
+
+        if ($baseUrl === '') {
+            return 'Approximate location unavailable';
+        }
+
+        try {
+            $response = Http::acceptJson()
+                ->connectTimeout((float) config('services.ip_geolocation.connect_timeout', 0.5))
+                ->timeout((float) config('services.ip_geolocation.timeout', 1.2))
+                ->get(rtrim($baseUrl, '/').'/'.rawurlencode($ip), [
+                    'fields' => 'success,city,country,country_code',
+                ]);
+
+            if (! $response->successful() || $response->json('success') !== true) {
+                return 'Approximate location unavailable';
+            }
+
+            $city = trim((string) $response->json('city', ''));
+            $country = trim((string) $response->json('country', ''));
+            $countryCode = trim((string) $response->json('country_code', ''));
+            $country = $country !== '' ? $country : $countryCode;
+
+            if ($city !== '' && $country !== '') {
+                return $city.', '.$country;
+            }
+
+            if ($country !== '') {
+                return $country;
+            }
+        } catch (\Throwable) {
+            // A geo provider outage must never block authentication or audit
+            // record creation.
         }
 
         return 'Approximate location unavailable';

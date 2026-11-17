@@ -4,8 +4,10 @@ namespace Tests\Feature;
 
 use App\Models\LoginActivity;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Schema;
 use Tests\TestCase;
 
@@ -160,5 +162,66 @@ class LoginActivityTest extends TestCase
             'operating_system' => 'Windows',
             'mfa_used' => false,
         ]);
+    }
+
+    public function test_a_successful_login_records_an_ip_based_location_when_the_client_ip_is_forwarded(): void
+    {
+        Http::fake([
+            'https://ipwho.is/*' => Http::response([
+                'success' => true,
+                'city' => 'Manila',
+                'country' => 'Philippines',
+                'country_code' => 'PH',
+            ]),
+        ]);
+
+        $user = User::factory()->create([
+            'email' => 'location@example.test',
+            'password' => Hash::make('correct-password'),
+            'role' => 'participant',
+        ]);
+
+        $this->withHeaders([
+            'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/130.0',
+            'X-Forwarded-For' => '8.8.8.8',
+        ])->withServerVariables([
+            'REMOTE_ADDR' => '10.0.0.5',
+        ])->post(route('login.submit'), [
+            'user' => $user->email,
+            'password' => 'correct-password',
+        ])->assertRedirect(route('participant.dashboard'));
+
+        $this->assertDatabaseHas('login_activities', [
+            'user_id' => $user->id,
+            'location_label' => 'Manila, Philippines',
+        ]);
+
+        Http::assertSent(function ($request): bool {
+            return str_starts_with($request->url(), 'https://ipwho.is/8.8.8.8');
+        });
+    }
+
+    public function test_login_activity_displays_utc_timestamps_in_philippine_time(): void
+    {
+        $user = User::factory()->create(['role' => 'participant']);
+        $timestamp = Carbon::create(2026, 11, 17, 23, 11, 0, 'UTC');
+
+        $activity = LoginActivity::create([
+            'user_id' => $user->id,
+            'user_name' => $user->name,
+            'user_email' => $user->email,
+            'user_role' => $user->role,
+            'status' => LoginActivity::STATUS_SUCCESS,
+        ]);
+        $activity->forceFill([
+            'created_at' => $timestamp,
+            'updated_at' => $timestamp,
+        ])->saveQuietly();
+
+        $this->actingAs($user)
+            ->get(route('account.login_activity'))
+            ->assertOk()
+            ->assertSee('Nov 18, 2026')
+            ->assertSee('7:11 AM PHT');
     }
 }

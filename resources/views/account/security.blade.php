@@ -4,6 +4,11 @@
 @section('subtitle', 'Protect your account and review sign-ins')
 
 @section('content')
+    @php
+        $displayTimezone = config('app.display_timezone', 'Asia/Manila');
+        $displayTimezoneLabel = config('app.display_timezone_label', 'PHT');
+    @endphp
+
     <style>
         .sec-hero { display:flex; align-items:flex-start; justify-content:space-between; gap:18px; padding:22px; margin-bottom:16px;
                     border:1px solid #d8eee5; border-radius:18px; background:linear-gradient(135deg,#ecfdf5 0%,#fff 68%); }
@@ -112,12 +117,12 @@
         <div class="sec-panel-head">
             <div>
                 <h3>Recent login activity</h3>
-                <p>Successful and blocked sign-ins for {{ auth()->user()->name }}.</p>
+                <p>Successful and blocked sign-ins for {{ auth()->user()->name }}. Times are shown in {{ $displayTimezoneLabel }}.</p>
             </div>
             @if($lastSuccessful)
                 <div style="text-align:right; color:#64748b; font-size:.77rem;">
                     Last successful login
-                    <strong style="display:block; margin-top:3px; color:#334155;">{{ $lastSuccessful->created_at->format('M j, Y · g:i A') }}</strong>
+                    <strong style="display:block; margin-top:3px; color:#334155;">{{ $lastSuccessful->created_at->copy()->timezone($displayTimezone)->format('M j, Y · g:i A') }} {{ $displayTimezoneLabel }}</strong>
                 </div>
             @endif
         </div>
@@ -138,12 +143,12 @@
                             @php [$statusBg, $statusFg] = $activity->statusTone(); @endphp
                             <tr>
                                 <td data-label="Date & time" class="sec-when">
-                                    <strong>{{ $activity->created_at->format('M j, Y') }}</strong>
-                                    <small>{{ $activity->created_at->format('g:i A') }} · {{ $activity->created_at->diffForHumans() }}</small>
+                                    <strong>{{ $activity->created_at->copy()->timezone($displayTimezone)->format('M j, Y') }}</strong>
+                                    <small>{{ $activity->created_at->copy()->timezone($displayTimezone)->format('g:i A') }} {{ $displayTimezoneLabel }} · {{ $activity->created_at->diffForHumans() }}</small>
                                 </td>
                                 <td data-label="Approx. location">
                                     <span>{{ $activity->location_label ?: 'Unavailable' }}</span>
-                                    <span class="sec-muted">Location is approximate and may be unavailable.</span>
+                                    <span class="sec-muted">IP-based estimate; not GPS.</span>
                                 </td>
                                 <td data-label="Device" class="sec-device">
                                     {{ $activity->deviceLabel() }}

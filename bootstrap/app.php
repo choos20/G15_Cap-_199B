@@ -15,6 +15,11 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        // DigitalOcean terminates the public request at its proxy and sends
+        // the client address in X-Forwarded-For. Trust only the immediate
+        // caller so Request::ip() can identify the client for audit records.
+        $middleware->trustProxies(at: env('TRUSTED_PROXIES', 'REMOTE_ADDR'));
+
         $middleware->prepend(NoCacheMiddleware::class);
 
         // Runs on every web request, so no route can be reached while a

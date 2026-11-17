@@ -69,6 +69,21 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Display Timezone
+    |--------------------------------------------------------------------------
+    |
+    | Timestamps are kept in UTC for consistent storage, then converted for
+    | account-facing pages. The security activity screen is intended for the
+    | local Philippine user base by default.
+    |
+    */
+
+    'display_timezone' => env('APP_DISPLAY_TIMEZONE', 'Asia/Manila'),
+
+    'display_timezone_label' => env('APP_DISPLAY_TIMEZONE_LABEL', 'PHT'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Application Locale Configuration
     |--------------------------------------------------------------------------
     |
