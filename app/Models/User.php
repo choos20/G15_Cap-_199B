@@ -235,6 +235,11 @@ class User extends Authenticatable
         return $this->hasMany(OrgOfficer::class)->orderBy('sort_order')->orderBy('id');
     }
 
+    public function loginActivities()
+    {
+        return $this->hasMany(LoginActivity::class);
+    }
+
     public function initials(): string
     {
         return collect(preg_split('/\s+/', trim($this->name)))

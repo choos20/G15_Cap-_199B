@@ -23,11 +23,13 @@ use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\StudentOrgController;
 use App\Http\Controllers\TemplateController;
+use App\Http\Controllers\LoginActivityController;
 use App\Mail\AccountCreated;
 use App\Mail\EmailVerificationOtp;
 use App\Mail\PasswordResetOtp;
 use App\Models\AuditLog;
 use App\Models\User;
+use App\Services\LoginActivityRecorder;
 use App\Services\MfaService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -46,6 +48,7 @@ use Illuminate\Validation\Rule;
  * role — except its own, which would lock it out of the admin area with no way
  * back in. CSA Director stays scoped to the org accounts it oversees.
  */
+if (! function_exists('can_manage_account_status')) {
 function can_manage_account_status(User $auth, User $target): bool
 {
     if ($auth->id === $target->id) {
@@ -61,6 +64,7 @@ function can_manage_account_status(User $auth, User $target): bool
 
     return in_array($target->role, manageable_roles_for($auth), true);
 }
+}
 
 /**
  * Which roles each staff role may create.
@@ -72,6 +76,7 @@ function can_manage_account_status(User $auth, User $target): bool
  *
  * @return array<string, string> role slug => label shown on the create form
  */
+if (! function_exists('creatable_roles_for')) {
 function creatable_roles_for(?User $auth): array
 {
     $participantAndCollege = [
@@ -90,6 +95,7 @@ function creatable_roles_for(?User $auth): array
         default => [],
     };
 }
+}
 
 /**
  * Which roles each staff role may edit, deactivate and reactivate. Mirrors
@@ -97,9 +103,11 @@ function creatable_roles_for(?User $auth): array
  *
  * @return array<int, string>
  */
+if (! function_exists('manageable_roles_for')) {
 function manageable_roles_for(?User $auth): array
 {
     return array_keys(creatable_roles_for($auth));
+}
 }
 
 /**
@@ -107,6 +115,7 @@ function manageable_roles_for(?User $auth): array
  * the blade table and the routes ask the same question — when these two drifted
  * apart the UI rendered Edit links that 403'd on click.
  */
+if (! function_exists('can_edit_account')) {
 function can_edit_account(User $auth, User $target): bool
 {
     if ($auth->id === $target->id || $auth->role === 'celp_head') {
@@ -121,11 +130,13 @@ function can_edit_account(User $auth, User $target): bool
 
     return in_array($target->role, manageable_roles_for($auth), true);
 }
+}
 
 /**
  * Account-name and email changes are limited to the CELP Head and the CSA
  * Director managing student-organization accounts they created.
  */
+if (! function_exists('can_change_account_identity')) {
 function can_change_account_identity(User $auth, User $target): bool
 {
     if ($auth->role === 'celp_head') {
@@ -136,9 +147,10 @@ function can_change_account_identity(User $auth, User $target): bool
         && $target->role === 'student_org'
         && $target->created_by === $auth->id;
 }
+}
 
-const OTP_TTL_MINUTES = 3;
-const OTP_MAX_ATTEMPTS = 3;
+defined('OTP_TTL_MINUTES') || define('OTP_TTL_MINUTES', 3);
+defined('OTP_MAX_ATTEMPTS') || define('OTP_MAX_ATTEMPTS', 3);
 
 /**
  * The dashboard a user belongs on.
@@ -148,6 +160,7 @@ const OTP_MAX_ATTEMPTS = 3;
  * /dashboard page, which renders on the public login layout. One helper keeps
  * login and every post-action redirect agreeing.
  */
+if (! function_exists('dashboard_route_for')) {
 function dashboard_route_for(?User $user): string
 {
     return match ($user?->role) {
@@ -159,6 +172,7 @@ function dashboard_route_for(?User $user): string
         'participant' => 'participant.dashboard',
         default => 'dashboard',
     };
+}
 }
 
 /**
@@ -174,6 +188,7 @@ function dashboard_route_for(?User $user): string
  *     ACCOUNT_EMAIL_DOMAINS=hnu.edu.ph,gmail.com  (several)
  * Empty or `*` allows any domain, which is the default.
  */
+if (! function_exists('allowed_account_email_domains')) {
 function allowed_account_email_domains(): array
 {
     $raw = trim((string) env('ACCOUNT_EMAIL_DOMAINS', ''));
@@ -187,12 +202,14 @@ function allowed_account_email_domains(): array
         explode(',', $raw)
     )));
 }
+}
 
 /**
  * Human-readable name for a role slug. Shared by the sidebar and any view that
  * needs to name a role, so "Administrator" is never hardcoded under a user who
  * isn't one.
  */
+if (! function_exists('role_label')) {
 function role_label(?string $role): string
 {
     return [
@@ -205,12 +222,14 @@ function role_label(?string $role): string
         'participant' => 'Participant',
     ][$role] ?? ucwords(str_replace('_', ' ', (string) $role));
 }
+}
 
 /**
  * Seconds remaining before an OTP expires, clamped at 0. Session values are
  * unserialized as Carbon, but a string is accepted too in case an old-format
  * session survives a deploy.
  */
+if (! function_exists('otp_seconds_left')) {
 function otp_seconds_left($expiresAt): int
 {
     if (! $expiresAt) {
@@ -219,6 +238,7 @@ function otp_seconds_left($expiresAt): int
 
     return max(0, (int) now()->diffInSeconds(Carbon::parse($expiresAt), false));
 }
+}
 
 /**
  * Generate a fresh 6-digit OTP for the given user, stash it in the session,
@@ -226,6 +246,7 @@ function otp_seconds_left($expiresAt): int
  * so all three stay in sync. Returns false (without throwing) if the email
  * couldn't be sent, so a transient SMTP hiccup never 500s a login attempt.
  */
+if (! function_exists('issue_email_verification_otp')) {
 function issue_email_verification_otp(User $user): bool
 {
     $otp = str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
@@ -248,6 +269,7 @@ function issue_email_verification_otp(User $user): bool
         return false;
     }
 }
+}
 
 Route::get('/', function () {
     return redirect()->route('login');
@@ -268,6 +290,8 @@ Route::post('/login', function (Request $request) {
         : ['username' => $request->user, 'password' => $request->password];
 
     if (! Auth::attempt($credentials)) {
+        app(LoginActivityRecorder::class)->recordPasswordFailure($request, (string) $request->input('user'));
+
         return back()->withErrors(['login' => 'Invalid username/email or password.'])->withInput();
     }
 
@@ -276,12 +300,30 @@ Route::post('/login', function (Request $request) {
     $user = Auth::user();
     $request->session()->forget(['mfa_verified_user_id', 'mfa_setup_secret']);
     if ($user && array_key_exists('is_active', $user->getAttributes()) && ! $user->is_active) {
+        if ($user instanceof User) {
+            app(LoginActivityRecorder::class)->recordBlocked(
+                $request,
+                $user,
+                LoginActivityRecorder::INACTIVE_ACCOUNT,
+                'inactive_account'
+            );
+        }
+
         Auth::logout();
 
         return back()->withErrors(['login' => 'Your account is deactivated.']);
     }
 
     if ($user && ! $user->email_verified_at) {
+        if ($user instanceof User) {
+            app(LoginActivityRecorder::class)->recordBlocked(
+                $request,
+                $user,
+                LoginActivityRecorder::EMAIL_UNVERIFIED,
+                'email_unverified'
+            );
+        }
+
         Auth::logout();
         $sent = issue_email_verification_otp($user);
         $status = $sent
@@ -297,6 +339,10 @@ Route::post('/login', function (Request $request) {
             : 'mfa.enroll';
 
         return redirect()->route($mfaRoute);
+    }
+
+    if ($user instanceof User) {
+        app(LoginActivityRecorder::class)->recordSuccess($request, $user);
     }
 
     return redirect()->route(dashboard_route_for($user));
@@ -1237,6 +1283,13 @@ Route::middleware('auth')->group(function () {
     })->name('records.index');
 
     // Account password routes for logged-in users
+    Route::get('/account/security', [LoginActivityController::class, 'personal'])
+        ->name('account.security');
+    Route::get('/account/security/login-activity', [LoginActivityController::class, 'personal'])
+        ->name('account.login_activity');
+    Route::get('/audit/login-activity', [LoginActivityController::class, 'audit'])
+        ->name('login-audit.index');
+
     Route::get('/account/password', function () {
         return view('account.change_password');
     })->name('account.password')->middleware('auth');

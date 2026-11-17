@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Services\MfaService;
+use App\Services\LoginActivityRecorder;
 use App\Services\TotpService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -51,6 +52,13 @@ class MfaController extends Controller
         }
 
         if (! TotpService::verify($secret, (string) $request->input('code'))) {
+            app(LoginActivityRecorder::class)->recordFailure(
+                $request,
+                $user,
+                LoginActivityRecorder::FAILED_MFA,
+                'enrollment_code'
+            );
+
             return back()->withErrors(['code' => 'That code is incorrect or expired. Check SafeAuth and try again.']);
         }
 
@@ -59,6 +67,7 @@ class MfaController extends Controller
         $request->session()->regenerate();
         $request->session()->forget('mfa_setup_secret');
         $request->session()->put('mfa_verified_user_id', $user->id);
+        app(LoginActivityRecorder::class)->recordSuccess($request, $user, true);
 
         return view('mfa.recovery_codes', [
             'user' => $user->fresh(),
@@ -94,6 +103,13 @@ class MfaController extends Controller
         ]);
 
         if (! TotpService::verify((string) $user->mfa_secret, (string) $request->input('code'))) {
+            app(LoginActivityRecorder::class)->recordFailure(
+                $request,
+                $user,
+                LoginActivityRecorder::FAILED_MFA,
+                'challenge_code'
+            );
+
             return back()->withErrors(['code' => 'That code is incorrect or expired. Check SafeAuth and try again.']);
         }
 
@@ -115,6 +131,13 @@ class MfaController extends Controller
         ]);
 
         if (! MfaService::consumeRecoveryCode($user, (string) $request->input('recovery_code'))) {
+            app(LoginActivityRecorder::class)->recordFailure(
+                $request,
+                $user,
+                LoginActivityRecorder::FAILED_MFA,
+                'recovery_code'
+            );
+
             return back()->withErrors(['recovery_code' => 'That recovery code is invalid or has already been used.']);
         }
 
@@ -137,5 +160,6 @@ class MfaController extends Controller
         $request->session()->regenerate();
         $request->session()->forget('mfa_setup_secret');
         $request->session()->put('mfa_verified_user_id', $user->id);
+        app(LoginActivityRecorder::class)->recordSuccess($request, $user, true);
     }
 }
