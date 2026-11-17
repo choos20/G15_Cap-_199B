@@ -29,6 +29,15 @@ class EnsureMfaVerified
         'account.password.update',
     ];
 
+    /**
+     * Personal security pages remain available while MFA enrollment is
+     * pending. The administrative audit route is intentionally not included.
+     */
+    private const PERSONAL_SECURITY_ROUTES = [
+        'account.security',
+        'account.login_activity',
+    ];
+
     public function handle(Request $request, Closure $next): Response
     {
         $user = $request->user();
@@ -39,6 +48,10 @@ class EnsureMfaVerified
         }
 
         if (in_array($routeName, self::ALLOWED_ROUTES, true)) {
+            return $next($request);
+        }
+
+        if (in_array($routeName, self::PERSONAL_SECURITY_ROUTES, true)) {
             return $next($request);
         }
 

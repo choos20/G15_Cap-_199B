@@ -124,6 +124,19 @@ class LoginActivityTest extends TestCase
             ->assertForbidden();
     }
 
+    public function test_protected_user_can_view_personal_security_pages_before_mfa_enrollment(): void
+    {
+        $head = User::factory()->create(['role' => 'celp_head']);
+
+        $this->be($head)
+            ->get(route('account.security'))
+            ->assertOk();
+
+        $this->be($head)
+            ->get(route('account.login_activity'))
+            ->assertOk();
+    }
+
     public function test_a_successful_login_creates_a_private_activity_record(): void
     {
         $user = User::factory()->create([

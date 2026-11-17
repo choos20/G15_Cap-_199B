@@ -21,8 +21,9 @@ return Application::configure(basePath: dirname(__DIR__))
         // temporary password is still outstanding.
         $middleware->appendToGroup('web', ForcePasswordChange::class);
 
-        // High-privilege users must complete TOTP MFA before any authenticated
-        // application route can be reached.
+        // High-privilege users must complete TOTP MFA before entering the
+        // authenticated application. Personal security pages remain available
+        // so they can see their MFA status while enrollment is pending.
         $middleware->appendToGroup('web', EnsureMfaVerified::class);
 
         $middleware->alias([
