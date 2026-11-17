@@ -55,11 +55,13 @@
         .content :where(input,select,textarea){min-width:0; max-width:100%}
         .content fieldset{min-inline-size:0}
         .content :where(img,video,canvas,iframe){max-width:100%}
-        .topbar{display:flex; align-items:center; justify-content:space-between; margin-bottom:18px; gap:14px; flex-wrap:wrap}
-        .topbar .title-group{min-width:0; max-width:100%; flex-wrap:wrap; overflow-wrap:anywhere}
+        .topbar{display:flex; align-items:center; justify-content:space-between; margin-bottom:18px; gap:14px; flex-wrap:nowrap}
+        .topbar .title-group{min-width:0; max-width:none; flex:1 1 auto; flex-wrap:nowrap; overflow:hidden; overflow-wrap:normal}
         .topbar .title-group > *{min-width:0}
+        .topbar .title-group h2{flex:0 1 auto; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+        .topbar .title-group > div{min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
         .topbar input{padding:10px 12px; border-radius:10px; border:1px solid #e6e9ef; min-width:180px; transition:border-color 180ms ease, box-shadow 180ms ease}
-        .topbar-actions{display:flex; align-items:center; gap:12px; flex-wrap:nowrap; min-width:0; margin-left:auto}
+        .topbar-actions{display:flex; align-items:center; gap:12px; flex:0 0 auto; flex-wrap:nowrap; min-width:0; margin-left:auto}
         .search-wrapper{position:relative; max-width:360px; width:100%; min-width:0}
         .topbar a.logout{display:inline-flex; align-items:center; gap:8px; color:#0b2a2a; background:#fff; padding:9px 13px; border:1px solid #dce5e2; border-radius:11px; text-decoration:none; font-size:.86rem; font-weight:700; line-height:1; transition:background 180ms ease, border-color 180ms ease, color 180ms ease, box-shadow 180ms ease, transform 180ms ease}
         .topbar a.logout svg{width:18px; height:18px; flex:0 0 18px; color:#087c5b; transition:transform 180ms ease}
