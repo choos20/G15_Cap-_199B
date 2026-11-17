@@ -107,11 +107,12 @@
             .mobile-menu-toggle svg{width:21px; height:21px}
             .mobile-nav-backdrop{position:fixed; inset:0; z-index:90; background:rgba(2,8,8,0.42)}
             .mobile-nav-backdrop.is-visible{display:block}
-            .topbar{position:sticky; top:0; z-index:50; align-items:center; padding:6px 0 12px; background:#f6f7fb; gap:10px}
-            .topbar .title-group{display:flex; align-items:center; min-width:0; flex:1; flex-wrap:nowrap}
-            .topbar .title-group h2{min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:clamp(1.05rem,4vw,1.35rem)}
+            .topbar{position:sticky; top:0; z-index:50; align-items:center; padding:6px 0 12px; background:#f6f7fb; gap:10px; flex-wrap:nowrap}
+            .topbar .title-group{display:flex; align-items:center; min-width:0; max-width:none; flex:1 1 auto; flex-wrap:nowrap}
+            .topbar .title-group h2{min-width:0; flex:1 1 auto; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:clamp(1.05rem,4vw,1.35rem)}
             .topbar .title-group > div{display:none}
-            .topbar-actions{margin-left:auto; gap:8px}
+            .topbar-actions{margin-left:auto; flex:0 0 auto; gap:8px}
+            .topbar-actions .notif-wrapper,.topbar-actions .logout{flex:0 0 auto}
             .topbar a.logout{padding:8px 10px; font-size:.82rem}
             .topbar > div{min-width:0}
             .topbar .notif-wrapper{position:static}
