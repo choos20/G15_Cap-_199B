@@ -4,38 +4,126 @@
 @section('subtitle', $reportInfo['description'])
 
 @section('content')
+    @php
+        $termLabel = $filters['term']
+            ? (\App\Support\AcademicPeriod::TERMS[$filters['term']] ?? $filters['term'])
+            : 'Whole year';
+        $formatReportDate = static fn (string $date): string => filled($date)
+            ? \Illuminate\Support\Carbon::parse($date)->format('M j, Y')
+            : 'Any date';
+    @endphp
     <style>
-        .or-back { display:inline-flex; margin-bottom:14px; color:#08734e; font-size:.85rem; font-weight:700; text-decoration:none; }
-        .or-toolbar { display:flex; align-items:flex-end; gap:11px; flex-wrap:wrap; margin-bottom:8px; padding:16px; border:1px solid #e5ebe8; border-radius:14px; background:#fff; }
-        .or-field { display:flex; flex-direction:column; gap:5px; }
-        .or-field label { color:#71817c; font-size:.73rem; font-weight:750; letter-spacing:.04em; text-transform:uppercase; }
-        .or-field input,.or-field select { min-width:135px; min-height:39px; padding:8px 10px; border:1px solid #dfe7e3; border-radius:9px; background:#fff; color:#253c34; font:inherit; font-size:.84rem; }
+        .or-report { min-width:0; }
+        .or-back { display:inline-flex; }
+        .or-toolbar { display:flex; align-items:flex-end; gap:12px; flex-wrap:wrap; margin-bottom:10px; padding:18px; border:1px solid #e3ece7; border-radius:18px; background:linear-gradient(135deg,#ffffff 0%,#f9fcfa 100%); box-shadow:0 10px 26px rgba(11,42,42,.045); }
+        .or-field { display:flex; flex:0 1 auto; flex-direction:column; gap:7px; min-width:142px; }
+        .or-field--date { min-width:188px; }
+        .or-field label { color:#5f756c; font-size:.7rem; font-weight:800; letter-spacing:.06em; text-transform:uppercase; }
+        .or-field select { min-width:142px; min-height:44px; padding:10px 34px 10px 12px; border:1px solid #d9e5df; border-radius:11px; outline:0; background:#fff; color:#253c34; font:inherit; font-size:.86rem; cursor:pointer; transition:border-color .16s ease,box-shadow .16s ease,background .16s ease; }
+        .or-field select:focus { border-color:#19a979; box-shadow:0 0 0 4px rgba(19,184,134,.12); }
+        .or-date-picker { position:relative; min-width:0; }
+        .or-date-input-shell { position:relative; display:flex; align-items:center; min-height:44px; border-radius:11px; background:#fff; }
+        .or-date-input-shell > svg { position:absolute; left:12px; z-index:1; width:18px; height:18px; color:#087c5b; pointer-events:none; }
+        .or-date-native { width:100%; min-width:0; min-height:44px; padding:10px 12px 10px 39px; border:1px solid #d9e5df; border-radius:11px; outline:0; background:#fff; color:#253c34; font:inherit; font-size:.86rem; cursor:pointer; transition:border-color .16s ease,box-shadow .16s ease,background .16s ease; }
+        .or-date-native:focus { border-color:#19a979; box-shadow:0 0 0 4px rgba(19,184,134,.12); }
+        .or-date-picker.is-enhanced .or-date-native { position:absolute; width:1px; height:1px; padding:0; border:0; opacity:0; pointer-events:none; clip:rect(0 0 0 0); clip-path:inset(50%); }
+        .or-date-trigger { display:none; align-items:center; justify-content:space-between; gap:10px; width:100%; min-height:44px; padding:10px 12px 10px 39px; border:1px solid #d9e5df; border-radius:11px; outline:0; background:#fff; color:#253c34; font:inherit; font-size:.86rem; text-align:left; cursor:pointer; transition:border-color .16s ease,box-shadow .16s ease,background .16s ease; }
+        .or-date-picker.is-enhanced .or-date-trigger { display:flex; }
+        .or-date-trigger:hover { border-color:#9ed4bd; background:#fbfffd; }
+        .or-date-trigger:focus-visible,.or-date-picker.is-open .or-date-trigger { border-color:#19a979; box-shadow:0 0 0 4px rgba(19,184,134,.12); }
+        .or-date-value.is-placeholder { color:#91a19a; }
+        .or-date-chevron { width:16px; height:16px; flex:0 0 16px; color:#6c8178; transition:transform .16s ease; }
+        .or-date-picker.is-open .or-date-chevron { transform:rotate(180deg); }
+        .or-calendar { position:absolute; top:calc(100% + 10px); left:0; z-index:70; width:min(320px,calc(100vw - 32px)); padding:14px; border:1px solid #dce9e3; border-radius:17px; background:#fff; box-shadow:0 22px 46px rgba(11,42,42,.18); }
+        .or-calendar[hidden] { display:none; }
+        .or-date-picker--to .or-calendar { right:0; left:auto; }
+        .or-calendar-head { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:13px; }
+        .or-calendar-title { color:#173e34; font-size:.9rem; font-weight:800; }
+        .or-calendar-nav { display:grid; place-items:center; width:31px; height:31px; padding:0; border:1px solid #dfebe5; border-radius:9px; background:#fff; color:#49645a; cursor:pointer; transition:background .16s ease,border-color .16s ease,color .16s ease; }
+        .or-calendar-nav:hover { border-color:#9ed4bd; background:#effbf5; color:#087c5b; }
+        .or-calendar-nav svg { width:16px; height:16px; }
+        .or-calendar-weekdays,.or-calendar-grid { display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:4px; }
+        .or-calendar-weekdays { margin-bottom:5px; color:#8a9b94; font-size:.64rem; font-weight:800; letter-spacing:.04em; text-align:center; text-transform:uppercase; }
+        .or-calendar-day { display:grid; place-items:center; width:100%; aspect-ratio:1; min-height:31px; padding:0; border:1px solid transparent; border-radius:9px; background:#fff; color:#304a40; font:inherit; font-size:.78rem; cursor:pointer; transition:background .14s ease,border-color .14s ease,color .14s ease,transform .14s ease; }
+        .or-calendar-day:hover:not(:disabled) { border-color:#a9dcc4; background:#effbf5; color:#087c5b; transform:translateY(-1px); }
+        .or-calendar-day.is-outside { color:#a5b3ad; }
+        .or-calendar-day.is-today { border-color:#8ad0b0; font-weight:800; }
+        .or-calendar-day.is-selected { border-color:#087c5b; background:#087c5b; color:#fff; font-weight:800; box-shadow:0 5px 12px rgba(8,124,91,.22); }
+        .or-calendar-day:disabled { color:#c5d0cb; cursor:not-allowed; opacity:.65; }
+        .or-calendar-foot { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-top:12px; padding-top:11px; border-top:1px solid #edf2ef; }
+        .or-calendar-action { padding:4px 0; border:0; background:none; color:#087c5b; font:inherit; font-size:.77rem; font-weight:800; cursor:pointer; }
+        .or-calendar-action:hover { color:#065f46; text-decoration:underline; }
         .or-actions { display:flex; gap:8px; margin-left:auto; }
-        .or-button { display:inline-flex; align-items:center; justify-content:center; min-height:39px; padding:8px 14px; border:1px solid #dfe7e3; border-radius:9px; background:#fff; color:#334b42; font:inherit; font-size:.84rem; font-weight:750; text-decoration:none; cursor:pointer; }
-        .or-button-primary { border-color:#0b7656; background:#0b7656; color:#fff; }
-        .or-note { margin:0 0 16px; color:#71817c; font-size:.78rem; }
+        .or-button { display:inline-flex; align-items:center; justify-content:center; min-height:44px; padding:10px 15px; border:1px solid #d9e5df; border-radius:11px; background:#fff; color:#334b42; font:inherit; font-size:.84rem; font-weight:800; text-decoration:none; cursor:pointer; transition:background .16s ease,border-color .16s ease,box-shadow .16s ease,transform .16s ease; }
+        .or-button:hover { border-color:#9ed4bd; background:#f8fffb; box-shadow:0 7px 16px rgba(11,42,42,.07); transform:translateY(-1px); }
+        .or-button-primary { border-color:#0b7656; background:#0b7656; color:#fff; box-shadow:0 7px 14px rgba(11,118,86,.16); }
+        .or-button-primary:hover { border-color:#075c43; background:#075c43; color:#fff; }
+        .or-note { display:flex; align-items:flex-start; gap:8px; margin:0 0 16px; color:#71817c; font-size:.78rem; line-height:1.5; }
+        .or-note svg { width:16px; height:16px; flex:0 0 16px; margin-top:1px; color:#0b8c65; }
         .or-summary { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:12px; margin-bottom:18px; }
-        .or-metric { padding:16px 18px; border:1px solid #e5ebe8; border-radius:13px; background:#fff; }
-        .or-metric-label { color:#71817c; font-size:.77rem; font-weight:700; }
-        .or-metric-value { margin-top:7px; color:#173e34; font-size:1.55rem; font-weight:800; }
-        .or-table-wrap { overflow:auto; border:1px solid #e5ebe8; border-radius:13px; background:#fff; }
+        .or-metric { position:relative; overflow:hidden; padding:17px 18px; border:1px solid #e5ebe8; border-radius:15px; background:#fff; box-shadow:0 8px 20px rgba(11,42,42,.04); }
+        .or-metric::after { position:absolute; right:-18px; bottom:-24px; width:70px; height:70px; border-radius:50%; background:#effbf5; content:''; }
+        .or-metric-label { position:relative; z-index:1; color:#71817c; font-size:.77rem; font-weight:750; }
+        .or-metric-value { position:relative; z-index:1; margin-top:7px; color:#173e34; font-size:1.55rem; font-weight:800; font-variant-numeric:tabular-nums; }
+        .or-table-wrap { overflow:auto; border:1px solid #e5ebe8; border-radius:15px; background:#fff; box-shadow:0 8px 20px rgba(11,42,42,.04); }
         .or-table { width:100%; border-collapse:collapse; font-size:.86rem; }
-        .or-table th { padding:11px 13px; border-bottom:1px solid #e5ebe8; color:#71817c; font-size:.72rem; text-align:left; text-transform:uppercase; white-space:nowrap; }
-        .or-table td { padding:12px 13px; border-bottom:1px solid #f0f3f1; color:#263d34; vertical-align:top; }
+        .or-table th { padding:12px 13px; border-bottom:1px solid #e5ebe8; background:#fbfdfc; color:#71817c; font-size:.7rem; font-weight:800; text-align:left; text-transform:uppercase; white-space:nowrap; }
+        .or-table td { padding:13px; border-bottom:1px solid #f0f3f1; color:#263d34; vertical-align:top; }
+        .or-table tbody tr:hover { background:#fbfefc; }
         .or-table tr:last-child td { border-bottom:0; }
         .or-empty { padding:42px 18px; color:#778780; text-align:center; }
-        .or-section { margin:18px 0; padding:20px; border:1px solid #e5ebe8; border-radius:13px; background:#fff; }
+        .or-section { margin:18px 0; padding:20px; border:1px solid #e5ebe8; border-radius:15px; background:#fff; box-shadow:0 8px 20px rgba(11,42,42,.04); }
         .or-section h2 { margin:0; color:#173e34; font-size:.98rem; }
         .or-criterion { display:grid; grid-template-columns:minmax(150px,260px) 1fr 54px; gap:12px; align-items:center; padding:8px 0; }
         .or-track { height:11px; overflow:hidden; border-radius:99px; background:#edf2ef; }
         .or-track span { display:block; height:100%; border-radius:99px; background:linear-gradient(90deg,#35ad7d,#08734e); }
         .or-feedback { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; }
         .or-comment { margin-top:9px; padding:11px 13px; border-left:3px solid #add9c2; border-radius:0 8px 8px 0; background:#f7faf8; color:#40564c; font-size:.84rem; line-height:1.5; white-space:pre-line; overflow-wrap:anywhere; }
-        @media(max-width:700px) { .or-actions { width:100%; margin-left:0; } .or-actions>* { flex:1; } .or-feedback { grid-template-columns:1fr; } .or-criterion { grid-template-columns:1fr 48px; gap:6px 10px; } .or-track { grid-column:1/-1; grid-row:2; } }
-        @media print { .sidebar,.topbar,.or-toolbar,.or-back,.or-no-print { display:none!important; } .main,.content,body { padding:0!important; margin:0!important; background:#fff!important; } }
+        .or-print-header { display:none; }
+        @media(max-width:700px) {
+            .or-toolbar { padding:14px; }
+            .or-field,.or-field--date { flex:1 1 calc(50% - 8px); min-width:0; }
+            .or-actions { width:100%; margin-left:0; }
+            .or-actions>* { flex:1; }
+            .or-feedback { grid-template-columns:1fr; }
+            .or-criterion { grid-template-columns:1fr 48px; gap:6px 10px; }
+            .or-track { grid-column:1/-1; grid-row:2; }
+        }
+        @media(max-width:460px) {
+            .or-field,.or-field--date { flex-basis:100%; }
+            .or-calendar { position:fixed; top:auto; right:12px; bottom:12px; left:12px; width:auto; }
+        }
+        @media print {
+            @page { size:landscape; margin:12mm; }
+            .sidebar,.mobile-nav-backdrop,.topbar,.or-toolbar,.or-back,.pl-back-button,.or-no-print { display:none!important; }
+            html,body { background:#fff!important; color:#172a23!important; }
+            .main,.content,body { padding:0!important; margin:0!important; background:#fff!important; }
+            .or-print-header { display:block; padding-bottom:10pt; margin-bottom:12pt; border-bottom:1pt solid #d9e5df; }
+            .or-print-kicker { color:#087c5b; font-size:8pt; font-weight:800; letter-spacing:.12em; text-transform:uppercase; }
+            .or-print-title { margin:4pt 0 2pt; color:#173e34; font-size:18pt; font-weight:800; }
+            .or-print-meta { color:#60756c; font-size:9pt; }
+            .or-note { margin-bottom:10pt; color:#5f756c; font-size:8.5pt; }
+            .or-summary { grid-template-columns:repeat(3,1fr); gap:8pt; margin-bottom:12pt; }
+            .or-metric { padding:10pt 12pt; border-color:#d9e5df; box-shadow:none; }
+            .or-metric::after { display:none; }
+            .or-metric-value { margin-top:4pt; font-size:15pt; }
+            .or-table-wrap { overflow:visible; border-color:#d9e5df; box-shadow:none; }
+            .or-table { font-size:8.5pt; }
+            .or-table thead { display:table-header-group; }
+            .or-table th { padding:7pt 8pt; background:#f4f8f5!important; color:#456158; font-size:7.5pt; }
+            .or-table td { padding:8pt; color:#263d34; }
+            .or-table tbody tr { break-inside:avoid; }
+            .or-section { margin:12pt 0; padding:12pt; border-color:#d9e5df; box-shadow:none; break-inside:avoid; }
+        }
     </style>
-    <x-back-button href="{{ route('student_org.reports') }}">Back to performance reports</x-back-button>
-    <form method="GET" class="or-toolbar">
+    <div class="or-report">
+        <div class="or-print-header">
+            <div class="or-print-kicker">ProjectLink · Performance report</div>
+            <div class="or-print-title">{{ $reportInfo['title'] }}</div>
+            <div class="or-print-meta">Academic year {{ $filters['ay'] }} · {{ $termLabel }} · Submitted {{ $formatReportDate($filters['from']) }} to {{ $formatReportDate($filters['to']) }}</div>
+        </div>
+        <x-back-button class="or-back" href="{{ route('student_org.reports') }}">Back to performance reports</x-back-button>
+        <form method="GET" class="or-toolbar">
         <div class="or-field">
             <label for="ay">Academic year</label>
             <select name="ay" id="ay">
@@ -53,21 +141,59 @@
                 @endforeach
             </select>
         </div>
-        <div class="or-field">
+        <div class="or-field or-field--date">
             <label for="from">Submitted from</label>
-            <input type="date" name="from" id="from" value="{{ $filters['from'] }}">
+            <div class="or-date-picker" data-date-picker data-date-field="from">
+                <div class="or-date-input-shell">
+                    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="4" y="5" width="16" height="15" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="M8 3v4m8-4v4M4 10h16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+                    <input type="date" name="from" id="from" value="{{ $filters['from'] }}" class="or-date-native">
+                    <button type="button" class="or-date-trigger" aria-label="Choose submitted from date" aria-haspopup="dialog" aria-expanded="false" aria-controls="from-calendar">
+                        <span class="or-date-value"></span>
+                        <svg class="or-date-chevron" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m6 9 6 6 6-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </button>
+                </div>
+                <div class="or-calendar" id="from-calendar" role="dialog" aria-label="Choose submitted from date" hidden>
+                    <div class="or-calendar-head">
+                        <button type="button" class="or-calendar-nav" data-calendar-prev aria-label="Previous month"><svg viewBox="0 0 24 24" fill="none"><path d="m15 5-7 7 7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+                        <strong class="or-calendar-title" data-calendar-title aria-live="polite"></strong>
+                        <button type="button" class="or-calendar-nav" data-calendar-next aria-label="Next month"><svg viewBox="0 0 24 24" fill="none"><path d="m9 5 7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+                    </div>
+                    <div class="or-calendar-weekdays" aria-hidden="true"><span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span></div>
+                    <div class="or-calendar-grid" data-calendar-grid role="grid"></div>
+                    <div class="or-calendar-foot"><button type="button" class="or-calendar-action" data-date-clear>Clear</button><button type="button" class="or-calendar-action" data-date-today>Today</button></div>
+                </div>
+            </div>
         </div>
-        <div class="or-field">
+        <div class="or-field or-field--date">
             <label for="to">Submitted to</label>
-            <input type="date" name="to" id="to" value="{{ $filters['to'] }}">
+            <div class="or-date-picker or-date-picker--to" data-date-picker data-date-field="to">
+                <div class="or-date-input-shell">
+                    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="4" y="5" width="16" height="15" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="M8 3v4m8-4v4M4 10h16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+                    <input type="date" name="to" id="to" value="{{ $filters['to'] }}" class="or-date-native">
+                    <button type="button" class="or-date-trigger" aria-label="Choose submitted to date" aria-haspopup="dialog" aria-expanded="false" aria-controls="to-calendar">
+                        <span class="or-date-value"></span>
+                        <svg class="or-date-chevron" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m6 9 6 6 6-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </button>
+                </div>
+                <div class="or-calendar" id="to-calendar" role="dialog" aria-label="Choose submitted to date" hidden>
+                    <div class="or-calendar-head">
+                        <button type="button" class="or-calendar-nav" data-calendar-prev aria-label="Previous month"><svg viewBox="0 0 24 24" fill="none"><path d="m15 5-7 7 7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+                        <strong class="or-calendar-title" data-calendar-title aria-live="polite"></strong>
+                        <button type="button" class="or-calendar-nav" data-calendar-next aria-label="Next month"><svg viewBox="0 0 24 24" fill="none"><path d="m9 5 7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+                    </div>
+                    <div class="or-calendar-weekdays" aria-hidden="true"><span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span></div>
+                    <div class="or-calendar-grid" data-calendar-grid role="grid"></div>
+                    <div class="or-calendar-foot"><button type="button" class="or-calendar-action" data-date-clear>Clear</button><button type="button" class="or-calendar-action" data-date-today>Today</button></div>
+                </div>
+            </div>
         </div>
         <div class="or-actions">
             <button type="submit" class="or-button or-button-primary">Apply filters</button>
             <a class="or-button" href="{{ route('student_org.reports.show', array_merge(['report' => $report], request()->query(), ['format' => 'csv'])) }}">CSV</a>
             <button type="button" class="or-button" onclick="window.print()">Print</button>
         </div>
-    </form>
-    <p class="or-note">Reports include only projects submitted by your organization. The selected period and date range use the project submission date.</p>
+        </form>
+        <p class="or-note"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/><path d="M12 10.5v5m0-8h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span>Reports include only projects submitted by your organization. The selected period and date range use the project submission date.</span></p>
 
     <div class="or-summary">
         @foreach($summary as $label => $value)
@@ -119,5 +245,157 @@
                 </section>
             @endforeach
         </div>
-    @endif
+        @endif
+    </div>
+
+    <script>
+        (() => {
+            const dateFormat = new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+            const monthFormat = new Intl.DateTimeFormat('en-US', { month: 'long', year: 'numeric' });
+            const today = new Date();
+
+            const parseIso = (value) => {
+                if (!value) return null;
+                const [year, month, day] = value.split('-').map(Number);
+                return new Date(year, month - 1, day);
+            };
+            const toIso = (date) => [
+                date.getFullYear(),
+                String(date.getMonth() + 1).padStart(2, '0'),
+                String(date.getDate()).padStart(2, '0'),
+            ].join('-');
+
+            const syncRange = () => {
+                const from = document.getElementById('from');
+                const to = document.getElementById('to');
+                if (from && to) {
+                    from.max = to.value || '';
+                    to.min = from.value || '';
+                }
+            };
+
+            document.querySelectorAll('[data-date-picker]').forEach((picker) => {
+                const nativeInput = picker.querySelector('.or-date-native');
+                const trigger = picker.querySelector('.or-date-trigger');
+                const valueLabel = picker.querySelector('.or-date-value');
+                const calendar = picker.querySelector('.or-calendar');
+                const title = picker.querySelector('[data-calendar-title]');
+                const grid = picker.querySelector('[data-calendar-grid]');
+                const previous = picker.querySelector('[data-calendar-prev]');
+                const next = picker.querySelector('[data-calendar-next]');
+                const clear = picker.querySelector('[data-date-clear]');
+                const todayButton = picker.querySelector('[data-date-today]');
+                if (!nativeInput || !trigger || !valueLabel || !calendar || !title || !grid) return;
+
+                const state = { view: parseIso(nativeInput.value) || new Date() };
+                state.view.setDate(1);
+                picker.classList.add('is-enhanced');
+                nativeInput.tabIndex = -1;
+
+                const updateValueLabel = () => {
+                    valueLabel.textContent = nativeInput.value ? dateFormat.format(parseIso(nativeInput.value)) : 'Any date';
+                    valueLabel.classList.toggle('is-placeholder', !nativeInput.value);
+                };
+
+                const close = (restoreFocus = false) => {
+                    picker.classList.remove('is-open');
+                    calendar.hidden = true;
+                    trigger.setAttribute('aria-expanded', 'false');
+                    if (restoreFocus) trigger.focus();
+                };
+
+                const render = () => {
+                    title.textContent = monthFormat.format(state.view);
+                    grid.innerHTML = '';
+                    const year = state.view.getFullYear();
+                    const month = state.view.getMonth();
+                    const firstDay = new Date(year, month, 1).getDay();
+                    const daysInMonth = new Date(year, month + 1, 0).getDate();
+                    const selected = nativeInput.value;
+                    const todayIso = toIso(today);
+
+                    for (let cell = 0; cell < 42; cell += 1) {
+                        const date = new Date(year, month, cell - firstDay + 1);
+                        const iso = toIso(date);
+                        const day = document.createElement('button');
+                        day.type = 'button';
+                        day.className = 'or-calendar-day';
+                        day.textContent = date.getDate();
+                        day.dataset.date = iso;
+                        day.setAttribute('role', 'gridcell');
+                        day.setAttribute('aria-label', dateFormat.format(date));
+                        if (date.getMonth() !== month) day.classList.add('is-outside');
+                        if (iso === todayIso) {
+                            day.classList.add('is-today');
+                            day.setAttribute('aria-current', 'date');
+                        }
+                        if (iso === selected) {
+                            day.classList.add('is-selected');
+                            day.setAttribute('aria-pressed', 'true');
+                        }
+                        if ((nativeInput.min && iso < nativeInput.min) || (nativeInput.max && iso > nativeInput.max)) day.disabled = true;
+                        if (cell >= firstDay && cell < firstDay + daysInMonth) day.classList.remove('is-outside');
+                        day.addEventListener('click', () => {
+                            nativeInput.value = iso;
+                            nativeInput.dispatchEvent(new Event('change', { bubbles: true }));
+                            updateValueLabel();
+                            render();
+                            close();
+                        });
+                        grid.appendChild(day);
+                    }
+                };
+
+                const setValue = (value) => {
+                    nativeInput.value = value;
+                    const selected = parseIso(value);
+                    if (selected) {
+                        state.view = selected;
+                        state.view.setDate(1);
+                    }
+                    nativeInput.dispatchEvent(new Event('change', { bubbles: true }));
+                    updateValueLabel();
+                    render();
+                    close();
+                };
+
+                trigger.addEventListener('click', () => {
+                    const isOpen = !calendar.hidden;
+                    document.querySelectorAll('.or-date-picker.is-open').forEach((other) => {
+                        if (other !== picker) other.querySelector('.or-date-trigger')?.click();
+                    });
+                    if (isOpen) {
+                        close();
+                        return;
+                    }
+                    picker.classList.add('is-open');
+                    calendar.hidden = false;
+                    trigger.setAttribute('aria-expanded', 'true');
+                    render();
+                });
+                previous?.addEventListener('click', () => { state.view = new Date(state.view.getFullYear(), state.view.getMonth() - 1, 1); render(); });
+                next?.addEventListener('click', () => { state.view = new Date(state.view.getFullYear(), state.view.getMonth() + 1, 1); render(); });
+                clear?.addEventListener('click', () => setValue(''));
+                todayButton?.addEventListener('click', () => setValue(toIso(today)));
+                nativeInput.addEventListener('change', () => {
+                    const selected = parseIso(nativeInput.value);
+                    state.view = selected || new Date();
+                    state.view.setDate(1);
+                    updateValueLabel();
+                    syncRange();
+                    render();
+                });
+                document.addEventListener('click', (event) => {
+                    if (!picker.contains(event.target)) close();
+                });
+                document.addEventListener('keydown', (event) => {
+                    if (event.key === 'Escape' && !calendar.hidden) close(true);
+                });
+
+                updateValueLabel();
+                render();
+                syncRange();
+            });
+        })();
+    </script>
 @endsection
