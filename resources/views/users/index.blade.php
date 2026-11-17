@@ -39,16 +39,29 @@
         .ua-status-active { background:#dcfce7; color:#166534; }
         .ua-status-inactive { background:#fef2f2; color:#b91c1c; }
         .ua-action-link { color:#2563eb; text-decoration:none; font-weight:700; font-size:0.9rem; }
-        .ua-action-btn { background:#fef2f2; color:#b91c1c; border:1px solid #fecaca; padding:7px 14px; border-radius:10px; font-weight:700; font-size:0.85rem; cursor:pointer; margin-left:10px; }
+        .ua-action-btn { background:#fef2f2; color:#b91c1c; border:1px solid #fecaca; padding:7px 14px; border-radius:10px; font-weight:700; font-size:0.85rem; cursor:pointer; margin-left:10px; white-space:nowrap; }
         .ua-action-btn-activate { background:#ecfdf5; color:#047857; border:1px solid #a7f3d0; }
         .ua-actions { display:flex; align-items:center; gap:8px; }
         .ua-actions form { margin:0; }
         .ua-actions .ua-action-btn { min-height:38px; margin-left:0; }
-        .ua-action-edit { display:inline-flex; align-items:center; justify-content:center; min-height:38px; padding:7px 14px; border:1px solid #bfdbfe; border-radius:10px; background:#eff6ff; color:#1d4ed8; text-decoration:none; font-size:0.85rem; font-weight:700; }
+        .ua-action-edit { display:inline-flex; align-items:center; justify-content:center; min-height:38px; padding:7px 14px; border:1px solid #bfdbfe; border-radius:10px; background:#eff6ff; color:#1d4ed8; text-decoration:none; font-size:0.85rem; font-weight:700; white-space:nowrap; }
         .ua-action-edit:hover { background:#dbeafe; }
         .ua-actions :focus-visible { outline:3px solid rgba(37,99,235,0.32); outline-offset:2px; }
         .ua-logo-thumb { width:34px; height:34px; border-radius:8px; object-fit:cover; }
         .ua-email, .ua-organization, .ua-created-by { overflow-wrap:anywhere; word-break:normal; }
+
+        @media(min-width:761px) {
+            .ua-table { min-width:1120px; table-layout:auto; }
+            .ua-table th, .ua-table td { min-width:0; }
+            .ua-table th:nth-child(1), .ua-table td:nth-child(1) { min-width:190px; }
+            .ua-table th:nth-child(2), .ua-table td:nth-child(2) { min-width:170px; }
+            .ua-table th:nth-child(3), .ua-table td:nth-child(3) { min-width:150px; }
+            .ua-table th:nth-child(4), .ua-table td:nth-child(4) { min-width:190px; }
+            .ua-table th:nth-child(5), .ua-table td:nth-child(5) { min-width:100px; }
+            .ua-table th:nth-child(6), .ua-table td:nth-child(6) { min-width:135px; }
+            .ua-table th:nth-child(7), .ua-table td:nth-child(7) { min-width:160px; }
+            .ua-actions { flex-wrap:nowrap; }
+        }
 
         .ua-modal-overlay {
             display:none; position:fixed; inset:0; background:rgba(15,23,42,0.55); z-index:1000;
