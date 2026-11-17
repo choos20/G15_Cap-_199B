@@ -101,7 +101,7 @@
                     </div>
                     @if(in_array($application->status, ['pending', 'approved']) && $hasAttendance)
                         <div class="application-action">
-                            Withdrawal unavailable: attendance recorded.
+                            Withdrawal Unavailable: Attendance Recorded.
                         </div>
                     @elseif(in_array($application->status, ['pending', 'approved']))
                         <div class="application-action">
