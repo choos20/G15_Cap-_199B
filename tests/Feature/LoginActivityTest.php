@@ -139,6 +139,20 @@ class LoginActivityTest extends TestCase
             ->assertOk();
     }
 
+    public function test_security_page_combines_mfa_password_and_login_activity_sections(): void
+    {
+        $user = User::factory()->create(['role' => 'participant']);
+
+        $this->actingAs($user)
+            ->get(route('account.security'))
+            ->assertOk()
+            ->assertSee('Sign-in protection')
+            ->assertSee('Change password')
+            ->assertSee('Recent login activity')
+            ->assertDontSee('Security settings</a>')
+            ->assertDontSee('Login activity</a>');
+    }
+
     public function test_a_successful_login_creates_a_private_activity_record(): void
     {
         $user = User::factory()->create([

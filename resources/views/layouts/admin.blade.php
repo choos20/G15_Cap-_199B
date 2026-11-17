@@ -218,32 +218,10 @@
                     @include('partials.nav_notifications')
                 @endif
 
-                <details class="nav-group" @if(request()->routeIs('account.*', 'login-audit.*')) open @endif>
-                    <summary>
-                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 3 5 6v5c0 4.4 2.9 8.4 7 10 4.1-1.6 7-5.6 7-10V6l-7-3Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="m9 12 2 2 4-4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                        <span>Security</span>
-                    </summary>
-                    <div class="nav-group-links">
-                        <a href="{{ route('account.security') }}" class="{{ request()->routeIs('account.security') ? 'active' : '' }}">
-                            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3h11A2.5 2.5 0 0 1 20 5.5v13a2.5 2.5 0 0 1-2.5 2.5h-11A2.5 2.5 0 0 1 4 18.5v-13Z" stroke="currentColor" stroke-width="1.7"/><path d="M8 8h8M8 12h8M8 16h5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
-                            <span>Security settings</span>
-                        </a>
-                        <a href="{{ route('account.login_activity') }}" class="{{ request()->routeIs('account.login_activity') ? 'active' : '' }}">
-                            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="12" cy="12" r="8.5" stroke="currentColor" stroke-width="1.7"/><path d="M12 7v5l3 2" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                            <span>Login activity</span>
-                        </a>
-                        <a href="{{ route('account.password') }}" class="{{ request()->routeIs('account.password') ? 'active' : '' }}">
-                            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M7 10V8a5 5 0 0 1 10 0v2M5 10h14v10H5V10Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M12 14v2" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
-                            <span>Change password</span>
-                        </a>
-                        @if(in_array($userRole, ['celp_head', 'csa_director'], true))
-                            <a href="{{ route('login-audit.index') }}" class="{{ request()->routeIs('login-audit.*') ? 'active' : '' }}">
-                                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3h11A2.5 2.5 0 0 1 20 5.5v13a2.5 2.5 0 0 1-2.5 2.5h-11A2.5 2.5 0 0 1 4 18.5v-13Z" stroke="currentColor" stroke-width="1.7"/><path d="M8 8h8M8 12h5M8 16h3" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><circle cx="17" cy="16" r="2.5" stroke="currentColor" stroke-width="1.5"/></svg>
-                                <span>Login audit logs</span>
-                            </a>
-                        @endif
-                    </div>
-                </details>
+                <a href="{{ route('account.security') }}" class="{{ request()->routeIs('account.*', 'login-audit.*') ? 'active' : '' }}">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 3 5 6v5c0 4.4 2.9 8.4 7 10 4.1-1.6 7-5.6 7-10V6l-7-3Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="m9 12 2 2 4-4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    <span>Security</span>
+                </a>
         </nav>
 
         <div class="sidebar-footer">

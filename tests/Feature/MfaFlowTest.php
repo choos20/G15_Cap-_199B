@@ -129,4 +129,92 @@ class MfaFlowTest extends TestCase
             ->assertRedirect(route('mfa.challenge'))
             ->assertSessionHasErrors('recovery_code');
     }
+
+    public function test_an_optional_user_can_enable_mfa_from_the_security_flow(): void
+    {
+        $user = User::factory()->create([
+            'email' => 'participant-mfa@example.test',
+            'password' => Hash::make('correct-password'),
+            'role' => 'participant',
+        ]);
+
+        $this->actingAs($user)
+            ->get(route('mfa.enroll'))
+            ->assertOk()
+            ->assertSee('SafeAuth');
+
+        $secret = session('mfa_setup_secret');
+
+        $this->post(route('mfa.enroll.verify'), [
+            'code' => TotpService::code($secret),
+        ])->assertOk()->assertSee('Save your recovery codes');
+
+        $this->assertNotNull($user->fresh()->mfa_enabled_at);
+        $this->assertDatabaseCount('mfa_recovery_codes', 10);
+    }
+
+    public function test_an_optional_user_must_verify_password_and_totp_to_disable_mfa(): void
+    {
+        $user = User::factory()->create([
+            'email' => 'participant-disable-mfa@example.test',
+            'password' => Hash::make('correct-password'),
+            'role' => 'participant',
+        ]);
+        $secret = 'GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ';
+        MfaService::enable($user, $secret);
+
+        $this->actingAs($user)
+            ->post(route('account.mfa.disable'), [
+                'mfa_current_password' => 'correct-password',
+                'mfa_code' => TotpService::code($secret),
+            ])
+            ->assertRedirect(route('account.security') . '#mfa')
+            ->assertSessionHas('status', 'MFA has been disabled for this account.');
+
+        $this->assertNull($user->fresh()->mfa_enabled_at);
+        $this->assertNull($user->fresh()->mfa_secret);
+        $this->assertDatabaseCount('mfa_recovery_codes', 0);
+    }
+
+    public function test_enabled_optional_mfa_is_required_on_the_next_login(): void
+    {
+        $user = User::factory()->create([
+            'email' => 'participant-login-mfa@example.test',
+            'password' => Hash::make('correct-password'),
+            'role' => 'participant',
+        ]);
+        $secret = 'GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ';
+        MfaService::enable($user, $secret);
+
+        $this->post(route('login.submit'), [
+            'user' => $user->email,
+            'password' => 'correct-password',
+        ])->assertRedirect(route('mfa.challenge'));
+
+        $this->get(route('participant.dashboard'))
+            ->assertRedirect(route('mfa.challenge'));
+
+        $this->post(route('mfa.challenge.verify'), [
+            'code' => TotpService::code($secret),
+        ])->assertRedirect(route('participant.dashboard'));
+    }
+
+    public function test_a_protected_role_cannot_disable_required_mfa(): void
+    {
+        $user = User::factory()->create([
+            'email' => 'protected-disable-mfa@example.test',
+            'password' => Hash::make('correct-password'),
+            'role' => 'celp_head',
+        ]);
+        MfaService::enable($user, 'GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ');
+
+        $this->actingAs($user)
+            ->post(route('account.mfa.disable'), [
+                'mfa_current_password' => 'correct-password',
+                'mfa_code' => '123456',
+            ])
+            ->assertForbidden();
+
+        $this->assertNotNull($user->fresh()->mfa_enabled_at);
+    }
 }

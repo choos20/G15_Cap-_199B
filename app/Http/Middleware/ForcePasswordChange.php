@@ -23,6 +23,8 @@ class ForcePasswordChange
     private const ALLOWED = [
         'account.password',
         'account.password.update',
+        'account.security',
+        'account.login_activity',
         'logout',
     ];
 

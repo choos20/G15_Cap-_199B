@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\LoginActivity;
 use App\Services\LoginActivityAccess;
+use App\Services\MfaService;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -39,6 +40,9 @@ class LoginActivityController extends Controller
             'failedCount' => $failedCount,
             'suspiciousCount' => $suspiciousCount,
             'canViewAudit' => LoginActivityAccess::canViewAudit($user),
+            'mfaRequired' => MfaService::isProtectedUser($user),
+            'mfaEnabled' => MfaService::isEnabled($user),
+            'mfaRecoveryCodesRemaining' => MfaService::remainingRecoveryCodes($user),
         ]);
     }
 

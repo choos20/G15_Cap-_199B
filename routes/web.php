@@ -334,11 +334,15 @@ Route::post('/login', function (Request $request) {
     }
 
     if (MfaService::isProtectedUser($user)) {
-        $mfaRoute = $user->mfa_enabled_at && filled($user->mfa_secret)
+        $mfaRoute = MfaService::isEnabled($user)
             ? 'mfa.challenge'
             : 'mfa.enroll';
 
         return redirect()->route($mfaRoute);
+    }
+
+    if (MfaService::isEnabled($user)) {
+        return redirect()->route('mfa.challenge');
     }
 
     if ($user instanceof User) {
@@ -1287,11 +1291,14 @@ Route::middleware('auth')->group(function () {
         ->name('account.security');
     Route::get('/account/security/login-activity', [LoginActivityController::class, 'personal'])
         ->name('account.login_activity');
+    Route::post('/account/security/mfa/disable', [MfaController::class, 'disable'])
+        ->middleware('throttle:6,1')
+        ->name('account.mfa.disable');
     Route::get('/audit/login-activity', [LoginActivityController::class, 'audit'])
         ->name('login-audit.index');
 
     Route::get('/account/password', function () {
-        return view('account.change_password');
+        return redirect()->to(route('account.security') . '#password');
     })->name('account.password')->middleware('auth');
 
     Route::post('/account/password', function (Request $request) {
@@ -1309,7 +1316,9 @@ Route::middleware('auth')->group(function () {
         $user->must_change_password = false;   // releases ForcePasswordChange
         $user->save();
 
-        return redirect()->route(dashboard_route_for($request->user()))->with('status', 'Password updated.');
+        return redirect()
+            ->to(route('account.security') . '#password')
+            ->with('status', 'Password updated.');
     })->name('account.password.update');
 
     Route::post('/account/profile-photo', [ProfilePhotoController::class, 'update'])

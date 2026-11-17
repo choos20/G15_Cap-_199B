@@ -8,8 +8,8 @@ use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * Keeps privileged users inside the MFA enrollment/challenge flow until the
- * current login session has successfully completed MFA.
+ * Keeps required or enrolled users inside the MFA enrollment/challenge flow
+ * until the current login session has successfully completed MFA.
  */
 class EnsureMfaVerified
 {
@@ -36,6 +36,9 @@ class EnsureMfaVerified
     private const PERSONAL_SECURITY_ROUTES = [
         'account.security',
         'account.login_activity',
+        // The controller requires the current password plus a TOTP or
+        // recovery code before an optional MFA enrollment can be removed.
+        'account.mfa.disable',
     ];
 
     public function handle(Request $request, Closure $next): Response
@@ -43,7 +46,7 @@ class EnsureMfaVerified
         $user = $request->user();
         $routeName = $request->route()?->getName();
 
-        if (! MfaService::isProtectedUser($user)) {
+        if (! MfaService::requiresVerification($user)) {
             return $next($request);
         }
 

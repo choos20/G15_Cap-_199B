@@ -4,10 +4,10 @@
 
 @section('content')
     <div class="page-card mfa-page-card">
-        <div class="mfa-eyebrow">High-privilege account security</div>
+        <div class="mfa-eyebrow">Account security</div>
         <div class="section-title">Set up two-factor authentication</div>
         <div class="section-subtitle">
-            Protect your {{ role_label($user->role) }} account before entering the ProjectLink dashboard.
+            Protect your {{ role_label($user->role) }} account with an extra sign-in step.
         </div>
 
         @if($errors->any())
@@ -62,7 +62,7 @@
                     placeholder="000000"
                     aria-describedby="mfa-enrollment-help"
                 >
-                <div id="mfa-enrollment-help" class="mfa-help">Your dashboard will unlock after this code is verified.</div>
+                <div id="mfa-enrollment-help" class="mfa-help">MFA will be enabled after this code is verified.</div>
                 <button type="submit" class="mfa-primary-button">Confirm and continue</button>
             </form>
         </div>

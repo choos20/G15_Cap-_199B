@@ -19,6 +19,18 @@ final class MfaService
         return $user !== null && in_array($user->role, self::PROTECTED_ROLES, true);
     }
 
+    public static function isEnabled(?User $user): bool
+    {
+        return $user instanceof User
+            && filled($user->mfa_enabled_at)
+            && filled($user->mfa_secret);
+    }
+
+    public static function requiresVerification(?User $user): bool
+    {
+        return self::isProtectedUser($user) || self::isEnabled($user);
+    }
+
     /**
      * Persist the encrypted TOTP secret and replace any previous recovery
      * codes. Plain recovery codes are returned once for the enrollment screen;
@@ -51,6 +63,35 @@ final class MfaService
 
             return $codes;
         });
+    }
+
+    /**
+     * Remove optional MFA enrollment and all recovery codes for a user.
+     * Protected roles are prevented from calling this by the controller.
+     */
+    public static function disable(User $user): void
+    {
+        DB::transaction(function () use ($user): void {
+            $user->forceFill([
+                'mfa_secret' => null,
+                'mfa_enabled_at' => null,
+            ])->save();
+
+            MfaRecoveryCode::where('user_id', $user->id)->delete();
+        });
+    }
+
+    public static function remainingRecoveryCodes(User $user): int
+    {
+        try {
+            return MfaRecoveryCode::where('user_id', $user->id)
+                ->whereNull('used_at')
+                ->count();
+        } catch (\Throwable) {
+            // Keep the security overview available while a deployment is
+            // finishing the MFA recovery-code migration.
+            return 0;
+        }
     }
 
     public static function consumeRecoveryCode(User $user, string $submittedCode): bool
