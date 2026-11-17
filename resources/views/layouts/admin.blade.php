@@ -8,7 +8,8 @@
     <style>
         :root{--sidebar:#0b2926;--sidebar-deep:#08211f;--accent:#13b886;--muted:#6b7280;--card:#ffffff;--text:#0b2a2a}
         *{box-sizing:border-box}
-        body{font-family:Inter,system-ui,Segoe UI,Roboto,Arial; margin:0; background:#f6f7fb; color:var(--text); font-size:15px}
+        html{min-width:0; overflow-x:hidden}
+        body{font-family:Inter,system-ui,Segoe UI,Roboto,Arial; margin:0; background:#f6f7fb; color:var(--text); font-size:15px; min-width:0; overflow-x:hidden}
         body.nav-open{overflow:hidden}
         .app-shell{display:flex; min-height:100vh}
         .sidebar{position:sticky; top:0; width:260px; height:100vh; flex:0 0 260px; overflow:hidden; background:radial-gradient(ellipse at 15% 0%,#12463d 0%,transparent 42%),linear-gradient(180deg,var(--sidebar) 0%,var(--sidebar-deep) 100%); color:#e6f7f2; padding:22px 16px 16px; display:flex; flex-direction:column; border-right:1px solid rgba(255,255,255,0.06);}
@@ -123,6 +124,7 @@
             .cards{grid-template-columns:1fr}
             .main{padding:16px 12px}
             .sidebar{padding:14px 12px}
+            .card{padding:14px}
             .button-row a{min-width:0; width:100%}
             .topbar-actions a.logout{font-size:0; width:42px; height:42px; padding:0; display:inline-flex; align-items:center; justify-content:center}
             .topbar-actions .logout span{display:none}
@@ -131,6 +133,14 @@
             .content :is(input,select,textarea){font-size:1rem}
             .quick-action-card{min-height:88px; padding:14px}
             .content table{display:block; max-width:100%; overflow-x:auto; white-space:nowrap}
+        }
+        @media (max-width:420px){
+            .topbar{gap:8px}
+            .topbar .title-group{gap:9px}
+            .topbar-actions{gap:6px}
+            .topbar-actions > *{flex:0 0 auto}
+            .mobile-menu-toggle,.topbar-actions a.logout{width:40px; height:40px}
+            .topbar-actions button[aria-label="Notifications"]{width:40px !important; height:40px !important}
         }
     </style>
 </head>

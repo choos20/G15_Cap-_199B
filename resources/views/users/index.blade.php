@@ -48,6 +48,7 @@
         .ua-action-edit:hover { background:#dbeafe; }
         .ua-actions :focus-visible { outline:3px solid rgba(37,99,235,0.32); outline-offset:2px; }
         .ua-logo-thumb { width:34px; height:34px; border-radius:8px; object-fit:cover; }
+        .ua-email, .ua-organization, .ua-created-by { overflow-wrap:anywhere; word-break:normal; }
 
         .ua-modal-overlay {
             display:none; position:fixed; inset:0; background:rgba(15,23,42,0.55); z-index:1000;
@@ -109,7 +110,7 @@
             .ua-table tr.ua-row td {
                 display:flex; flex-direction:column; align-items:flex-start; justify-content:center;
                 min-width:0; padding:9px 0; border-bottom:1px solid #f1f5f9;
-                overflow-wrap:anywhere; font-size:0.88rem;
+                overflow-wrap:normal; word-break:normal; font-size:0.88rem; line-height:1.45;
             }
             .ua-table tr.ua-row td::before {
                 content:attr(data-label); margin-bottom:5px; color:#94a3b8; font-size:0.67rem;
@@ -218,9 +219,9 @@
                                     <span style="font-weight:600; color:#0f172a">{{ $u->name }}</span>
                                 </div>
                             </td>
-                            <td data-label="Email" style="color:#475569">{{ $u->email }}</td>
+                            <td data-label="Email" class="ua-email" style="color:#475569">{{ $u->email }}</td>
                             <td data-label="Role"><span class="ua-pill" style="background:{{ $roleBg }}; color:{{ $roleColor }}">{{ $roleLabels[$u->role] ?? ucfirst($u->role) }}</span></td>
-                            <td data-label="Organization" style="color:#475569">{{ $u->organization_name ?? '—' }}</td>
+                            <td data-label="Organization" class="ua-organization" style="color:#475569">{{ $u->organization_name ?? '—' }}</td>
                             <td data-label="Status">
                                 @if(array_key_exists('is_active', $u->getAttributes()))
                                     <span class="ua-pill {{ $u->is_active ? 'ua-status-active' : 'ua-status-inactive' }}">{{ $u->is_active ? 'Active' : 'Deactivated' }}</span>
@@ -228,7 +229,7 @@
                                     <span class="ua-pill ua-status-active">Active</span>
                                 @endif
                             </td>
-                            <td data-label="Created by" style="color:#475569">{{ optional($u->creator)->name ?? 'System' }}</td>
+                            <td data-label="Created by" class="ua-created-by" style="color:#475569">{{ optional($u->creator)->name ?? 'System' }}</td>
                             <td data-label="Actions">
                                 @php
                                     $auth = auth()->user();
