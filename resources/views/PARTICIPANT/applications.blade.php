@@ -17,14 +17,20 @@
         .application-attachments{margin-top:8px; display:grid; gap:8px}
         .application-attachments > div{overflow-wrap:break-word; word-break:normal}
         .application-attachment{font-size:.84rem; color:#334155; overflow-wrap:anywhere; word-break:normal}
-        .application-action{min-width:0; max-width:260px; color:#92400e; font-size:.88rem; font-weight:600; overflow-wrap:break-word; word-break:normal}
+        .application-action{min-width:0; max-width:280px; color:#92400e; font-size:.88rem; font-weight:600; overflow-wrap:break-word; word-break:normal}
         .application-action form{margin:0}
         .application-withdraw{background:#fef2f2; color:#b91c1c; border:1px solid #fecaca; padding:9px 16px; border-radius:10px; font:inherit; font-weight:700; cursor:pointer; white-space:nowrap}
+        .application-withdrawal-unavailable{display:flex; align-items:flex-start; gap:9px; width:100%; box-sizing:border-box; padding:10px 12px; border:1px solid #fecaca; border-radius:12px; background:#fef2f2; color:#991b1b; font-size:.82rem; line-height:1.35; font-weight:700}
+        .application-withdrawal-unavailable__icon{display:inline-flex; align-items:center; justify-content:center; flex:0 0 20px; width:20px; height:20px; margin-top:1px; border-radius:999px; background:#fee2e2; color:#b91c1c; font-size:.78rem; font-weight:800}
+        .application-withdrawal-unavailable__copy{min-width:0}
+        .application-withdrawal-unavailable__title{display:block}
+        .application-withdrawal-unavailable__reason{display:block; margin-top:2px; color:#b91c1c; font-size:.78rem; font-weight:600}
         @media (max-width:760px){
             .application-card{grid-template-columns:minmax(0,1fr); align-items:stretch; gap:14px; padding:16px}
             .application-action{width:100%; max-width:none}
             .application-action form{width:100%}
             .application-withdraw{width:100%; min-height:44px}
+            .application-withdrawal-unavailable{padding:11px 12px}
         }
         @media (max-width:360px){
             .application-card{padding:14px}
@@ -101,7 +107,13 @@
                     </div>
                     @if(in_array($application->status, ['pending', 'approved']) && $hasAttendance)
                         <div class="application-action">
-                            Withdrawal Unavailable: Attendance Recorded.
+                            <div class="application-withdrawal-unavailable" role="status">
+                                <span class="application-withdrawal-unavailable__icon" aria-hidden="true">!</span>
+                                <span class="application-withdrawal-unavailable__copy">
+                                    <span class="application-withdrawal-unavailable__title">Withdrawal unavailable</span>
+                                    <span class="application-withdrawal-unavailable__reason">Attendance has already been recorded.</span>
+                                </span>
+                            </div>
                         </div>
                     @elseif(in_array($application->status, ['pending', 'approved']))
                         <div class="application-action">
