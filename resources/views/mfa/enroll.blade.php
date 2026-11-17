@@ -22,7 +22,12 @@
 
         <div class="mfa-step">
             <h3>1. Scan this QR code in SafeAuth</h3>
+            <div class="mfa-qr-status"><span class="mfa-qr-status-dot" aria-hidden="true"></span>Ready to scan</div>
             <div class="mfa-qr-frame">
+                <span class="mfa-qr-corner mfa-qr-corner--tl" aria-hidden="true"></span>
+                <span class="mfa-qr-corner mfa-qr-corner--tr" aria-hidden="true"></span>
+                <span class="mfa-qr-corner mfa-qr-corner--bl" aria-hidden="true"></span>
+                <span class="mfa-qr-corner mfa-qr-corner--br" aria-hidden="true"></span>
                 @if($qrCode)
                     <img src="{{ $qrCode }}" alt="ProjectLink MFA setup QR code">
                 @else

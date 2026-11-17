@@ -231,7 +231,8 @@
         .qr-modal-backdrop {
             position:fixed;
             inset:0;
-            background:rgba(15,23,42,0.45);
+            background:rgba(15,23,42,0.58);
+            backdrop-filter:blur(5px);
             display:none;
             align-items:center;
             justify-content:center;
@@ -244,24 +245,131 @@
         .qr-modal {
             background:#ffffff;
             border-radius:24px;
+            border:1px solid rgba(16,185,129,0.18);
+            width:100%;
+            max-width:460px;
+            max-height:calc(100dvh - 40px);
+            overflow-y:auto;
+            box-shadow:0 30px 80px rgba(15,23,42,0.3);
+        }
+        .qr-modal-header {
+            display:flex;
+            align-items:flex-start;
+            justify-content:space-between;
+            gap:16px;
+            padding:22px 24px 18px;
+            background:linear-gradient(135deg,#063f35 0%,#087c5b 100%);
+            color:#ffffff;
+        }
+        .qr-modal-eyebrow {
+            display:inline-flex;
+            align-items:center;
+            gap:7px;
+            margin-bottom:7px;
+            color:#bbf7d0;
+            font-size:.7rem;
+            font-weight:800;
+            letter-spacing:.08em;
+            text-transform:uppercase;
+        }
+        .qr-live-dot {
+            width:8px;
+            height:8px;
+            border-radius:50%;
+            background:#86efac;
+            box-shadow:0 0 0 5px rgba(134,239,172,.16);
+            animation:qr-live-pulse 1.8s ease-in-out infinite;
+        }
+        .qr-modal-header h3 { margin:0; font-size:1.25rem; }
+        .qr-modal-close {
+            display:inline-flex;
+            align-items:center;
+            justify-content:center;
+            flex:0 0 36px;
+            width:36px;
+            height:36px;
+            border:1px solid rgba(255,255,255,.28);
+            border-radius:10px;
+            background:rgba(255,255,255,.1);
+            color:#ffffff;
+            font-size:1.35rem;
+            line-height:1;
+            cursor:pointer;
+        }
+        .qr-modal-close:hover { background:rgba(255,255,255,.2); }
+        .qr-modal-close:focus-visible,
+        .qr-modal-action:focus-visible,
+        .qr-modal-link-panel summary:focus-visible,
+        .qr-modal-copy:focus-visible { outline:3px solid #6ee7b7; outline-offset:3px; }
+        .qr-modal-body { padding:20px 24px 24px; }
+        .qr-modal-subtitle { margin:0; color:#475569; font-size:.9rem; line-height:1.45; }
+        .qr-modal-status {
+            display:flex;
+            align-items:center;
+            gap:10px;
+            margin-top:16px;
+            padding:11px 12px;
+            border:1px solid #bbf7d0;
+            border-radius:13px;
+            background:#f0fdf4;
+            color:#166534;
+        }
+        .qr-modal-status.is-ended { border-color:#fecaca; background:#fef2f2; color:#991b1b; }
+        .qr-modal-status-dot { width:10px; height:10px; flex:0 0 10px; border-radius:50%; background:#16a34a; box-shadow:0 0 0 5px rgba(22,163,74,.12); }
+        .qr-modal-status.is-ended .qr-modal-status-dot { background:#dc2626; box-shadow:0 0 0 5px rgba(220,38,38,.1); }
+        .qr-modal-status-copy { display:grid; gap:2px; min-width:0; }
+        .qr-modal-status-copy strong { font-size:.82rem; }
+        .qr-modal-status-copy span { color:inherit; font-size:.75rem; opacity:.82; }
+        .qr-display {
+            position:relative;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            width:min(100%,340px);
+            aspect-ratio:1;
+            margin:20px auto 16px;
             padding:24px;
-            width:100%;
-            max-width:360px;
-            box-shadow:0 24px 60px rgba(15,23,42,0.18);
+            border:1px solid #d1fae5;
+            border-radius:26px;
+            background:#ffffff;
+            box-shadow:0 16px 34px rgba(6,95,70,.13),0 0 0 8px #f0fdf4;
         }
-        .qr-modal img {
-            width:100%;
-            border-radius:12px;
-            margin:16px 0;
-            border:1px solid #e5e7eb;
+        .qr-display::after {
+            content:'';
+            position:absolute;
+            inset:10px;
+            border:2px solid rgba(16,185,129,.55);
+            border-radius:19px;
+            pointer-events:none;
+            animation:qr-frame-pulse 2.4s ease-in-out infinite;
         }
-        .qr-modal-link {
-            display:block;
-            word-break:break-all;
-            color:#2563eb;
-            font-size:0.9rem;
-            margin-bottom:12px;
-        }
+        .qr-display img { position:relative; z-index:1; display:block; width:100%; max-width:280px; height:auto; border-radius:4px; image-rendering:pixelated; }
+        .qr-corner { position:absolute; z-index:2; width:34px; height:34px; border-color:#059669; border-style:solid; pointer-events:none; }
+        .qr-corner--tl { top:15px; left:15px; border-width:4px 0 0 4px; border-radius:13px 0 0 0; }
+        .qr-corner--tr { top:15px; right:15px; border-width:4px 4px 0 0; border-radius:0 13px 0 0; }
+        .qr-corner--bl { bottom:15px; left:15px; border-width:0 0 4px 4px; border-radius:0 0 0 13px; }
+        .qr-corner--br { right:15px; bottom:15px; border-width:0 4px 4px 0; border-radius:0 0 13px 0; }
+        .qr-modal-meta { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
+        .qr-modal-meta > div { padding:11px 12px; border:1px solid #e2e8f0; border-radius:12px; background:#f8fafc; }
+        .qr-modal-meta span,.qr-modal-meta strong { display:block; }
+        .qr-modal-meta span { color:#64748b; font-size:.7rem; font-weight:700; text-transform:uppercase; letter-spacing:.05em; }
+        .qr-modal-meta strong { margin-top:3px; color:#0f172a; font-size:.85rem; }
+        .qr-modal-hint { margin:14px 0 0; color:#64748b; font-size:.78rem; line-height:1.5; text-align:center; }
+        .qr-modal-actions { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin-top:18px; }
+        .qr-modal-action { display:inline-flex; align-items:center; justify-content:center; min-height:42px; padding:10px 12px; border-radius:11px; font:inherit; font-size:.82rem; font-weight:700; text-decoration:none; cursor:pointer; }
+        .qr-modal-action.primary { border:1px solid #087c5b; background:#087c5b; color:#ffffff; }
+        .qr-modal-action.secondary { border:1px solid #cbd5e1; background:#ffffff; color:#0f172a; }
+        .qr-modal-action:hover { transform:translateY(-1px); box-shadow:0 8px 18px rgba(15,23,42,.1); }
+        .qr-modal-link-panel { margin-top:14px; border-top:1px solid #e2e8f0; padding-top:12px; }
+        .qr-modal-link-panel summary { color:#08734e; cursor:pointer; font-size:.78rem; font-weight:700; }
+        .qr-modal-link-body { display:flex; align-items:center; gap:8px; margin-top:10px; }
+        .qr-modal-link { min-width:0; flex:1 1 auto; overflow:hidden; color:#2563eb; font-size:.75rem; text-overflow:ellipsis; white-space:nowrap; }
+        .qr-modal-copy { flex:0 0 auto; padding:7px 9px; border:1px solid #cbd5e1; border-radius:8px; background:#f8fafc; color:#334155; font:inherit; font-size:.72rem; font-weight:700; cursor:pointer; }
+        .qr-modal:fullscreen { display:flex; flex-direction:column; width:min(100vw,720px); max-width:none; height:100vh; max-height:none; border-radius:0; }
+        .qr-modal:fullscreen .qr-modal-body { overflow-y:auto; }
+        .qr-modal:fullscreen .qr-display { width:min(68vh,460px); }
+        @keyframes qr-live-pulse { 50% { opacity:.45; transform:scale(.78); } }
+        @keyframes qr-frame-pulse { 50% { opacity:.35; transform:scale(.985); } }
         .attendance-grid > * { min-width:0; }
         @media (max-width:1200px) {
             .attendance-grid { grid-template-columns:minmax(0,1fr); }
@@ -271,6 +379,17 @@
             .attendance-card { padding:18px; border-radius:18px; }
             #location-map { min-height:220px; }
             .sv-viewer { height:clamp(180px,45dvh,320px); }
+            .qr-modal-header { padding:18px 18px 16px; }
+            .qr-modal-body { padding:18px; }
+            .qr-display { padding:18px; border-radius:21px; }
+            .qr-corner { width:28px; height:28px; }
+            .qr-corner--tl { top:12px; left:12px; }
+            .qr-corner--tr { top:12px; right:12px; }
+            .qr-corner--bl { bottom:12px; left:12px; }
+            .qr-corner--br { right:12px; bottom:12px; }
+        }
+        @media (prefers-reduced-motion:reduce) {
+            .qr-live-dot,.qr-display::after,.qr-modal-action { animation:none; transition:none; }
         }
         .qr-modal, .sv-modal { max-height:calc(100dvh - 40px); overflow-y:auto; }
     </style>
@@ -435,7 +554,9 @@
                                             class="btn-primary show-qr"
                                             data-title="{{ $session->project->title }}"
                                             data-qr="{{ $session->qr_code_data_uri }}"
-                                            data-url="{{ $session->scan_url }}">
+                                            data-url="{{ $session->scan_url }}"
+                                            data-status="{{ $session->status }}"
+                                            data-closes="{{ $session->closes_at->toIso8601String() }}">
                                             View QR
                                         </button>
                                     @else
@@ -486,15 +607,47 @@
     </div>
 
     <div id="qr-modal-backdrop" class="qr-modal-backdrop" aria-hidden="true">
-        <div class="qr-modal attendance-card" role="dialog" aria-modal="true" aria-labelledby="qr-modal-title">
-            <div style="display:flex; justify-content:space-between; align-items:center; gap:12px;">
-                <h3 id="qr-modal-title" style="margin:0;">Attendance QR</h3>
-                <button type="button" id="qr-modal-close" class="btn-secondary">Close</button>
+        <div class="qr-modal" role="dialog" aria-modal="true" aria-labelledby="qr-modal-title">
+            <div class="qr-modal-header">
+                <div>
+                    <div class="qr-modal-eyebrow"><span class="qr-live-dot" aria-hidden="true"></span>Live attendance session</div>
+                    <h3 id="qr-modal-title">Attendance QR</h3>
+                </div>
+                <button type="button" id="qr-modal-close" class="qr-modal-close" aria-label="Close QR code">&times;</button>
             </div>
-            <p id="qr-modal-subtitle" class="form-note" style="margin:8px 0 0;"></p>
-            <img id="qr-modal-image" src="" alt="Attendance QR code">
-            <a id="qr-modal-link" class="qr-modal-link" href="#" target="_blank" rel="noopener">Open scan link</a>
-            <a id="qr-modal-download" class="btn-secondary" href="#" download="attendance-qr.png">Download QR</a>
+            <div class="qr-modal-body">
+                <p id="qr-modal-subtitle" class="qr-modal-subtitle"></p>
+                <div id="qr-modal-status" class="qr-modal-status" role="status" aria-live="polite">
+                    <span class="qr-modal-status-dot" aria-hidden="true"></span>
+                    <div class="qr-modal-status-copy">
+                        <strong id="qr-modal-status-label">Ready to scan</strong>
+                        <span id="qr-modal-status-detail">Ask participants to open their scanner.</span>
+                    </div>
+                </div>
+                <div class="qr-display" aria-label="Attendance QR code display">
+                    <span class="qr-corner qr-corner--tl" aria-hidden="true"></span>
+                    <span class="qr-corner qr-corner--tr" aria-hidden="true"></span>
+                    <span class="qr-corner qr-corner--bl" aria-hidden="true"></span>
+                    <span class="qr-corner qr-corner--br" aria-hidden="true"></span>
+                    <img id="qr-modal-image" src="" alt="Attendance QR code">
+                </div>
+                <div class="qr-modal-meta">
+                    <div><span>Session status</span><strong id="qr-modal-session-status">Open</strong></div>
+                    <div><span>Closes in</span><strong id="qr-modal-countdown">Calculating...</strong></div>
+                </div>
+                <p class="qr-modal-hint">Keep this screen bright and steady. The QR code itself stays static for reliable camera scanning.</p>
+                <div class="qr-modal-actions">
+                    <button type="button" id="qr-modal-fullscreen" class="qr-modal-action primary">Full screen</button>
+                    <a id="qr-modal-download" class="qr-modal-action secondary" href="#" download="attendance-qr.png">Download QR</a>
+                </div>
+                <details class="qr-modal-link-panel">
+                    <summary>Need the direct link?</summary>
+                    <div class="qr-modal-link-body">
+                        <a id="qr-modal-link" class="qr-modal-link" href="#" target="_blank" rel="noopener">Open scan link</a>
+                        <button type="button" id="qr-modal-copy" class="qr-modal-copy">Copy link</button>
+                    </div>
+                </details>
+            </div>
         </div>
     </div>
 
@@ -819,16 +972,71 @@
 
         document.addEventListener('DOMContentLoaded', function () {
             const backdrop = document.getElementById('qr-modal-backdrop');
+            const modal = backdrop.querySelector('.qr-modal');
             const closeBtn = document.getElementById('qr-modal-close');
             const modalTitle = document.getElementById('qr-modal-title');
             const modalSubtitle = document.getElementById('qr-modal-subtitle');
+            const modalStatus = document.getElementById('qr-modal-status');
+            const modalStatusLabel = document.getElementById('qr-modal-status-label');
+            const modalStatusDetail = document.getElementById('qr-modal-status-detail');
+            const modalSessionStatus = document.getElementById('qr-modal-session-status');
+            const modalCountdown = document.getElementById('qr-modal-countdown');
             const modalImage = document.getElementById('qr-modal-image');
             const modalLink = document.getElementById('qr-modal-link');
             const modalDownload = document.getElementById('qr-modal-download');
+            const modalCopy = document.getElementById('qr-modal-copy');
+            const modalFullscreen = document.getElementById('qr-modal-fullscreen');
+            let countdownTimer = null;
+            let currentScanUrl = '';
+            let previouslyFocused = null;
+
+            const updateCountdown = (closesAt, status) => {
+                window.clearInterval(countdownTimer);
+                const closeTime = Date.parse(closesAt);
+                const isClosed = status === 'closed';
+
+                const render = () => {
+                    const remaining = closeTime - Date.now();
+                    const ended = isClosed || !Number.isFinite(closeTime) || remaining <= 0;
+                    modalStatus.classList.toggle('is-ended', ended);
+
+                    if (ended) {
+                        modalStatusLabel.textContent = 'Session ended';
+                        modalStatusDetail.textContent = 'This QR code is no longer accepting attendance scans.';
+                        modalSessionStatus.textContent = isClosed ? 'Closed' : 'Expired';
+                        modalCountdown.textContent = 'Ended';
+                        return;
+                    }
+
+                    const totalSeconds = Math.floor(remaining / 1000);
+                    const hours = Math.floor(totalSeconds / 3600);
+                    const minutes = Math.floor((totalSeconds % 3600) / 60);
+                    const seconds = totalSeconds % 60;
+                    const parts = [];
+                    if (hours) parts.push(`${hours}h`);
+                    if (minutes || hours) parts.push(`${minutes}m`);
+                    parts.push(`${seconds}s`);
+
+                    modalStatusLabel.textContent = 'Ready to scan';
+                    modalStatusDetail.textContent = 'Ask participants to open their scanner.';
+                    modalSessionStatus.textContent = 'Open';
+                    modalCountdown.textContent = parts.join(' ');
+                };
+
+                render();
+                if (!isClosed && Number.isFinite(closeTime) && closeTime > Date.now()) {
+                    countdownTimer = window.setInterval(render, 1000);
+                }
+            };
 
             const closeModal = () => {
+                window.clearInterval(countdownTimer);
+                if (document.fullscreenElement === modal && document.exitFullscreen) {
+                    document.exitFullscreen().catch(() => {});
+                }
                 backdrop.classList.remove('active');
                 backdrop.setAttribute('aria-hidden', 'true');
+                if (previouslyFocused) previouslyFocused.focus();
             };
 
             document.querySelectorAll('.show-qr').forEach((btn) => {
@@ -836,6 +1044,8 @@
                     const qrSrc = this.dataset.qr;
                     const scanUrl = this.dataset.url;
                     const title = this.dataset.title;
+                    const sessionStatus = this.dataset.status || 'open';
+                    const closesAt = this.dataset.closes || '';
 
                     if (!qrSrc || !scanUrl) {
                         alert('QR data is not available for this session.');
@@ -845,12 +1055,47 @@
                     modalTitle.textContent = 'Attendance QR';
                     modalSubtitle.textContent = title;
                     modalImage.src = qrSrc;
+                    modalImage.alt = `Attendance QR code for ${title}`;
                     modalLink.href = scanUrl;
                     modalLink.textContent = scanUrl;
                     modalDownload.href = qrSrc;
+                    currentScanUrl = scanUrl;
+                    modalCopy.textContent = 'Copy link';
+                    updateCountdown(closesAt, sessionStatus);
+                    previouslyFocused = document.activeElement;
                     backdrop.classList.add('active');
                     backdrop.setAttribute('aria-hidden', 'false');
+                    closeBtn.focus();
                 });
+            });
+
+            modalFullscreen.addEventListener('click', async () => {
+                try {
+                    if (document.fullscreenElement === modal) {
+                        await document.exitFullscreen();
+                    } else if (modal.requestFullscreen) {
+                        await modal.requestFullscreen();
+                    } else {
+                        modalStatusDetail.textContent = 'Full screen is not supported by this browser.';
+                    }
+                } catch {
+                    modalStatusDetail.textContent = 'Full screen was not available. You can still use the QR normally.';
+                }
+            });
+
+            document.addEventListener('fullscreenchange', () => {
+                modalFullscreen.textContent = document.fullscreenElement === modal ? 'Exit full screen' : 'Full screen';
+            });
+
+            modalCopy.addEventListener('click', async () => {
+                if (!currentScanUrl) return;
+                try {
+                    await navigator.clipboard.writeText(currentScanUrl);
+                    modalCopy.textContent = 'Copied';
+                    window.setTimeout(() => { modalCopy.textContent = 'Copy link'; }, 1800);
+                } catch {
+                    modalStatusDetail.textContent = 'Copy is unavailable. Open the direct link instead.';
+                }
             });
 
             closeBtn.addEventListener('click', closeModal);

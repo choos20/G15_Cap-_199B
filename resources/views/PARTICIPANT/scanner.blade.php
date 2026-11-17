@@ -83,6 +83,11 @@
                 <div class="qs-idle" id="qs-idle">Your camera is off. Allow camera access when prompted to scan the QR code.</div>
                 <video id="qs-video" playsinline muted disablepictureinpicture disableremoteplayback style="display:none"></video>
                 <div class="qs-reticle" id="qs-reticle" style="display:none"><i></i><i></i><i></i><i></i><span></span></div>
+                <div class="qs-detected" id="qs-detected" aria-hidden="true">
+                    <span class="qs-detected-icon" aria-hidden="true">&#10003;</span>
+                    <strong>QR code captured</strong>
+                    <small>Validating attendance link...</small>
+                </div>
             </div>
             <canvas id="qs-canvas" style="display:none"></canvas>
 
@@ -140,7 +145,15 @@
         .qs-invalid-badge{flex-shrink:0;padding:3px 8px;border-radius:999px;background:#fecaca;color:#dc2626;font-size:.68rem;letter-spacing:.02em}
         @media(max-width:480px){.qs-invalid{gap:10px;padding:12px}.qs-invalid-copy strong{font-size:.85rem}.qs-invalid-badge{padding:3px 6px}}
     .qs-layout{max-width:1120px;margin:auto}.qs-card>p{font-size:.9rem;line-height:1.5}.qs-reticle{inset:auto;top:50%;left:50%;width:210px;height:210px;transform:translate(-50%,-50%);border:0;border-radius:16px}.qs-reticle i{position:absolute;width:32px;height:32px;border:4px solid #34d399}.qs-reticle i:nth-child(1){top:0;left:0;border-right:0;border-bottom:0;border-radius:12px 0 0}.qs-reticle i:nth-child(2){top:0;right:0;border-left:0;border-bottom:0;border-radius:0 12px 0 0}.qs-reticle i:nth-child(3){bottom:0;left:0;border-right:0;border-top:0;border-radius:0 0 0 12px}.qs-reticle i:nth-child(4){bottom:0;right:0;border-left:0;border-top:0;border-radius:0 0 12px}.qs-reticle span{position:absolute;top:10px;left:8px;right:8px;height:2px;background:#6ee7b7;box-shadow:0 0 14px #34d399;animation:qs-sweep 2.5s ease-in-out infinite alternate}@keyframes qs-sweep{to{transform:translateY(188px)}}#qs-start{width:100%;font-size:1rem;box-shadow:0 6px 16px #08734e22}.qs-secondary{background:#f8fafc;color:#334155;border:1px solid #cbd5e1}.qs-status.busy:before{content:'';display:inline-block;width:12px;height:12px;border:2px solid #a7f3d0;border-top-color:#047857;border-radius:50%;margin-right:8px;animation:qs-spin .8s linear infinite}@keyframes qs-spin{to{transform:rotate(360deg)}}.qs-guide summary{cursor:pointer;font-weight:700}.qs-idle{box-sizing:border-box;max-width:320px;margin:auto;line-height:1.6}.qs-fallback label{display:block;font-size:.85rem;margin-bottom:8px}.qs-fallback input{box-sizing:border-box}@media(prefers-reduced-motion:reduce){.qs-reticle span,.qs-status.busy:before{animation:none}}@media(max-width:760px){.qs-card{padding:18px}.qs-guide{gap:12px}.qs-guide-card{padding:18px}}
+        .qs-detected{position:absolute;inset:0;z-index:4;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;background:rgba(6,78,59,.76);color:#fff;opacity:0;pointer-events:none;transition:opacity 180ms ease}
+        .qs-video-frame.is-detected .qs-detected{opacity:1}
+        .qs-video-frame.is-detected video{filter:brightness(.45)}
+        .qs-detected-icon{display:flex;align-items:center;justify-content:center;width:58px;height:58px;border:3px solid #a7f3d0;border-radius:50%;background:#059669;color:#fff;font-size:2rem;font-weight:800;animation:qs-captured-pop 260ms ease-out both}
+        .qs-detected strong{font-size:1rem}
+        .qs-detected small{color:#d1fae5;font-size:.82rem}
+        @keyframes qs-captured-pop{from{transform:scale(.6);opacity:0}to{transform:scale(1);opacity:1}}
+        @media(prefers-reduced-motion:reduce){.qs-detected-icon{animation:none}.qs-detected{transition:none}}
     </style>
     <script src="https://unpkg.com/jsqr@1.4.0/dist/jsQR.js" crossorigin="anonymous"></script>
-    <script src="{{ asset('js/attendance-scanner.js') }}?v=2" data-resolve="{{ route('participant.scanner.resolve') }}" defer></script>
+    <script src="{{ asset('js/attendance-scanner.js') }}?v=3" data-resolve="{{ route('participant.scanner.resolve') }}" defer></script>
 @endsection

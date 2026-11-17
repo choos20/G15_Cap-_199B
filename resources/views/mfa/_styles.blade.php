@@ -50,6 +50,7 @@
     }
 
     .mfa-qr-frame {
+        position: relative;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -60,6 +61,51 @@
         border-radius: 12px;
         background: #ffffff;
         box-shadow: 0 12px 28px rgba(5, 20, 10, 0.22);
+    }
+
+    .mfa-qr-frame::after {
+        content: '';
+        position: absolute;
+        inset: 10px;
+        border: 2px solid rgba(5, 150, 105, 0.45);
+        border-radius: 10px;
+        pointer-events: none;
+        animation: mfa-qr-frame-pulse 2.4s ease-in-out infinite;
+    }
+
+    .mfa-qr-corner {
+        position: absolute;
+        z-index: 2;
+        width: 30px;
+        height: 30px;
+        border-color: #059669;
+        border-style: solid;
+        pointer-events: none;
+    }
+
+    .mfa-qr-corner--tl { top: 14px; left: 14px; border-width: 3px 0 0 3px; border-radius: 9px 0 0 0; }
+    .mfa-qr-corner--tr { top: 14px; right: 14px; border-width: 3px 3px 0 0; border-radius: 0 9px 0 0; }
+    .mfa-qr-corner--bl { bottom: 14px; left: 14px; border-width: 0 0 3px 3px; border-radius: 0 0 0 9px; }
+    .mfa-qr-corner--br { right: 14px; bottom: 14px; border-width: 0 3px 3px 0; border-radius: 0 0 9px 0; }
+
+    .mfa-qr-status {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        margin: 14px auto 0;
+        color: #caffdc;
+        font-size: .76rem;
+        font-weight: 700;
+    }
+
+    .mfa-qr-status-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #86efac;
+        box-shadow: 0 0 0 5px rgba(134, 239, 172, .12);
+        animation: mfa-qr-status-pulse 1.8s ease-in-out infinite;
     }
 
     .mfa-qr-frame img {
@@ -207,6 +253,14 @@
         text-decoration: underline;
     }
 
+    @keyframes mfa-qr-frame-pulse {
+        50% { opacity: .35; transform: scale(.985); }
+    }
+
+    @keyframes mfa-qr-status-pulse {
+        50% { opacity: .45; transform: scale(.78); }
+    }
+
     @media (max-width: 480px) {
         .mfa-page-card {
             padding: 30px 20px;
@@ -220,8 +274,25 @@
             min-height: 230px;
         }
 
+        .mfa-qr-corner {
+            width: 26px;
+            height: 26px;
+        }
+
+        .mfa-qr-corner--tl { top: 11px; left: 11px; }
+        .mfa-qr-corner--tr { top: 11px; right: 11px; }
+        .mfa-qr-corner--bl { bottom: 11px; left: 11px; }
+        .mfa-qr-corner--br { right: 11px; bottom: 11px; }
+
         .mfa-recovery-list {
             grid-template-columns: 1fr;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .mfa-qr-frame::after,
+        .mfa-qr-status-dot {
+            animation: none;
         }
     }
 </style>
