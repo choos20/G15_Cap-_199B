@@ -39,12 +39,16 @@
         .nav .nav-group-links a.active{background:rgba(8,124,91,0.4); border-color:rgba(110,231,183,0.2); color:#fff; box-shadow:none}
         .nav .nav-group-links a.active::before{top:7px; bottom:7px}
         .sidebar-footer{margin-top:auto; padding-top:14px; border-top:1px solid rgba(255,255,255,0.1); font-size:0.9rem; color:#e6f7f2}
-        .profile-avatar-menu{position:relative; display:flex; align-items:center; gap:10px}
-        .profile-avatar-control{position:static}
-        .profile-avatar-summary{display:flex; align-items:center; justify-content:center; flex:0 0 auto; padding:0; border:0; border-radius:50%; background:none; color:inherit; cursor:pointer; list-style:none}
+        .profile-avatar-menu{position:relative; display:flex; align-items:center; gap:10px; width:100%; min-width:0; margin-top:18px}
+        .profile-avatar-control{position:static; flex:0 0 36px; width:36px; height:36px}
+        .profile-avatar-summary{display:flex; align-items:center; justify-content:center; width:36px; height:36px; flex:0 0 36px; padding:0; border:0; border-radius:50%; background:none; color:inherit; cursor:pointer; list-style:none}
         .profile-avatar-summary::-webkit-details-marker{display:none}
         .profile-avatar-summary:focus-visible{outline:2px solid #6ee7b7; outline-offset:4px; border-radius:8px}
         .profile-avatar-dropdown{position:absolute; bottom:calc(100% + 10px); left:0; z-index:40; width:100%; padding:14px; border:1px solid #d6e5df; border-radius:12px; background:#fff; color:#0f172a; box-shadow:0 12px 30px rgba(0,0,0,.2)}
+        .profile-avatar-menu__copy{flex:1 1 auto; min-width:0; overflow:hidden; line-height:1.25}
+        .profile-avatar-menu__name,.profile-avatar-menu__role{display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+        .profile-avatar-menu__name{font-weight:700}
+        .profile-avatar-menu__role{margin-top:2px; font-size:.8rem; opacity:.85}
         .profile-avatar-dropdown label{display:block; margin:10px 0 6px; color:#475569; font-size:.78rem; font-weight:700}
         .profile-avatar-dropdown input[type=file]{width:100%; color:#475569; font-size:.75rem}
         .profile-avatar-action{width:100%; margin-top:9px; padding:8px 10px; border:1px solid #0b7656; border-radius:8px; background:#0b7656; color:#fff; font:inherit; font-size:.8rem; font-weight:700; cursor:pointer}
@@ -100,7 +104,7 @@
             .sidebar{position:fixed; inset:0 auto 0 0; z-index:100; width:min(86vw,320px); height:100dvh; min-width:0; flex:0 0 auto; overflow-y:auto; padding:18px 16px; transform:translateX(-105%); transition:transform 180ms ease; box-shadow:14px 0 34px rgba(2,8,8,0.22)}
             .sidebar.is-open{transform:translateX(0)}
             .sidebar-footer{order:1; margin:0 0 10px; padding:12px 0; border-top:0; border-bottom:1px solid rgba(255,255,255,0.1)}
-            .sidebar-footer .profile-avatar-menu{margin-top:0 !important}
+            .sidebar-footer .profile-avatar-menu{margin-top:0}
             .profile-avatar-dropdown{top:calc(100% + 10px); bottom:auto; max-height:calc(100dvh - 190px); overflow-y:auto}
             .nav{order:2; overflow:visible}
             .nav .nav-group-links a{min-height:44px}
@@ -225,7 +229,7 @@
         </nav>
 
         <div class="sidebar-footer">
-            <div class="profile-avatar-menu" style="margin-top:18px">
+            <div class="profile-avatar-menu">
                 <details class="profile-avatar-control">
                     <summary class="profile-avatar-summary" aria-label="Change profile image" title="Change profile image">
                         <x-profile-avatar :name="auth()->user()->name" :photo-url="auth()->user()->profilePhotoUrl()" :size="36" />
@@ -261,9 +265,9 @@
                         @endif
                     </div>
                 </details>
-                <span style="min-width:0">
-                    <span style="display:block; overflow:hidden; font-weight:700; text-overflow:ellipsis; white-space:nowrap">{{ auth()->user()->name }}</span>
-                    <span style="display:block; font-size:0.8rem; opacity:0.85">{{ role_label(auth()->user()->role) }}</span>
+                <span class="profile-avatar-menu__copy">
+                    <span class="profile-avatar-menu__name">{{ auth()->user()->name }}</span>
+                    <span class="profile-avatar-menu__role">{{ role_label(auth()->user()->role) }}</span>
                 </span>
             </div>
         </div>
