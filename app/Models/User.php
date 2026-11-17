@@ -31,6 +31,8 @@ use Illuminate\Support\Facades\Storage;
  * @property string|null $id_number
  * @property bool $is_active
  * @property \Illuminate\Support\Carbon|null $email_verified_at
+ * @property string|null $mfa_secret Encrypted TOTP secret.
+ * @property \Illuminate\Support\Carbon|null $mfa_enabled_at
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  *
@@ -96,6 +98,7 @@ class User extends Authenticatable
     protected $hidden = [
         'password',
         'remember_token',
+        'mfa_secret',
     ];
 
     /**
@@ -110,6 +113,8 @@ class User extends Authenticatable
             'password' => 'hashed',
             'is_active' => 'boolean',
             'must_change_password' => 'boolean',
+            'mfa_secret' => 'encrypted',
+            'mfa_enabled_at' => 'datetime',
             'org_advocacies' => 'array',
             'org_profile_updated_at' => 'datetime',
         ];

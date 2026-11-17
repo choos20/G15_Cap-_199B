@@ -10,6 +10,7 @@ use App\Http\Controllers\CelpStaffReportController;
 use App\Http\Controllers\CsaDirectorController;
 use App\Http\Controllers\CsaReportController;
 use App\Http\Controllers\EvaluationController;
+use App\Http\Controllers\MfaController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\OrganizationReportController;
 use App\Http\Controllers\OrganizationDirectoryController;
@@ -27,6 +28,7 @@ use App\Mail\EmailVerificationOtp;
 use App\Mail\PasswordResetOtp;
 use App\Models\AuditLog;
 use App\Models\User;
+use App\Services\MfaService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -272,6 +274,7 @@ Route::post('/login', function (Request $request) {
     $request->session()->regenerate();
 
     $user = Auth::user();
+    $request->session()->forget(['mfa_verified_user_id', 'mfa_setup_secret']);
     if ($user && array_key_exists('is_active', $user->getAttributes()) && ! $user->is_active) {
         Auth::logout();
 
@@ -288,8 +291,32 @@ Route::post('/login', function (Request $request) {
         return redirect()->route('verify_email')->with('status', $status);
     }
 
+    if (MfaService::isProtectedUser($user)) {
+        $mfaRoute = $user->mfa_enabled_at && filled($user->mfa_secret)
+            ? 'mfa.challenge'
+            : 'mfa.enroll';
+
+        return redirect()->route($mfaRoute);
+    }
+
     return redirect()->route(dashboard_route_for($user));
 })->middleware('throttle:login')->name('login.submit');
+
+Route::middleware('auth')->group(function () {
+    Route::get('/mfa/enroll', [MfaController::class, 'showEnrollment'])
+        ->name('mfa.enroll');
+    Route::post('/mfa/enroll', [MfaController::class, 'enroll'])
+        ->middleware('throttle:6,1')
+        ->name('mfa.enroll.verify');
+    Route::get('/mfa/challenge', [MfaController::class, 'showChallenge'])
+        ->name('mfa.challenge');
+    Route::post('/mfa/challenge', [MfaController::class, 'challenge'])
+        ->middleware('throttle:6,1')
+        ->name('mfa.challenge.verify');
+    Route::post('/mfa/recovery', [MfaController::class, 'recovery'])
+        ->middleware('throttle:6,1')
+        ->name('mfa.recovery.verify');
+});
 
 Route::get('/logout', function (Request $request) {
     Auth::logout();
