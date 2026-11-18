@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', config('app.name', 'ProjectLink'))</title>
+    <link rel="icon" type="image/png" href="{{ asset('images/Logo_nobg.png') }}">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root{--sidebar:#0b2926;--sidebar-deep:#08211f;--accent:#13b886;--muted:#6b7280;--card:#ffffff;--text:#0b2a2a}
