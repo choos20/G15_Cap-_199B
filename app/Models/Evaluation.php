@@ -26,6 +26,9 @@ class Evaluation extends Model
         'expected_beneficiaries',
         'submitted_at',
         'submitted_by',
+        'paper_beneficiary_count',
+        'paper_implementer_count',
+        'correction_in_progress',
     ];
 
     protected function casts(): array
@@ -53,6 +56,11 @@ class Evaluation extends Model
         return $this->belongsTo(User::class, 'submitted_by');
     }
 
+    public function history()
+    {
+        return $this->hasMany(EvaluationHistory::class);
+    }
+
     public function isSubmitted(): bool
     {
         return $this->submitted_at !== null;
@@ -68,6 +76,10 @@ class Evaluation extends Model
             return 'submitted';
         }
 
+        if ($this->correction_in_progress) {
+            return 'correction';
+        }
+
         return ($this->responses_count ?? $this->responses()->count()) > 0
             ? 'encoding'
             : 'not_started';
@@ -76,6 +88,7 @@ class Evaluation extends Model
     public const STATUS_LABELS = [
         'not_started' => 'Not started',
         'encoding' => 'Encoding in progress',
+        'correction' => 'Reopened for correction',
         'submitted' => 'Submitted',
     ];
 

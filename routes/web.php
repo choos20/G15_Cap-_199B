@@ -602,8 +602,14 @@ Route::middleware('auth')->group(function () {
     Route::post('/evaluations/{announcement}/target', [EvaluationController::class, 'updateTarget'])
         ->name('evaluations.target');
 
+    Route::post('/evaluations/{announcement}/paper-counts', [EvaluationController::class, 'updatePaperCounts'])
+        ->name('evaluations.paper-counts');
+
     Route::post('/evaluations/{announcement}/finish', [EvaluationController::class, 'finish'])
         ->name('evaluations.finish');
+
+    Route::post('/evaluations/{announcement}/reopen', [EvaluationController::class, 'reopen'])
+        ->name('evaluations.reopen');
 
     Route::get('/evaluations/{announcement}/summary', [EvaluationController::class, 'summary'])
         ->name('evaluations.summary');

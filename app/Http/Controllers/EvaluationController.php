@@ -332,10 +332,7 @@ class EvaluationController extends Controller
 
         // "Save & finish batch" closes the batch in the same action.
         if ($request->input('action') === 'finish') {
-            $evaluation->update([
-                'submitted_at' => now(),
-                'submitted_by' => $request->user()->id,
-            ]);
+            $this->submitBatch($evaluation, $request->user()->id);
 
             return Redirect::route('evaluations.summary', $announcement)
                 ->with('status', "Batch submitted with {$total} encoded forms.");
@@ -475,6 +472,54 @@ class EvaluationController extends Controller
         return Redirect::back()->with('status', 'Beneficiary count updated.');
     }
 
+    public function updatePaperCounts(Request $request, Announcement $announcement)
+    {
+        $this->authorizeEncoding($request, $announcement);
+        $evaluation = $this->batchFor($announcement);
+        abort_if($evaluation->isSubmitted(), 403);
+        $data = $request->validate([
+            'paper_beneficiary_count' => ['nullable', 'integer', 'min:0', 'max:100000'],
+            'paper_implementer_count' => ['nullable', 'integer', 'min:0', 'max:100000'],
+        ]);
+        $evaluation->update($data);
+        return back()->with('status', 'Paper form counts updated.');
+    }
+
+    private function recordHistory(Evaluation $evaluation, int $userId, string $action, ?string $reason = null): void
+    {
+        $counts = $evaluation->responses()->selectRaw('respondent_type, COUNT(*) as total')
+            ->groupBy('respondent_type')->pluck('total', 'respondent_type');
+        $evaluation->history()->create([
+            'user_id' => $userId, 'action' => $action, 'reason' => $reason,
+            'beneficiary_count' => $counts['beneficiary'] ?? 0,
+            'implementer_count' => $counts['implementer'] ?? 0,
+        ]);
+    }
+
+    private function submitBatch(Evaluation $evaluation, int $userId): void
+    {
+        DB::transaction(function () use ($evaluation, $userId) {
+            $evaluation = Evaluation::whereKey($evaluation->id)->lockForUpdate()->firstOrFail();
+            abort_if($evaluation->isSubmitted(), 403, 'This batch is already submitted.');
+            $this->recordHistory($evaluation, $userId, $evaluation->correction_in_progress ? 'resubmitted' : 'submitted');
+            $evaluation->update(['submitted_at' => now(), 'submitted_by' => $userId, 'correction_in_progress' => false]);
+        });
+    }
+
+    public function reopen(Request $request, Announcement $announcement)
+    {
+        $this->authorizeEncoding($request, $announcement);
+        $data = $request->validate(['reason' => ['required', 'string', 'max:500', 'not_regex:/^\\s*$/']]);
+        $evaluation = $announcement->evaluation()->firstOrFail();
+        DB::transaction(function () use ($evaluation, $request, $data) {
+            $evaluation = Evaluation::whereKey($evaluation->id)->lockForUpdate()->firstOrFail();
+            abort_unless($evaluation->isSubmitted(), 403, 'This batch is not submitted.');
+            $this->recordHistory($evaluation, $request->user()->id, 'reopened', trim($data['reason']));
+            $evaluation->update(['submitted_at' => null, 'submitted_by' => null, 'correction_in_progress' => true]);
+        });
+        return redirect()->route('evaluations.encode', $announcement)->with('status', 'Batch reopened for correction. Existing responses have been kept.');
+    }
+
     /** Close the batch without encoding a further form. */
     public function finish(Request $request, Announcement $announcement)
     {
@@ -490,10 +535,7 @@ class EvaluationController extends Controller
             ]);
         }
 
-        $evaluation->update([
-            'submitted_at' => now(),
-            'submitted_by' => $request->user()->id,
-        ]);
+        $this->submitBatch($evaluation, $request->user()->id);
 
         return Redirect::route('evaluations.summary', $announcement)
             ->with('status', 'Evaluation batch submitted.');
@@ -557,6 +599,7 @@ class EvaluationController extends Controller
                 ->all(),
             'canEncode' => in_array($request->user()->role, self::INITIATOR_ROLES, true)
                 && $announcement->created_by === $request->user()->id,
+            'history' => $evaluation->history()->with('user')->orderByDesc('id')->get(),
         ]);
     }
 }

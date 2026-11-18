@@ -69,16 +69,23 @@
         </div>
     @endif
 
+    @if($evaluation->correction_in_progress)
+        <div class="su-note" role="status"><strong>Reopened for correction.</strong> These results are being updated and have not yet been resubmitted.</div>
+    @endif
+    @if($errors->any())
+        <div class="su-note" role="alert">{{ $errors->first() }}</div>
+    @endif
+
     <div class="su-tiles">
         <div class="su-tile">
             <h4>Beneficiary responses</h4>
             <div class="su-big">{{ $responsesByType->get('beneficiary', collect())->count() }}</div>
-            <div class="su-sub">@if($target) of {{ $target }} beneficiaries @else forms encoded @endif</div>
+            <div class="su-sub">@if($evaluation->paper_beneficiary_count !== null) of {{ $evaluation->paper_beneficiary_count }} paper forms received @else forms encoded @endif @if($target) · {{ $target }} beneficiaries attended @endif</div>
         </div>
         <div class="su-tile">
             <h4>Volunteer / implementer responses</h4>
             <div class="su-big">{{ $responsesByType->get('implementer', collect())->count() }}</div>
-            <div class="su-sub">forms encoded</div>
+            <div class="su-sub">@if($evaluation->paper_implementer_count !== null) of {{ $evaluation->paper_implementer_count }} paper forms received @else forms encoded @endif</div>
         </div>
         <div class="su-tile">
             <h4>Total responses</h4>
@@ -213,14 +220,37 @@
     </div>
 
     @if($canEncode && ! $evaluation->isSubmitted() && $responseCount > 0)
-        <form method="POST" action="{{ route('evaluations.finish', $announcement) }}" style="margin-top:18px">
+        <form method="POST" action="{{ route('evaluations.finish', $announcement) }}" style="margin-top:18px" onsubmit="return confirm('Submit {{ $responsesByType->get('beneficiary', collect())->count() }} beneficiary forms{{ $evaluation->paper_beneficiary_count !== null ? ' of '.$evaluation->paper_beneficiary_count.' received' : '' }} and {{ $responsesByType->get('implementer', collect())->count() }} volunteer / implementer forms{{ $evaluation->paper_implementer_count !== null ? ' of '.$evaluation->paper_implementer_count.' received' : '' }}? Please check all paper forms are encoded.')">
             @csrf
             <button type="submit"
                     style="padding:12px 20px; border-radius:12px; background:#0b6a4a; color:#fff; border:none; font-weight:700; cursor:pointer; font-size:0.92rem">
                 Submit this batch
             </button>
-            <span style="margin-left:12px; color:#94a3b8; font-size:0.87rem">Closes the batch — no further forms can be encoded.</span>
+            <span style="margin-left:12px; color:#64748b; font-size:0.87rem">You can reopen the batch later if a correction is needed.</span>
         </form>
+    @endif
+
+    @if($canEncode && $evaluation->isSubmitted())
+        <form class="su-card" method="POST" action="{{ route('evaluations.reopen', $announcement) }}">
+            @csrf
+            <h3>Reopen for correction</h3>
+            <p class="hint">Existing responses will be kept. Reviewers will see that corrections are in progress until you resubmit.</p>
+            <label for="reopen-reason">Reason for correction</label>
+            <textarea id="reopen-reason" name="reason" required maxlength="500" rows="3" style="display:block;width:100%;margin:8px 0 12px;padding:10px;border:1px solid #cbd5e1;border-radius:8px">{{ old('reason') }}</textarea>
+            <button type="submit" style="padding:10px 16px;border:0;border-radius:10px;background:#0b6a4a;color:white;font-weight:700;cursor:pointer">Reopen for correction</button>
+        </form>
+    @endif
+
+    @if($history->isNotEmpty())
+        <section class="su-card"><h3>Submission and correction history</h3>
+            @foreach($history as $event)
+                <div style="padding:10px 0;border-bottom:1px solid #e2e8f0;color:#475569">
+                    <strong>{{ ucfirst($event->action) }}</strong> by {{ $event->user->name ?? 'Unavailable user' }} · {{ $event->created_at->timezone(config('app.display_timezone', 'Asia/Manila'))->format('j M Y, g:i A') }}
+                    · {{ $event->beneficiary_count }} beneficiary, {{ $event->implementer_count }} volunteer / implementer forms
+                    @if($event->reason)<div>Reason: {{ $event->reason }}</div>@endif
+                </div>
+            @endforeach
+        </section>
     @endif
 
     @if($evaluation->isSubmitted())

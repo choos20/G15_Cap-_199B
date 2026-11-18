@@ -91,8 +91,8 @@
     </style>
 
     @php
-        $target = $evaluation->expected_beneficiaries;
-        $pct = $respondentType === 'beneficiary' && $target
+        $target = $respondentType === 'beneficiary' ? $evaluation->paper_beneficiary_count : $evaluation->paper_implementer_count;
+        $pct = $target
             ? min(100, round($encodedCount / $target * 100))
             : 0;
         $editRatings = $editResponse?->ratings->keyBy('criterion_id') ?? collect();
@@ -291,7 +291,7 @@
                         <h3>{{ $respondentTypes[$respondentType] }} rating criteria</h3>
                         <span class="en-formno">
                             Form {{ $editResponse ? $savedResponses->search(fn ($saved) => $saved->id === $editResponse->id) + 1 : $encodedCount + 1 }}
-                            @if($respondentType === 'beneficiary' && $target) of {{ $target }}@endif
+                            @if($target !== null) of {{ $target }} received @endif
                             @if($editResponse) · Editing saved form @endif
                         </span>
                     </div>
@@ -394,9 +394,9 @@
                     <h4>This encoding batch</h4>
                     <div class="en-big">{{ $encodedCount }}</div>
                     <div class="en-sub">
-                        @if($respondentType === 'beneficiary' && $target) of {{ $target }} forms encoded @else forms encoded so far @endif
+                        @if($target !== null) of {{ $target }} paper forms received @else forms encoded so far @endif
                     </div>
-                    @if($respondentType === 'beneficiary' && $target)
+                    @if($target)
                         <div class="en-bar"><i style="width:{{ $pct }}%"></i></div>
                     @endif
                 </div>
@@ -421,7 +421,7 @@
                     <button type="submit" name="action" value="another" class="en-btn en-btn-primary">
                         {{ $editResponse ? 'Update response' : '+ Save & add another' }}
                     </button>
-                    <button type="submit" name="action" value="finish" class="en-btn en-btn-ghost">
+                    <button type="submit" name="action" value="finish" class="en-btn en-btn-ghost" onclick="return confirm('Save this form and submit the batch? Currently saved: {{ $responseCounts['beneficiary'] ?? 0 }} beneficiary and {{ $responseCounts['implementer'] ?? 0 }} volunteer / implementer forms. Please check all paper forms have been encoded.')">
                         {{ $editResponse ? 'Update & finish batch' : 'Save & finish batch' }}
                     </button>
                     <a href="{{ route('evaluations.encode', [$announcement, 'respondent_type' => $respondentType]) }}"
@@ -430,16 +430,20 @@
                     </a>
                 </div>
 
+                    <div class="en-panel">
+                        <h4>Paper forms received</h4>
+                        <div class="en-sub" style="margin-top:0">Enter returned forms, separately from attendance. Leave blank if unknown.</div>
+                        <div class="en-target">
+                            <input type="number" form="paper-counts-form" name="paper_beneficiary_count" min="0" max="100000" value="{{ $evaluation->paper_beneficiary_count }}" placeholder="Beneficiary forms" aria-label="Beneficiary paper forms received">
+                            <input type="number" form="paper-counts-form" name="paper_implementer_count" min="0" max="100000" value="{{ $evaluation->paper_implementer_count }}" placeholder="Volunteer forms" aria-label="Volunteer paper forms received">
+                            <button type="submit" form="paper-counts-form">Save</button>
+                        </div>
+                    </div>
                 @if($respondentType === 'beneficiary')
                     <div class="en-panel">
                         <h4>Beneficiaries who attended</h4>
-                        <div class="en-sub" style="margin-top:0">Sets the target this batch is counted against.</div>
-                        <div class="en-target">
-                            <input type="number" form="target-form" name="expected_beneficiaries"
-                                   min="1" value="{{ $target }}" placeholder="e.g. 38"
-                                   aria-label="Number of beneficiaries who attended">
-                            <button type="submit" form="target-form">Save</button>
-                        </div>
+                        <div class="en-sub">Attendance is separate from paper forms received.</div>
+                        <div class="en-target"><input type="number" form="target-form" name="expected_beneficiaries" min="1" max="100000" value="{{ $evaluation->expected_beneficiaries }}" aria-label="Beneficiaries who attended"><button type="submit" form="target-form">Save</button></div>
                     </div>
                 @endif
             </aside>
@@ -449,6 +453,7 @@
     <form id="target-form" method="POST" action="{{ route('evaluations.target', $announcement) }}">
         @csrf
     </form>
+    <form id="paper-counts-form" method="POST" action="{{ route('evaluations.paper-counts', $announcement) }}">@csrf</form>
 
     <script>
         function toggleQuestionEditor(id, trigger) {

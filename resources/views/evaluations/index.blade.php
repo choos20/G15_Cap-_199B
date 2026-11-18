@@ -8,6 +8,7 @@
         $statusMeta = [
             'not_started' => ['Not started', '#f1f5f9', '#475569'],
             'encoding' => ['Encoding in progress', '#fffbeb', '#92400e'],
+            'correction' => ['Reopened for correction', '#fff7ed', '#9a3412'],
             'submitted' => ['Submitted', '#ecfdf5', '#065f46'],
         ];
     @endphp
@@ -82,7 +83,7 @@
                             $beneficiaryEncoded = $evaluation->beneficiary_responses_count ?? 0;
                             $implementerEncoded = $evaluation->implementer_responses_count ?? 0;
                             $encoded = $beneficiaryEncoded + $implementerEncoded;
-                            $target = $evaluation?->expected_beneficiaries;
+                            $target = $evaluation?->paper_beneficiary_count;
                             $state = $evaluation?->status() ?? 'not_started';
                             [$label, $bg, $color] = $statusMeta[$state];
                         @endphp
@@ -101,8 +102,8 @@
                             <td>
                                 @if($encoded > 0)
                                     <span style="font-weight:700; color:#0f172a">{{ $beneficiaryEncoded }}</span>
-                                    <span style="color:#94a3b8">beneficiary{{ $target ? ' of '.$target : '' }}</span>
-                                    <div style="margin-top:3px; color:#94a3b8; font-size:.8rem">{{ $implementerEncoded }} volunteer / implementer</div>
+                                    <span style="color:#94a3b8">beneficiary{{ $target !== null ? ' of '.$target.' paper forms received' : '' }}</span>
+                                    <div style="margin-top:3px; color:#94a3b8; font-size:.8rem">{{ $implementerEncoded }} volunteer / implementer@if($evaluation?->paper_implementer_count !== null) of {{ $evaluation->paper_implementer_count }} paper forms received @endif</div>
                                 @else
                                     <span style="color:#94a3b8">None yet</span>
                                 @endif
@@ -117,7 +118,7 @@
                                     @else
                                         <span style="color:#cbd5e1; font-size:0.88rem">Awaiting encoding</span>
                                     @endif
-                                @elseif($state === 'encoding')
+                                @elseif(in_array($state, ['encoding', 'correction']))
                                     <a href="{{ route('evaluations.encode', $activity) }}" class="ev-act">Continue</a>
                                 @else
                                     <a href="{{ route('evaluations.encode', $activity) }}" class="ev-act">Encode</a>
