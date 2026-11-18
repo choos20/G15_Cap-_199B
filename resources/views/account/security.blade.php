@@ -24,7 +24,7 @@
         .sec-btn-primary:hover { background:#066348; color:#fff; }
         .sec-stats { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; margin-bottom:18px; }
         .sec-stat { min-width:0; padding:17px 18px; border:1px solid #e5e7eb; border-radius:15px; background:#fff; box-shadow:0 6px 18px rgba(15,23,42,.04); }
-        .sec-stat-label { color:#64748b; font-size:.78rem; font-weight:700; text-transform:uppercase; letter-spacing:.04em; }
+        .sec-stat-label { color:#000; font-size:.78rem; font-weight:700; text-transform:uppercase; letter-spacing:.04em; }
         .sec-stat-value { margin-top:9px; color:#0f172a; font-size:1.35rem; font-weight:800; }
         .sec-stat-note { margin-top:4px; color:#94a3b8; font-size:.78rem; }
         .sec-settings-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; margin-bottom:18px; }
@@ -58,7 +58,7 @@
         .sec-activity-copy { flex:1 1 auto; min-width:0; }
         .sec-table-wrap { overflow-x:auto; }
         .sec-table { width:100%; border-collapse:collapse; }
-        .sec-table th { padding:12px 20px; color:#64748b; background:#f8fafc; border-bottom:1px solid #eef2f7; text-align:left; font-size:.72rem; text-transform:uppercase; letter-spacing:.045em; }
+        .sec-table th { padding:12px 20px; color:#000; background:#f8fafc; border-bottom:1px solid #eef2f7; text-align:left; font-size:.72rem; text-transform:uppercase; letter-spacing:.045em; }
         .sec-table td { padding:15px 20px; color:#334155; border-bottom:1px solid #f1f5f9; vertical-align:top; font-size:.84rem; }
         .sec-table tbody tr:last-child td { border-bottom:0; }
         .sec-table tbody tr:hover { background:#fbfefc; }
@@ -83,7 +83,7 @@
             .sec-table tr { padding:14px 16px; border-bottom:1px solid #eef2f7; }
             .sec-table tbody tr:last-child { border-bottom:0; }
             .sec-table td { display:flex; align-items:flex-start; justify-content:space-between; gap:14px; padding:7px 0; border:0; text-align:right; }
-            .sec-table td::before { flex:0 0 38%; color:#94a3b8; content:attr(data-label); font-size:.71rem; font-weight:800; letter-spacing:.04em; text-align:left; text-transform:uppercase; }
+            .sec-table td::before { flex:0 0 38%; color:#000; content:attr(data-label); font-size:.71rem; font-weight:800; letter-spacing:.04em; text-align:left; text-transform:uppercase; }
             .sec-table td > * { max-width:62%; }
             .sec-table .sec-when small,.sec-device small { margin-top:3px; }
         }
@@ -127,7 +127,7 @@
         </div>
         <div class="sec-stat">
             <div class="sec-stat-label">Review needed</div>
-            <div class="sec-stat-value" style="color:{{ $suspiciousCount > 0 ? '#b91c1c' : '#047857' }};">{{ $suspiciousCount }}</div>
+            <div class="sec-stat-value" style="color:{{ $suspiciousCount > 0 ? '#b91c1c' : '#000101' }};">{{ $suspiciousCount }}</div>
             <div class="sec-stat-note">{{ $failedCount }} failed sign-in{{ $failedCount === 1 ? '' : 's' }} in the last 30 days</div>
         </div>
     </div>
