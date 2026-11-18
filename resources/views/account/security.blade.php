@@ -52,6 +52,10 @@
         .sec-danger-details summary { color:#b91c1c; cursor:pointer; font-size:.78rem; font-weight:800; }
         .sec-danger-details[open] summary { margin-bottom:12px; }
         .sec-danger-details .sec-inline-form { margin-top:0; padding-top:0; border-top:0; }
+        .sec-activity-cell { display:flex; align-items:flex-start; gap:10px; min-width:0; }
+        .sec-activity-icon { display:inline-flex; align-items:center; justify-content:center; flex:0 0 34px; width:34px; height:34px; border:1px solid #d1fae5; border-radius:10px; background:#ecfdf5; color:#087c5b; }
+        .sec-activity-icon svg { width:17px; height:17px; }
+        .sec-activity-copy { flex:1 1 auto; min-width:0; }
         .sec-table-wrap { overflow-x:auto; }
         .sec-table { width:100%; border-collapse:collapse; }
         .sec-table th { padding:12px 20px; color:#64748b; background:#f8fafc; border-bottom:1px solid #eef2f7; text-align:left; font-size:.72rem; text-transform:uppercase; letter-spacing:.045em; }
@@ -253,16 +257,31 @@
                             @php [$statusBg, $statusFg] = $activity->statusTone(); @endphp
                             <tr>
                                 <td data-label="Date & time" class="sec-when">
+                                    <div class="sec-activity-cell">
+                                        <span class="sec-activity-icon" aria-hidden="true"><x-ui-icon name="clock" :size="17" /></span>
+                                        <span class="sec-activity-copy">
                                     <strong>{{ $activity->created_at->copy()->timezone($displayTimezone)->format('M j, Y') }}</strong>
                                     <small>{{ $activity->created_at->copy()->timezone($displayTimezone)->format('g:i A') }} {{ $displayTimezoneLabel }} · {{ $activity->created_at->diffForHumans() }}</small>
+                                        </span>
+                                    </div>
                                 </td>
                                 <td data-label="Approx. location">
-                                    <span>{{ $activity->location_label ?: 'Unavailable' }}</span>
-                                    <span class="sec-muted">IP-based estimate; not GPS.</span>
+                                    <div class="sec-activity-cell">
+                                        <span class="sec-activity-icon" aria-hidden="true"><x-ui-icon name="location" :size="17" /></span>
+                                        <span class="sec-activity-copy">
+                                            <span>{{ $activity->location_label ?: 'Unavailable' }}</span>
+                                            <span class="sec-muted">IP-based estimate; not GPS.</span>
+                                        </span>
+                                    </div>
                                 </td>
                                 <td data-label="Device" class="sec-device">
-                                    {{ $activity->deviceLabel() }}
-                                    @if($activity->mfa_used)<span class="sec-mfa">MFA verified</span>@endif
+                                    <div class="sec-activity-cell">
+                                        <span class="sec-activity-icon" aria-hidden="true"><x-ui-icon name="desktop" :size="17" /></span>
+                                        <span class="sec-activity-copy">
+                                            {{ $activity->deviceLabel() }}
+                                            @if($activity->mfa_used)<span class="sec-mfa">MFA verified</span>@endif
+                                        </span>
+                                    </div>
                                 </td>
                                 <td data-label="Status">
                                     <span class="sec-pill" style="background:{{ $statusBg }}; color:{{ $statusFg }}"><span class="sec-dot"></span>{{ $activity->statusLabel() }}</span>
