@@ -45,9 +45,17 @@ class TemplateController extends Controller
     {
         $filters = $request->validate([
             'source' => ['nullable', 'in:celp,csa,unknown'],
+            'q' => ['nullable', 'string', 'max:255'],
         ]);
 
         return Template::with('uploader')
+            ->when(trim($filters['q'] ?? '') !== '', function ($query) use ($filters) {
+                $term = trim($filters['q']);
+                $query->where(function ($query) use ($term) {
+                    $query->where('original_name', 'like', '%' . $term . '%')
+                        ->orWhereHas('uploader', fn ($query) => $query->where('name', 'like', '%' . $term . '%'));
+                });
+            })
             ->when(isset($filters['source']), function ($query) use ($filters) {
                 if ($filters['source'] === 'unknown') {
                     $query->whereNull('source');
@@ -85,6 +93,7 @@ class TemplateController extends Controller
         return view('templates.list', [
             'templates' => $templates,
             'source' => $request->query('source'),
+            'term' => trim($request->query('q', '')),
             'sourceCounts' => $sourceCounts,
             'allCount' => Template::count(),
         ]);

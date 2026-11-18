@@ -29,6 +29,14 @@
                             border-radius:10px; background:#ecfdf5; border:1px solid #a7f3d0; }
         .tpl-download-btn:hover { background:#d1fae5; }
         .tpl-empty { padding:48px; text-align:center; color:#64748b; }
+        .tpl-toolbar { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:16px; }
+        .tpl-search, .tpl-office { display:flex; align-items:center; gap:9px; background:#fff; border:1px solid #e2e8f0; border-radius:999px; padding:10px 14px; color:#64748b; }
+        .tpl-search { flex:1 1 280px; min-width:0; }
+        .tpl-search input, .tpl-office select { border:0; outline:0; background:transparent; color:#334155; font:inherit; min-width:0; }
+        .tpl-search input { width:100%; }
+        .tpl-office select { cursor:pointer; }
+        .tpl-submit { border:0; border-radius:999px; padding:10px 18px; background:#0b6a4a; color:#fff; font:inherit; font-weight:700; cursor:pointer; }
+        .tpl-search:focus-within, .tpl-office:focus-within, .tpl-submit:focus-visible { outline:2px solid #0b6a4a; outline-offset:2px; }
     </style>
 
     <div style="display:flex; align-items:center; gap:14px; margin-bottom:12px; flex-wrap:wrap">
@@ -40,29 +48,31 @@
         </span>
     </div>
 
-    <nav class="tpl-source-filters" aria-label="Filter forms by office">
-        <a class="tpl-source-filter {{ !$source ? 'is-active' : '' }}" href="{{ route('templates.index') }}">
-            All offices <span class="tpl-source-count">{{ $allCount }}</span>
-        </a>
-        @foreach(\App\Models\Template::SOURCES as $key => $label)
-            <a class="tpl-source-filter {{ $source === $key ? 'is-active' : '' }}"
-               href="{{ route('templates.index', ['source' => $key]) }}">
-                {{ $label }} <span class="tpl-source-count">{{ $sourceCounts[$key] ?? 0 }}</span>
-            </a>
-        @endforeach
-        @if(($sourceCounts[''] ?? 0) > 0)
-            <a class="tpl-source-filter {{ $source === 'unknown' ? 'is-active' : '' }}"
-               href="{{ route('templates.index', ['source' => 'unknown']) }}">
-                Source unavailable <span class="tpl-source-count">{{ $sourceCounts[''] }}</span>
-            </a>
-        @endif
-    </nav>
+    <form class="tpl-toolbar" method="GET" action="{{ route('templates.index') }}">
+        <label class="tpl-search">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/><path d="m16 16 4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            <input type="search" name="q" value="{{ $term }}" placeholder="Search forms or uploader..." aria-label="Search forms or uploader">
+        </label>
+        <label class="tpl-office">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 5h16l-6.2 7.1v5.2l-3.6 1.8v-7L4 5Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <select name="source" aria-label="Filter forms by office" onchange="this.form.requestSubmit()">
+                <option value="">All offices</option>
+                @foreach(\App\Models\Template::SOURCES as $key => $label)
+                    <option value="{{ $key }}" @selected($source === $key)>{{ $label }}</option>
+                @endforeach
+                @if(($sourceCounts[''] ?? 0) > 0)
+                    <option value="unknown" @selected($source === 'unknown')>Source unavailable</option>
+                @endif
+            </select>
+        </label>
+        <button class="tpl-submit" type="submit">Search</button>
+    </form>
 
     @if($templates->isEmpty())
         <div class="card tpl-empty">
             <div style="font-size:2rem; margin-bottom:10px">📄</div>
             @if($allCount > 0)
-                No forms match this office filter. <a href="{{ route('templates.index') }}" style="color:#0b6a4a; font-weight:700">Show all forms</a>
+                No forms match your search or office filter. <a href="{{ route('templates.index') }}" style="color:#0b6a4a; font-weight:700">Show all forms</a>
             @else
                 No forms have been published yet.
             @endif
