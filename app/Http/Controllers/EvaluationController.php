@@ -57,9 +57,14 @@ class EvaluationController extends Controller
             ->where('event_date', '<=', Carbon::now('Asia/Manila')->format('Y-m-d H:i:s'))
             ->whereHas('project', fn ($p) => $p->whereIn('status', ['approved', 'csa_cleared']));
 
-        // Initiators see only what they ran. Oversight roles see everything.
+        // Initiators see what they ran, plus activities whose submitted batch
+        // they are responsible for correcting. Oversight roles see everything.
         if (in_array($user->role, self::INITIATOR_ROLES, true)) {
-            $query->where('created_by', $user->id);
+            $query->where(function ($activities) use ($user) {
+                $activities->where('created_by', $user->id)
+                    ->orWhereHas('evaluation', fn ($evaluation) => $evaluation
+                        ->where('submitted_by', $user->id));
+            });
         } elseif (! in_array($user->role, self::OVERSIGHT_ROLES, true)) {
             abort(403, 'Unauthorized');
         }
@@ -118,19 +123,37 @@ class EvaluationController extends Controller
         return $announcement->evaluation?->status() ?? 'not_started';
     }
 
+    private function isInitiator($user): bool
+    {
+        return in_array($user->role, self::INITIATOR_ROLES, true);
+    }
+
     /**
-     * Guard for anything that writes. Only the organization that ran the
-     * activity may encode, and only while the batch is open.
+     * The activity owner always manages its evaluation. The person who last
+     * submitted the batch may also manage it while the batch is submitted or
+     * reopened for correction, so an accidental submission can be repaired by
+     * the same person who made it.
      */
-    private function authorizeEncoding(Request $request, Announcement $announcement): void
+    private function canManageEvaluation($user, Announcement $announcement, ?Evaluation $evaluation = null): bool
+    {
+        if (! $this->isInitiator($user)) {
+            return false;
+        }
+
+        $evaluation ??= $announcement->evaluation;
+
+        return $announcement->created_by === $user->id
+            || ($evaluation
+                && ($evaluation->isSubmitted() || $evaluation->correction_in_progress)
+                && (int) $evaluation->submitted_by === (int) $user->id);
+    }
+
+    private function authorizeActivityEligibility(Request $request, Announcement $announcement): void
     {
         $user = $request->user();
 
-        abort_unless(in_array($user->role, self::INITIATOR_ROLES, true), 403,
+        abort_unless($this->isInitiator($user), 403,
             'Only the project initiator encodes beneficiary evaluations.');
-
-        abort_unless($announcement->created_by === $user->id, 403,
-            'You may only encode evaluations for activities your organization ran.');
 
         abort_unless($announcement->project()
             ->whereIn('status', ['approved', 'csa_cleared'])
@@ -139,6 +162,26 @@ class EvaluationController extends Controller
 
         abort_unless($announcement->eventHasPassed(), 403,
             'This activity has not taken place yet.');
+    }
+
+    /**
+     * Guard for anything that writes. The activity owner or the original
+     * submitter may encode while the batch is open for correction.
+     */
+    private function authorizeEncoding(Request $request, Announcement $announcement): void
+    {
+        $this->authorizeActivityEligibility($request, $announcement);
+
+        abort_unless($this->canManageEvaluation($request->user(), $announcement), 403,
+            'You may only encode evaluations for activities you own or submitted.');
+    }
+
+    private function authorizeCorrection(Request $request, Announcement $announcement, Evaluation $evaluation): void
+    {
+        $this->authorizeActivityEligibility($request, $announcement);
+
+        abort_unless($this->canManageEvaluation($request->user(), $announcement, $evaluation), 403,
+            'Only the activity owner or original submitter can reopen this evaluation.');
     }
 
     /** Guard for read-only screens. */
@@ -150,12 +193,7 @@ class EvaluationController extends Controller
             return;
         }
 
-        abort_unless(
-            in_array($user->role, self::INITIATOR_ROLES, true)
-                && $announcement->created_by === $user->id,
-            403,
-            'Unauthorized'
-        );
+        abort_unless($this->canManageEvaluation($user, $announcement), 403, 'Unauthorized');
     }
 
     /** The batch is created on first visit, not before it is needed. */
@@ -209,6 +247,7 @@ class EvaluationController extends Controller
             'totalEncodedCount' => $evaluation->responses()->count(),
             'runningAverage' => $evaluation->overallAverage($respondentType),
             'criterionAverages' => $evaluation->averagesByCriterion($respondentType),
+            'submissionWarning' => $this->submissionWarning($evaluation),
         ]);
     }
 
@@ -332,6 +371,17 @@ class EvaluationController extends Controller
 
         // "Save & finish batch" closes the batch in the same action.
         if ($request->input('action') === 'finish') {
+            $evaluation->refresh();
+            if (($warning = $this->submissionWarning($evaluation)) !== null
+                && ! $request->boolean('confirm_incomplete')) {
+                return Redirect::route('evaluations.encode', [
+                    'announcement' => $announcement,
+                    'respondent_type' => $respondentType,
+                ])->withErrors([
+                    'batch' => $warning . ' Confirm that you want to submit an incomplete batch before continuing.',
+                ]);
+            }
+
             $this->submitBatch($evaluation, $request->user()->id);
 
             return Redirect::route('evaluations.summary', $announcement)
@@ -485,6 +535,62 @@ class EvaluationController extends Controller
         return back()->with('status', 'Paper form counts updated.');
     }
 
+    /**
+     * Compare encoded responses with the paper forms received, when the user
+     * has recorded those totals. Attendance and paper forms remain separate.
+     *
+     * @return array<string, array{encoded: int, expected: int, missing: int}>
+     */
+    private function submissionGaps(Evaluation $evaluation): array
+    {
+        $counts = $evaluation->responses()
+            ->selectRaw('respondent_type, COUNT(*) as total')
+            ->groupBy('respondent_type')
+            ->pluck('total', 'respondent_type');
+
+        $gaps = [];
+        foreach ([
+            'beneficiary' => 'paper_beneficiary_count',
+            'implementer' => 'paper_implementer_count',
+        ] as $type => $column) {
+            $expected = $evaluation->{$column};
+            $encoded = (int) ($counts[$type] ?? 0);
+
+            if ($expected !== null && $encoded < (int) $expected) {
+                $gaps[$type] = [
+                    'encoded' => $encoded,
+                    'expected' => (int) $expected,
+                    'missing' => (int) $expected - $encoded,
+                ];
+            }
+        }
+
+        return $gaps;
+    }
+
+    private function submissionWarning(Evaluation $evaluation): ?string
+    {
+        $labels = [
+            'beneficiary' => 'beneficiary',
+            'implementer' => 'volunteer / implementer',
+        ];
+        $parts = [];
+
+        foreach ($this->submissionGaps($evaluation) as $type => $gap) {
+            $parts[] = sprintf(
+                '%d of %d %s forms encoded (%d remaining)',
+                $gap['encoded'],
+                $gap['expected'],
+                $labels[$type],
+                $gap['missing']
+            );
+        }
+
+        return $parts === []
+            ? null
+            : 'Incomplete batch: ' . implode(' and ', $parts) . '.';
+    }
+
     private function recordHistory(Evaluation $evaluation, int $userId, string $action, ?string $reason = null): void
     {
         $counts = $evaluation->responses()->selectRaw('respondent_type, COUNT(*) as total')
@@ -508,14 +614,16 @@ class EvaluationController extends Controller
 
     public function reopen(Request $request, Announcement $announcement)
     {
-        $this->authorizeEncoding($request, $announcement);
-        $data = $request->validate(['reason' => ['required', 'string', 'max:500', 'not_regex:/^\\s*$/']]);
         $evaluation = $announcement->evaluation()->firstOrFail();
+        $this->authorizeCorrection($request, $announcement, $evaluation);
+        $data = $request->validate(['reason' => ['required', 'string', 'max:500', 'not_regex:/^\\s*$/']]);
         DB::transaction(function () use ($evaluation, $request, $data) {
             $evaluation = Evaluation::whereKey($evaluation->id)->lockForUpdate()->firstOrFail();
             abort_unless($evaluation->isSubmitted(), 403, 'This batch is not submitted.');
             $this->recordHistory($evaluation, $request->user()->id, 'reopened', trim($data['reason']));
-            $evaluation->update(['submitted_at' => null, 'submitted_by' => null, 'correction_in_progress' => true]);
+            // Keep submitted_by so the original submitter can continue the
+            // correction after the batch has been reopened.
+            $evaluation->update(['submitted_at' => null, 'correction_in_progress' => true]);
         });
         return redirect()->route('evaluations.encode', $announcement)->with('status', 'Batch reopened for correction. Existing responses have been kept.');
     }
@@ -532,6 +640,13 @@ class EvaluationController extends Controller
         if ($evaluation->responses()->count() === 0) {
             return Redirect::back()->withErrors([
                 'batch' => 'Encode at least one form before submitting the batch.',
+            ]);
+        }
+
+        if (($warning = $this->submissionWarning($evaluation)) !== null
+            && ! $request->boolean('confirm_incomplete')) {
+            return Redirect::back()->withErrors([
+                'batch' => $warning . ' Confirm that you want to submit an incomplete batch before continuing.',
             ]);
         }
 
@@ -597,8 +712,8 @@ class EvaluationController extends Controller
             'volunteerInterestCounts' => $responses->groupBy('respondent_type')
                 ->map(fn ($group) => $group->pluck('volunteer_interest')->filter()->countBy()->all())
                 ->all(),
-            'canEncode' => in_array($request->user()->role, self::INITIATOR_ROLES, true)
-                && $announcement->created_by === $request->user()->id,
+            'canEncode' => $this->canManageEvaluation($request->user(), $announcement, $evaluation),
+            'submissionWarning' => $this->submissionWarning($evaluation),
             'history' => $evaluation->history()->with('user')->orderByDesc('id')->get(),
         ]);
     }

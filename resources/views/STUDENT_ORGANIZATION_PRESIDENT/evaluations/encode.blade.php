@@ -122,6 +122,12 @@
         </div>
     @endif
 
+    @if($submissionWarning)
+        <div style="margin-bottom:16px; padding:14px 18px; border-radius:12px; background:#fff7ed; border:1px solid #fed7aa; color:#9a3412">
+            <strong>Before submitting:</strong> {{ $submissionWarning }} Add the missing forms, or explicitly confirm that this batch is intentionally incomplete.
+        </div>
+    @endif
+
     <div class="en-card" style="margin-bottom:18px">
         <form method="GET" action="{{ route('evaluations.encode', $announcement) }}" style="display:flex; align-items:end; gap:12px; flex-wrap:wrap">
             <div style="min-width:min(100%,300px)">
@@ -418,6 +424,12 @@
                 @endif
 
                 <div class="en-panel" style="display:flex; flex-direction:column; gap:10px">
+                    @if($submissionWarning)
+                        <label style="display:flex; align-items:flex-start; gap:8px; color:#9a3412; font-size:.84rem">
+                            <input type="checkbox" id="confirm-incomplete-check" name="confirm_incomplete" value="1" style="margin-top:3px">
+                            <span>I understand that I am submitting this batch before all recorded paper forms are encoded.</span>
+                        </label>
+                    @endif
                     <button type="submit" name="action" value="another" class="en-btn en-btn-primary">
                         {{ $editResponse ? 'Update response' : '+ Save & add another' }}
                     </button>

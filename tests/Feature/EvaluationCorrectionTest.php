@@ -35,9 +35,60 @@ class EvaluationCorrectionTest extends TestCase
         $this->assertDatabaseHas('evaluation_history', ['evaluation_id' => $batch, 'action' => 'reopened', 'reason' => 'More forms received', 'beneficiary_count' => 1]);
         $this->assertDatabaseCount('evaluation_responses', 1);
         $this->actingAs($owner)->post(route('evaluations.paper-counts', $activity), ['paper_beneficiary_count' => 20, 'paper_implementer_count' => 0])->assertRedirect();
-        $this->actingAs($owner)->post(route('evaluations.finish', $activity))->assertRedirect();
+        $this->actingAs($owner)->post(route('evaluations.finish', $activity), ['confirm_incomplete' => '1'])->assertRedirect();
         $this->assertDatabaseHas('evaluations', ['id' => $batch, 'paper_beneficiary_count' => 20, 'correction_in_progress' => false]);
         $this->assertDatabaseHas('evaluation_history', ['evaluation_id' => $batch, 'action' => 'resubmitted', 'beneficiary_count' => 1]);
+    }
+
+    public function test_original_submitter_can_reopen_and_continue_a_correction(): void
+    {
+        $owner = User::factory()->create(['role' => 'student_org']);
+        $submitter = User::factory()->create(['role' => 'student_org']);
+        $project = DB::table('projects')->insertGetId(['status' => 'approved']);
+        $activity = DB::table('announcements')->insertGetId(['created_by' => $owner->id, 'project_id' => $project, 'title' => 'Activity', 'event_date' => now()->subDay()]);
+        $batch = DB::table('evaluations')->insertGetId([
+            'announcement_id' => $activity,
+            'submitted_at' => now(),
+            'submitted_by' => $submitter->id,
+        ]);
+        DB::table('evaluation_responses')->insert(['evaluation_id' => $batch, 'respondent_type' => 'beneficiary']);
+
+        $this->actingAs($submitter)->post(route('evaluations.reopen', $activity), ['reason' => 'The paper batch was incomplete'])->assertRedirect();
+        $this->assertDatabaseHas('evaluations', [
+            'id' => $batch,
+            'submitted_at' => null,
+            'submitted_by' => $submitter->id,
+            'correction_in_progress' => true,
+        ]);
+
+        $this->actingAs($submitter)->post(route('evaluations.paper-counts', $activity), [
+            'paper_beneficiary_count' => 21,
+        ])->assertRedirect();
+    }
+
+    public function test_incomplete_batch_requires_explicit_confirmation(): void
+    {
+        $owner = User::factory()->create(['role' => 'student_org']);
+        $project = DB::table('projects')->insertGetId(['status' => 'approved']);
+        $activity = DB::table('announcements')->insertGetId(['created_by' => $owner->id, 'project_id' => $project, 'title' => 'Activity', 'event_date' => now()->subDay()]);
+        $batch = DB::table('evaluations')->insertGetId([
+            'announcement_id' => $activity,
+            'paper_beneficiary_count' => 21,
+            'correction_in_progress' => true,
+            'submitted_by' => $owner->id,
+        ]);
+        DB::table('evaluation_responses')->insert(['evaluation_id' => $batch, 'respondent_type' => 'beneficiary']);
+
+        $this->actingAs($owner)
+            ->post(route('evaluations.finish', $activity))
+            ->assertRedirect()
+            ->assertSessionHasErrors('batch');
+        $this->assertDatabaseHas('evaluations', ['id' => $batch, 'submitted_at' => null, 'correction_in_progress' => true]);
+
+        $this->actingAs($owner)
+            ->post(route('evaluations.finish', $activity), ['confirm_incomplete' => '1'])
+            ->assertRedirect();
+        $this->assertDatabaseHas('evaluations', ['id' => $batch, 'correction_in_progress' => false]);
     }
 
     public function test_other_organization_cannot_reopen_a_batch(): void

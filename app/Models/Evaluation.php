@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property int         $announcement_id
  * @property int|null    $expected_beneficiaries
  * @property \Carbon\Carbon|null $submitted_at
- * @property int|null    $submitted_by
+ * @property int|null    $submitted_by Last user who submitted the batch; retained while correction is open.
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read int|null $responses_count

@@ -60,8 +60,26 @@
                style="margin-left:auto; padding:10px 16px; border-radius:12px; background:#0b6a4a; color:#fff; font-weight:700; text-decoration:none; font-size:0.9rem">
                 Continue encoding
             </a>
+        @elseif($canEncode && $evaluation->isSubmitted())
+            <a href="#reopen-form"
+               style="margin-left:auto; padding:10px 16px; border-radius:12px; background:#0b6a4a; color:#fff; font-weight:700; text-decoration:none; font-size:0.9rem">
+                Edit submitted evaluation
+            </a>
         @endif
     </div>
+
+    @if($canEncode && $evaluation->isSubmitted())
+        <div id="reopen-form" class="su-card" style="margin-bottom:18px; border-color:#a7f3d0; background:#f0fdf4">
+            <h3>Edit submitted evaluation</h3>
+            <p class="hint">The existing responses will be kept. Reopen this batch to correct a response or add missing forms, then resubmit it.</p>
+            <form method="POST" action="{{ route('evaluations.reopen', $announcement) }}">
+                @csrf
+                <label for="reopen-reason">Reason for correction</label>
+                <textarea id="reopen-reason" name="reason" required maxlength="500" rows="3" style="display:block;width:100%;margin:8px 0 12px;padding:10px;border:1px solid #cbd5e1;border-radius:8px">{{ old('reason') }}</textarea>
+                <button type="submit" style="padding:10px 16px;border:0;border-radius:10px;background:#0b6a4a;color:white;font-weight:700;cursor:pointer">Reopen for correction</button>
+            </form>
+        </div>
+    @endif
 
     @if(session('status'))
         <div style="margin-bottom:16px; padding:14px 18px; border-radius:12px; background:#ecfdf5; border:1px solid #a7f3d0; color:#065f46; font-weight:600">
@@ -71,6 +89,11 @@
 
     @if($evaluation->correction_in_progress)
         <div class="su-note" role="status"><strong>Reopened for correction.</strong> These results are being updated and have not yet been resubmitted.</div>
+    @endif
+    @if($canEncode && ! $evaluation->isSubmitted() && $submissionWarning)
+        <div class="su-note" role="alert" style="border-color:#fed7aa; background:#fff7ed; color:#9a3412">
+            <strong>Before submitting:</strong> {{ $submissionWarning }} Add the missing forms, or confirm below if this batch is intentionally incomplete.
+        </div>
     @endif
     @if($errors->any())
         <div class="su-note" role="alert">{{ $errors->first() }}</div>
@@ -222,22 +245,17 @@
     @if($canEncode && ! $evaluation->isSubmitted() && $responseCount > 0)
         <form method="POST" action="{{ route('evaluations.finish', $announcement) }}" style="margin-top:18px" onsubmit="return confirm('Submit {{ $responsesByType->get('beneficiary', collect())->count() }} beneficiary forms{{ $evaluation->paper_beneficiary_count !== null ? ' of '.$evaluation->paper_beneficiary_count.' received' : '' }} and {{ $responsesByType->get('implementer', collect())->count() }} volunteer / implementer forms{{ $evaluation->paper_implementer_count !== null ? ' of '.$evaluation->paper_implementer_count.' received' : '' }}? Please check all paper forms are encoded.')">
             @csrf
+            @if($submissionWarning)
+                <label style="display:flex; align-items:flex-start; gap:8px; margin-bottom:12px; color:#9a3412; font-size:.88rem">
+                    <input type="checkbox" name="confirm_incomplete" value="1" required style="margin-top:3px">
+                    <span>I understand that I am submitting this batch before all recorded paper forms are encoded.</span>
+                </label>
+            @endif
             <button type="submit"
                     style="padding:12px 20px; border-radius:12px; background:#0b6a4a; color:#fff; border:none; font-weight:700; cursor:pointer; font-size:0.92rem">
                 Submit this batch
             </button>
             <span style="margin-left:12px; color:#64748b; font-size:0.87rem">You can reopen the batch later if a correction is needed.</span>
-        </form>
-    @endif
-
-    @if($canEncode && $evaluation->isSubmitted())
-        <form class="su-card" method="POST" action="{{ route('evaluations.reopen', $announcement) }}">
-            @csrf
-            <h3>Reopen for correction</h3>
-            <p class="hint">Existing responses will be kept. Reviewers will see that corrections are in progress until you resubmit.</p>
-            <label for="reopen-reason">Reason for correction</label>
-            <textarea id="reopen-reason" name="reason" required maxlength="500" rows="3" style="display:block;width:100%;margin:8px 0 12px;padding:10px;border:1px solid #cbd5e1;border-radius:8px">{{ old('reason') }}</textarea>
-            <button type="submit" style="padding:10px 16px;border:0;border-radius:10px;background:#0b6a4a;color:white;font-weight:700;cursor:pointer">Reopen for correction</button>
         </form>
     @endif
 
