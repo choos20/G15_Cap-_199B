@@ -103,7 +103,9 @@
                                 @if($encoded > 0)
                                     <span style="font-weight:700; color:#0f172a">{{ $beneficiaryEncoded }}</span>
                                     <span style="color:#94a3b8">beneficiary{{ $target !== null ? ' of '.$target.' paper forms received' : '' }}</span>
-                                    <div style="margin-top:3px; color:#94a3b8; font-size:.8rem">{{ $implementerEncoded }} volunteer / implementer@if($evaluation?->paper_implementer_count !== null) of {{ $evaluation->paper_implementer_count }} paper forms received @endif</div>
+                                    <div style="margin-top:3px; color:#94a3b8; font-size:.8rem">
+                                        {{ $implementerEncoded }} volunteer / implementer{{ $evaluation?->paper_implementer_count !== null ? ' of '.$evaluation->paper_implementer_count.' paper forms received' : '' }}
+                                    </div>
                                 @else
                                     <span style="color:#94a3b8">None yet</span>
                                 @endif
