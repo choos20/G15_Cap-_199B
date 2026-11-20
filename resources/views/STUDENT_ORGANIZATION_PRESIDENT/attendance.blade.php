@@ -392,200 +392,369 @@
             .qr-live-dot,.qr-display::after,.qr-modal-action { animation:none; transition:none; }
         }
         .qr-modal, .sv-modal { max-height:calc(100dvh - 40px); overflow-y:auto; }
+
+        /* Attendance workspace refresh: clearer hierarchy, branded surfaces, and icon-led actions. */
+        .attendance-page { display:grid; gap:20px; }
+        .attendance-hero {
+            position:relative; display:flex; align-items:center; justify-content:space-between; gap:24px;
+            overflow:hidden; padding:24px 28px; border:1px solid #d5eee2; border-radius:26px;
+            background:linear-gradient(118deg,#effaf4 0%,#ffffff 60%,#e4f7ed 100%);
+            box-shadow:0 18px 42px rgba(15,118,86,.08);
+        }
+        .attendance-hero::after {
+            content:''; position:absolute; right:-36px; bottom:-70px; width:300px; height:150px;
+            border:1px solid rgba(15,148,105,.16); border-radius:50%; transform:rotate(-12deg); pointer-events:none;
+        }
+        .attendance-hero-copy { position:relative; z-index:1; display:flex; align-items:center; gap:16px; min-width:0; }
+        .attendance-hero-icon, .attendance-heading-icon {
+            display:grid; place-items:center; flex:0 0 52px; width:52px; height:52px;
+            border-radius:16px; background:linear-gradient(145deg,#087c5b,#0fbf91); color:#fff;
+            box-shadow:0 10px 20px rgba(8,124,91,.2);
+        }
+        .attendance-hero-icon svg, .attendance-heading-icon svg { width:26px; height:26px; }
+        .attendance-eyebrow, .attendance-section-kicker {
+            display:block; margin-bottom:5px; color:#08734e; font-size:.7rem; font-weight:800;
+            letter-spacing:.1em; text-transform:uppercase;
+        }
+        .attendance-hero h1 { margin:0; color:#0b2a2a; font-size:clamp(1.3rem,2.2vw,1.85rem); line-height:1.15; }
+        .attendance-hero p { margin:7px 0 0; max-width:650px; color:#58736b; font-size:.9rem; line-height:1.5; }
+        .attendance-hero-stats { position:relative; z-index:1; display:grid; grid-template-columns:repeat(3,minmax(78px,1fr)); gap:10px; min-width:280px; }
+        .attendance-hero-stat { padding:12px 14px; border:1px solid rgba(166,220,197,.8); border-radius:15px; background:rgba(255,255,255,.72); }
+        .attendance-hero-stat span { display:block; color:#6a8178; font-size:.72rem; font-weight:700; }
+        .attendance-hero-stat strong { display:block; margin-top:3px; color:#0b2a2a; font-size:1.35rem; }
+        .attendance-card { border-color:#dce9e3; border-radius:24px; box-shadow:0 18px 40px rgba(15,42,42,.07); padding:25px; }
+        .attendance-card-header { display:flex; align-items:flex-start; gap:13px; margin-bottom:22px; }
+        .attendance-card-header > div:last-child { min-width:0; }
+        .attendance-card h3 { margin:0; color:#0b2a2a; font-size:1.25rem; line-height:1.25; }
+        .attendance-card-header .form-note { margin:6px 0 0; max-width:690px; }
+        .attendance-heading-icon { flex-basis:42px; width:42px; height:42px; border-radius:13px; box-shadow:none; }
+        .attendance-heading-icon svg { width:21px; height:21px; }
+        .attendance-form-section { margin-top:22px; padding-top:20px; border-top:1px solid #edf3ef; }
+        .attendance-form-section:first-of-type { margin-top:0; padding-top:0; border-top:0; }
+        .attendance-form-section-title { display:flex; align-items:center; gap:8px; margin:0 0 13px; color:#173f35; font-size:.92rem; font-weight:800; }
+        .attendance-form-section-title svg { color:#087c5b; }
+        .form-field { margin-bottom:16px; }
+        .form-field label { margin-bottom:8px; color:#1b3c34; font-size:.84rem; }
+        .form-field input, .form-field select { padding:12px 14px; border-color:#d7e4de; border-radius:12px; background:#fbfdfc; font-size:.92rem; }
+        .form-field input:focus, .form-field select:focus { border-color:#0fbf91; box-shadow:0 0 0 4px rgba(15,191,145,.12); }
+        .form-note { color:#71847d; font-size:.8rem; line-height:1.45; }
+        .error-text { font-size:.8rem; }
+        .session-strip { gap:12px; margin-top:0; }
+        .session-strip .form-field { min-width:0; }
+        .attendance-location-shell { padding:14px; border:1px solid #dcece4; border-radius:17px; background:#f8fcfa; }
+        .attendance-location-actions { display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin-top:10px; }
+        .map-locate-btn, .sv-btn { margin:0; padding:9px 12px; border-color:#cfe2d9; border-radius:10px; background:#fff; color:#17624e; font-size:.78rem; }
+        .map-locate-btn:hover:not(:disabled), .sv-btn:hover:not(:disabled) { background:#effaf4; border-color:#8ad5b7; }
+        #location-map { margin-top:12px; max-width:none; min-height:285px; border-color:#cfe3d9; border-radius:14px; box-shadow:inset 0 0 0 1px rgba(255,255,255,.7); }
+        .attendance-form-footer { display:flex; align-items:center; justify-content:space-between; gap:14px; margin-top:22px; padding-top:18px; border-top:1px solid #edf3ef; }
+        .attendance-safety-note { display:flex; align-items:flex-start; gap:8px; max-width:390px; color:#668076; font-size:.78rem; line-height:1.45; }
+        .attendance-safety-note svg { flex:0 0 16px; margin-top:1px; color:#087c5b; }
+        .attendance-create-actions { margin:0; }
+        .attendance-create-actions .btn-primary { min-height:44px; padding:12px 18px; box-shadow:0 10px 18px rgba(8,124,91,.18); }
+        .attendance-card.banner { display:block; padding:22px; border-color:#dce9e3; background:linear-gradient(145deg,#f7fcf9,#ffffff); }
+        .attendance-how-header { display:flex; align-items:flex-start; gap:12px; margin-bottom:18px; }
+        .attendance-how-header h3 { font-size:1.1rem; }
+        .attendance-step-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px; }
+        .attendance-step { position:relative; min-width:0; padding:14px 11px; border:1px solid #dfece5; border-radius:15px; background:#fff; }
+        .attendance-step-icon { display:grid; place-items:center; width:32px; height:32px; margin-bottom:10px; border-radius:10px; background:#e9f8ef; color:#087c5b; }
+        .attendance-step-icon svg { width:17px; height:17px; }
+        .attendance-step-number { display:block; color:#6d827a; font-size:.66rem; font-weight:800; letter-spacing:.08em; text-transform:uppercase; }
+        .attendance-step strong { display:block; margin-top:3px; color:#153c32; font-size:.78rem; line-height:1.3; }
+        .attendance-step p { margin:5px 0 0; color:#71847d; font-size:.72rem; line-height:1.4; }
+        .attendance-sessions-card { padding:22px; }
+        .attendance-sessions-header { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:16px; }
+        .attendance-sessions-title { display:flex; align-items:center; gap:10px; }
+        .attendance-sessions-title .attendance-heading-icon { flex-basis:36px; width:36px; height:36px; border-radius:11px; }
+        .attendance-sessions-title .attendance-heading-icon svg { width:18px; height:18px; }
+        .attendance-sessions-count { padding:6px 10px; border:1px solid #d6e9df; border-radius:999px; background:#f0faf4; color:#08734e; font-size:.72rem; font-weight:800; }
+        .session-list { gap:12px; margin-top:0; }
+        .session-item { padding:16px; border-color:#dfece5; border-radius:17px; background:#fbfdfc; }
+        .session-item:hover { border-color:#b6dec9; background:#fff; box-shadow:0 10px 25px rgba(8,124,91,.07); }
+        .session-item-header { margin-bottom:14px; }
+        .session-item-title { margin-bottom:7px; color:#123a31; font-size:.98rem; }
+        .session-item-meta { display:flex; flex-wrap:wrap; gap:7px 12px; color:#71847d; font-size:.76rem; }
+        .session-item-meta span { display:inline-flex; align-items:center; gap:5px; }
+        .session-item-meta svg { width:14px; height:14px; color:#0c9870; }
+        .badge { padding:6px 10px; font-size:.7rem; letter-spacing:.02em; }
+        .badge-open { background:#e6f8ed; color:#08734e; }
+        .badge-closed { background:#fff1f1; color:#b42318; }
+        .session-actions { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
+        .btn-primary, .btn-secondary, .btn-danger { min-width:0; gap:7px; padding:10px 12px; border-radius:10px; font-size:.78rem; line-height:1.25; text-align:center; transition:transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease, background 160ms ease; }
+        .btn-primary svg, .btn-secondary svg, .btn-danger svg { flex:0 0 16px; width:16px; height:16px; }
+        .btn-primary:hover, .btn-secondary:hover, .btn-danger:hover { transform:translateY(-1px); box-shadow:0 7px 15px rgba(15,42,42,.08); }
+        .btn-primary { background:#087c5b; }
+        .btn-primary:hover { background:#06694d; }
+        .btn-secondary { border-color:#d2e2da; background:#fff; color:#275146; }
+        .btn-secondary:hover { border-color:#8ed6b7; background:#f2fbf6; }
+        .btn-danger { border-color:#fecaca; background:#fff7f7; color:#b42318; }
+        .btn-danger:hover { background:#feecec; }
+        .attendance-empty { display:grid; justify-items:center; gap:8px; padding:30px 18px; border:1px dashed #cfe2d8; border-radius:15px; background:#fbfdfc; text-align:center; color:#71847d; }
+        .attendance-empty-icon { display:grid; place-items:center; width:42px; height:42px; border-radius:13px; background:#e9f8ef; color:#087c5b; }
+        .attendance-empty strong { color:#214a3e; font-size:.9rem; }
+        .attendance-alert { display:flex; align-items:flex-start; gap:10px; padding:14px 16px !important; border:1px solid transparent; border-radius:15px !important; box-shadow:none; }
+        .attendance-alert svg { flex:0 0 18px; margin-top:1px; }
+        .attendance-alert-success { border-color:#bce6ce !important; background:#effaf4 !important; color:#145c43 !important; }
+        .attendance-alert-error { border-color:#fecaca !important; background:#fff5f5 !important; color:#991b1b !important; }
+        .attendance-alert-title { margin-bottom:3px; font-weight:800; }
+        .map-search-icon { right:13px; color:#789188; }
+        .map-search-icon svg { width:17px; height:17px; }
+        .map-search-results { border-color:#d9e8e0; border-radius:12px; }
+        .map-search-item:hover, .map-search-item.active { background:#effaf4; }
+        .map-search-item .msi-pin { display:grid; place-items:center; width:18px; color:#087c5b; }
+        .map-search-item .msi-pin svg { width:16px; height:16px; }
+        @media (min-width:1101px) { .attendance-grid { grid-template-columns:minmax(0,1.18fr) minmax(360px,.82fr); } }
+        @media (max-width:1100px) { .attendance-grid { grid-template-columns:minmax(0,1fr); } }
+        @media (max-width:760px) {
+            .attendance-hero { align-items:flex-start; flex-direction:column; padding:20px; }
+            .attendance-hero-stats { width:100%; min-width:0; }
+            .attendance-card { padding:20px; }
+            .attendance-step-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+            .attendance-form-footer { align-items:stretch; flex-direction:column; }
+            .attendance-create-actions, .attendance-create-actions .btn-primary { width:100%; }
+        }
+        @media (max-width:520px) {
+            .attendance-hero-copy { align-items:flex-start; }
+            .attendance-hero-icon { flex-basis:44px; width:44px; height:44px; border-radius:13px; }
+            .attendance-hero-icon svg { width:22px; height:22px; }
+            .attendance-hero-stats { gap:7px; }
+            .attendance-hero-stat { padding:10px 9px; }
+            .attendance-hero-stat strong { font-size:1.15rem; }
+            .attendance-sessions-header { align-items:flex-start; flex-direction:column; }
+            .session-actions { grid-template-columns:1fr; }
+            .session-item-header { align-items:flex-start; flex-direction:column; }
+            .session-strip { grid-template-columns:1fr; }
+            .attendance-step-grid { gap:8px; }
+            .attendance-step { padding:11px 9px; }
+        }
     </style>
 
-    @if(session('status'))
-        <div class="card" style="border-left:4px solid #16a34a; background:#ecfdf5; color:#134e4a; padding:18px 22px; margin-bottom:20px">
-            <div style="font-weight:700; margin-bottom:6px">Success</div>
-            <div>{{ session('status') }}</div>
-        </div>
-    @endif
-    @error('attendance_file')
-        <div class="card" style="border-left:4px solid #dc2626; background:#fef2f2; color:#991b1b; padding:18px 22px; margin-bottom:20px">
-            {{ $message }}
-        </div>
-    @enderror
+    @php
+        $activeSessionCount = $sessions->where('status', 'open')->count();
+        $closedSessionCount = $sessions->where('status', 'closed')->count();
+        $availableActivityCount = $approvedProjects->count();
+    @endphp
 
-    <div class="attendance-grid">
-        <div class="attendance-card">
-            <h3>Open attendance session</h3>
-            <p class="form-note">Choose an approved activity, set the session details, and generate a QR token that participants will scan on-site. Each activity can only have one attendance session.</p>
+    <div class="attendance-page">
+        @if(session('status'))
+            <div class="attendance-alert attendance-alert-success" role="status">
+                <x-ui-icon name="check-circle" :size="18" />
+                <div><div class="attendance-alert-title">Attendance updated</div><div>{{ session('status') }}</div></div>
+            </div>
+        @endif
+        @error('attendance_file')
+            <div class="attendance-alert attendance-alert-error" role="alert">
+                <x-ui-icon name="settings" :size="18" />
+                <div>{{ $message }}</div>
+            </div>
+        @enderror
 
-            <form method="post" action="{{ route('student_org.attendance.store') }}">
-                @csrf
-                <div class="form-field">
-                    <label for="project_id">Approved activity</label>
-                    <select id="project_id" name="project_id" class="@error('project_id') input-error @enderror">
-                        <option value="">Select activity</option>
-                        @foreach($approvedProjects as $project)
-                            <option value="{{ $project->id }}" @selected(old('project_id') == $project->id)>{{ $project->title }}</option>
-                        @endforeach
-                    </select>
-                    @if($approvedProjects->isEmpty())
-                        <div class="form-note">All approved activities already have attendance sessions, or none are approved yet.</div>
-                    @endif
-                    @error('project_id')<div class="error-text">{{ $message }}</div>@enderror
-                </div>
-                <div class="form-field map-field">
-                    <label for="map-search">Activity location</label>
-                    <div class="map-search-wrap">
-                        <input type="text" id="map-search" name="loc_q_{{ Str::random(8) }}" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" role="combobox" aria-autocomplete="list" aria-expanded="false" placeholder="Search for a venue, building, or address...">
-                        <span class="map-search-icon">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16zm10 2-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                        </span>
-                        <div id="map-search-results" class="map-search-results"></div>
-                    </div>
-                    <div id="location-map"></div>
-                    <button type="button" id="use-my-location" class="map-locate-btn">
-                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2v3m0 14v3M2 12h3m14 0h3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="12" r="5" stroke="currentColor" stroke-width="2"/></svg>
-                        Use my current location
-                    </button>
-                    <button type="button" id="street-view-btn" class="sv-btn" disabled>Street view</button>
-                    <div class="form-note">Search, click the map, or drag the pin to set the exact activity location — the fields below fill in automatically.</div>
-                </div>
-                <div class="session-strip">
-                    <div class="form-field">
-                        <label for="latitude">Activity latitude</label>
-                        <input id="latitude" name="latitude" type="text" maxlength="20" placeholder="e.g. 8.4155" value="{{ old('latitude') }}" class="@error('latitude') input-error @enderror">
-                        @error('latitude')<div class="error-text">{{ $message }}</div>@enderror
-                    </div>
-                    <div class="form-field">
-                        <label for="longitude">Activity longitude</label>
-                        <input id="longitude" name="longitude" type="text" maxlength="20" placeholder="e.g. 124.6069" value="{{ old('longitude') }}" class="@error('longitude') input-error @enderror">
-                        @error('longitude')<div class="error-text">{{ $message }}</div>@enderror
-                    </div>
-                </div>
-                <div class="form-field">
-                    <label>Check-in radius</label>
-                    <input type="text" value="50 meters (fixed)" disabled>
-                    <div class="form-note">Participants must be within 50 meters of the activity location to check in.</div>
-                </div>
-                <div class="session-strip">
-                    <div class="form-field">
-                        <label for="opens_at">Opens at</label>
-                        <input id="opens_at" name="opens_at" type="datetime-local" min="{{ $minOpenAt }}" value="{{ old('opens_at') }}" class="@error('opens_at') input-error @enderror">
-                        <div class="form-note">Choose today or a future date. If starting today, the opening time must not be in the past.</div>
-                        @error('opens_at')<div class="error-text">{{ $message }}</div>@enderror
-                    </div>
-                    <div class="form-field">
-                        <label for="closes_at">Closes at</label>
-                        <input id="closes_at" name="closes_at" type="datetime-local" min="{{ $minCloseAt }}" max="{{ $maxCloseAt }}" value="{{ old('closes_at') }}" class="@error('closes_at') input-error @enderror">
-                        <div class="form-note">Must be after the opening time and within one year from today.</div>
-                        @error('closes_at')<div class="error-text">{{ $message }}</div>@enderror
-                    </div>
-                </div>
-                <div class="session-actions">
-                    <button type="submit" class="btn-primary" @disabled($approvedProjects->isEmpty())>Open session</button>
-                </div>
-            </form>
-        </div>
-        <script>
-            document.addEventListener('DOMContentLoaded', function () {
-                const opensAt = document.getElementById('opens_at');
-                const closesAt = document.getElementById('closes_at');
-                if (!opensAt || !closesAt) return;
-
-                const formatLocalDateTime = (date) => {
-                    const pad = (value) => String(value).padStart(2, '0');
-                    return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
-                };
-                const updateCloseMinimum = () => {
-                    const start = opensAt.value ? new Date(opensAt.value) : new Date(@json($minOpenAt));
-                    if (Number.isNaN(start.getTime())) return;
-                    start.setMinutes(start.getMinutes() + 1);
-                    closesAt.min = formatLocalDateTime(start);
-                };
-
-                opensAt.addEventListener('input', updateCloseMinimum);
-                updateCloseMinimum();
-            });
-        </script>
-
-        <div>
-            <div class="attendance-card banner">
+        <section class="attendance-hero" aria-labelledby="attendance-workspace-title">
+            <div class="attendance-hero-copy">
+                <div class="attendance-hero-icon" aria-hidden="true"><x-ui-icon name="calendar-check" :size="26" /></div>
                 <div>
-                    <h3>How this works</h3>
-                    <p class="form-note">Organizers create one session per approved activity. Participants scan the QR with their account and share GPS coordinates for verification.</p>
-                </div>
-                <div class="session-strip">
-                    <div class="card">
-                        <strong>Step 1</strong>
-                        <div>Create session with location and duration.</div>
-                    </div>
-                    <div class="card">
-                        <strong>Step 2</strong>
-                        <div>Participants scan QR and share GPS coordinates.</div>
-                    </div>
-                </div>
-                <div class="session-strip">
-                    <div class="card">
-                        <strong>Step 3</strong>
-                        <div>Server checks token, session window, and 50m radius.</div>
-                    </div>
-                    <div class="card">
-                        <strong>Step 4</strong>
-                        <div>Valid check-ins are recorded with distance audit data.</div>
-                    </div>
+                    <span class="attendance-eyebrow">Attendance management</span>
+                    <h1 id="attendance-workspace-title">Run smoother attendance sessions</h1>
+                    <p>Create a secure QR check-in session, verify participants within the activity radius, and keep every record ready for reporting.</p>
                 </div>
             </div>
+            <div class="attendance-hero-stats" aria-label="Attendance session summary">
+                <div class="attendance-hero-stat"><span>Open sessions</span><strong>{{ $activeSessionCount }}</strong></div>
+                <div class="attendance-hero-stat"><span>Closed sessions</span><strong>{{ $closedSessionCount }}</strong></div>
+                <div class="attendance-hero-stat"><span>Ready activities</span><strong>{{ $availableActivityCount }}</strong></div>
+            </div>
+        </section>
 
-            <div class="attendance-card" style="margin-top:24px;">
-                <h3>Sessions</h3>
-                @if($sessions->isEmpty())
-                    <p style="color:#475569;">No attendance sessions yet. Open one using the form above after your activity is approved.</p>
-                @else
-                    <div class="session-list">
-                        @foreach($sessions as $session)
-                            <div class="session-item">
-                                <div class="session-item-header">
-                                    <div>
-                                        <p class="session-item-title">{{ $session->project->title }}</p>
-                                        <div class="session-item-meta">
-                                            <span>Opens: {{ $session->opens_at->format('M d, Y H:i') }}</span>
-                                            <span>Closes: {{ $session->closes_at->format('M d, Y H:i') }}</span>
-                                            <span>Radius: {{ $session->radius_meters }} meters</span>
-                                        </div>
-                                    </div>
-                                    <span class="badge badge-{{ $session->status }}">{{ ucfirst($session->status) }}</span>
+        <div class="attendance-grid">
+            <div class="attendance-card">
+                <div class="attendance-card-header">
+                    <div class="attendance-heading-icon" aria-hidden="true"><x-ui-icon name="calendar-check" :size="21" /></div>
+                    <div>
+                        <span class="attendance-section-kicker">New session</span>
+                        <h3>Open an attendance session</h3>
+                        <p class="form-note">Choose an approved activity, set the location and schedule, then generate a QR token for on-site check-in.</p>
+                    </div>
+                </div>
+
+                <form method="post" action="{{ route('student_org.attendance.store') }}">
+                    @csrf
+                    <div class="attendance-form-section">
+                        <p class="attendance-form-section-title"><x-ui-icon name="building" :size="16" /> Activity</p>
+                        <div class="form-field">
+                            <label for="project_id">Approved activity</label>
+                            <select id="project_id" name="project_id" class="@error('project_id') input-error @enderror">
+                                <option value="">Select activity</option>
+                                @foreach($approvedProjects as $project)
+                                    <option value="{{ $project->id }}" @selected(old('project_id') == $project->id)>{{ $project->title }}</option>
+                                @endforeach
+                            </select>
+                            @if($approvedProjects->isEmpty())
+                                <div class="form-note">All approved activities already have sessions, or none are approved yet.</div>
+                            @endif
+                            @error('project_id')<div class="error-text">{{ $message }}</div>@enderror
+                        </div>
+                    </div>
+
+                    <div class="attendance-form-section">
+                        <p class="attendance-form-section-title"><x-ui-icon name="location" :size="16" /> Activity location</p>
+                        <div class="attendance-location-shell">
+                            <div class="form-field map-field">
+                                <label for="map-search">Search for a venue, building, or address</label>
+                                <div class="map-search-wrap">
+                                    <input type="text" id="map-search" name="loc_q_{{ Str::random(8) }}" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" role="combobox" aria-autocomplete="list" aria-expanded="false" placeholder="Search a location...">
+                                    <span class="map-search-icon"><x-ui-icon name="search" :size="17" /></span>
+                                    <div id="map-search-results" class="map-search-results"></div>
                                 </div>
-                                <div class="session-actions">
-                                    @if($session->qr_code_data_uri)
-                                        <button type="button"
-                                            class="btn-primary show-qr"
-                                            data-title="{{ $session->project->title }}"
-                                            data-qr="{{ $session->qr_code_data_uri }}"
-                                            data-url="{{ $session->scan_url }}"
-                                            data-status="{{ $session->status }}"
-                                            data-closes="{{ $session->closes_at->toIso8601String() }}">
-                                            View QR
-                                        </button>
-                                    @else
-                                        <span class="form-note">QR unavailable. Try rotating the token.</span>
-                                    @endif
-                                    <a href="{{ route('student_org.attendance.csv-template', $session) }}" class="btn-secondary">Download attendance CSV</a>
-                                    <a href="{{ route('student_org.attendance.signature-sheet', $session) }}" class="btn-secondary">Download signature sheet (DOCX)</a>
-                                    <a href="{{ route('student_org.attendance.import', $session) }}" class="btn-secondary">Upload attendance CSV (online)</a>
-                                    <a href="{{ route('student_org.attendance.records', $session) }}" class="btn-secondary">View check-ins</a>
-                                    @if(!$session->isClosed())
-                                        <form method="post" action="{{ route('student_org.attendance.regenerate', $session) }}" style="display:inline;">
-                                            @csrf
-                                            <button type="submit" class="btn-secondary" title="Generate a new QR token">Rotate token</button>
-                                        </form>
-                                        <form method="post" action="{{ route('student_org.attendance.close', $session) }}" style="display:inline;" data-confirm
-                                              data-confirm-title="Close this session?"
-                                              data-confirm-body="Scanning stops immediately and no new session can be created for this activity."
-                                              data-confirm-note="Attendance already recorded is kept. This cannot be undone."
-                                              data-confirm-ok="Close session"
-                                              data-confirm-cancel="Keep it open">
-                                            @csrf
-                                            <button type="submit" class="btn-danger">Close session</button>
-                                        </form>
-                                    @endif
+                                <div id="location-map"></div>
+                                <div class="attendance-location-actions">
+                                    <button type="button" id="use-my-location" class="map-locate-btn"><x-ui-icon name="location" :size="15" /><span>Use my current location</span></button>
+                                    <button type="button" id="street-view-btn" class="sv-btn" disabled><x-ui-icon name="desktop" :size="15" /><span>Street view</span></button>
+                                </div>
+                                <div class="form-note">Search, click the map, or drag the pin to set the exact activity location.</div>
+                            </div>
+                            <div class="session-strip">
+                                <div class="form-field">
+                                    <label for="latitude"><x-ui-icon name="location" :size="14" /> Activity latitude</label>
+                                    <input id="latitude" name="latitude" type="text" maxlength="20" placeholder="e.g. 8.4155" value="{{ old('latitude') }}" class="@error('latitude') input-error @enderror">
+                                    @error('latitude')<div class="error-text">{{ $message }}</div>@enderror
+                                </div>
+                                <div class="form-field">
+                                    <label for="longitude"><x-ui-icon name="location" :size="14" /> Activity longitude</label>
+                                    <input id="longitude" name="longitude" type="text" maxlength="20" placeholder="e.g. 124.6069" value="{{ old('longitude') }}" class="@error('longitude') input-error @enderror">
+                                    @error('longitude')<div class="error-text">{{ $message }}</div>@enderror
                                 </div>
                             </div>
-                        @endforeach
+                        </div>
                     </div>
-                @endif
+
+                    <div class="attendance-form-section">
+                        <p class="attendance-form-section-title"><x-ui-icon name="qr" :size="16" /> Check-in rules</p>
+                        <div class="form-field">
+                            <label for="radius_meters">Check-in radius</label>
+                            <input id="radius_meters" type="text" value="50 meters (fixed)" disabled>
+                            <div class="form-note">Participants must be within 50 meters of the activity location to check in.</div>
+                        </div>
+                    </div>
+
+                    <div class="attendance-form-section">
+                        <p class="attendance-form-section-title"><x-ui-icon name="clock" :size="16" /> Session schedule</p>
+                        <div class="session-strip">
+                            <div class="form-field">
+                                <label for="opens_at"><x-ui-icon name="calendar" :size="14" /> Opens at</label>
+                                <input id="opens_at" name="opens_at" type="datetime-local" min="{{ $minOpenAt }}" value="{{ old('opens_at') }}" class="@error('opens_at') input-error @enderror">
+                                <div class="form-note">Today or a future date. Same-day sessions cannot start in the past.</div>
+                                @error('opens_at')<div class="error-text">{{ $message }}</div>@enderror
+                            </div>
+                            <div class="form-field">
+                                <label for="closes_at"><x-ui-icon name="calendar" :size="14" /> Closes at</label>
+                                <input id="closes_at" name="closes_at" type="datetime-local" min="{{ $minCloseAt }}" max="{{ $maxCloseAt }}" value="{{ old('closes_at') }}" class="@error('closes_at') input-error @enderror">
+                                <div class="form-note">Must be after opening and within one year from today.</div>
+                                @error('closes_at')<div class="error-text">{{ $message }}</div>@enderror
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="attendance-form-footer">
+                        <div class="attendance-safety-note"><x-ui-icon name="check-circle" :size="16" /><span>Each approved activity can have one session. You can rotate the QR token or close an open session later.</span></div>
+                        <div class="session-actions attendance-create-actions">
+                            <button type="submit" class="btn-primary" @disabled($approvedProjects->isEmpty())><x-ui-icon name="qr" :size="16" /><span>Open session</span></button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <script>
+                document.addEventListener('DOMContentLoaded', function () {
+                    const opensAt = document.getElementById('opens_at');
+                    const closesAt = document.getElementById('closes_at');
+                    if (!opensAt || !closesAt) return;
+
+                    const formatLocalDateTime = (date) => {
+                        const pad = (value) => String(value).padStart(2, '0');
+                        return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+                    };
+                    const updateCloseMinimum = () => {
+                        const start = opensAt.value ? new Date(opensAt.value) : new Date(@json($minOpenAt));
+                        if (Number.isNaN(start.getTime())) return;
+                        start.setMinutes(start.getMinutes() + 1);
+                        closesAt.min = formatLocalDateTime(start);
+                    };
+
+                    opensAt.addEventListener('input', updateCloseMinimum);
+                    updateCloseMinimum();
+                });
+            </script>
+
+            <div>
+                <div class="attendance-card banner">
+                    <div class="attendance-how-header">
+                        <div class="attendance-heading-icon" aria-hidden="true"><x-ui-icon name="clipboard" :size="21" /></div>
+                        <div>
+                            <span class="attendance-section-kicker">Quick guide</span>
+                            <h3>How this works</h3>
+                            <p class="form-note">Four simple steps from an approved activity to a verified attendance record.</p>
+                        </div>
+                    </div>
+                    <div class="attendance-step-grid">
+                        <div class="attendance-step"><div class="attendance-step-icon"><x-ui-icon name="building" :size="17" /></div><span class="attendance-step-number">Step 1</span><strong>Choose activity</strong><p>Use an approved activity.</p></div>
+                        <div class="attendance-step"><div class="attendance-step-icon"><x-ui-icon name="location" :size="17" /></div><span class="attendance-step-number">Step 2</span><strong>Set location</strong><p>Place the 50m check-in pin.</p></div>
+                        <div class="attendance-step"><div class="attendance-step-icon"><x-ui-icon name="qr" :size="17" /></div><span class="attendance-step-number">Step 3</span><strong>Generate QR</strong><p>Participants scan on-site.</p></div>
+                        <div class="attendance-step"><div class="attendance-step-icon"><x-ui-icon name="check-circle" :size="17" /></div><span class="attendance-step-number">Step 4</span><strong>Track attendance</strong><p>Review verified records.</p></div>
+                    </div>
+                </div>
+
+                <div class="attendance-card attendance-sessions-card" style="margin-top:20px;">
+                    <div class="attendance-sessions-header">
+                        <div class="attendance-sessions-title">
+                            <div class="attendance-heading-icon" aria-hidden="true"><x-ui-icon name="chart" :size="18" /></div>
+                            <div><span class="attendance-section-kicker">Your workspace</span><h3>Sessions</h3></div>
+                        </div>
+                        <span class="attendance-sessions-count">{{ $sessions->count() }} total</span>
+                    </div>
+                    @if($sessions->isEmpty())
+                        <div class="attendance-empty">
+                            <div class="attendance-empty-icon"><x-ui-icon name="calendar" :size="20" /></div>
+                            <strong>No attendance sessions yet</strong>
+                            <span>Open one using the form after an activity is approved.</span>
+                        </div>
+                    @else
+                        <div class="session-list">
+                            @foreach($sessions as $session)
+                                <div class="session-item">
+                                    <div class="session-item-header">
+                                        <div>
+                                            <p class="session-item-title">{{ $session->project->title }}</p>
+                                            <div class="session-item-meta">
+                                                <span><x-ui-icon name="calendar" :size="14" /> {{ $session->opens_at->format('M d, Y H:i') }} – {{ $session->closes_at->format('M d, Y H:i') }}</span>
+                                                <span><x-ui-icon name="location" :size="14" /> {{ $session->radius_meters }}m radius</span>
+                                            </div>
+                                        </div>
+                                        <span class="badge badge-{{ $session->status }}">{{ ucfirst($session->status) }}</span>
+                                    </div>
+                                    <div class="session-actions">
+                                        @if($session->qr_code_data_uri)
+                                            <button type="button" class="btn-primary show-qr" data-title="{{ $session->project->title }}" data-qr="{{ $session->qr_code_data_uri }}" data-url="{{ $session->scan_url }}" data-status="{{ $session->status }}" data-closes="{{ $session->closes_at->toIso8601String() }}"><x-ui-icon name="qr" :size="16" /><span>View QR code</span></button>
+                                        @else
+                                            <span class="form-note">QR unavailable. Try rotating the token.</span>
+                                        @endif
+                                        <a href="{{ route('student_org.attendance.csv-template', $session) }}" class="btn-secondary"><x-ui-icon name="file" :size="16" /><span>Download attendance CSV</span></a>
+                                        <a href="{{ route('student_org.attendance.signature-sheet', $session) }}" class="btn-secondary"><x-ui-icon name="clipboard" :size="16" /><span>Download signature sheet (DOCX)</span></a>
+                                        <a href="{{ route('student_org.attendance.import', $session) }}" class="btn-secondary"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11m0 0 4-4m-4 4-4-4M5 20h14"/></svg><span>Upload attendance CSV (online)</span></a>
+                                        <a href="{{ route('student_org.attendance.records', $session) }}" class="btn-secondary"><x-ui-icon name="clipboard" :size="16" /><span>View check-ins</span></a>
+                                        @if(!$session->isClosed())
+                                            <form method="post" action="{{ route('student_org.attendance.regenerate', $session) }}" style="display:contents;">
+                                                @csrf
+                                                <button type="submit" class="btn-secondary" title="Generate a new QR token"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11a8 8 0 0 0-14.9-4L3 10m0 0V5m0 5h5M4 13a8 8 0 0 0 14.9 4L21 14m0 0v5m0-5h-5"/></svg><span>Rotate token</span></button>
+                                            </form>
+                                            <form method="post" action="{{ route('student_org.attendance.close', $session) }}" style="display:contents;" data-confirm data-confirm-title="Close this session?" data-confirm-body="Scanning stops immediately and no new session can be created for this activity." data-confirm-note="Attendance already recorded is kept. This cannot be undone." data-confirm-ok="Close session" data-confirm-cancel="Keep it open">
+                                                @csrf
+                                                <button type="submit" class="btn-danger"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v9m0 0-3-3m3 3 3-3M5.6 10a8 8 0 1 0 12.8 0"/></svg><span>Close session</span></button>
+                                            </form>
+                                        @endif
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    @endif
+                </div>
             </div>
         </div>
     </div>
@@ -668,6 +837,10 @@
                 let currentImageId = null;
                 let mlyViewer = null;
                 let checkToken = 0;
+                const setIconButtonLabel = (button, label) => {
+                    const icon = button.querySelector('svg')?.outerHTML || '';
+                    button.innerHTML = `${icon}<span>${label}</span>`;
+                };
 
                 const formatCaption = (capturedAt) => {
                     if (!capturedAt) return '';
@@ -677,7 +850,7 @@
 
                 window.__plinkCheckStreetView = (lat, lng) => {
                     svBtn.disabled = true;
-                    svBtn.textContent = 'Checking street view…';
+                    setIconButtonLabel(svBtn, 'Checking street view…');
                     currentImageId = null;
                     const thisCheck = ++checkToken;
                     const d = 0.0008;
@@ -690,12 +863,12 @@
                             const found = results.length ? results[0] : null;
                             currentImageId = found ? found.id : null;
                             svBtn.disabled = !found;
-                            svBtn.textContent = found ? 'Street view available' : 'No street view here yet';
+                            setIconButtonLabel(svBtn, found ? 'Street view available' : 'No street view here yet');
                         })
                         .catch(() => {
                             if (thisCheck !== checkToken) return;
                             svBtn.disabled = true;
-                            svBtn.textContent = 'Street view unavailable';
+                            setIconButtonLabel(svBtn, 'Street view unavailable');
                         });
                 };
 
@@ -902,7 +1075,7 @@
                                 }
                                 openResults(results.map((result) => `
                                     <div class="map-search-item" data-lat="${result.lat}" data-lng="${result.lon}" data-label="${escapeHtml(result.display_name)}">
-                                        <span class="msi-pin">📍</span><span>${escapeHtml(result.display_name)}</span>
+                                        <span class="msi-pin"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 11-8 11S4 16 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg></span><span>${escapeHtml(result.display_name)}</span>
                                     </div>
                                 `).join(''));
                             })
@@ -952,18 +1125,19 @@
                         return;
                     }
                     locateBtn.disabled = true;
-                    locateBtn.textContent = 'Locating...';
+                    const locateIcon = locateBtn.querySelector('svg')?.outerHTML || '';
+                    locateBtn.innerHTML = `${locateIcon}<span>Locating...</span>`;
                     navigator.geolocation.getCurrentPosition(
                         (position) => {
                             placeMarker(position.coords.latitude, position.coords.longitude, true);
                             updateFields(position.coords.latitude, position.coords.longitude);
                             locateBtn.disabled = false;
-                            locateBtn.textContent = 'Use my current location';
+                            locateBtn.innerHTML = `${locateIcon}<span>Use my current location</span>`;
                         },
                         () => {
                             alert('Could not get your location. Please search or click the map instead.');
                             locateBtn.disabled = false;
-                            locateBtn.textContent = 'Use my current location';
+                            locateBtn.innerHTML = `${locateIcon}<span>Use my current location</span>`;
                         }
                     );
                 });
