@@ -220,7 +220,7 @@
                 @endif
 
                 <a href="{{ route('account.security') }}" class="{{ request()->routeIs('account.*', 'login-audit.*') ? 'active' : '' }}">
-                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 3 5 6v5c0 4.4 2.9 8.4 7 10 4.1-1.6 7-5.6 7-10V6l-7-3Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="m9 12 2 2 4-4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    <x-ui-icon name="user-lock" :size="19" />
                     <span>Security</span>
                 </a>
         </nav>

@@ -98,7 +98,7 @@
     <section class="sec-hero">
         <div style="display:flex; align-items:flex-start; gap:13px; min-width:0;">
             <div class="sec-hero-mark" aria-hidden="true">
-                <svg viewBox="0 0 24 24" fill="none"><path d="M12 3 5 6v5c0 4.4 2.9 8.4 7 10 4.1-1.6 7-5.6 7-10V6l-7-3Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="m9 12 2 2 4-4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <x-ui-icon name="user-lock" :size="25" />
             </div>
             <div>
                 <h3>Your account security</h3>
