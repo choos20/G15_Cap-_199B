@@ -103,6 +103,7 @@
         const cancelBtn = document.getElementById('cfm-cancel');
 
         let pendingForm = null;
+        let pendingSubmitter = null;
         let pendingHref = null;
         let lastFocused = null;
         let allowUnload = false;
@@ -127,12 +128,14 @@
         const close = () => {
             overlay.hidden = true;
             pendingForm = null;
+            pendingSubmitter = null;
             pendingHref = null;
             if (lastFocused) lastFocused.focus();
         };
 
-        const open = (form, data, href = null) => {
+        const open = (form, data, href = null, submitter = null) => {
             pendingForm = form;
+            pendingSubmitter = submitter;
             pendingHref = href;
             lastFocused = document.activeElement;
 
@@ -198,8 +201,9 @@
             }
 
             if (trigger?.tagName === 'BUTTON' && trigger.form) {
+                if (!trigger.form.reportValidity()) return;
                 event.preventDefault();
-                open(trigger.form, trigger.dataset);
+                open(trigger.form, trigger.dataset, null, trigger);
                 return;
             }
 
@@ -226,7 +230,7 @@
             const form = event.target;
             if (form.matches('form[data-confirm]') && form !== pendingForm) {
                 event.preventDefault();
-                open(form, form.dataset);
+                open(form, form.dataset, null, event.submitter);
                 return;
             }
 
@@ -245,15 +249,26 @@
 
         okBtn.addEventListener('click', () => {
             const form = pendingForm;
+            const submitter = pendingSubmitter;
             const href = pendingHref;
             overlay.hidden = true;
-            pendingForm = null;
-            pendingHref = null;
             if (href) {
+                pendingForm = null;
+                pendingSubmitter = null;
+                pendingHref = null;
                 allowUnload = true;
                 window.location.assign(href);
             } else if (form) {
-                form.submit();   // .submit() bypasses the submit listener
+                // Keep the original submit button's name/value (for example,
+                // the evaluation form's "action=finish") when confirming.
+                if (submitter && typeof form.requestSubmit === 'function') {
+                    form.requestSubmit(submitter);
+                } else {
+                    form.submit();
+                }
+                pendingForm = null;
+                pendingSubmitter = null;
+                pendingHref = null;
             }
         });
 

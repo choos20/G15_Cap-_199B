@@ -433,7 +433,14 @@
                     <button type="submit" name="action" value="another" class="en-btn en-btn-primary">
                         {{ $editResponse ? 'Update response' : '+ Save & add another' }}
                     </button>
-                    <button type="submit" name="action" value="finish" class="en-btn en-btn-ghost" onclick="return confirm('Save this form and submit the batch? Currently saved: {{ $responseCounts['beneficiary'] ?? 0 }} beneficiary and {{ $responseCounts['implementer'] ?? 0 }} volunteer / implementer forms. Please check all paper forms have been encoded.')">
+                    <button type="submit" name="action" value="finish" class="en-btn en-btn-ghost"
+                            data-confirm
+                            data-confirm-title="Save and submit this batch?"
+                            data-confirm-body="This will save this response and submit the batch. Currently saved: {{ $responseCounts['beneficiary'] ?? 0 }} beneficiary and {{ $responseCounts['implementer'] ?? 0 }} volunteer / implementer forms."
+                            data-confirm-note="Please check that all paper forms have been encoded. You can reopen the batch later if a correction is needed."
+                            data-confirm-ok="Submit batch"
+                            data-confirm-cancel="Keep editing"
+                            data-confirm-tone="warning">
                         {{ $editResponse ? 'Update & finish batch' : 'Save & finish batch' }}
                     </button>
                     <a href="{{ route('evaluations.encode', [$announcement, 'respondent_type' => $respondentType]) }}"

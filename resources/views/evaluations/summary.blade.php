@@ -243,7 +243,14 @@
     </div>
 
     @if($canEncode && ! $evaluation->isSubmitted() && $responseCount > 0)
-        <form method="POST" action="{{ route('evaluations.finish', $announcement) }}" style="margin-top:18px" onsubmit="return confirm('Submit {{ $responsesByType->get('beneficiary', collect())->count() }} beneficiary forms{{ $evaluation->paper_beneficiary_count !== null ? ' of '.$evaluation->paper_beneficiary_count.' received' : '' }} and {{ $responsesByType->get('implementer', collect())->count() }} volunteer / implementer forms{{ $evaluation->paper_implementer_count !== null ? ' of '.$evaluation->paper_implementer_count.' received' : '' }}? Please check all paper forms are encoded.')">
+        <form method="POST" action="{{ route('evaluations.finish', $announcement) }}" style="margin-top:18px"
+              data-confirm
+              data-confirm-title="Submit this evaluation batch?"
+              data-confirm-body="Submit {{ $responsesByType->get('beneficiary', collect())->count() }} beneficiary forms{{ $evaluation->paper_beneficiary_count !== null ? ' of '.$evaluation->paper_beneficiary_count.' received' : '' }} and {{ $responsesByType->get('implementer', collect())->count() }} volunteer / implementer forms{{ $evaluation->paper_implementer_count !== null ? ' of '.$evaluation->paper_implementer_count.' received' : '' }}?"
+              data-confirm-note="Please check that all paper forms are encoded. You can reopen the batch later if a correction is needed."
+              data-confirm-ok="Submit batch"
+              data-confirm-cancel="Keep reviewing"
+              data-confirm-tone="warning">
             @csrf
             @if($submissionWarning)
                 <label style="display:flex; align-items:flex-start; gap:8px; margin-bottom:12px; color:#9a3412; font-size:.88rem">
