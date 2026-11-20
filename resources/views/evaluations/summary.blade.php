@@ -245,17 +245,17 @@
     @if($canEncode && ! $evaluation->isSubmitted() && $responseCount > 0)
         <form method="POST" action="{{ route('evaluations.finish', $announcement) }}" style="margin-top:18px"
               data-confirm
-              data-confirm-title="Submit this evaluation batch?"
-              data-confirm-body="Submit {{ $responsesByType->get('beneficiary', collect())->count() }} beneficiary forms{{ $evaluation->paper_beneficiary_count !== null ? ' of '.$evaluation->paper_beneficiary_count.' received' : '' }} and {{ $responsesByType->get('implementer', collect())->count() }} volunteer / implementer forms{{ $evaluation->paper_implementer_count !== null ? ' of '.$evaluation->paper_implementer_count.' received' : '' }}?"
-              data-confirm-note="Please check that all paper forms are encoded. You can reopen the batch later if a correction is needed."
+              data-confirm-title="{{ $submissionWarning ? 'Submit incomplete batch?' : 'Submit this evaluation batch?' }}"
+              data-confirm-body="Submit {{ $responsesByType->get('beneficiary', collect())->count() }} beneficiary forms{{ $evaluation->paper_beneficiary_count !== null ? ' of '.$evaluation->paper_beneficiary_count.' received' : '' }} and {{ $responsesByType->get('implementer', collect())->count() }} volunteer / implementer forms{{ $evaluation->paper_implementer_count !== null ? ' of '.$evaluation->paper_implementer_count.' received' : '' }}{{ $submissionWarning ? '. '.$submissionWarning : '. All recorded paper forms are accounted for.' }}"
+              data-confirm-note="{{ $submissionWarning ? 'You can reopen the batch later if a correction is needed.' : 'All recorded paper forms are accounted for. You can reopen the batch later if a correction is needed.' }}"
               data-confirm-ok="Submit batch"
               data-confirm-cancel="Keep reviewing"
-              data-confirm-tone="warning">
+              data-confirm-tone="{{ $submissionWarning ? 'warning' : 'success' }}">
             @csrf
             @if($submissionWarning)
                 <label style="display:flex; align-items:flex-start; gap:8px; margin-bottom:12px; color:#9a3412; font-size:.88rem">
                     <input type="checkbox" name="confirm_incomplete" value="1" required style="margin-top:3px">
-                    <span>I understand that I am submitting this batch before all recorded paper forms are encoded.</span>
+                    <span>{{ $submissionWarning }} I understand that I am submitting this batch before all recorded paper forms are encoded.</span>
                 </label>
             @endif
             <button type="submit"

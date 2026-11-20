@@ -214,16 +214,18 @@ class EvaluationController extends Controller
         $respondentType = $request->query('respondent_type', 'beneficiary');
         abort_unless(in_array($respondentType, ['beneficiary', 'implementer'], true), 422, 'Invalid respondent type.');
 
+        $editResponse = $request->query('edit_response')
+            ? $evaluation->responses()
+                ->where('respondent_type', $respondentType)
+                ->with(['ratings', 'customAnswers'])
+                ->findOrFail($request->query('edit_response'))
+            : null;
+
         return view('STUDENT_ORGANIZATION_PRESIDENT.evaluations.encode', [
             'announcement' => $announcement->load('creator'),
             'evaluation' => $evaluation,
             'respondentType' => $respondentType,
-            'editResponse' => $request->query('edit_response')
-                ? $evaluation->responses()
-                    ->where('respondent_type', $respondentType)
-                    ->with(['ratings', 'customAnswers'])
-                    ->findOrFail($request->query('edit_response'))
-                : null,
+            'editResponse' => $editResponse,
             'savedResponses' => $evaluation->responses()
                 ->where('respondent_type', $respondentType)
                 ->orderBy('id')
@@ -248,6 +250,13 @@ class EvaluationController extends Controller
             'runningAverage' => $evaluation->overallAverage($respondentType),
             'criterionAverages' => $evaluation->averagesByCriterion($respondentType),
             'submissionWarning' => $this->submissionWarning($evaluation),
+            // A new response is saved before the finish action is checked. Use
+            // the projected count so the UI does not warn when this is the
+            // final missing form.
+            'submissionWarningAfterSave' => $this->submissionWarning(
+                $evaluation,
+                $editResponse ? null : $respondentType
+            ),
         ]);
     }
 
@@ -541,12 +550,19 @@ class EvaluationController extends Controller
      *
      * @return array<string, array{encoded: int, expected: int, missing: int}>
      */
-    private function submissionGaps(Evaluation $evaluation): array
+    private function submissionGaps(Evaluation $evaluation, ?string $additionalRespondentType = null): array
     {
         $counts = $evaluation->responses()
             ->selectRaw('respondent_type, COUNT(*) as total')
             ->groupBy('respondent_type')
             ->pluck('total', 'respondent_type');
+
+        if ($additionalRespondentType !== null) {
+            $counts->put(
+                $additionalRespondentType,
+                (int) $counts->get($additionalRespondentType, 0) + 1
+            );
+        }
 
         $gaps = [];
         foreach ([
@@ -568,7 +584,7 @@ class EvaluationController extends Controller
         return $gaps;
     }
 
-    private function submissionWarning(Evaluation $evaluation): ?string
+    private function submissionWarning(Evaluation $evaluation, ?string $additionalRespondentType = null): ?string
     {
         $labels = [
             'beneficiary' => 'beneficiary',
@@ -576,7 +592,7 @@ class EvaluationController extends Controller
         ];
         $parts = [];
 
-        foreach ($this->submissionGaps($evaluation) as $type => $gap) {
+        foreach ($this->submissionGaps($evaluation, $additionalRespondentType) as $type => $gap) {
             $parts[] = sprintf(
                 '%d of %d %s forms encoded (%d remaining)',
                 $gap['encoded'],

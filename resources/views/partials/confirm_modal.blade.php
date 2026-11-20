@@ -52,6 +52,7 @@
                 background:#fff7ed; color:#c2410c; box-shadow:inset 0 0 0 1px #ffedd5; }
     .cfm-icon.is-warning { background:#fffbeb; color:#b45309; }
     .cfm-icon.is-warning { box-shadow:inset 0 0 0 1px #fef3c7; }
+    .cfm-icon.is-success { background:#ecfdf5; color:#047857; box-shadow:inset 0 0 0 1px #a7f3d0; }
     .cfm-title { margin:0; font-size:1.18rem; font-weight:750; letter-spacing:-.02em;
                  color:#0f172a; line-height:1.35; }
     .cfm-body { margin:0; color:#64748b; font-size:.95rem; line-height:1.65; }
@@ -70,6 +71,8 @@
     .cfm-ok:hover { background:#9a3412; border-color:#9a3412; }
     .cfm-ok.is-warning { background:#b45309; border-color:#b45309; }
     .cfm-ok.is-warning:hover { background:#92400e; border-color:#92400e; }
+    .cfm-ok.is-success { background:#0b6a4a; border-color:#0b6a4a; }
+    .cfm-ok.is-success:hover { background:#095a3e; border-color:#095a3e; }
     .cfm-cancel:focus-visible, .cfm-ok:focus-visible {
         outline:3px solid rgba(59,130,246,.35); outline-offset:2px;
     }
@@ -140,8 +143,11 @@
             lastFocused = document.activeElement;
 
             const warning = data.confirmTone === 'warning';
+            const success = data.confirmTone === 'success';
             iconEl.classList.toggle('is-warning', warning);
+            iconEl.classList.toggle('is-success', success);
             okBtn.classList.toggle('is-warning', warning);
+            okBtn.classList.toggle('is-success', success);
 
             titleEl.textContent = data.confirmTitle || 'Are you sure?';
             renderBody(data.confirmBody || 'This action cannot be undone.', data.confirmName);

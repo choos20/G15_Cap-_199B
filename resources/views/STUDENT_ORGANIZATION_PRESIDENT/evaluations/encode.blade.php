@@ -97,6 +97,12 @@
             : 0;
         $editRatings = $editResponse?->ratings->keyBy('criterion_id') ?? collect();
         $editAnswers = $editResponse?->customAnswers->keyBy('question_id') ?? collect();
+        $finishWarning = $submissionWarningAfterSave ?? $submissionWarning;
+        $finishTone = $finishWarning ? 'warning' : 'success';
+        $finishBeneficiaryCount = (int) ($responseCounts['beneficiary'] ?? 0)
+            + (!$editResponse && $respondentType === 'beneficiary' ? 1 : 0);
+        $finishImplementerCount = (int) ($responseCounts['implementer'] ?? 0)
+            + (!$editResponse && $respondentType === 'implementer' ? 1 : 0);
     @endphp
 
     <div class="en-crumbs">
@@ -424,10 +430,10 @@
                 @endif
 
                 <div class="en-panel" style="display:flex; flex-direction:column; gap:10px">
-                    @if($submissionWarning)
+                    @if($finishWarning)
                         <label style="display:flex; align-items:flex-start; gap:8px; color:#9a3412; font-size:.84rem">
                             <input type="checkbox" id="confirm-incomplete-check" name="confirm_incomplete" value="1" style="margin-top:3px">
-                            <span>I understand that I am submitting this batch before all recorded paper forms are encoded.</span>
+                            <span>{{ $finishWarning }} I understand that I am submitting this batch before all recorded paper forms are encoded.</span>
                         </label>
                     @endif
                     <button type="submit" name="action" value="another" class="en-btn en-btn-primary">
@@ -435,12 +441,12 @@
                     </button>
                     <button type="submit" name="action" value="finish" class="en-btn en-btn-ghost"
                             data-confirm
-                            data-confirm-title="Save and submit this batch?"
-                            data-confirm-body="This will save this response and submit the batch. Currently saved: {{ $responseCounts['beneficiary'] ?? 0 }} beneficiary and {{ $responseCounts['implementer'] ?? 0 }} volunteer / implementer forms."
-                            data-confirm-note="Please check that all paper forms have been encoded. You can reopen the batch later if a correction is needed."
+                            data-confirm-title="{{ $finishWarning ? 'Submit incomplete batch?' : 'Save and submit this batch?' }}"
+                            data-confirm-body="This will save this response and submit the batch. After saving: {{ $finishBeneficiaryCount }} beneficiary and {{ $finishImplementerCount }} volunteer / implementer forms{{ $finishWarning ? '. '.$finishWarning : '. All recorded paper forms will be accounted for.' }}"
+                            data-confirm-note="{{ $finishWarning ? 'You can reopen the batch later if a correction is needed.' : 'All recorded paper forms are accounted for. You can reopen the batch later if a correction is needed.' }}"
                             data-confirm-ok="Submit batch"
                             data-confirm-cancel="Keep editing"
-                            data-confirm-tone="warning">
+                            data-confirm-tone="{{ $finishTone }}">
                         {{ $editResponse ? 'Update & finish batch' : 'Save & finish batch' }}
                     </button>
                     <a href="{{ route('evaluations.encode', [$announcement, 'respondent_type' => $respondentType]) }}"
