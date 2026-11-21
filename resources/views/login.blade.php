@@ -5,6 +5,21 @@
 @section('content')
     <style>
         .password-field { position: relative; }
+        .input-with-icon { position: relative; }
+        .input-with-icon .field-icon {
+            position: absolute;
+            z-index: 1;
+            top: 50%;
+            left: 14px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: #2f8d5d;
+            pointer-events: none;
+            transform: translateY(-50%);
+        }
+        .input-with-icon .field-icon svg { width: 19px; height: 19px; }
+        .input-with-icon input { padding-left: 44px; }
         .password-field input {
             padding-right: 50px;
             appearance: none;
@@ -66,21 +81,25 @@
             @csrf
 
             <label for="user">Username or Email</label>
-            <input
-                type="text"
-                id="user"
-                name="user"
-                value="{{ old('user') }}"
-                class="{{ $errors->has('user') ? 'is-invalid' : '' }}"
-                required
-                autofocus
-            >
+            <div class="input-with-icon">
+                <span class="field-icon" aria-hidden="true"><x-ui-icon name="user" :size="19" /></span>
+                <input
+                    type="text"
+                    id="user"
+                    name="user"
+                    value="{{ old('user') }}"
+                    class="{{ $errors->has('user') ? 'is-invalid' : '' }}"
+                    required
+                    autofocus
+                >
+            </div>
             @error('user')
                 <div class="field-error">{{ $message }}</div>
             @enderror
 
             <label for="password">Password</label>
-            <div class="password-field">
+            <div class="password-field input-with-icon">
+                <span class="field-icon" aria-hidden="true"><x-ui-icon name="lock" :size="19" /></span>
                 <input
                     type="password"
                     id="password"
