@@ -460,7 +460,29 @@
         .attendance-location-settings .attendance-form-section-title { margin-bottom:7px; font-size:.82rem; }
         .attendance-location-settings .form-field { margin-bottom:0; }
         .attendance-location-settings .form-note { margin-top:5px; font-size:.72rem; line-height:1.35; }
-        .attendance-location-action { display:flex; align-items:center; justify-content:flex-end; gap:12px; margin-top:auto; padding-top:12px; border-top:1px solid #edf3ef; }
+        .attendance-readiness {
+            flex:1 1 auto;
+            display:flex;
+            flex-direction:column;
+            justify-content:center;
+            gap:10px;
+            min-height:108px;
+            padding:14px;
+            border:1px solid #cfe9db;
+            border-radius:14px;
+            background:linear-gradient(145deg,#effbf4,#f8fcfa);
+        }
+        .attendance-readiness-header { display:flex; align-items:center; gap:9px; }
+        .attendance-readiness-icon { display:grid; place-items:center; flex:0 0 30px; width:30px; height:30px; border-radius:10px; background:#d9f5e5; color:#087c5b; }
+        .attendance-readiness-heading { min-width:0; }
+        .attendance-readiness-heading .attendance-section-kicker { margin-bottom:2px; font-size:.6rem; }
+        .attendance-readiness-title { margin:0; color:#153c32; font-size:.82rem; font-weight:800; line-height:1.25; }
+        .attendance-readiness-statuses { display:flex; flex-wrap:wrap; gap:6px; }
+        .attendance-readiness-status { display:inline-flex; align-items:center; gap:5px; padding:5px 8px; border:1px solid #eadfb8; border-radius:999px; background:#fffdf5; color:#876b1b; font-size:.67rem; font-weight:700; line-height:1.2; }
+        .attendance-readiness-status svg { flex:0 0 13px; }
+        .attendance-readiness-status.is-ready { border-color:#bce6ce; background:#f5fcf7; color:#08734e; }
+        .attendance-readiness-note { margin:0; color:#668076; font-size:.72rem; line-height:1.35; }
+        .attendance-location-action { display:flex; align-items:center; justify-content:flex-end; gap:12px; margin-top:12px; padding-top:12px; border-top:1px solid #edf3ef; }
         .attendance-session-rule { display:inline-flex; align-items:center; gap:6px; margin-right:auto; color:#668076; font-size:.72rem; line-height:1.35; }
         .attendance-session-rule svg { flex:0 0 15px; color:#087c5b; }
         .attendance-location-actions { display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin-top:10px; }
@@ -694,6 +716,22 @@
                                     </div>
                                 </div>
 
+                                <div class="attendance-readiness" aria-live="polite">
+                                    <div class="attendance-readiness-header">
+                                        <div class="attendance-readiness-icon" aria-hidden="true"><x-ui-icon name="check-circle" :size="16" /></div>
+                                        <div class="attendance-readiness-heading">
+                                            <span class="attendance-section-kicker">Session readiness</span>
+                                            <p class="attendance-readiness-title" id="attendance-readiness-title">Complete the details below</p>
+                                        </div>
+                                    </div>
+                                    <div class="attendance-readiness-statuses">
+                                        <span class="attendance-readiness-status" id="attendance-location-status"><x-ui-icon name="location" :size="13" /><span data-status-text>Location needed</span></span>
+                                        <span class="attendance-readiness-status is-ready" id="attendance-radius-status"><x-ui-icon name="check-circle" :size="13" /><span data-status-text>50 m radius</span></span>
+                                        <span class="attendance-readiness-status" id="attendance-schedule-status"><x-ui-icon name="clock" :size="13" /><span data-status-text>Schedule needed</span></span>
+                                    </div>
+                                    <p class="attendance-readiness-note" id="attendance-readiness-note">Set the location and session times to enable a verified QR check-in window.</p>
+                                </div>
+
                                 <div class="attendance-location-action">
                                     <span class="attendance-session-rule" title="Each approved activity can have one session. You can rotate the QR token or close an open session later.">
                                         <x-ui-icon name="check-circle" :size="15" />
@@ -710,9 +748,16 @@
             </div>
             <script>
                 document.addEventListener('DOMContentLoaded', function () {
+                    const latitude = document.getElementById('latitude');
+                    const longitude = document.getElementById('longitude');
                     const opensAt = document.getElementById('opens_at');
                     const closesAt = document.getElementById('closes_at');
                     if (!opensAt || !closesAt) return;
+
+                    const readinessTitle = document.getElementById('attendance-readiness-title');
+                    const readinessNote = document.getElementById('attendance-readiness-note');
+                    const locationStatus = document.getElementById('attendance-location-status');
+                    const scheduleStatus = document.getElementById('attendance-schedule-status');
 
                     const formatLocalDateTime = (date) => {
                         const pad = (value) => String(value).padStart(2, '0');
@@ -725,8 +770,40 @@
                         closesAt.min = formatLocalDateTime(start);
                     };
 
-                    opensAt.addEventListener('input', updateCloseMinimum);
+                    const setReadinessStatus = (element, isReady, readyText, pendingText) => {
+                        if (!element) return;
+                        element.classList.toggle('is-ready', isReady);
+                        const label = element.querySelector('[data-status-text]');
+                        if (label) label.textContent = isReady ? readyText : pendingText;
+                    };
+
+                    const updateReadiness = () => {
+                        const hasLocation = Boolean(latitude && latitude.value.trim() && longitude && longitude.value.trim());
+                        const hasSchedule = Boolean(opensAt.value && closesAt.value);
+                        const isReady = hasLocation && hasSchedule;
+
+                        setReadinessStatus(locationStatus, hasLocation, 'Location set', 'Location needed');
+                        setReadinessStatus(scheduleStatus, hasSchedule, 'Schedule set', 'Schedule needed');
+
+                        if (readinessTitle) readinessTitle.textContent = isReady ? 'Ready to open session' : 'Complete the details below';
+                        if (readinessNote) readinessNote.textContent = isReady
+                            ? 'Everything is set for a verified QR check-in window.'
+                            : 'Set the location and session times to enable a verified QR check-in window.';
+                    };
+
+                    const refreshSchedule = () => {
+                        updateCloseMinimum();
+                        updateReadiness();
+                    };
+
+                    opensAt.addEventListener('input', refreshSchedule);
+                    opensAt.addEventListener('change', refreshSchedule);
+                    closesAt.addEventListener('input', updateReadiness);
+                    closesAt.addEventListener('change', updateReadiness);
+                    latitude?.addEventListener('input', updateReadiness);
+                    longitude?.addEventListener('input', updateReadiness);
                     updateCloseMinimum();
+                    updateReadiness();
                 });
             </script>
 
@@ -1010,6 +1087,8 @@
                 const updateFields = (lat, lng) => {
                     latInput.value = lat.toFixed(6);
                     lngInput.value = lng.toFixed(6);
+                    latInput.dispatchEvent(new Event('input', { bubbles: true }));
+                    lngInput.dispatchEvent(new Event('input', { bubbles: true }));
                 };
 
                 const placeMarker = (lat, lng, recenter) => {
