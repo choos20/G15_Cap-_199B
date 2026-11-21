@@ -444,6 +444,12 @@
         .session-strip { gap:12px; margin-top:0; }
         .session-strip .form-field { min-width:0; }
         .attendance-location-shell { padding:12px; border:1px solid #dcece4; border-radius:17px; background:#f8fcfa; }
+        .attendance-location-details { min-width:0; display:grid; gap:10px; align-content:start; }
+        .attendance-location-settings { display:grid; grid-template-columns:minmax(0,1fr); gap:10px; min-width:0; }
+        .attendance-location-settings .attendance-form-section { margin:0; padding:0; border-top:0; }
+        .attendance-location-settings .attendance-form-section-title { margin-bottom:7px; font-size:.82rem; }
+        .attendance-location-settings .form-field { margin-bottom:0; }
+        .attendance-location-settings .form-note { margin-top:5px; font-size:.72rem; line-height:1.35; }
         .attendance-location-actions { display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin-top:10px; }
         .map-locate-btn, .sv-btn { margin:0; padding:9px 12px; border-color:#cfe2d9; border-radius:10px; background:#fff; color:#17624e; font-size:.78rem; }
         .map-locate-btn:hover:not(:disabled), .sv-btn:hover:not(:disabled) { background:#effaf4; border-color:#8ad5b7; }
@@ -512,6 +518,10 @@
             .attendance-location-shell { display:grid; grid-template-columns:minmax(260px,310px) minmax(0,1fr); gap:12px; align-items:start; }
             .attendance-location-shell .map-field { margin-bottom:0; }
             .attendance-location-shell .session-strip { grid-template-columns:1fr; gap:10px; }
+            .attendance-location-settings { grid-template-columns:minmax(140px,.58fr) minmax(0,1fr) minmax(0,1fr); gap:10px; }
+            .attendance-location-settings .attendance-rules-section { grid-column:1; }
+            .attendance-location-settings .attendance-schedule-section { grid-column:2 / -1; }
+            .attendance-location-settings .attendance-schedule-section .session-strip { grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
             .attendance-location-shell .session-strip .form-field,
             .attendance-rules-section .form-field,
             .attendance-schedule-section .form-field { margin-bottom:0; }
@@ -522,12 +532,21 @@
             .attendance-sessions-card { padding:18px; }
             .attendance-grid > div:last-child .attendance-sessions-card { margin-top:14px !important; }
         }
-        @media (max-width:1100px) { .attendance-grid { grid-template-columns:minmax(0,1fr); } }
+        @media (max-width:1100px) {
+            .attendance-grid { grid-template-columns:minmax(0,1fr); }
+            .attendance-location-settings { grid-template-columns:minmax(140px,.58fr) minmax(0,1fr) minmax(0,1fr); }
+            .attendance-location-settings .attendance-rules-section { grid-column:1; }
+            .attendance-location-settings .attendance-schedule-section { grid-column:2 / -1; }
+        }
         @media (max-width:760px) {
             .attendance-hero { align-items:flex-start; flex-direction:column; padding:20px; }
             .attendance-hero-stats { width:100%; min-width:0; }
             .attendance-card { padding:20px; }
             .attendance-step-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+            .attendance-location-settings { grid-template-columns:minmax(0,1fr); }
+            .attendance-location-settings .attendance-rules-section,
+            .attendance-location-settings .attendance-schedule-section { grid-column:auto; }
+            .attendance-location-settings .attendance-schedule-section .session-strip { grid-template-columns:minmax(0,1fr); }
             .attendance-form-footer { align-items:stretch; flex-direction:column; }
             .attendance-create-actions, .attendance-create-actions .btn-primary { width:100%; }
         }
@@ -621,44 +640,48 @@
                                 </div>
                                 <div class="form-note">Search, click the map, or drag the pin to set the exact activity location.</div>
                             </div>
-                            <div class="session-strip">
-                                <div class="form-field">
-                                    <label for="latitude"><x-ui-icon name="location" :size="14" /> Activity latitude</label>
-                                    <input id="latitude" name="latitude" type="text" maxlength="20" placeholder="e.g. 8.4155" value="{{ old('latitude') }}" class="@error('latitude') input-error @enderror">
-                                    @error('latitude')<div class="error-text">{{ $message }}</div>@enderror
+                            <div class="attendance-location-details">
+                                <div class="session-strip attendance-coordinate-fields">
+                                    <div class="form-field">
+                                        <label for="latitude"><x-ui-icon name="location" :size="14" /> Activity latitude</label>
+                                        <input id="latitude" name="latitude" type="text" maxlength="20" placeholder="e.g. 8.4155" value="{{ old('latitude') }}" class="@error('latitude') input-error @enderror">
+                                        @error('latitude')<div class="error-text">{{ $message }}</div>@enderror
+                                    </div>
+                                    <div class="form-field">
+                                        <label for="longitude"><x-ui-icon name="location" :size="14" /> Activity longitude</label>
+                                        <input id="longitude" name="longitude" type="text" maxlength="20" placeholder="e.g. 124.6069" value="{{ old('longitude') }}" class="@error('longitude') input-error @enderror">
+                                        @error('longitude')<div class="error-text">{{ $message }}</div>@enderror
+                                    </div>
                                 </div>
-                                <div class="form-field">
-                                    <label for="longitude"><x-ui-icon name="location" :size="14" /> Activity longitude</label>
-                                    <input id="longitude" name="longitude" type="text" maxlength="20" placeholder="e.g. 124.6069" value="{{ old('longitude') }}" class="@error('longitude') input-error @enderror">
-                                    @error('longitude')<div class="error-text">{{ $message }}</div>@enderror
+
+                                <div class="attendance-location-settings">
+                                    <div class="attendance-form-section attendance-rules-section">
+                                        <p class="attendance-form-section-title"><x-ui-icon name="qr" :size="16" /> Check-in rules</p>
+                                        <div class="form-field">
+                                            <label for="radius_meters">Check-in radius</label>
+                                            <input id="radius_meters" type="text" value="50 meters (fixed)" disabled>
+                                            <div class="form-note">Participants must be within 50 meters of the activity location to check in.</div>
+                                        </div>
+                                    </div>
+
+                                    <div class="attendance-form-section attendance-schedule-section">
+                                        <p class="attendance-form-section-title"><x-ui-icon name="clock" :size="16" /> Session schedule</p>
+                                        <div class="session-strip">
+                                            <div class="form-field">
+                                                <label for="opens_at"><x-ui-icon name="calendar" :size="14" /> Opens at</label>
+                                                <input id="opens_at" name="opens_at" type="datetime-local" min="{{ $minOpenAt }}" value="{{ old('opens_at') }}" class="@error('opens_at') input-error @enderror">
+                                                <div class="form-note">Today or a future date. Same-day sessions cannot start in the past.</div>
+                                                @error('opens_at')<div class="error-text">{{ $message }}</div>@enderror
+                                            </div>
+                                            <div class="form-field">
+                                                <label for="closes_at"><x-ui-icon name="calendar" :size="14" /> Closes at</label>
+                                                <input id="closes_at" name="closes_at" type="datetime-local" min="{{ $minCloseAt }}" max="{{ $maxCloseAt }}" value="{{ old('closes_at') }}" class="@error('closes_at') input-error @enderror">
+                                                <div class="form-note">Must be after opening and within one year from today.</div>
+                                                @error('closes_at')<div class="error-text">{{ $message }}</div>@enderror
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="attendance-form-section attendance-rules-section">
-                        <p class="attendance-form-section-title"><x-ui-icon name="qr" :size="16" /> Check-in rules</p>
-                        <div class="form-field">
-                            <label for="radius_meters">Check-in radius</label>
-                            <input id="radius_meters" type="text" value="50 meters (fixed)" disabled>
-                            <div class="form-note">Participants must be within 50 meters of the activity location to check in.</div>
-                        </div>
-                    </div>
-
-                    <div class="attendance-form-section attendance-schedule-section">
-                        <p class="attendance-form-section-title"><x-ui-icon name="clock" :size="16" /> Session schedule</p>
-                        <div class="session-strip">
-                            <div class="form-field">
-                                <label for="opens_at"><x-ui-icon name="calendar" :size="14" /> Opens at</label>
-                                <input id="opens_at" name="opens_at" type="datetime-local" min="{{ $minOpenAt }}" value="{{ old('opens_at') }}" class="@error('opens_at') input-error @enderror">
-                                <div class="form-note">Today or a future date. Same-day sessions cannot start in the past.</div>
-                                @error('opens_at')<div class="error-text">{{ $message }}</div>@enderror
-                            </div>
-                            <div class="form-field">
-                                <label for="closes_at"><x-ui-icon name="calendar" :size="14" /> Closes at</label>
-                                <input id="closes_at" name="closes_at" type="datetime-local" min="{{ $minCloseAt }}" max="{{ $maxCloseAt }}" value="{{ old('closes_at') }}" class="@error('closes_at') input-error @enderror">
-                                <div class="form-note">Must be after opening and within one year from today.</div>
-                                @error('closes_at')<div class="error-text">{{ $message }}</div>@enderror
                             </div>
                         </div>
                     </div>
