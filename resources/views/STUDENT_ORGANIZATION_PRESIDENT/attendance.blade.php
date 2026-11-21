@@ -68,8 +68,18 @@
         .plink-pin svg { filter:drop-shadow(0 5px 8px rgba(15,23,42,0.4)); }
         .leaflet-control-layers { border-radius:12px !important; overflow:hidden; box-shadow:0 10px 25px rgba(15,23,42,0.15) !important; border:none !important; }
         .leaflet-bar { border-radius:10px !important; overflow:hidden; border:none !important; box-shadow:0 6px 16px rgba(15,23,42,0.15) !important; }
-        .leaflet-control-scale-line { border-radius:0 0 6px 6px !important; background:rgba(255,255,255,0.85) !important; }
-        .leaflet-control-attribution { padding:2px 5px !important; font-size:10px !important; line-height:1.3 !important; }
+        .leaflet-control-attribution {
+            max-width:calc(100% - 10px);
+            padding:2px 6px !important;
+            border-radius:6px 0 0 0;
+            background:rgba(255,255,255,0.68) !important;
+            color:rgba(15,23,42,0.72) !important;
+            box-shadow:0 0 10px rgba(15,23,42,0.06);
+            backdrop-filter:blur(2px);
+            font-size:9px !important;
+            line-height:1.25 !important;
+        }
+        .leaflet-control-attribution a { color:inherit !important; }
         .map-locate-btn {
             margin-top:10px; display:inline-flex; align-items:center; gap:8px;
             background:#f8fafc; color:#0f172a; border:1px solid #cbd5e1; border-radius:12px;
@@ -971,7 +981,10 @@
                 const initialLng = parseFloat(lngInput.value);
                 const hasInitial = !isNaN(initialLat) && !isNaN(initialLng);
 
-                const map = L.map(mapEl).setView(
+                const map = L.map(mapEl, {
+                    zoomControl: false,
+                    attributionControl: false,
+                }).setView(
                     [hasInitial ? initialLat : fallbackLat, hasInitial ? initialLng : fallbackLng],
                     hasInitial ? 17 : 6
                 );
@@ -988,7 +1001,7 @@
                 });
 
                 L.control.layers({ 'Street': streetLayer, 'Satellite': satelliteLayer }, null, { position: 'topright' }).addTo(map);
-                L.control.scale({ imperial: false, position: 'bottomleft' }).addTo(map);
+                L.control.attribution({ prefix: false, position: 'bottomright' }).addTo(map);
                 setTimeout(() => map.invalidateSize(), 150);
 
                 let marker = null;
