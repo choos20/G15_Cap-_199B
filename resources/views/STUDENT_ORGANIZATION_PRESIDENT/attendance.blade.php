@@ -444,19 +444,19 @@
         .session-strip { gap:12px; margin-top:0; }
         .session-strip .form-field { min-width:0; }
         .attendance-location-shell { padding:12px; border:1px solid #dcece4; border-radius:17px; background:#f8fcfa; }
-        .attendance-location-details { min-width:0; display:grid; gap:10px; align-content:start; }
+        .attendance-location-details { min-width:0; display:flex; flex-direction:column; gap:10px; }
         .attendance-location-settings { display:grid; grid-template-columns:minmax(0,1fr); gap:10px; min-width:0; }
         .attendance-location-settings .attendance-form-section { margin:0; padding:0; border-top:0; }
         .attendance-location-settings .attendance-form-section-title { margin-bottom:7px; font-size:.82rem; }
         .attendance-location-settings .form-field { margin-bottom:0; }
         .attendance-location-settings .form-note { margin-top:5px; font-size:.72rem; line-height:1.35; }
+        .attendance-location-action { display:flex; align-items:center; justify-content:flex-end; gap:12px; margin-top:auto; padding-top:12px; border-top:1px solid #edf3ef; }
+        .attendance-session-rule { display:inline-flex; align-items:center; gap:6px; margin-right:auto; color:#668076; font-size:.72rem; line-height:1.35; }
+        .attendance-session-rule svg { flex:0 0 15px; color:#087c5b; }
         .attendance-location-actions { display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin-top:10px; }
         .map-locate-btn, .sv-btn { margin:0; padding:9px 12px; border-color:#cfe2d9; border-radius:10px; background:#fff; color:#17624e; font-size:.78rem; }
         .map-locate-btn:hover:not(:disabled), .sv-btn:hover:not(:disabled) { background:#effaf4; border-color:#8ad5b7; }
         #location-map { width:min(100%, 310px); height:auto; aspect-ratio:1 / 1; margin-top:10px; max-width:310px; min-height:0; border-color:#cfe3d9; border-radius:14px; box-shadow:inset 0 0 0 1px rgba(255,255,255,.7); }
-        .attendance-form-footer { display:flex; align-items:center; justify-content:space-between; gap:14px; margin-top:16px; padding-top:14px; border-top:1px solid #edf3ef; }
-        .attendance-safety-note { display:flex; align-items:flex-start; gap:8px; max-width:390px; color:#668076; font-size:.78rem; line-height:1.45; }
-        .attendance-safety-note svg { flex:0 0 16px; margin-top:1px; color:#087c5b; }
         .attendance-create-actions { margin:0; }
         .attendance-create-actions .btn-primary { min-height:44px; padding:12px 18px; box-shadow:0 10px 18px rgba(8,124,91,.18); }
         .attendance-card.banner { display:block; padding:22px; border-color:#dce9e3; background:linear-gradient(145deg,#f7fcf9,#ffffff); }
@@ -514,8 +514,8 @@
         @media (min-width:1201px) {
             .attendance-grid > div:last-child { position:sticky; top:16px; align-self:start; }
             .attendance-card > form { display:grid; grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr); column-gap:16px; align-items:start; }
-            .attendance-activity-section, .attendance-location-section, .attendance-form-footer { grid-column:1 / -1; }
-            .attendance-location-shell { display:grid; grid-template-columns:minmax(260px,310px) minmax(0,1fr); gap:12px; align-items:start; }
+            .attendance-activity-section, .attendance-location-section { grid-column:1 / -1; }
+            .attendance-location-shell { display:grid; grid-template-columns:minmax(260px,310px) minmax(0,1fr); gap:12px; align-items:stretch; }
             .attendance-location-shell .map-field { margin-bottom:0; }
             .attendance-location-shell .session-strip { grid-template-columns:1fr; gap:10px; }
             .attendance-location-settings { grid-template-columns:minmax(140px,.58fr) minmax(0,1fr) minmax(0,1fr); gap:10px; }
@@ -547,8 +547,9 @@
             .attendance-location-settings .attendance-rules-section,
             .attendance-location-settings .attendance-schedule-section { grid-column:auto; }
             .attendance-location-settings .attendance-schedule-section .session-strip { grid-template-columns:minmax(0,1fr); }
-            .attendance-form-footer { align-items:stretch; flex-direction:column; }
-            .attendance-create-actions, .attendance-create-actions .btn-primary { width:100%; }
+            .attendance-location-action { align-items:stretch; flex-direction:column; }
+            .attendance-location-action .attendance-create-actions,
+            .attendance-location-action .attendance-create-actions .btn-primary { width:100%; }
         }
         @media (max-width:520px) {
             .attendance-hero-copy { align-items:flex-start; }
@@ -682,14 +683,17 @@
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                        </div>
-                    </div>
 
-                    <div class="attendance-form-footer">
-                        <div class="attendance-safety-note"><x-ui-icon name="check-circle" :size="16" /><span>Each approved activity can have one session. You can rotate the QR token or close an open session later.</span></div>
-                        <div class="session-actions attendance-create-actions">
-                            <button type="submit" class="btn-primary" @disabled($approvedProjects->isEmpty())><x-ui-icon name="qr" :size="16" /><span>Open session</span></button>
+                                <div class="attendance-location-action">
+                                    <span class="attendance-session-rule" title="Each approved activity can have one session. You can rotate the QR token or close an open session later.">
+                                        <x-ui-icon name="check-circle" :size="15" />
+                                        <span>One session per activity</span>
+                                    </span>
+                                    <div class="attendance-create-actions">
+                                        <button type="submit" class="btn-primary" @disabled($approvedProjects->isEmpty())><x-ui-icon name="qr" :size="16" /><span>Open session</span></button>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </form>
