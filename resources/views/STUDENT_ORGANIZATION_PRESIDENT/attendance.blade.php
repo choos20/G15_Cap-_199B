@@ -54,15 +54,15 @@
         .map-search-item.map-search-empty { color:#94a3b8; cursor:default; }
         .map-search-item.map-search-empty:hover { background:transparent; }
         #location-map {
-            width:100%;
+            width:min(100%, 310px);
             min-width:0;
-            height:clamp(210px, 26vh, 245px);
-            aspect-ratio:auto;
+            height:auto;
+            aspect-ratio:1 / 1;
             max-height:none;
             min-height:0;
-            max-width:none;
+            max-width:310px;
             border-radius:16px;
-            margin:12px auto 0;
+            margin:12px 0 0;
             border:1px solid #d1d5db;
         }
         .plink-pin svg { filter:drop-shadow(0 5px 8px rgba(15,23,42,0.4)); }
@@ -378,7 +378,7 @@
         }
         @media (max-width:600px) {
             .attendance-card { padding:18px; border-radius:18px; }
-            #location-map { height:220px; min-height:0; }
+            #location-map { width:min(100%, 280px); height:auto; min-height:0; max-width:280px; }
             .sv-viewer { height:clamp(180px,45dvh,320px); }
             .qr-modal-header { padding:18px 18px 16px; }
             .qr-modal-body { padding:18px; }
@@ -447,7 +447,7 @@
         .attendance-location-actions { display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin-top:10px; }
         .map-locate-btn, .sv-btn { margin:0; padding:9px 12px; border-color:#cfe2d9; border-radius:10px; background:#fff; color:#17624e; font-size:.78rem; }
         .map-locate-btn:hover:not(:disabled), .sv-btn:hover:not(:disabled) { background:#effaf4; border-color:#8ad5b7; }
-        #location-map { height:clamp(210px, 26vh, 245px); margin-top:10px; max-width:none; min-height:0; border-color:#cfe3d9; border-radius:14px; box-shadow:inset 0 0 0 1px rgba(255,255,255,.7); }
+        #location-map { width:min(100%, 310px); height:auto; aspect-ratio:1 / 1; margin-top:10px; max-width:310px; min-height:0; border-color:#cfe3d9; border-radius:14px; box-shadow:inset 0 0 0 1px rgba(255,255,255,.7); }
         .attendance-form-footer { display:flex; align-items:center; justify-content:space-between; gap:14px; margin-top:16px; padding-top:14px; border-top:1px solid #edf3ef; }
         .attendance-safety-note { display:flex; align-items:flex-start; gap:8px; max-width:390px; color:#668076; font-size:.78rem; line-height:1.45; }
         .attendance-safety-note svg { flex:0 0 16px; margin-top:1px; color:#087c5b; }
@@ -509,7 +509,7 @@
             .attendance-grid > div:last-child { position:sticky; top:16px; align-self:start; }
             .attendance-card > form { display:grid; grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr); column-gap:16px; align-items:start; }
             .attendance-activity-section, .attendance-location-section, .attendance-form-footer { grid-column:1 / -1; }
-            .attendance-location-shell { display:grid; grid-template-columns:minmax(0,1fr) minmax(175px,.34fr); gap:12px; align-items:start; }
+            .attendance-location-shell { display:grid; grid-template-columns:minmax(260px,310px) minmax(0,1fr); gap:12px; align-items:start; }
             .attendance-location-shell .map-field { margin-bottom:0; }
             .attendance-location-shell .session-strip { grid-template-columns:1fr; gap:10px; }
             .attendance-location-shell .session-strip .form-field,
@@ -585,15 +585,6 @@
 
         <div class="attendance-grid">
             <div class="attendance-card">
-                <div class="attendance-card-header">
-                    <div class="attendance-heading-icon" aria-hidden="true"><x-ui-icon name="calendar-check" :size="21" /></div>
-                    <div>
-                        <span class="attendance-section-kicker">New session</span>
-                        <h3>Open an attendance session</h3>
-                        <p class="form-note">Choose an approved activity, set the location and schedule, then generate a QR token for on-site check-in.</p>
-                    </div>
-                </div>
-
                 <form method="post" action="{{ route('student_org.attendance.store') }}">
                     @csrf
                     <div class="attendance-form-section attendance-activity-section">
