@@ -56,10 +56,11 @@
         #location-map {
             width:100%;
             min-width:0;
-            aspect-ratio: 4 / 3;
-            max-height:480px;
-            min-height:320px;
-            max-width:640px;
+            height:clamp(210px, 26vh, 245px);
+            aspect-ratio:auto;
+            max-height:none;
+            min-height:0;
+            max-width:none;
             border-radius:16px;
             margin:12px auto 0;
             border:1px solid #d1d5db;
@@ -377,7 +378,7 @@
         }
         @media (max-width:600px) {
             .attendance-card { padding:18px; border-radius:18px; }
-            #location-map { min-height:220px; }
+            #location-map { height:220px; min-height:0; }
             .sv-viewer { height:clamp(180px,45dvh,320px); }
             .qr-modal-header { padding:18px 18px 16px; }
             .qr-modal-body { padding:18px; }
@@ -394,7 +395,7 @@
         .qr-modal, .sv-modal { max-height:calc(100dvh - 40px); overflow-y:auto; }
 
         /* Attendance workspace refresh: clearer hierarchy, branded surfaces, and icon-led actions. */
-        .attendance-page { display:grid; gap:20px; }
+        .attendance-page { display:grid; gap:16px; }
         .attendance-hero {
             position:relative; display:flex; align-items:center; justify-content:space-between; gap:24px;
             overflow:hidden; padding:24px 28px; border:1px solid #d5eee2; border-radius:26px;
@@ -422,31 +423,32 @@
         .attendance-hero-stat { padding:12px 14px; border:1px solid rgba(166,220,197,.8); border-radius:15px; background:rgba(255,255,255,.72); }
         .attendance-hero-stat span { display:block; color:#6a8178; font-size:.72rem; font-weight:700; }
         .attendance-hero-stat strong { display:block; margin-top:3px; color:#0b2a2a; font-size:1.35rem; }
-        .attendance-card { border-color:#dce9e3; border-radius:24px; box-shadow:0 18px 40px rgba(15,42,42,.07); padding:25px; }
-        .attendance-card-header { display:flex; align-items:flex-start; gap:13px; margin-bottom:22px; }
+        .attendance-grid { gap:18px; }
+        .attendance-card { border-color:#dce9e3; border-radius:24px; box-shadow:0 18px 40px rgba(15,42,42,.07); padding:22px; }
+        .attendance-card-header { display:flex; align-items:flex-start; gap:13px; margin-bottom:16px; }
         .attendance-card-header > div:last-child { min-width:0; }
         .attendance-card h3 { margin:0; color:#0b2a2a; font-size:1.25rem; line-height:1.25; }
         .attendance-card-header .form-note { margin:6px 0 0; max-width:690px; }
         .attendance-heading-icon { flex-basis:42px; width:42px; height:42px; border-radius:13px; box-shadow:none; }
         .attendance-heading-icon svg { width:21px; height:21px; }
-        .attendance-form-section { margin-top:22px; padding-top:20px; border-top:1px solid #edf3ef; }
+        .attendance-form-section { margin-top:16px; padding-top:14px; border-top:1px solid #edf3ef; }
         .attendance-form-section:first-of-type { margin-top:0; padding-top:0; border-top:0; }
-        .attendance-form-section-title { display:flex; align-items:center; gap:8px; margin:0 0 13px; color:#173f35; font-size:.92rem; font-weight:800; }
+        .attendance-form-section-title { display:flex; align-items:center; gap:8px; margin:0 0 10px; color:#173f35; font-size:.92rem; font-weight:800; }
         .attendance-form-section-title svg { color:#087c5b; }
-        .form-field { margin-bottom:16px; }
-        .form-field label { margin-bottom:8px; color:#1b3c34; font-size:.84rem; }
+        .form-field { margin-bottom:12px; }
+        .form-field label { margin-bottom:7px; color:#1b3c34; font-size:.84rem; }
         .form-field input, .form-field select { padding:12px 14px; border-color:#d7e4de; border-radius:12px; background:#fbfdfc; font-size:.92rem; }
         .form-field input:focus, .form-field select:focus { border-color:#0fbf91; box-shadow:0 0 0 4px rgba(15,191,145,.12); }
         .form-note { color:#71847d; font-size:.8rem; line-height:1.45; }
         .error-text { font-size:.8rem; }
         .session-strip { gap:12px; margin-top:0; }
         .session-strip .form-field { min-width:0; }
-        .attendance-location-shell { padding:14px; border:1px solid #dcece4; border-radius:17px; background:#f8fcfa; }
+        .attendance-location-shell { padding:12px; border:1px solid #dcece4; border-radius:17px; background:#f8fcfa; }
         .attendance-location-actions { display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin-top:10px; }
         .map-locate-btn, .sv-btn { margin:0; padding:9px 12px; border-color:#cfe2d9; border-radius:10px; background:#fff; color:#17624e; font-size:.78rem; }
         .map-locate-btn:hover:not(:disabled), .sv-btn:hover:not(:disabled) { background:#effaf4; border-color:#8ad5b7; }
-        #location-map { margin-top:12px; max-width:none; min-height:285px; border-color:#cfe3d9; border-radius:14px; box-shadow:inset 0 0 0 1px rgba(255,255,255,.7); }
-        .attendance-form-footer { display:flex; align-items:center; justify-content:space-between; gap:14px; margin-top:22px; padding-top:18px; border-top:1px solid #edf3ef; }
+        #location-map { height:clamp(210px, 26vh, 245px); margin-top:10px; max-width:none; min-height:0; border-color:#cfe3d9; border-radius:14px; box-shadow:inset 0 0 0 1px rgba(255,255,255,.7); }
+        .attendance-form-footer { display:flex; align-items:center; justify-content:space-between; gap:14px; margin-top:16px; padding-top:14px; border-top:1px solid #edf3ef; }
         .attendance-safety-note { display:flex; align-items:flex-start; gap:8px; max-width:390px; color:#668076; font-size:.78rem; line-height:1.45; }
         .attendance-safety-note svg { flex:0 0 16px; margin-top:1px; color:#087c5b; }
         .attendance-create-actions { margin:0; }
@@ -503,6 +505,23 @@
         .map-search-item .msi-pin { display:grid; place-items:center; width:18px; color:#087c5b; }
         .map-search-item .msi-pin svg { width:16px; height:16px; }
         @media (min-width:1101px) { .attendance-grid { grid-template-columns:minmax(0,1.18fr) minmax(360px,.82fr); } }
+        @media (min-width:1201px) {
+            .attendance-grid > div:last-child { position:sticky; top:16px; align-self:start; }
+            .attendance-card > form { display:grid; grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr); column-gap:16px; align-items:start; }
+            .attendance-activity-section, .attendance-location-section, .attendance-form-footer { grid-column:1 / -1; }
+            .attendance-location-shell { display:grid; grid-template-columns:minmax(0,1fr) minmax(175px,.34fr); gap:12px; align-items:start; }
+            .attendance-location-shell .map-field { margin-bottom:0; }
+            .attendance-location-shell .session-strip { grid-template-columns:1fr; gap:10px; }
+            .attendance-location-shell .session-strip .form-field,
+            .attendance-rules-section .form-field,
+            .attendance-schedule-section .form-field { margin-bottom:0; }
+            .attendance-rules-section .form-note,
+            .attendance-schedule-section .form-note { font-size:.72rem; line-height:1.35; }
+            .attendance-card.banner { padding:18px; }
+            .attendance-how-header { margin-bottom:14px; }
+            .attendance-sessions-card { padding:18px; }
+            .attendance-grid > div:last-child .attendance-sessions-card { margin-top:14px !important; }
+        }
         @media (max-width:1100px) { .attendance-grid { grid-template-columns:minmax(0,1fr); } }
         @media (max-width:760px) {
             .attendance-hero { align-items:flex-start; flex-direction:column; padding:20px; }
@@ -577,7 +596,7 @@
 
                 <form method="post" action="{{ route('student_org.attendance.store') }}">
                     @csrf
-                    <div class="attendance-form-section">
+                    <div class="attendance-form-section attendance-activity-section">
                         <p class="attendance-form-section-title"><x-ui-icon name="building" :size="16" /> Activity</p>
                         <div class="form-field">
                             <label for="project_id">Approved activity</label>
@@ -594,7 +613,7 @@
                         </div>
                     </div>
 
-                    <div class="attendance-form-section">
+                    <div class="attendance-form-section attendance-location-section">
                         <p class="attendance-form-section-title"><x-ui-icon name="location" :size="16" /> Activity location</p>
                         <div class="attendance-location-shell">
                             <div class="form-field map-field">
@@ -626,7 +645,7 @@
                         </div>
                     </div>
 
-                    <div class="attendance-form-section">
+                    <div class="attendance-form-section attendance-rules-section">
                         <p class="attendance-form-section-title"><x-ui-icon name="qr" :size="16" /> Check-in rules</p>
                         <div class="form-field">
                             <label for="radius_meters">Check-in radius</label>
@@ -635,7 +654,7 @@
                         </div>
                     </div>
 
-                    <div class="attendance-form-section">
+                    <div class="attendance-form-section attendance-schedule-section">
                         <p class="attendance-form-section-title"><x-ui-icon name="clock" :size="16" /> Session schedule</p>
                         <div class="session-strip">
                             <div class="form-field">
