@@ -39,6 +39,11 @@ return [
         'token' => env('MAPILLARY_TOKEN'),
     ],
 
+    'turnstile' => [
+        'site_key' => env('TURNSTILE_SITE_KEY'),
+        'secret_key' => env('TURNSTILE_SECRET_KEY'),
+    ],
+
     'initial_celp_head_password' => env('INITIAL_CELP_HEAD_PASSWORD'),
 
     'ip_geolocation' => [

@@ -9,6 +9,12 @@
 
 ## Finding ProjectLink features
 
+## Adaptive login protection
+
+Before deploying the login protection, create a Cloudflare Turnstile widget for the production host and configure `TURNSTILE_SITE_KEY` and the secret `TURNSTILE_SECRET_KEY` in the production environment. Use a shared, persistent Laravel cache store across all application instances; verify the cache and lock tables exist when using the database store. Never commit the secret or use Cloudflare's test keys in production. Suspicious login attempts fail closed if the widget is unconfigured or Cloudflare verification is unavailable. Maintain an administrator support and account recovery process for those cases.
+
+Password failures trigger Turnstile after three failures and a cooldown after five. MFA and recovery-code failures share their own counter. Cooldowns begin at five minutes, increase to fifteen minutes, and then one hour for repeated cycles within a day; successful verification resets the applicable counter. Broad IP request throttling remains in place. Cloudflare's server verification also checks the login action and requesting hostname.
+
 Role-specific Blade screens are grouped under `resources/views` by role:
 
 - `PARTICIPANT/` contains the participant dashboard, activity feed, applications, and scanner.

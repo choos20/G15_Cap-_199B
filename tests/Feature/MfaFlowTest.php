@@ -7,6 +7,7 @@ use App\Services\MfaService;
 use App\Services\TotpService;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Schema;
 use Tests\TestCase;
 
@@ -19,6 +20,7 @@ class MfaFlowTest extends TestCase
         Schema::create('users', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->string('username')->nullable()->unique();
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
@@ -61,6 +63,99 @@ class MfaFlowTest extends TestCase
         MfaService::enable($user, 'GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ');
 
         $this->actingAs($user)->postJson(route('session.activity'))->assertOk();
+    }
+
+    public function test_mfa_and_recovery_attempts_share_a_five_minute_cooldown(): void
+    {
+        $user = User::factory()->create(['role' => 'participant']);
+        $secret = 'GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ';
+        $codes = MfaService::enable($user, $secret);
+        $this->actingAs($user);
+
+        for ($i = 0; $i < 5; $i++) {
+            $this->from(route('mfa.challenge'))->post(route('mfa.recovery.verify'), ['recovery_code' => 'invalid-code'])
+                ->assertSessionHasErrors('recovery_code');
+        }
+
+        $this->from(route('mfa.challenge'))->post(route('mfa.challenge.verify'), ['code' => TotpService::code($secret)])
+            ->assertSessionHasErrors('code');
+        $this->assertNull(session('mfa_verified_user_id'));
+
+        $this->travel(5)->minutes();
+        $this->post(route('mfa.recovery.verify'), ['recovery_code' => $codes[0]])
+            ->assertRedirect(route('participant.dashboard'));
+    }
+
+    public function test_login_requires_captcha_before_password_and_cools_down_after_five_failures(): void
+    {
+        config(['services.turnstile.site_key' => 'test-site', 'services.turnstile.secret_key' => 'test-secret']);
+        Http::fake(['challenges.cloudflare.com/*' => Http::response([
+            'success' => true, 'action' => 'login', 'hostname' => '127.0.0.1',
+        ])]);
+        $user = User::factory()->create(['email' => 'captcha@example.test', 'password' => Hash::make('correct-password')]);
+
+        for ($i = 0; $i < 3; $i++) {
+            $this->from(route('login'))->post(route('login.submit'), ['user' => $user->email, 'password' => 'wrong-password'])
+                ->assertSessionHasErrors('login');
+        }
+        $this->from(route('login'))->post(route('login.submit'), ['user' => $user->email, 'password' => 'correct-password'])
+            ->assertSessionHas('captcha_required', true)->assertSessionHasErrors('login');
+        $this->assertGuest();
+
+        for ($i = 0; $i < 2; $i++) {
+            $this->from(route('login'))->post(route('login.submit'), [
+                'user' => $user->email, 'password' => 'wrong-password', 'cf-turnstile-response' => 'test-token',
+            ])->assertSessionHasErrors('login');
+        }
+        $this->from(route('login'))->post(route('login.submit'), ['user' => $user->email, 'password' => 'correct-password'])
+            ->assertSessionHasErrors('login');
+        $this->assertGuest();
+
+        $this->travel(5)->minutes();
+        $this->post(route('login.submit'), ['user' => $user->email, 'password' => 'correct-password', 'cf-turnstile-response' => 'test-token'])
+            ->assertRedirect(route('participant.dashboard'));
+        $this->assertAuthenticatedAs($user);
+    }
+
+    public function test_suspicious_login_fails_closed_if_captcha_cannot_be_verified(): void
+    {
+        config(['services.turnstile.site_key' => 'test-site', 'services.turnstile.secret_key' => 'test-secret']);
+        Http::fake(['challenges.cloudflare.com/*' => Http::response([
+            'success' => true, 'action' => 'login', 'hostname' => 'wrong.example',
+        ])]);
+        $user = User::factory()->create(['email' => 'captcha-fail@example.test', 'password' => Hash::make('correct-password')]);
+        for ($i = 0; $i < 3; $i++) {
+            $this->post(route('login.submit'), ['user' => $user->email, 'password' => 'incorrect']);
+        }
+        $this->post(route('login.submit'), [
+            'user' => $user->email, 'password' => 'correct-password', 'cf-turnstile-response' => 'test-token',
+        ])->assertSessionHasErrors('login');
+        $this->assertGuest();
+    }
+
+    public function test_email_and_username_share_the_same_login_failure_counter(): void
+    {
+        $user = User::factory()->create(['username' => 'captchauser', 'email' => 'aliases@example.test', 'password' => Hash::make('correct-password')]);
+        for ($i = 0; $i < 3; $i++) {
+            $this->post(route('login.submit'), ['user' => $user->email, 'password' => 'incorrect']);
+        }
+        $this->post(route('login.submit'), ['user' => 'captchauser', 'password' => 'correct-password'])
+            ->assertSessionHas('captcha_required', true)->assertSessionHasErrors('login');
+        $this->assertGuest();
+    }
+
+    public function test_repeated_failure_cycles_escalate_cooldowns(): void
+    {
+        $protection = app(\App\Services\AuthenticationProtection::class);
+        $key = $protection->mfaKey(987654);
+        foreach ([300, 900, 3600] as $seconds) {
+            for ($i = 0; $i < 5; $i++) {
+                $remaining = $protection->failed($key);
+            }
+            $this->assertSame($seconds, $remaining);
+            $this->travel($seconds)->seconds();
+        }
+        $protection->clear($key);
     }
 
     public function test_expired_session_is_invalidated_and_redirected_to_login(): void

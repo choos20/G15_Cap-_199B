@@ -122,6 +122,15 @@
                 <div class="field-error">{{ $message }}</div>
             @enderror
 
+            @if(session('captcha_required'))
+                @if(config('services.turnstile.site_key'))
+                    <div class="cf-turnstile" data-sitekey="{{ config('services.turnstile.site_key') }}" data-action="login"></div>
+                    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+                @else
+                    <div class="alert-error">The security check is temporarily unavailable. Please contact an administrator.</div>
+                @endif
+            @endif
+
             <button type="submit">Login</button>
         </form>
 

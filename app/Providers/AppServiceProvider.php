@@ -37,7 +37,7 @@ class AppServiceProvider extends ServiceProvider
             $usernameKey = hash('sha256', $username);
 
             return [
-                Limit::perMinute(5)->by('login:'.$usernameKey.'|'.$request->ip()),
+                Limit::perMinute(10)->by('login:'.$usernameKey.'|'.$request->ip()),
                 Limit::perMinute(30)->by('login-ip:'.$request->ip()),
             ];
         });

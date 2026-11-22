@@ -285,15 +285,39 @@ Route::post('/login', function (Request $request) {
         'password' => 'required|string',
     ]);
 
+    $protection = app(\App\Services\AuthenticationProtection::class);
+    $identifier = trim((string) $request->input('user'));
+    $identityField = filter_var($identifier, FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
+    $account = User::where($identityField, $identifier)->first();
+    $loginKey = $protection->loginKey($account ? 'account:'.$account->id : $identifier);
+    $ipKey = 'auth-protection:ip:'.hash('sha256', (string) $request->ip());
+    if ($remaining = $protection->remaining($loginKey)) {
+        return back()->withErrors(['login' => \App\Services\AuthenticationProtection::cooldownMessage($remaining)])->onlyInput('user');
+    }
+
+    $captchaRequired = $protection->requiresCaptcha($loginKey) || \Illuminate\Support\Facades\RateLimiter::attempts($ipKey) >= 10;
+    if ($captchaRequired && ! app(\App\Services\LoginCaptcha::class)->verify($request)) {
+        $message = app(\App\Services\LoginCaptcha::class)->configured()
+            ? 'Complete the security check before signing in.'
+            : 'The security check is temporarily unavailable. Please contact an administrator.';
+
+        return back()->with('captcha_required', true)->withErrors(['login' => $message])->onlyInput('user');
+    }
+
     $credentials = filter_var($request->user, FILTER_VALIDATE_EMAIL)
         ? ['email' => $request->user, 'password' => $request->password]
         : ['username' => $request->user, 'password' => $request->password];
 
     if (! Auth::attempt($credentials)) {
+        $remaining = $protection->failed($loginKey);
+        \Illuminate\Support\Facades\RateLimiter::hit($ipKey, 600);
         app(LoginActivityRecorder::class)->recordPasswordFailure($request, (string) $request->input('user'));
 
-        return back()->withErrors(['login' => 'Invalid username/email or password.'])->withInput();
+        return back()->with('captcha_required', $protection->requiresCaptcha($loginKey) || \Illuminate\Support\Facades\RateLimiter::attempts($ipKey) >= 10)
+            ->withErrors(['login' => $remaining ? \App\Services\AuthenticationProtection::cooldownMessage($remaining) : 'Invalid username/email or password.'])->onlyInput('user');
     }
+
+    $protection->clear($loginKey);
 
     $request->session()->regenerate();
     $request->session()->put(\App\Http\Middleware\ExpireInactiveSession::SESSION_KEY, now()->timestamp);

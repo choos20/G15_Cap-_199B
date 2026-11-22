@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\AuditLog;
 use App\Models\User;
 use App\Services\MfaService;
+use App\Services\AuthenticationProtection;
 use App\Services\LoginActivityRecorder;
 use App\Services\TotpService;
 use Illuminate\Http\RedirectResponse;
@@ -109,14 +110,22 @@ class MfaController extends Controller
             return back()->withErrors(['mfa_current_password' => 'Current password is incorrect.']);
         }
 
+        $protection = app(AuthenticationProtection::class);
+        $protectionKey = $protection->mfaKey($user->id);
+        if ($remaining = $protection->remaining($protectionKey)) {
+            return back()->withErrors(['mfa_code' => AuthenticationProtection::cooldownMessage($remaining)]);
+        }
+
         $submittedCode = trim((string) $request->input('mfa_code'));
         $validCode = TotpService::verify((string) $user->mfa_secret, $submittedCode)
             || MfaService::consumeRecoveryCode($user, $submittedCode);
 
         if (! $validCode) {
-            return back()->withErrors(['mfa_code' => 'Enter a current authenticator code or an unused recovery code.']);
+            $remaining = $protection->failed($protectionKey);
+            return back()->withErrors(['mfa_code' => $remaining ? AuthenticationProtection::cooldownMessage($remaining) : 'Enter a current authenticator code or an unused recovery code.']);
         }
 
+        $protection->clear($protectionKey);
         MfaService::disable($user);
         $request->session()->forget(['mfa_verified_user_id', 'mfa_setup_secret']);
         AuditLog::record('account.mfa_disabled', 'Multi-factor authentication disabled.', $user);
@@ -153,11 +162,18 @@ class MfaController extends Controller
                 : redirect()->route('account.security');
         }
 
+        $protection = app(AuthenticationProtection::class);
+        $protectionKey = $protection->mfaKey($user->id);
+        if ($remaining = $protection->remaining($protectionKey)) {
+            return back()->withErrors(['code' => AuthenticationProtection::cooldownMessage($remaining)]);
+        }
+
         $request->validate([
             'code' => ['required', 'digits:6'],
         ]);
 
         if (! TotpService::verify((string) $user->mfa_secret, (string) $request->input('code'))) {
+            $remaining = $protection->failed($protectionKey);
             app(LoginActivityRecorder::class)->recordFailure(
                 $request,
                 $user,
@@ -165,9 +181,10 @@ class MfaController extends Controller
                 'challenge_code'
             );
 
-            return back()->withErrors(['code' => 'That code is incorrect or expired. Check SafeAuth and try again.']);
+            return back()->withErrors(['code' => $remaining ? AuthenticationProtection::cooldownMessage($remaining) : 'That code is incorrect or expired. Check SafeAuth and try again.']);
         }
 
+        $protection->clear($protectionKey);
         $this->markVerified($request, $user);
 
         return redirect()->route(dashboard_route_for($user));
@@ -183,11 +200,18 @@ class MfaController extends Controller
                 : redirect()->route('account.security');
         }
 
+        $protection = app(AuthenticationProtection::class);
+        $protectionKey = $protection->mfaKey($user->id);
+        if ($remaining = $protection->remaining($protectionKey)) {
+            return back()->withErrors(['recovery_code' => AuthenticationProtection::cooldownMessage($remaining)]);
+        }
+
         $request->validate([
             'recovery_code' => ['required', 'string', 'max:32'],
         ]);
 
         if (! MfaService::consumeRecoveryCode($user, (string) $request->input('recovery_code'))) {
+            $remaining = $protection->failed($protectionKey);
             app(LoginActivityRecorder::class)->recordFailure(
                 $request,
                 $user,
@@ -195,9 +219,10 @@ class MfaController extends Controller
                 'recovery_code'
             );
 
-            return back()->withErrors(['recovery_code' => 'That recovery code is invalid or has already been used.']);
+            return back()->withErrors(['recovery_code' => $remaining ? AuthenticationProtection::cooldownMessage($remaining) : 'That recovery code is invalid or has already been used.']);
         }
 
+        $protection->clear($protectionKey);
         $this->markVerified($request, $user);
 
         return redirect()->route(dashboard_route_for($user));
