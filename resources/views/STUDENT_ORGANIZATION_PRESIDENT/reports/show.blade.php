@@ -71,6 +71,22 @@
         .or-table td { padding:13px; border-bottom:1px solid #f0f3f1; color:#263d34; vertical-align:top; }
         .or-table tbody tr:hover { background:#fbfefc; }
         .or-table tr:last-child td { border-bottom:0; }
+        .attendance-roster { overflow:auto; border:1px solid #dfeae4; border-radius:16px; background:#fff; box-shadow:0 10px 24px rgba(11,42,42,.05); }
+        .attendance-roster table { width:100%; min-width:1120px; border-collapse:collapse; font-size:.8rem; }
+        .attendance-roster th { padding:13px 14px; border-bottom:1px solid #dfeae4; background:#f8fcfa; color:#668077; font-size:.68rem; font-weight:800; letter-spacing:.06em; text-align:left; text-transform:uppercase; white-space:nowrap; }
+        .attendance-roster td { padding:14px; border-bottom:1px solid #edf3ef; color:#3f594e; vertical-align:top; }
+        .attendance-roster tbody tr:hover { background:#fbfefc; }
+        .attendance-roster tbody tr:last-child td { border-bottom:0; }
+        .attendance-name { color:#173e34; font-weight:800; }
+        .attendance-id { color:#087c5b; font-variant-numeric:tabular-nums; font-weight:800; white-space:nowrap; }
+        .attendance-sub { display:block; margin-top:3px; color:#899a92; font-size:.72rem; }
+        .attendance-status { display:inline-flex; align-items:center; gap:6px; padding:5px 9px; border-radius:999px; font-size:.7rem; font-weight:800; white-space:nowrap; }
+        .attendance-status::before { width:6px; height:6px; border-radius:50%; background:currentColor; content:''; opacity:.75; }
+        .attendance-status--attended,.attendance-status--completed { background:#ecfdf5; color:#047857; }
+        .attendance-status--partial { background:#fffbeb; color:#92400e; }
+        .attendance-status--other { background:#f1f5f9; color:#475569; }
+        .attendance-roster-note { display:flex; align-items:flex-start; gap:8px; margin:0 0 14px; color:#60756b; font-size:.8rem; line-height:1.5; }
+        .attendance-roster-note svg { width:17px; height:17px; flex:0 0 17px; margin-top:1px; color:#087c5b; }
         .or-empty { padding:42px 18px; color:#778780; text-align:center; }
         .or-section { margin:18px 0; padding:20px; border:1px solid #e5ebe8; border-radius:15px; background:#fff; box-shadow:0 8px 20px rgba(11,42,42,.04); }
         .or-section h2 { margin:0; color:#173e34; font-size:.98rem; }
@@ -113,6 +129,13 @@
             .or-table th { padding:7pt 8pt; background:#f4f8f5!important; color:#456158; font-size:7.5pt; }
             .or-table td { padding:8pt; color:#263d34; }
             .or-table tbody tr { break-inside:avoid; }
+            .attendance-roster { overflow:visible; border-color:#d9e5df; box-shadow:none; }
+            .attendance-roster table { min-width:0; font-size:7.5pt; }
+            .attendance-roster th { padding:6pt 7pt; background:#f4f8f5!important; color:#456158; font-size:6.8pt; }
+            .attendance-roster td { padding:6pt 7pt; color:#263d34; }
+            .attendance-roster tbody tr { break-inside:avoid; }
+            .attendance-roster-note { margin-bottom:10pt; color:#5f756c; font-size:8.5pt; }
+            .attendance-sub { font-size:7pt; }
             .or-section { margin:12pt 0; padding:12pt; border-color:#d9e5df; box-shadow:none; break-inside:avoid; }
         }
     </style>
@@ -141,6 +164,17 @@
                 @endforeach
             </select>
         </div>
+        @if($report === 'attendance')
+            <div class="or-field" style="min-width:230px; flex:1 1 230px;">
+                <label for="project">Activity</label>
+                <select name="project" id="project">
+                    <option value="">All activities</option>
+                    @foreach($activityOptions as $activityOption)
+                        <option value="{{ $activityOption->id }}" @selected((string) ($filters['project'] ?? '') === (string) $activityOption->id)>{{ $activityOption->title }}</option>
+                    @endforeach
+                </select>
+            </div>
+        @endif
         <div class="or-field or-field--date">
             <label for="from">Submitted from</label>
             <div class="or-date-picker" data-date-picker data-date-field="from">
@@ -193,7 +227,11 @@
             <button type="button" class="or-button" onclick="window.print()">Print</button>
         </div>
         </form>
-        <p class="or-note"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/><path d="M12 10.5v5m0-8h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span>Reports include only projects submitted by your organization. The selected period and date range use the project submission date.</span></p>
+        @if($report === 'attendance')
+            <p class="attendance-roster-note"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/><path d="M12 10.5v5m0-8h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span>This roster lists people with recorded participation for your activities. It includes registered participants and external names entered through an organizer CSV. ID numbers are kept as text so leading zeroes are preserved.</span></p>
+        @else
+            <p class="or-note"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/><path d="M12 10.5v5m0-8h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span>Reports include only projects submitted by your organization. The selected period and date range use the project submission date.</span></p>
+        @endif
 
     <div class="or-summary">
         @foreach($summary as $label => $value)
@@ -201,6 +239,48 @@
         @endforeach
     </div>
 
+    @if($report === 'attendance')
+        <div class="attendance-roster">
+            @if($attendanceRows->isEmpty())
+                <div class="or-empty">No participants with recorded attendance match the selected filters.</div>
+            @else
+                <table>
+                    <thead>
+                        <tr>
+                            <th>#</th><th>Activity</th><th>ID number</th><th>Full name</th>
+                            <th>Participant type</th><th>Program / department</th><th>Participation role</th>
+                            <th>Status</th><th>Check-in</th><th>Check-out</th><th>Source</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($attendanceRows as $index => $participant)
+                            @php
+                                $statusClass = match($participant['status']) {
+                                    'Attended' => 'attendance-status--attended',
+                                    'Completed' => 'attendance-status--completed',
+                                    'Partial' => 'attendance-status--partial',
+                                    default => 'attendance-status--other',
+                                };
+                            @endphp
+                            <tr>
+                                <td class="attendance-sub">{{ $index + 1 }}</td>
+                                <td>{{ $participant['activity'] }}</td>
+                                <td class="attendance-id">{{ $participant['id_number'] ?: '—' }}</td>
+                                <td><span class="attendance-name">{{ $participant['name'] }}</span><span class="attendance-sub">{{ $participant['recorded_at'] }}</span></td>
+                                <td>{{ $participant['participant_type'] }}</td>
+                                <td>{{ $participant['program_department'] }}</td>
+                                <td>{{ $participant['participation_role'] }}</td>
+                                <td><span class="attendance-status {{ $statusClass }}">{{ $participant['status'] }}</span></td>
+                                <td>{{ $participant['check_in'] }}</td>
+                                <td>{{ $participant['check_out'] }}</td>
+                                <td>{{ $participant['source'] }}</td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            @endif
+        </div>
+    @else
     <div class="or-table-wrap">
         @if($rows->isEmpty())
             <div class="or-empty">No records match the selected period.</div>
@@ -215,6 +295,7 @@
             </table>
         @endif
     </div>
+    @endif
 
     @if($report === 'evaluation-results')
         <section class="or-section">
