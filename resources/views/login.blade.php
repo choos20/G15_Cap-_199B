@@ -56,6 +56,44 @@
         .password-toggle:hover { background: rgba(44, 165, 111, .12); color: #146c43; transform: translateY(-50%); }
         .password-toggle:focus-visible { outline: 2px solid #8be4a2; outline-offset: 2px; }
         .password-toggle svg { width: 19px; height: 19px; }
+        .login-captcha {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            margin: 18px 0 2px;
+            padding: 14px 12px 12px;
+            border: 1px solid rgba(220, 246, 226, 0.32);
+            border-radius: 12px;
+            background: rgba(241, 255, 245, 0.12);
+        }
+        .login-captcha-title {
+            align-self: stretch;
+            margin: 0;
+            color: #f1fff3;
+            font-size: .78rem;
+            font-weight: 700;
+            text-align: center;
+        }
+        .login-captcha-help {
+            max-width: 310px;
+            margin: 0;
+            color: rgba(241, 249, 241, .76);
+            font-size: .7rem;
+            line-height: 1.4;
+            text-align: center;
+        }
+        .login-captcha .cf-turnstile {
+            display: flex;
+            width: 100%;
+            min-height: 65px;
+            align-items: center;
+            justify-content: center;
+        }
+        .login-captcha .cf-turnstile > div,
+        .login-captcha .cf-turnstile iframe {
+            max-width: 100%;
+        }
     </style>
 
     <div class="page-card">
@@ -124,7 +162,11 @@
 
             @if(session('captcha_required'))
                 @if(config('services.turnstile.site_key'))
-                    <div class="cf-turnstile" data-sitekey="{{ config('services.turnstile.site_key') }}" data-action="login"></div>
+                    <div class="login-captcha" aria-labelledby="login-captcha-title">
+                        <p class="login-captcha-title" id="login-captcha-title">Security check</p>
+                        <p class="login-captcha-help">Cloudflare checks this request automatically. If it needs confirmation, a checkbox will appear here.</p>
+                        <div class="cf-turnstile" data-sitekey="{{ config('services.turnstile.site_key') }}" data-action="login" data-size="flexible" data-theme="light" data-appearance="always"></div>
+                    </div>
                     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
                 @else
                     <div class="alert-error">The security check is temporarily unavailable. Please contact an administrator.</div>
