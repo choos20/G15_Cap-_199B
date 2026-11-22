@@ -69,6 +69,10 @@
         <div class="section-title">Sign in to your account</div>
         <div class="section-subtitle">Use your registered email and password to continue.</div>
 
+        @if(request('reason') === 'inactive')
+            <div class="alert-success">Your session ended due to inactivity. Please sign in again to continue.</div>
+        @endif
+
         @if (session('status'))
             <div class="alert-success">{{ session('status') }}</div>
         @endif

@@ -410,5 +410,6 @@
 </script>
 
 @include('partials.confirm_modal')
+    @include('partials.session-timeout')
 </body>
 </html>

@@ -313,5 +313,6 @@
     </div>
 
     @stack('scripts')
+    @auth @include('partials.session-timeout') @endauth
 </body>
 </html>

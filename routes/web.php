@@ -296,6 +296,7 @@ Route::post('/login', function (Request $request) {
     }
 
     $request->session()->regenerate();
+    $request->session()->put(\App\Http\Middleware\ExpireInactiveSession::SESSION_KEY, now()->timestamp);
 
     $user = Auth::user();
     $request->session()->forget(['mfa_verified_user_id', 'mfa_setup_secret']);
@@ -353,6 +354,9 @@ Route::post('/login', function (Request $request) {
 })->middleware('throttle:login')->name('login.submit');
 
 Route::middleware('auth')->group(function () {
+    Route::post('/session/activity', function (Request $request) {
+        return response()->json(['lastActivity' => $request->session()->get(\App\Http\Middleware\ExpireInactiveSession::SESSION_KEY)]);
+    })->name('session.activity');
     Route::get('/mfa/enroll', [MfaController::class, 'showEnrollment'])
         ->name('mfa.enroll');
     Route::post('/mfa/enroll', [MfaController::class, 'enroll'])

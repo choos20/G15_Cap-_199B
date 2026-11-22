@@ -26,6 +26,7 @@ class ForcePasswordChange
         'account.security',
         'account.login_activity',
         'logout',
+        'session.activity',
     ];
 
     public function handle(Request $request, Closure $next): Response

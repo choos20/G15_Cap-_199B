@@ -40,6 +40,42 @@ class MfaFlowTest extends TestCase
         });
     }
 
+    public function test_activity_extends_the_session_but_background_requests_do_not(): void
+    {
+        $user = User::factory()->create(['role' => 'participant']);
+        $this->actingAs($user)->withSession(['last_user_activity_at' => now()->timestamp]);
+
+        $this->travel(14)->minutes();
+        $this->get(route('login'))->assertOk();
+        $this->postJson(route('session.activity'))->assertOk();
+        $this->travel(14)->minutes();
+        $this->get(route('login'))->assertOk();
+        $this->travel(1)->minutes();
+        $this->getJson(route('login'))->assertUnauthorized();
+        $this->assertGuest();
+    }
+
+    public function test_session_activity_is_available_during_mfa_and_password_setup(): void
+    {
+        $user = User::factory()->create(['role' => 'participant', 'must_change_password' => true]);
+        MfaService::enable($user, 'GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ');
+
+        $this->actingAs($user)->postJson(route('session.activity'))->assertOk();
+    }
+
+    public function test_expired_session_is_invalidated_and_redirected_to_login(): void
+    {
+        $user = User::factory()->create(['role' => 'participant']);
+        $this->actingAs($user)->withSession([
+            'last_user_activity_at' => now()->subMinutes(15)->timestamp,
+            'mfa_verified_user_id' => $user->id,
+        ])->get(route('login'))
+            ->assertRedirect(route('login', ['reason' => 'inactive']))
+            ->assertSessionMissing('mfa_verified_user_id');
+
+        $this->assertGuest();
+    }
+
     public function test_celp_head_can_sign_in_without_mfa_and_choose_to_enroll(): void
     {
         $user = User::factory()->create([

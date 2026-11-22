@@ -17,6 +17,7 @@ class EnsureMfaVerified
         'login',
         'login.submit',
         'logout',
+        'session.activity',
         'mfa.enroll',
         'mfa.enroll.verify',
         'mfa.challenge',

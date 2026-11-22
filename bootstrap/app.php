@@ -2,6 +2,7 @@
 
 use App\Http\Middleware\EnsureCanManageTemplates;
 use App\Http\Middleware\EnsureMfaVerified;
+use App\Http\Middleware\ExpireInactiveSession;
 use App\Http\Middleware\ForcePasswordChange;
 use App\Http\Middleware\NoCacheMiddleware;
 use Illuminate\Foundation\Application;
@@ -24,6 +25,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
         // Runs on every web request, so no route can be reached while a
         // temporary password is still outstanding.
+        $middleware->appendToGroup('web', ExpireInactiveSession::class);
         $middleware->appendToGroup('web', ForcePasswordChange::class);
 
         // High-privilege users must complete TOTP MFA before entering the
