@@ -46,6 +46,12 @@
         .sec-form-field label { display:block; margin-bottom:6px; color:#334155; font-size:.78rem; font-weight:700; }
         .sec-form-field input { width:100%; padding:10px 11px; border:1px solid #dbe4e9; border-radius:9px; background:#fff; color:#0f172a; font:inherit; font-size:.86rem; }
         .sec-form-field input:focus { border-color:#12b886; outline:0; box-shadow:0 0 0 4px rgba(18,184,134,.12); }
+        .sec-password-wrap { position:relative; }
+        .sec-form-field .sec-password-wrap input { padding-right:48px; }
+        .sec-password-toggle { position:absolute; top:50%; right:4px; transform:translateY(-50%); display:flex; align-items:center; justify-content:center; width:40px; height:40px; padding:0; border:0; border-radius:7px; background:transparent; color:#64748b; cursor:pointer; }
+        .sec-password-toggle:hover { color:#047857; background:#f0fdf4; }
+        .sec-password-toggle:focus-visible { outline:2px solid #047857; outline-offset:-2px; }
+        .sec-password-toggle svg { width:20px; height:20px; }
         .sec-form-error { margin-top:5px; color:#b91c1c; font-size:.75rem; line-height:1.4; }
         .sec-form-help { margin:0 0 14px; color:#64748b; font-size:.77rem; line-height:1.5; }
         .sec-danger-details { margin-top:16px; border-top:1px solid #fee2e2; padding-top:14px; }
@@ -297,4 +303,29 @@
             @endif
         @endif
     </section>
+    <script>
+        document.querySelectorAll('#mfa input[type="password"], #password input[type="password"]').forEach((input) => {
+            const wrapper = document.createElement('div');
+            wrapper.className = 'sec-password-wrap';
+            input.before(wrapper);
+            wrapper.appendChild(input);
+
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.className = 'sec-password-toggle';
+            button.setAttribute('aria-controls', input.id);
+            const label = document.querySelector(`label[for="${input.id}"]`).textContent.trim().toLowerCase();
+            const update = (visible) => {
+                input.type = visible ? 'text' : 'password';
+                button.setAttribute('aria-label', `${visible ? 'Hide' : 'Show'} ${label}`);
+                button.setAttribute('aria-pressed', String(visible));
+                button.innerHTML = visible
+                    ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3l18 18M10.6 10.6a2 2 0 0 0 2.8 2.8"/><path d="M9.9 5.2A11.7 11.7 0 0 1 12 5c5.5 0 9 5 10 7a13 13 0 0 1-3 3.7M6.3 6.3A14.1 14.1 0 0 0 2 12c1 2 4.5 7 10 7a10 10 0 0 0 4-.8"/></svg>'
+                    : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>';
+            };
+            update(false);
+            button.addEventListener('click', () => update(input.type === 'password'));
+            wrapper.appendChild(button);
+        });
+    </script>
 @endsection
