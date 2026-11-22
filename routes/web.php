@@ -283,6 +283,9 @@ Route::post('/login', function (Request $request) {
     $request->validate([
         'user' => 'required|string',
         'password' => 'required|string',
+    ], [
+        'user.required' => 'Enter your username or email.',
+        'password.required' => 'Enter your password.',
     ]);
 
     $protection = app(\App\Services\AuthenticationProtection::class);

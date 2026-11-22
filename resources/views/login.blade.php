@@ -56,6 +56,38 @@
         .password-toggle:hover { background: rgba(44, 165, 111, .12); color: #146c43; transform: translateY(-50%); }
         .password-toggle:focus-visible { outline: 2px solid #8be4a2; outline-offset: 2px; }
         .password-toggle svg { width: 19px; height: 19px; }
+        .input-with-icon.has-error input {
+            border-color: rgba(255, 203, 137, .92);
+            background: #fffaf2;
+            box-shadow: 0 0 0 3px rgba(255, 191, 105, .16);
+        }
+        .input-with-icon.has-error .field-icon { color: #9a6731; }
+        .field-error {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            margin-top: 6px;
+            padding: 7px 9px;
+            border: 1px solid rgba(255, 205, 143, .32);
+            border-radius: 8px;
+            background: rgba(255, 190, 103, .14);
+            color: #ffe6bd;
+            font-size: .72rem;
+            line-height: 1.35;
+        }
+        .field-error::before {
+            display: inline-flex;
+            width: 15px;
+            height: 15px;
+            align-items: center;
+            justify-content: center;
+            flex: 0 0 15px;
+            border: 1px solid currentColor;
+            border-radius: 50%;
+            content: '!';
+            font-size: .62rem;
+            font-weight: 800;
+        }
         .login-captcha {
             display: flex;
             flex-direction: column;
@@ -123,7 +155,7 @@
             @csrf
 
             <label for="user">Username or Email</label>
-            <div class="input-with-icon">
+            <div class="input-with-icon {{ $errors->has('user') ? 'has-error' : '' }}">
                 <span class="field-icon" aria-hidden="true"><x-ui-icon name="user" :size="19" /></span>
                 <input
                     type="text"
@@ -131,22 +163,26 @@
                     name="user"
                     value="{{ old('user') }}"
                     class="{{ $errors->has('user') ? 'is-invalid' : '' }}"
+                    aria-invalid="{{ $errors->has('user') ? 'true' : 'false' }}"
+                    @if($errors->has('user')) aria-describedby="user-error" @endif
                     required
                     autofocus
                 >
             </div>
             @error('user')
-                <div class="field-error">{{ $message }}</div>
+                <div class="field-error" id="user-error">{{ $message }}</div>
             @enderror
 
             <label for="password">Password</label>
-            <div class="password-field input-with-icon">
+            <div class="password-field input-with-icon {{ $errors->has('password') ? 'has-error' : '' }}">
                 <span class="field-icon" aria-hidden="true"><x-ui-icon name="lock" :size="19" /></span>
                 <input
                     type="password"
                     id="password"
                     name="password"
                     class="{{ $errors->has('password') ? 'is-invalid' : '' }}"
+                    aria-invalid="{{ $errors->has('password') ? 'true' : 'false' }}"
+                    @if($errors->has('password')) aria-describedby="password-error" @endif
                     required
                 >
                 <button type="button" class="password-toggle" id="password-toggle" aria-label="Show password" aria-pressed="false" hidden>
@@ -157,7 +193,7 @@
                 </button>
             </div>
             @error('password')
-                <div class="field-error">{{ $message }}</div>
+                <div class="field-error" id="password-error">{{ $message }}</div>
             @enderror
 
             @if(session('captcha_required'))

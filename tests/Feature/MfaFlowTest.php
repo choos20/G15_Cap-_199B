@@ -144,6 +144,17 @@ class MfaFlowTest extends TestCase
         $this->assertGuest();
     }
 
+    public function test_empty_login_uses_friendly_required_messages(): void
+    {
+        $this->from(route('login'))
+            ->post(route('login.submit'), [])
+            ->assertRedirect(route('login'))
+            ->assertSessionHasErrors([
+                'user' => 'Enter your username or email.',
+                'password' => 'Enter your password.',
+            ]);
+    }
+
     public function test_repeated_failure_cycles_escalate_cooldowns(): void
     {
         $protection = app(\App\Services\AuthenticationProtection::class);
