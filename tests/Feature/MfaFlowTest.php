@@ -40,7 +40,7 @@ class MfaFlowTest extends TestCase
         });
     }
 
-    public function test_celp_head_must_enroll_before_reaching_the_dashboard(): void
+    public function test_celp_head_can_sign_in_without_mfa_and_choose_to_enroll(): void
     {
         $user = User::factory()->create([
             'email' => 'celp.head@example.test',
@@ -51,10 +51,7 @@ class MfaFlowTest extends TestCase
         $this->post(route('login.submit'), [
             'user' => $user->email,
             'password' => 'correct-password',
-        ])->assertRedirect(route('mfa.enroll'));
-
-        $this->get(route('celp.head.dashboard'))
-            ->assertRedirect(route('mfa.enroll'));
+        ])->assertRedirect(route('celp.head.dashboard'));
 
         $this->get(route('mfa.enroll'))
             ->assertOk()
@@ -199,22 +196,28 @@ class MfaFlowTest extends TestCase
         ])->assertRedirect(route('participant.dashboard'));
     }
 
-    public function test_a_protected_role_cannot_disable_required_mfa(): void
+    public function test_celp_head_can_disable_mfa_and_sign_in_without_a_code(): void
     {
         $user = User::factory()->create([
             'email' => 'protected-disable-mfa@example.test',
             'password' => Hash::make('correct-password'),
             'role' => 'celp_head',
         ]);
-        MfaService::enable($user, 'GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ');
+        $secret = 'GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ';
+        MfaService::enable($user, $secret);
 
         $this->actingAs($user)
             ->post(route('account.mfa.disable'), [
                 'mfa_current_password' => 'correct-password',
-                'mfa_code' => '123456',
+                'mfa_code' => TotpService::code($secret),
             ])
-            ->assertForbidden();
+            ->assertRedirect(route('account.security') . '#mfa');
 
-        $this->assertNotNull($user->fresh()->mfa_enabled_at);
+        $this->assertNull($user->fresh()->mfa_enabled_at);
+        $this->get(route('logout'))->assertRedirect(route('login'));
+        $this->post(route('login.submit'), [
+            'user' => $user->email,
+            'password' => 'correct-password',
+        ])->assertRedirect(route('celp.head.dashboard'));
     }
 }

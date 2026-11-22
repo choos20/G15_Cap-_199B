@@ -9,10 +9,7 @@ use Illuminate\Support\Facades\Hash;
 
 final class MfaService
 {
-    public const PROTECTED_ROLES = [
-        'celp_head',
-        'csa_director',
-    ];
+    public const PROTECTED_ROLES = [];
 
     public static function isProtectedUser(?User $user): bool
     {
