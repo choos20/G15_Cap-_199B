@@ -57,35 +57,45 @@
         .password-toggle:focus-visible { outline: 2px solid #8be4a2; outline-offset: 2px; }
         .password-toggle svg { width: 19px; height: 19px; }
         .input-with-icon.has-error input {
-            border-color: rgba(255, 203, 137, .92);
-            background: #fffaf2;
-            box-shadow: 0 0 0 3px rgba(255, 191, 105, .16);
+            border: 2px solid #ff4354;
+            background: #fff;
+            box-shadow: 0 0 0 3px rgba(255, 67, 84, .18), 0 7px 18px rgba(115, 19, 35, .12);
+            padding-left: 60px;
         }
-        .input-with-icon.has-error .field-icon { color: #9a6731; }
+        .input-with-icon.has-error .field-icon {
+            left: 8px;
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            background: #ffe1e5;
+            color: #d92d3d;
+        }
         .field-error {
             display: flex;
             align-items: center;
-            gap: 7px;
-            margin-top: 6px;
-            padding: 7px 9px;
-            border: 1px solid rgba(255, 205, 143, .32);
-            border-radius: 8px;
-            background: rgba(255, 190, 103, .14);
-            color: #ffe6bd;
-            font-size: .72rem;
+            gap: 9px;
+            margin-top: 9px;
+            padding: 11px 13px;
+            border: 1px solid #ffb8bd;
+            border-radius: 10px;
+            background: #ffe8ea;
+            color: #b42318;
+            font-size: .84rem;
+            font-weight: 700;
             line-height: 1.35;
+            box-shadow: 0 5px 14px rgba(126, 23, 39, .08);
         }
         .field-error::before {
             display: inline-flex;
-            width: 15px;
-            height: 15px;
+            width: 22px;
+            height: 22px;
             align-items: center;
             justify-content: center;
-            flex: 0 0 15px;
-            border: 1px solid currentColor;
+            flex: 0 0 22px;
+            border: 2px solid currentColor;
             border-radius: 50%;
             content: '!';
-            font-size: .62rem;
+            font-size: .78rem;
             font-weight: 800;
         }
         .login-captcha {
