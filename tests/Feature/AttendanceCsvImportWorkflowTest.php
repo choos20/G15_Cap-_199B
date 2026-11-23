@@ -232,8 +232,8 @@ class AttendanceCsvImportWorkflowTest extends TestCase
         $this->actingAs($participants[1])
             ->get(route('participant.dashboard'))
             ->assertOk()
-            ->assertSee('My participation')
-            ->assertSee('No attendance history yet');
+            ->assertViewHas('totalAttendedActivities', 0)
+            ->assertSee('Your journey starts here');
 
         $csvResponse = $this->actingAs($organizer)
             ->get(route('student_org.attendance.csv-template', $session));
@@ -351,7 +351,8 @@ class AttendanceCsvImportWorkflowTest extends TestCase
         $this->actingAs($participants[1])
             ->get(route('participant.dashboard'))
             ->assertOk()
-            ->assertSee('You attended 1 activity over the last six months.');
+            ->assertViewHas('totalAttendedActivities', 1)
+            ->assertSee('1 activity attended over the last six months.');
         $this->actingAs($organizer);
         preg_match('/name="preview_token" value="([^"]+)"/', $firstPreview->getContent(), $tokenMatch);
         $this->assertNotEmpty($tokenMatch[1] ?? null);

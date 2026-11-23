@@ -4,7 +4,7 @@
 @section('subtitle', 'Your community, at a glance')
 
 @section('content')
-    <link rel="stylesheet" href="{{ asset('css/participant-dashboard.css') }}?v=3">
+    <link rel="stylesheet" href="{{ asset('css/participant-dashboard.css') }}?v={{ filemtime(public_path('css/participant-dashboard.css')) }}">
     <div class="participant-home">
         @if(session('status'))
             <div class="ph-notice" role="status">{{ session('status') }}</div>
@@ -70,16 +70,28 @@
                 </div>
             </section>
 
-            <section class="ph-panel" aria-labelledby="ph-opportunities-title">
-                <div class="ph-panel-heading"><h3 id="ph-opportunities-title">Open opportunities</h3><a class="ph-link" href="{{ route('participant.activities') }}">Browse all <x-ui-icon name="arrow-right" :size="16" /></a></div>
-                @if($feedPreview->isEmpty())
-                    <div class="ph-empty"><span class="ph-empty-icon"><x-ui-icon name="search" :size="23" /></span><div><h4>No open opportunities right now</h4><p>Check back for new activities from the community.</p><a class="ph-link" href="{{ route('participant.activities') }}">Explore activities <x-ui-icon name="arrow-right" :size="15" /></a></div></div>
+            <section class="ph-panel ph-participation" aria-labelledby="ph-participation-title">
+                <div class="ph-panel-heading"><h3 id="ph-participation-title"><x-ui-icon name="chart" :size="19" /> Your participation</h3><a class="ph-link" href="{{ route('participant.attendance') }}">View attendance <x-ui-icon name="arrow-right" :size="16" /></a></div>
+                <p class="ph-chart-caption">Activities attended per month <span>Last 6 months</span></p>
+                <div class="ph-summary">
+                    <span><strong>{{ $totalApplications }}</strong> {{ \Illuminate\Support\Str::plural('application', $totalApplications) }}</span>
+                    <span><strong>{{ $organizationsSupported }}</strong> {{ \Illuminate\Support\Str::plural('organization', $organizationsSupported) }} supported</span>
+                </div>
+                @if($totalAttendedActivities > 0)
+                    @php($chartMax = max(1, (int) $participationMonths->max('count')))
+                    <div class="ph-chart" role="img" aria-labelledby="ph-participation-title" aria-describedby="ph-chart-summary">
+                        <p class="ph-sr-only" id="ph-chart-summary">{{ $totalAttendedActivities }} {{ \Illuminate\Support\Str::plural('activity', $totalAttendedActivities) }} attended over the last six months. @foreach($participationMonths as $month){{ $month['label'] }}: {{ $month['count'] }}{{ $loop->last ? '.' : '; ' }}@endforeach</p>
+                        <div class="ph-chart-plot" aria-hidden="true">
+                            @foreach($participationMonths as $month)
+                                <div class="ph-chart-month" style="--ph-bar:{{ number_format($month['count'] / $chartMax * 100, 2, '.', '') }}%">
+                                    <div class="ph-chart-track"><span class="ph-chart-value">{{ $month['count'] }}</span><span class="ph-chart-bar"></span></div>
+                                    <span class="ph-chart-label">{{ $month['label'] }}</span>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
                 @else
-                    <ul class="ph-opportunities">
-                        @foreach($feedPreview->take(3) as $opportunity)
-                            <li><a class="ph-opportunity" href="{{ route('participant.activities.show', $opportunity) }}"><x-organization-avatar :organization="$opportunity->creator" :size="38" /><div class="ph-opportunity-copy"><h4>{{ $opportunity->title }}</h4><p>{{ $opportunity->creator?->organization_name ?: $opportunity->creator?->name ?: 'Organization' }}</p><div class="ph-opportunity-meta">@if($opportunity->event_date)<span><x-ui-icon name="calendar" :size="13" />{{ $opportunity->event_date->format('M j') }}</span>@endif @if($opportunity->slots_needed)<span class="ph-spots">{{ max(0, $opportunity->slots_needed - $opportunity->approved_volunteers) }} spots available</span>@endif</div></div><x-ui-icon name="chevron-right" :size="18" /></a></li>
-                        @endforeach
-                    </ul>
+                    <div class="ph-empty ph-chart-empty"><span class="ph-empty-icon"><x-ui-icon name="chart" :size="26" /></span><div><h4>Your journey starts here</h4><p>Attend your first activity to build your participation history.</p></div></div>
                 @endif
             </section>
 
@@ -96,22 +108,20 @@
                 @endif
             </section>
 
-            <section class="ph-panel ph-participation" aria-labelledby="ph-participation-title">
-                <div class="ph-participation-copy"><span class="ph-eyebrow">YOUR PARTICIPATION</span><h3 id="ph-participation-title">Small steps. Shared impact.</h3><p>Activities attended per month · last 6 months</p><div class="ph-summary"><span><strong>{{ $totalApplications }}</strong> applications</span><span><strong>{{ $organizationsSupported }}</strong> organizations supported</span></div><a class="ph-link" href="{{ route('participant.attendance') }}">View attendance <x-ui-icon name="arrow-right" :size="16" /></a></div>
-                @if($totalAttendedActivities > 0)
-                    <svg class="ph-chart" viewBox="0 0 560 205" role="img" aria-label="{{ $totalAttendedActivities }} activities attended over the last six months">
-                        <line x1="20" y1="38" x2="540" y2="38"/><line x1="20" y1="78" x2="540" y2="78"/><line x1="20" y1="118" x2="540" y2="118"/><line x1="20" y1="156" x2="540" y2="156"/>
-                        @foreach($participationMonths as $month)
-                            <rect x="{{ $month['bar_x'] }}" y="{{ 156 - $month['bar_height'] }}" width="38" height="{{ $month['bar_height'] }}" rx="6" />
-                            <text class="ph-chart-value" x="{{ $month['bar_x'] + 19 }}" y="{{ max(24, 148 - $month['bar_height']) }}">{{ $month['count'] }}</text>
-                            <text x="{{ $month['bar_x'] + 19 }}" y="184">{{ $month['label'] }}</text>
-                        @endforeach
-                    </svg>
-                @else
-                    <div class="ph-empty ph-chart-empty"><span class="ph-empty-icon"><x-ui-icon name="chart" :size="26" /></span><div><h4>Your journey starts here</h4><p>Attend your first activity to build your participation history.</p></div></div>
-                @endif
-            </section>
         </div>
+
+        <section class="ph-panel ph-opportunities-panel {{ $feedPreview->isEmpty() ? 'is-empty' : '' }}" aria-labelledby="ph-opportunities-title">
+            <div class="ph-panel-heading"><h3 id="ph-opportunities-title">Open opportunities</h3><a class="ph-link" href="{{ route('participant.activities') }}">Browse all <x-ui-icon name="arrow-right" :size="16" /></a></div>
+            @if($feedPreview->isEmpty())
+                <div class="ph-empty"><span class="ph-empty-icon"><x-ui-icon name="search" :size="23" /></span><div><h4>No open opportunities right now</h4><p>Check back for new activities from the community.</p></div></div>
+            @else
+                <ul class="ph-opportunities">
+                    @foreach($feedPreview->take(3) as $opportunity)
+                        <li><a class="ph-opportunity" href="{{ route('participant.activities.show', $opportunity) }}"><x-organization-avatar :organization="$opportunity->creator" :size="38" /><div class="ph-opportunity-copy"><h4>{{ $opportunity->title }}</h4><p>{{ $opportunity->creator?->organization_name ?: $opportunity->creator?->name ?: 'Organization' }}</p><div class="ph-opportunity-meta">@if($opportunity->event_date)<span><x-ui-icon name="calendar" :size="13" />{{ $opportunity->event_date->format('M j') }}</span>@endif @if($opportunity->slots_needed)<span class="ph-spots">{{ max(0, $opportunity->slots_needed - $opportunity->approved_volunteers) }} spots available</span>@endif</div></div><x-ui-icon name="chevron-right" :size="18" /></a></li>
+                    @endforeach
+                </ul>
+            @endif
+        </section>
 
         @if($participantAnnouncements->isNotEmpty())
             <section class="ph-panel ph-announcements" aria-labelledby="ph-announcements-title"><div class="ph-panel-heading"><h3 id="ph-announcements-title"><x-ui-icon name="file" :size="18" /> Community announcements</h3><a class="ph-link" href="{{ route('participant.activities') }}">Browse all <x-ui-icon name="arrow-right" :size="16" /></a></div><div class="ph-announcement-grid">
