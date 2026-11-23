@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ActivityDirectoryController;
+use App\Http\Controllers\AcademicCatalogController;
 use App\Http\Controllers\AnnouncementController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\CelpCoordinatorController;
@@ -31,6 +32,7 @@ use App\Models\AuditLog;
 use App\Models\User;
 use App\Services\LoginActivityRecorder;
 use App\Services\MfaService;
+use App\Support\AcademicCatalog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -892,8 +894,13 @@ Route::middleware('auth')->group(function () {
 
         return view('create_user', [
             'allowedRoles' => $allowedRoles,
+            'academicChoices' => app(AcademicCatalog::class)->choices(),
         ]);
     })->name('users.create');
+
+    Route::get('/academic-catalog', [AcademicCatalogController::class, 'index'])->name('academic-catalog.index');
+    Route::post('/academic-catalog/{kind}', [AcademicCatalogController::class, 'store'])->name('academic-catalog.store');
+    Route::put('/academic-catalog/{kind}/{id}', [AcademicCatalogController::class, 'update'])->whereNumber('id')->name('academic-catalog.update');
 
     Route::get('/users', function (Request $request) {
         $user = $request->user();
@@ -919,6 +926,8 @@ Route::middleware('auth')->group(function () {
             'user' => $user,
             'canChangeEmail' => can_change_account_identity($request->user(), $user),
             'canChangeName' => can_change_account_identity($request->user(), $user),
+            'canEditAcademics' => AcademicCatalog::canManage($request->user()),
+            'academicChoices' => $user->role === 'participant' ? app(AcademicCatalog::class)->choices($user) : null,
         ]);
     })->name('users.edit');
 
@@ -929,12 +938,21 @@ Route::middleware('auth')->group(function () {
 
         $canChangeEmail = can_change_account_identity($request->user(), $user);
         $canChangeName = can_change_account_identity($request->user(), $user);
+        $editingAcademics = $user->role === 'participant'
+            && $request->hasAny(array_merge(['academic_details'], AcademicCatalog::PROFILE_FIELDS));
+        if ($editingAcademics) {
+            abort_unless(AcademicCatalog::canManage($request->user()), 403, 'Only CELP staff can update participant academic details.');
+            $request->merge(app(AcademicCatalog::class)->normalize($request->only(AcademicCatalog::PROFILE_FIELDS), $user));
+        }
         $rules = [
             'organization_name' => 'nullable|string|max:255',
             'org_logo' => 'nullable|image|mimes:jpg,jpeg,png,webp,gif|max:2048',
             'remove_org_logo' => 'nullable|boolean',
             'org_description' => 'nullable|string|max:300',
         ];
+        if ($editingAcademics) {
+            $rules += app(AcademicCatalog::class)->rules($request->all(), $user);
+        }
 
         if ($user->role === 'participant') {
             $rules['id_number'] = [
@@ -951,8 +969,11 @@ Route::middleware('auth')->group(function () {
                 'email:rfc',
                 'max:255',
                 Rule::unique('users', 'email')->ignore($user->id),
-                'confirmed',
             ];
+            if (is_string($request->input('email'))
+                && strcasecmp($user->email, trim($request->input('email'))) !== 0) {
+                $rules['email'][] = 'confirmed';
+            }
             if ($domains = allowed_account_email_domains()) {
                 $rules['email'][] = 'ends_with:'.implode(',', array_map(fn ($domain) => '@'.$domain, $domains));
             }
@@ -974,6 +995,9 @@ Route::middleware('auth')->group(function () {
             'email.unique' => 'That email address is already registered to another account.',
             'id_number.required' => 'Please enter the participant’s institutional ID number.',
             'id_number.unique' => 'That ID number is already assigned to another account.',
+            'participant_type.required' => 'Choose Student, Employee or Alumni.',
+            'affiliation.in' => 'Choose a college, department or office from the academic list.',
+            'program.in' => 'Choose a program belonging to the selected college or department.',
         ]);
 
         $previousEmail = $user->email;
@@ -1034,12 +1058,23 @@ Route::middleware('auth')->group(function () {
 
         $idNumberChanged = $user->role === 'participant'
             && $user->id_number !== trim($validated['id_number']);
-        $user->organization_name = $request->organization_name;
-        $user->org_description = $request->org_description;
+        if ($request->has('organization_name')) {
+            $user->organization_name = $validated['organization_name'] ?? null;
+        }
+        if ($request->has('org_description')) {
+            $user->org_description = $validated['org_description'] ?? null;
+        }
         if ($idNumberChanged) {
             $user->id_number = trim($validated['id_number']);
         }
+        if ($editingAcademics) {
+            $user->fill(AcademicCatalog::profile($validated));
+        }
         $user->save();
+
+        if ($editingAcademics && $user->wasChanged(AcademicCatalog::PROFILE_FIELDS)) {
+            AuditLog::record('account.academic_details_changed', 'Updated participant academic details for '.$user->name.'.', $user);
+        }
 
         if ($idNumberChanged) {
             AuditLog::record(
@@ -1425,7 +1460,11 @@ Route::middleware('auth')->group(function () {
 
         $domainList = implode(' or ', array_map(fn ($d) => '@'.$d, $domains));
 
-        $request->validate([
+        if ($request->input('role') === 'participant') {
+            $request->merge(app(AcademicCatalog::class)->normalize($request->only(AcademicCatalog::PROFILE_FIELDS)));
+        }
+
+        $creationRules = [
             'username' => 'required|string|max:255|unique:users,username',
             'firstname' => 'required|string|max:255',
             'middlename' => 'nullable|string|max:255',
@@ -1457,7 +1496,7 @@ Route::middleware('auth')->group(function () {
                 Rule::requiredIf(fn () => $request->input('role') === 'participant'),
                 'nullable', 'string', 'max:255',
             ],
-            // Students give their course; alumni the programme they graduated from.
+            // Students and alumni provide their program.
             'program' => [
                 Rule::requiredIf(fn () => in_array($request->input('participant_type'), ['student', 'alumni'], true)),
                 'nullable', 'string', 'max:160',
@@ -1470,7 +1509,11 @@ Route::middleware('auth')->group(function () {
                 Rule::requiredIf(fn () => $request->input('participant_type') === 'alumni'),
                 'nullable', 'integer', 'min:1900', 'max:'.now()->year,
             ],
-        ], [
+        ];
+        if ($request->input('role') === 'participant') {
+            $creationRules = array_replace($creationRules, app(AcademicCatalog::class)->rules($request->all()));
+        }
+        $request->validate($creationRules, [
             'email.email' => 'That email address does not exist or its domain cannot receive mail. Please check the spelling.',
             'email.confirmed' => 'The two email addresses do not match. Please retype it to confirm.',
             'email.ends_with' => "Accounts must use an institutional address ending in {$domainList}.",
@@ -1481,7 +1524,9 @@ Route::middleware('auth')->group(function () {
             'id_number.required' => 'Please enter the ID number for this participant.',
             'id_number.unique' => 'That ID number is already assigned to another account.',
             'affiliation.required' => 'Please enter the college, department or office.',
-            'program.required' => 'Please enter the program or course.',
+            'program.required' => 'Please choose the program.',
+            'affiliation.in' => 'Choose a college, department or office from the academic list.',
+            'program.in' => 'Choose a program belonging to the selected college or department.',
             'employment_type.required' => 'Please choose teaching or non-teaching.',
             'year_graduated.required' => 'Please enter the year this alumnus graduated.',
         ]);
@@ -1535,11 +1580,11 @@ Route::middleware('auth')->group(function () {
                 ? $request->input('participant_type') : null,
             'id_number' => $request->input('role') === 'participant' ? $request->input('id_number') : null,
             'affiliation' => $request->input('role') === 'participant' ? $request->input('affiliation') : null,
-            'program' => in_array($request->input('participant_type'), ['student', 'alumni'], true)
+            'program' => $request->input('role') === 'participant' && in_array($request->input('participant_type'), ['student', 'alumni'], true)
                 ? $request->input('program') : null,
-            'employment_type' => $request->input('participant_type') === 'employee'
+            'employment_type' => $request->input('role') === 'participant' && $request->input('participant_type') === 'employee'
                 ? $request->input('employment_type') : null,
-            'year_graduated' => $request->input('participant_type') === 'alumni'
+            'year_graduated' => $request->input('role') === 'participant' && $request->input('participant_type') === 'alumni'
                 ? $request->input('year_graduated') : null,
             'is_active' => true,
             // Admin-vouched accounts skip the OTP challenge: the creating

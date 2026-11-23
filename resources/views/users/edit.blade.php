@@ -1,7 +1,7 @@
 @extends('layouts.admin')
 
 @section('title', 'Edit User')
-@section('subtitle', 'Update organization information and remove logo if needed')
+@section('subtitle', $user->role === 'participant' ? 'Update participant identity and academic details' : 'Update account and organization information')
 
 @section('content')
     <style>
@@ -18,8 +18,8 @@
         .cu-field input[type=text], .cu-field input[type=email], .cu-field select, .cu-field textarea {
             width:100%; padding:13px 14px; border:1px solid #d1d5db; border-radius:12px; font:inherit; background:#f8fafc; transition:all 150ms ease;
         }
-        .cu-field input:focus, .cu-field textarea:focus { outline:none; border-color:#3b82f6; background:#fff; box-shadow:0 0 0 4px rgba(59,130,246,0.1); }
-        .cu-field input:disabled { background:#f1f5f9; color:#64748b; cursor:not-allowed; }
+        .cu-field input:focus, .cu-field select:focus, .cu-field textarea:focus { outline:none; border-color:#3b82f6; background:#fff; box-shadow:0 0 0 4px rgba(59,130,246,0.1); }
+        .cu-field input:disabled,.cu-field select:disabled { background:#f1f5f9; color:#64748b; cursor:not-allowed; }
         .cu-field .hint { font-size:0.82rem; color:#94a3b8; margin-top:6px; }
         .cu-role-pill { display:inline-flex; padding:8px 16px; border-radius:999px; font-size:0.9rem; font-weight:700; background:#eef2ff; color:#4338ca; }
         .cu-logo-drop {
@@ -59,7 +59,8 @@
         </div>
     @endif
 
-    <form method="POST" action="{{ route('users.update', $user) }}" enctype="multipart/form-data" novalidate>
+    <form method="POST" action="{{ route('users.update', $user) }}" enctype="multipart/form-data" novalidate
+          @if($user->role === 'participant' && $canEditAcademics) data-participant-academics data-participant-account="1" @endif>
         @csrf
         <input type="hidden" name="remove_org_logo" id="cu-remove-org-logo" value="0">
 
@@ -95,7 +96,7 @@
                     </div>
                     @if($user->role === 'participant')
                         <div class="cu-field">
-                            <label for="id_number">{{ $user->idNumberLabel() }} <span style="color:#b91c1c">*</span></label>
+                            <label for="id_number" id="id_number_label">{{ $user->idNumberLabel() }} <span style="color:#b91c1c">*</span></label>
                             <input type="text" id="id_number" name="id_number" value="{{ old('id_number', $user->id_number) }}" maxlength="50" autocomplete="off" required>
                             <div class="hint">Required for matching this participant to the attendance CSV roster. Keep leading zeros; letters and numbers are accepted.</div>
                         </div>
@@ -103,7 +104,8 @@
                     @if($canChangeEmail)
                         <div class="cu-field">
                             <label for="email_confirmation">Confirm new email</label>
-                            <input type="email" id="email_confirmation" name="email_confirmation" value="{{ old('email_confirmation') }}" autocomplete="email" required>
+                            <input type="email" id="email_confirmation" name="email_confirmation" value="{{ old('email_confirmation') }}" autocomplete="email">
+                            <div class="hint">Required only when changing the email address.</div>
                         </div>
                     @endif
                     @if($canChangeName)
@@ -128,6 +130,43 @@
                 </div>
             </div>
 
+            @if($user->role === 'participant')
+            <div class="cu-section">
+                <h3 class="cu-section-title" style="margin-bottom:10px">Participant details</h3>
+                @if($canEditAcademics)
+                    <input type="hidden" name="academic_details" value="1">
+                    <p class="cu-section-sub" style="margin-bottom:18px">Complete missing participant details or update their program here. Saved changes appear on attendance reports. <a href="{{ route('academic-catalog.index') }}" target="_blank" rel="noopener">Manage colleges &amp; programs</a></p>
+                    <div class="cu-grid cu-grid-2">
+                        <div class="cu-field">
+                            <label for="participant_type">Participant type</label>
+                            <select id="participant_type" name="participant_type" required>
+                                <option value="">Choose participant type</option>
+                                @foreach(\App\Models\User::PARTICIPANT_TYPES as $value => $label)<option value="{{ $value }}" @selected(old('participant_type', $user->participant_type) === $value)>{{ $label }}</option>@endforeach
+                            </select>
+                        </div>
+                        <div class="cu-field">
+                            <label for="affiliation" id="affiliation_label">College / Department</label>
+                            @include('partials.academic_select', ['academicField' => 'affiliation', 'academicCurrent' => $user->affiliation])
+                        </div>
+                        <div class="cu-field" id="program-field">
+                            <label for="program" id="program_label">Program</label>
+                            @include('partials.academic_select', ['academicField' => 'program', 'academicCurrent' => $user->program])
+                        </div>
+                        <div class="cu-field" id="employment-field">
+                            <label for="employment_type">Employment type</label>
+                            <select id="employment_type" name="employment_type"><option value="">Choose employment type</option>@foreach(\App\Models\User::EMPLOYMENT_TYPES as $value => $label)<option value="{{ $value }}" @selected(old('employment_type', $user->employment_type) === $value)>{{ $label }}</option>@endforeach</select>
+                        </div>
+                        <div class="cu-field" id="year-field">
+                            <label for="year_graduated">Year graduated</label>
+                            <input type="text" id="year_graduated" name="year_graduated" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" value="{{ old('year_graduated', $user->year_graduated) }}">
+                        </div>
+                    </div>
+                @else
+                    <p class="cu-section-sub">{{ $user->participantTypeLabel() ?: 'Type not specified' }} · {{ $user->affiliation ?: 'College / department not specified' }} · {{ $user->program ?: 'Program not specified' }}</p>
+                    <p class="cu-section-sub">Contact CELP staff to correct these details.</p>
+                @endif
+            </div>
+            @else
             <div class="cu-section">
                 <div class="cu-section-head">
                     <div class="cu-section-icon" style="background:#ecfdf5; color:#047857">
@@ -173,6 +212,7 @@
                     <div class="hint">Max 300 characters.</div>
                 </div>
             </div>
+            @endif
 
             <div class="cu-actions">
                 <x-back-button href="{{ route('users.index') }}">Back to user list</x-back-button>
@@ -218,6 +258,7 @@
         </div>
     @endif
 
+    @if($user->role === 'participant' && $canEditAcademics)<script src="{{ asset('js/participant-academics.js') }}?v={{ filemtime(public_path('js/participant-academics.js')) }}" defer></script>@endif
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const logoInput = document.getElementById('org_logo');
@@ -226,6 +267,7 @@
             const logoName = document.getElementById('cu-logo-name');
             const removeLogoInput = document.getElementById('cu-remove-org-logo');
             const removeLogoButton = document.getElementById('cu-remove-logo');
+            if (!logoInput || !logoDrop) return;
             const originalLogoName = logoName.textContent;
             const originalLogoPreview = logoPreview.innerHTML;
 

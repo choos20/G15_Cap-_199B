@@ -21,6 +21,7 @@
         }
         .cu-field input:focus, .cu-field select:focus, .cu-field textarea:focus { outline:none; border-color:#3b82f6; background:#fff; box-shadow:0 0 0 4px rgba(59,130,246,0.1); }
         .cu-field .hint { font-size:0.82rem; color:#94a3b8; margin-top:6px; }
+        .cu-field select:disabled { background:#f1f5f9; color:#64748b; cursor:not-allowed; }
         .cu-role-card { display:block; cursor:pointer; }
         .cu-role-card input { position:absolute; opacity:0; pointer-events:none; }
         .cu-role-options { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:14px; }
@@ -56,6 +57,7 @@
     @endif
 
     <form method="POST" action="{{ route('users.store') }}" enctype="multipart/form-data" novalidate
+          data-participant-academics
           data-confirm-navigation
           data-confirm-title="Leave account creation?"
           data-confirm-body="You have unsaved changes. If you leave now, they will be lost."
@@ -154,6 +156,7 @@
                     <div>
                         <h3 class="cu-section-title">B. Participant details</h3>
                         <div class="cu-section-sub">Which kind of participant this account belongs to.</div>
+                        <a href="{{ route('academic-catalog.index') }}" target="_blank" rel="noopener" style="font-size:.85rem;color:#0b7656">Manage colleges &amp; programs</a>
                     </div>
                 </div>
 
@@ -179,14 +182,14 @@
                         </div>
                         <div class="cu-field">
                             <label for="affiliation" id="affiliation_label">College / Department</label>
-                            <input type="text" id="affiliation" name="affiliation" value="{{ old('affiliation') }}" maxlength="255">
+                            @include('partials.academic_select', ['academicField' => 'affiliation'])
                         </div>
                     </div>
 
                     <div class="cu-grid cu-grid-2" style="margin-top:18px">
                         <div class="cu-field" id="program-field">
-                            <label for="program" id="program_label">Program / Course</label>
-                            <input type="text" id="program" name="program" value="{{ old('program') }}" maxlength="160">
+                            <label for="program" id="program_label">Program</label>
+                            @include('partials.academic_select', ['academicField' => 'program'])
                         </div>
                         <div class="cu-field" id="year-field" style="display:none">
                             <label for="yp-year_graduated">Year graduated</label>
@@ -287,6 +290,7 @@
         </div>
     </form>
 
+    <script src="{{ asset('js/participant-academics.js') }}?v={{ filemtime(public_path('js/participant-academics.js')) }}" defer></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             // Selected by name, not by class: .cu-role-input now styles every
@@ -301,9 +305,9 @@
 
             // Field labels and visibility per participant classification.
             const PTYPE = {
-                student:  { id: 'Student ID No.',  aff: 'College / Department',            program: 'Program / Course',   year: false, employment: false },
+                student:  { id: 'Student ID No.',  aff: 'College / Department',            program: 'Program',            year: false, employment: false },
                 employee: { id: 'Employee ID No.', aff: 'College / Department or Office',  program: null,                 year: false, employment: true  },
-                alumni:   { id: 'Alumni ID No.',   aff: 'College / Department',            program: 'Program graduated',  year: true,  employment: false },
+                alumni:   { id: 'Alumni ID No.',   aff: 'College / Department',            program: 'Program',            year: true,  employment: false },
             };
 
             const show = (el, on) => { if (el) el.style.display = on ? 'block' : 'none'; };

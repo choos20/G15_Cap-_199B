@@ -4,6 +4,7 @@
 @section('subtitle', $reportInfo['description'])
 
 @section('content')
+    @if($report === 'attendance')<script src="{{ asset('js/attendance-report-filters.js') }}" defer></script>@endif
     @php
         $termLabel = $filters['term']
             ? (\App\Support\AcademicPeriod::TERMS[$filters['term']] ?? $filters['term'])
@@ -72,7 +73,7 @@
         .or-table tbody tr:hover { background:#fbfefc; }
         .or-table tr:last-child td { border-bottom:0; }
         .attendance-roster { overflow:auto; border:1px solid #dfeae4; border-radius:16px; background:#fff; box-shadow:0 10px 24px rgba(11,42,42,.05); }
-        .attendance-roster table { width:100%; min-width:1120px; border-collapse:collapse; font-size:.8rem; }
+        .attendance-roster table { width:100%; min-width:1240px; border-collapse:collapse; font-size:.8rem; }
         .attendance-roster th { padding:13px 14px; border-bottom:1px solid #dfeae4; background:#f8fcfa; color:#668077; font-size:.68rem; font-weight:800; letter-spacing:.06em; text-align:left; text-transform:uppercase; white-space:nowrap; }
         .attendance-roster td { padding:14px; border-bottom:1px solid #edf3ef; color:#3f594e; vertical-align:top; }
         .attendance-roster tbody tr:hover { background:#fbfefc; }
@@ -144,6 +145,9 @@
             <div class="or-print-kicker">ProjectLink · Performance report</div>
             <div class="or-print-title">{{ $reportInfo['title'] }}</div>
             <div class="or-print-meta">Academic year {{ $filters['ay'] }} · {{ $termLabel }} · Submitted {{ $formatReportDate($filters['from']) }} to {{ $formatReportDate($filters['to']) }}</div>
+            @if($report === 'attendance')
+                <div class="or-print-meta">Activity: {{ $activityOptions->firstWhere('id', $filters['project'])?->title ?? 'All activities' }} · College / department: {{ $filters['department'] === '_unspecified' ? 'Not specified' : ($filters['department'] ?: 'All') }} · Program: {{ $filters['program'] === '_unspecified' ? 'Not specified' : ($filters['program'] ?: 'All') }} · Participant type: {{ \App\Models\User::PARTICIPANT_TYPES[$filters['participant_type']] ?? match($filters['participant_type']) { 'external_participant' => 'External participant', '_unspecified' => 'Not specified', default => 'All' } }}</div>
+            @endif
         </div>
         <x-back-button class="or-back" href="{{ route('student_org.reports') }}">Back to performance reports</x-back-button>
         <form method="GET" class="or-toolbar">
@@ -172,6 +176,41 @@
                     @foreach($activityOptions as $activityOption)
                         <option value="{{ $activityOption->id }}" @selected((string) ($filters['project'] ?? '') === (string) $activityOption->id)>{{ $activityOption->title }}</option>
                     @endforeach
+                </select>
+            </div>
+            <div class="or-field">
+                <label for="department">College / department</label>
+                <select name="department" id="department" data-attendance-department>
+                    <option value="">All colleges / departments</option>
+                    <option value="_unspecified" @selected($filters['department'] === '_unspecified')>Not specified</option>
+                    @foreach($attendanceFilterOptions['departments'] as $department)
+                        <option value="{{ $department }}" @selected($filters['department'] === $department)>{{ $department }}</option>
+                    @endforeach
+                    @if(filled($filters['department']) && $filters['department'] !== '_unspecified' && !$attendanceFilterOptions['departments']->contains($filters['department']))
+                        <option value="{{ $filters['department'] }}" selected>{{ $filters['department'] }} (no matching records)</option>
+                    @endif
+                </select>
+            </div>
+            <div class="or-field">
+                <label for="program">Program</label>
+                <select name="program" id="program" data-attendance-program>
+                    <option value="">All programs</option>
+                    <option value="_unspecified" @selected($filters['program'] === '_unspecified')>Not specified / not applicable</option>
+                    @foreach($attendanceFilterOptions['programs'] as $program)
+                        <option value="{{ $program['code'] }}" data-departments="{{ json_encode($program['departments']) }}" @selected($filters['program'] === $program['code'])>{{ $program['code'] }}</option>
+                    @endforeach
+                    @if(filled($filters['program']) && $filters['program'] !== '_unspecified' && !$attendanceFilterOptions['programs']->contains('code', $filters['program']))
+                        <option value="{{ $filters['program'] }}" selected>{{ $filters['program'] }} (no matching records)</option>
+                    @endif
+                </select>
+            </div>
+            <div class="or-field">
+                <label for="participant_type">Participant type</label>
+                <select name="participant_type" id="participant_type">
+                    <option value="">All participant types</option>
+                    @foreach(\App\Models\User::PARTICIPANT_TYPES as $value => $label)<option value="{{ $value }}" @selected($filters['participant_type'] === $value)>{{ $label }}</option>@endforeach
+                    <option value="external_participant" @selected($filters['participant_type'] === 'external_participant')>External participant</option>
+                    <option value="_unspecified" @selected($filters['participant_type'] === '_unspecified')>Not specified</option>
                 </select>
             </div>
         @endif
@@ -223,12 +262,13 @@
         </div>
         <div class="or-actions">
             <button type="submit" class="or-button or-button-primary">Apply filters</button>
+            @if($report === 'attendance')<a class="or-button" href="{{ route('student_org.reports.show', ['report' => $report]) }}">Reset</a>@endif
             <a class="or-button" href="{{ route('student_org.reports.show', array_merge(['report' => $report], request()->query(), ['format' => 'csv'])) }}">CSV</a>
             <button type="button" class="or-button" onclick="window.print()">Print</button>
         </div>
         </form>
         @if($report === 'attendance')
-            <p class="attendance-roster-note"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/><path d="M12 10.5v5m0-8h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span>This roster lists people with recorded participation for your activities. It includes registered participants and external names entered through an organizer CSV. ID numbers are kept as text so leading zeroes are preserved.</span></p>
+            <p class="attendance-roster-note"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/><path d="M12 10.5v5m0-8h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span>This roster lists people with recorded participation for your activities, including external names entered through an organizer CSV. Academic details follow each participant's current profile. Use “Not specified” to find missing details. Totals, CSV and print follow the applied filters. ID numbers retain leading zeroes.</span></p>
         @else
             <p class="or-note"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/><path d="M12 10.5v5m0-8h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span>Reports include only projects submitted by your organization. The selected period and date range use the project submission date.</span></p>
         @endif
@@ -248,7 +288,7 @@
                     <thead>
                         <tr>
                             <th>#</th><th>Activity</th><th>ID number</th><th>Full name</th>
-                            <th>Participant type</th><th>Program / department</th><th>Participation role</th>
+                            <th>Participant type</th><th>Program</th><th>College / department</th><th>Participation role</th>
                             <th>Status</th><th>Check-in</th><th>Check-out</th><th>Source</th>
                         </tr>
                     </thead>
@@ -268,7 +308,8 @@
                                 <td class="attendance-id">{{ $participant['id_number'] ?: '—' }}</td>
                                 <td><span class="attendance-name">{{ $participant['name'] }}</span><span class="attendance-sub">{{ $participant['recorded_at'] }}</span></td>
                                 <td>{{ $participant['participant_type'] }}</td>
-                                <td>{{ $participant['program_department'] }}</td>
+                                <td>{{ $participant['program'] }}</td>
+                                <td>{{ $participant['department'] }}</td>
                                 <td>{{ $participant['participation_role'] }}</td>
                                 <td><span class="attendance-status {{ $statusClass }}">{{ $participant['status'] }}</span></td>
                                 <td>{{ $participant['check_in'] }}</td>

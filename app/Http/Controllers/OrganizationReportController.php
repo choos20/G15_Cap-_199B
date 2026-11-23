@@ -6,6 +6,7 @@ use App\Models\Project;
 use App\Models\AttendanceRecord;
 use App\Models\User;
 use App\Support\AcademicPeriod;
+use App\Support\AcademicCatalog;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -46,6 +47,9 @@ class OrganizationReportController extends Controller
             'from' => ['nullable', 'date_format:Y-m-d'],
             'to' => ['nullable', 'date_format:Y-m-d', 'after_or_equal:from'],
             'project' => ['nullable', 'integer', 'min:1'],
+            'department' => ['nullable', 'string', 'max:255'],
+            'program' => ['nullable', 'string', 'max:160'],
+            'participant_type' => ['nullable', Rule::in(array_merge(array_keys(User::PARTICIPANT_TYPES), ['external_participant', '_unspecified']))],
         ]);
         $ay = $validated['ay'] ?? AcademicPeriod::current();
         $range = AcademicPeriod::range($ay, $validated['term'] ?? null);
@@ -59,6 +63,9 @@ class OrganizationReportController extends Controller
             'from' => $validated['from'] ?? '',
             'to' => $validated['to'] ?? '',
             'project' => $validated['project'] ?? null,
+            'department' => $validated['department'] ?? '',
+            'program' => $validated['program'] ?? '',
+            'participant_type' => $validated['participant_type'] ?? '',
             'start' => $range[0],
             'end' => $range[1],
         ];
@@ -143,6 +150,7 @@ class OrganizationReportController extends Controller
         $criteria = collect();
         $feedback = collect();
         $attendanceRows = collect();
+        $attendanceFilterOptions = ['departments' => collect(), 'programs' => collect()];
         $activityOptions = $report === 'attendance'
             ? $this->projects($request, array_merge($filters, ['project' => null]))
             : collect();
@@ -211,15 +219,18 @@ class OrganizationReportController extends Controller
             ];
             $headings = ['Project', 'Approved volunteers', 'Assigned participants', 'Involvement records'];
         } elseif ($report === 'attendance') {
+            $catalog = app(AcademicCatalog::class);
+            $departments = $catalog->departments();
+            $programs = $catalog->programs();
+            $filters['department'] = AcademicCatalog::canonical($filters['department'], $departments);
+            $filters['program'] = AcademicCatalog::canonical($filters['program'], $programs);
             $attendedStatuses = ['valid', 'present', 'attended', 'completed', 'partial'];
             $volunteerUserIds = DB::table('volunteer_applications as applications')
                 ->join('announcements as announcements', 'announcements.id', '=', 'applications.announcement_id')
                 ->whereIn('announcements.project_id', $projectIds ?: [0])
                 ->where('applications.status', 'approved')
-                ->pluck('applications.user_id')
-                ->map(fn ($id) => (int) $id)
-                ->unique()
-                ->all();
+                ->get(['announcements.project_id', 'applications.user_id'])
+                ->mapWithKeys(fn ($application) => [$application->project_id.':'.$application->user_id => true]);
 
             $registeredAttendance = DB::table('attendance_records as records')
                 ->join('attendance_sessions as sessions', 'sessions.id', '=', 'records.session_id')
@@ -247,21 +258,24 @@ class OrganizationReportController extends Controller
                     'users.role',
                 ])
                 ->get()
-                ->map(function ($record) use ($volunteerUserIds) {
+                ->map(function ($record) use ($volunteerUserIds, $departments, $programs) {
                     $recordedAt = $record->check_in_at ?: ($record->scanned_at ?: $record->updated_at);
-                    $programDepartment = collect([$record->program, $record->affiliation])
-                        ->filter(fn ($value) => filled($value))
-                        ->unique()
-                        ->implode(' / ');
+                    $program = AcademicCatalog::canonical($record->program, $programs);
+                    $department = AcademicCatalog::canonical($record->affiliation, $departments);
 
                     return [
                         'dedupe_key' => 'account:'.$record->project_id.':'.$record->user_id,
+                        '_project_id' => $record->project_id,
+                        '_program' => $program,
+                        '_department' => $department,
+                        '_participant_type' => $record->role === 'external_participant' ? 'external_participant' : ($record->participant_type ?: '_unspecified'),
                         'activity' => $record->project,
                         'id_number' => $record->id_number,
                         'name' => $record->name,
                         'participant_type' => $this->participantTypeLabel($record->participant_type, $record->role),
-                        'program_department' => $programDepartment ?: '—',
-                        'participation_role' => in_array((int) $record->user_id, $volunteerUserIds, true)
+                        'program' => $program ?: ($record->participant_type === 'employee' ? 'Not applicable' : 'Not specified'),
+                        'department' => $department ?: 'Not specified',
+                        'participation_role' => isset($volunteerUserIds[$record->project_id.':'.$record->user_id])
                             ? 'Approved volunteer'
                             : 'Assigned participant',
                         'status' => $this->attendanceStatusLabel($record->status),
@@ -300,11 +314,16 @@ class OrganizationReportController extends Controller
                 ->get()
                 ->map(fn ($record) => [
                     'dedupe_key' => 'external:'.$record->project_id.':'.$record->id,
+                    '_project_id' => $record->project_id,
+                    '_program' => '',
+                    '_department' => '',
+                    '_participant_type' => 'external_participant',
                     'activity' => $record->project,
                     'id_number' => $record->participant_id_number ?: $record->roster_code,
                     'name' => $record->participant_name,
                     'participant_type' => 'External participant',
-                    'program_department' => '—',
+                    'program' => 'Not specified',
+                    'department' => 'Not specified',
                     'participation_role' => 'External participant',
                     'status' => $this->attendanceStatusLabel($record->attendance_status),
                     'check_in' => $record->attendance_check_in ?: '—',
@@ -314,8 +333,30 @@ class OrganizationReportController extends Controller
                     '_recorded_at' => $record->attendance_recorded_at,
                 ]);
 
-            $attendanceRows = $registeredAttendance
-                ->concat($externalAttendance)
+            $allAttendance = $registeredAttendance->concat($externalAttendance);
+            $attendanceFilterOptions = [
+                'departments' => $allAttendance->pluck('_department')->filter()->unique(fn ($value) => AcademicCatalog::key($value))->sort()->values(),
+                'programs' => $allAttendance->filter(fn ($row) => filled($row['_program']))
+                    ->groupBy(fn ($row) => AcademicCatalog::key($row['_program']))
+                    ->map(fn ($rows) => [
+                        'code' => $rows->first()['_program'],
+                        'departments' => $rows->pluck('_department')->unique()->values()->all(),
+                    ])->sortBy('code')->values(),
+            ];
+            $filteredAttendance = $allAttendance->filter(function (array $row) use ($filters) {
+                foreach (['department', 'program', 'participant_type'] as $field) {
+                    $selected = $filters[$field];
+                    $actual = $row['_'.$field];
+                    if ($selected === '_unspecified') {
+                        if (filled($actual) && $actual !== '_unspecified') return false;
+                    } elseif (filled($selected) && AcademicCatalog::key($selected) !== AcademicCatalog::key($actual)) {
+                        return false;
+                    }
+                }
+
+                return true;
+            });
+            $attendanceRows = $filteredAttendance
                 ->sortByDesc('_recorded_at')
                 ->unique('dedupe_key')
                 ->sortBy(fn (array $row) => mb_strtolower($row['name'].' '.$row['activity']))
@@ -326,26 +367,13 @@ class OrganizationReportController extends Controller
                     return $row;
                 });
 
-            $attendance = DB::table('attendance_records as records')
-                ->join('attendance_sessions as sessions', 'sessions.id', '=', 'records.session_id')
-                ->whereIn('sessions.project_id', $projectIds ?: [0])
-                ->selectRaw('sessions.project_id, COUNT(*) as records, COUNT(DISTINCT CASE WHEN records.status IN (?, ?, ?, ?) THEN records.user_id END) as attended', ['valid', 'present', 'attended', 'completed'])
-                ->groupBy('sessions.project_id')
-                ->get()
-                ->keyBy('project_id');
-            $externalAttendance = DB::table('project_participant_enrollments')
-                ->whereIn('project_id', $projectIds ?: [0])
-                ->whereNotNull('attendance_recorded_at')
-                ->selectRaw('project_id, COUNT(*) as records, COUNT(DISTINCT CASE WHEN attendance_status IN (?, ?, ?, ?) THEN id END) as attended', ['valid', 'present', 'attended', 'completed'])
-                ->groupBy('project_id')
-                ->get()
-                ->keyBy('project_id');
             $rows = $attendanceRows->map(fn ($participant) => [
                 $participant['activity'],
                 $participant['id_number'] ?? '',
                 $participant['name'],
                 $participant['participant_type'],
-                $participant['program_department'],
+                $participant['program'],
+                $participant['department'],
                 $participant['participation_role'],
                 $participant['status'],
                 $participant['check_in'],
@@ -353,12 +381,12 @@ class OrganizationReportController extends Controller
                 $participant['source'],
             ]);
             $summary = [
-                'Projects' => $projects->count(),
-                'Attendance records' => (int) $attendance->sum('records') + (int) $externalAttendance->sum('records'),
-                'Recorded as attended' => (int) $attendance->sum('attended') + (int) $externalAttendance->sum('attended'),
+                'Projects' => $attendanceRows->pluck('_project_id')->unique()->count(),
+                'Attendance records' => $filteredAttendance->count(),
+                'Recorded as attended' => $attendanceRows->whereIn('status', ['Attended', 'Completed'])->count(),
                 'Participants listed' => $attendanceRows->count(),
             ];
-            $headings = ['Activity', 'ID number', 'Full name', 'Participant type', 'Program / department', 'Participation role', 'Attendance status', 'Check-in', 'Check-out', 'Source'];
+            $headings = ['Activity', 'ID number', 'Full name', 'Participant type', 'Program', 'College / department', 'Participation role', 'Attendance status', 'Check-in', 'Check-out', 'Source'];
         } else {
             $activities = DB::table('announcements as a')
                 ->join('projects as p', 'p.id', '=', 'a.project_id')
@@ -441,7 +469,8 @@ class OrganizationReportController extends Controller
                     filled($participant['id_number']) ? "'".$participant['id_number'] : '',
                     $participant['name'],
                     $participant['participant_type'],
-                    $participant['program_department'],
+                    $participant['program'],
+                    $participant['department'],
                     $participant['participation_role'],
                     $participant['status'],
                     $participant['check_in'],
@@ -466,6 +495,7 @@ class OrganizationReportController extends Controller
             'filters' => $filters,
             'activityOptions' => $activityOptions,
             'attendanceRows' => $attendanceRows,
+            'attendanceFilterOptions' => $attendanceFilterOptions,
             'years' => AcademicPeriod::labelsFrom(DB::table('projects')->where('created_by', $request->user()->id)->pluck('created_at')),
         ]);
     }

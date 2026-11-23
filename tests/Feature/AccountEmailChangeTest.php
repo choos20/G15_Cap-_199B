@@ -46,6 +46,14 @@ class AccountEmailChangeTest extends TestCase
             $table->json('context')->nullable();
             $table->timestamps();
         });
+        Schema::create('notifications', function (Blueprint $table) {
+            $table->uuid('id')->primary();
+            $table->string('type');
+            $table->morphs('notifiable');
+            $table->text('data');
+            $table->timestamp('read_at')->nullable();
+            $table->timestamps();
+        });
 
         Mail::fake();
     }
@@ -109,6 +117,7 @@ class AccountEmailChangeTest extends TestCase
                 'suffix' => null,
                 'email' => 'new.participant@gmail.com',
                 'email_confirmation' => 'new.participant@gmail.com',
+                'id_number' => '000123',
             ])
             ->assertRedirect(route('users.edit', $participant));
 
@@ -118,6 +127,21 @@ class AccountEmailChangeTest extends TestCase
             'email_verified_at' => null,
             'name' => 'Updated Participant',
         ]);
+    }
+
+    public function test_a_changed_email_still_requires_a_matching_confirmation(): void
+    {
+        $head = User::factory()->create(['role' => 'celp_head']);
+        $participant = User::factory()->create(['role' => 'participant']);
+        $originalEmail = $participant->email;
+        $payload = [
+            'first_name' => 'Participant', 'id_number' => '000123',
+            'email' => 'changed.participant@example.com',
+        ];
+
+        $this->actingAs($head)->post(route('users.update', $participant), $payload)->assertSessionHasErrors('email');
+        $this->post(route('users.update', $participant), $payload + ['email_confirmation' => 'different@example.com'])->assertSessionHasErrors('email');
+        $this->assertSame($originalEmail, $participant->fresh()->email);
     }
 
     public function test_other_editors_cannot_change_an_email(): void
@@ -135,6 +159,7 @@ class AccountEmailChangeTest extends TestCase
             ->post(route('users.update', $participant), [
                 'email' => 'unauthorized.change@gmail.com',
                 'email_confirmation' => 'unauthorized.change@gmail.com',
+                'id_number' => '000123',
             ])
             ->assertRedirect(route('users.edit', $participant));
 
