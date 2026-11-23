@@ -100,14 +100,9 @@
         }
         .login-captcha {
             display: flex;
-            flex-direction: column;
             align-items: center;
-            gap: 8px;
+            justify-content: center;
             margin: 18px 0 2px;
-            padding: 14px 12px 12px;
-            border: 1px solid rgba(220, 246, 226, 0.32);
-            border-radius: 12px;
-            background: rgba(241, 255, 245, 0.12);
         }
         .login-captcha .cf-turnstile {
             display: flex;
