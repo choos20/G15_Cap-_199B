@@ -111,6 +111,46 @@ class ActivityDirectoryFiltersTest extends TestCase
             ->assertDontSee('Recruiting activity');
     }
 
+    protected function tearDown(): void
+    {
+        Carbon::setTestNow();
+        parent::tearDown();
+    }
+
+    public function test_date_range_accepts_either_boundary_and_includes_the_full_selected_days(): void
+    {
+        Carbon::setTestNow('2026-11-23 10:00:00');
+        $viewer = User::factory()->create(['role' => 'celp_head']);
+        $this->createActivity('Before range', Carbon::parse('2026-11-19 23:59:59'), now()->addMonth(), 2);
+        $this->createActivity('Start boundary', Carbon::parse('2026-11-20 00:00:00'), now()->addMonth(), 2);
+        $this->createActivity('End boundary', Carbon::parse('2026-11-25 23:59:59'), now()->addMonth(), 2);
+        $this->createActivity('After range', Carbon::parse('2026-11-26 00:00:00'), now()->addMonth(), 2);
+        $this->actingAs($viewer);
+
+        foreach ([
+            [['from' => '2026-11-20', 'to' => '2026-11-25'], ['End boundary', 'Start boundary']],
+            [['from' => '2026-11-20'], ['After range', 'End boundary', 'Start boundary']],
+            [['to' => '2026-11-25'], ['End boundary', 'Start boundary', 'Before range']],
+            [['from' => '2026-11-25', 'to' => '2026-11-25'], ['End boundary']],
+        ] as [$range, $expected]) {
+            $this->get(route('activities.index', $range))->assertOk()->assertSessionHasNoErrors()
+                ->assertViewHas('activities', fn ($activities) => $activities->pluck('title')->all() === $expected);
+        }
+    }
+
+    public function test_invalid_range_returns_a_clear_error_and_preserves_the_entered_filters(): void
+    {
+        $viewer = User::factory()->create(['role' => 'celp_head']);
+        $url = route('activities.index');
+        $this->actingAs($viewer)->from($url)->get(route('activities.index', [
+            'q' => 'Community outreach', 'status' => 'completed', 'from' => '2026-11-25', 'to' => '2026-11-20',
+        ]))->assertRedirect($url)->assertSessionHasErrors('to')
+            ->assertSessionHasInput('q', 'Community outreach')->assertSessionHasInput('from', '2026-11-25')
+            ->assertSessionHasInput('to', '2026-11-20');
+        $this->get($url)->assertOk()->assertSee('The To date must be on or after the From date.')
+            ->assertSee('value="2026-11-25"', false)->assertSee('value="2026-11-20"', false);
+    }
+
     private function createActivity(string $title, Carbon $eventDate, Carbon $deadline, int $slots): int
     {
         $organization = User::factory()->create([

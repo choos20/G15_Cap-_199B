@@ -54,7 +54,11 @@ class ActivityDirectoryController extends Controller
         $filters = $request->validate([
             'status' => ['nullable', Rule::in(['recruiting', 'applications_closed', 'full', 'completed'])],
             'from' => ['nullable', 'date_format:Y-m-d'],
-            'to' => ['nullable', 'date_format:Y-m-d', 'after_or_equal:from'],
+            'to' => ['nullable', 'date_format:Y-m-d', Rule::when($request->filled('from'), 'after_or_equal:from')],
+        ], [
+            'from.date_format' => 'Choose a valid From date.',
+            'to.date_format' => 'Choose a valid To date.',
+            'to.after_or_equal' => 'The To date must be on or after the From date.',
         ]);
         $status = $filters['status'] ?? '';
         $from = $filters['from'] ?? '';

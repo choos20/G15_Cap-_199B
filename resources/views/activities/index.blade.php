@@ -5,15 +5,6 @@
 
 @section('content')
     <style>
-        .ad-toolbar { display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:18px; }
-        .ad-form { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
-        .ad-search { display:flex; align-items:center; gap:8px; background:#fff; border:1px solid #e2e8f0; border-radius:999px; padding:8px 14px; min-width:0; width:min(100%,360px); }
-        .ad-search input { border:none; outline:none; font:inherit; font-size:0.92rem; width:100%; background:transparent; color:#0f172a; }
-        .ad-select { background:#fff; border:1px solid #e2e8f0; border-radius:999px; padding:9px 14px; font:inherit; font-size:0.9rem; font-weight:600; color:#334155; cursor:pointer; max-width:260px; }
-        .ad-date { background:#fff; border:1px solid #e2e8f0; border-radius:999px; padding:9px 14px; font:inherit; font-size:0.9rem; color:#334155; }
-        .ad-clear { color:#2563eb; font-weight:700; font-size:0.86rem; text-decoration:none; }
-        .ad-clear:hover { text-decoration:underline; }
-
         .ad-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(min(340px,100%),1fr)); gap:16px; }
         .ad-card { background:#fff; border-radius:16px; box-shadow:0 6px 18px rgba(11,42,42,0.06); padding:22px; display:flex; flex-direction:column; }
         .ad-card:hover { box-shadow:0 12px 26px rgba(11,42,42,0.11); }
@@ -31,45 +22,92 @@
                    background:#0b6a4a; color:#fff; text-decoration:none; font-weight:700; font-size:0.86rem; }
         .ad-view:hover { background:#0f8a61; }
         .ad-empty { padding:52px; text-align:center; color:#64748b; }
+        .ad-fact { display:inline-flex; align-items:center; gap:6px; }
+        .ad-fact svg { flex-shrink:0; }
     </style>
 
-    <div class="ad-toolbar">
-        <form method="GET" action="{{ route('activities.index') }}" class="ad-form">
-            <div class="ad-search">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="7" stroke="#94a3b8" stroke-width="2"/><path d="M20 20l-3.5-3.5" stroke="#94a3b8" stroke-width="2" stroke-linecap="round"/></svg>
-                <input type="search" name="q" value="{{ $term }}" placeholder="Search activity, organization, or place..." aria-label="Search activities">
-            </div>
-            <select name="org" class="ad-select" aria-label="Filter by organization">
-                <option value="">All organizations</option>
-                @foreach($organizations as $org)
-                    <option value="{{ $org->id }}" @selected((string) $orgId === (string) $org->id)>
-                        {{ $org->organization_name ?? $org->name }}
-                    </option>
-                @endforeach
-            </select>
-            <select name="status" class="ad-select" aria-label="Filter by activity status">
-                <option value="">All statuses</option>
-                <option value="recruiting" @selected($status === 'recruiting')>Recruiting</option>
-                <option value="applications_closed" @selected($status === 'applications_closed')>Applications closed</option>
-                <option value="full" @selected($status === 'full')>Full</option>
-                <option value="completed" @selected($status === 'completed')>Completed</option>
-            </select>
-            <input type="date" name="from" class="ad-date" value="{{ $from }}" aria-label="Activity date from">
-            <input type="date" name="to" class="ad-date" value="{{ $to }}" aria-label="Activity date to">
-            <button type="submit" class="ad-select">Filter</button>
-            @if($term !== '' || $orgId || $status !== '' || $from !== '' || $to !== '')
-                <a href="{{ route('activities.index') }}" class="ad-clear">Clear</a>
-            @endif
-        </form>
+    @php
+        $hasFilters = $term !== '' || $orgId || $status !== '' || $from !== '' || $to !== '';
+        $filterValue = fn ($key, $default = '') => is_scalar(old($key, $default)) ? (string) old($key, $default) : '';
+        $today = now('Asia/Manila');
+        $dateError = collect(array_merge($errors->get('from'), $errors->get('to')))->unique()->implode(' ');
+        $dateSummary = match (true) {
+            $from !== '' && $to !== '' && $from === $to => \Illuminate\Support\Carbon::parse($from)->format('M j, Y'),
+            $from !== '' && $to !== '' => \Illuminate\Support\Carbon::parse($from)->format('M j, Y').' – '.\Illuminate\Support\Carbon::parse($to)->format('M j, Y'),
+            $from !== '' => 'From '.\Illuminate\Support\Carbon::parse($from)->format('M j, Y'),
+            $to !== '' => 'Until '.\Illuminate\Support\Carbon::parse($to)->format('M j, Y'),
+            default => 'All activity dates',
+        };
+    @endphp
+    <link rel="stylesheet" href="{{ asset('css/activity-directory-filters.css') }}?v={{ filemtime(public_path('css/activity-directory-filters.css')) }}">
 
-        <span style="margin-left:auto; background:#f1f5f9; color:#334155; font-weight:700; padding:8px 16px; border-radius:999px; font-size:0.9rem">
-            {{ $activities->total() }} of {{ $totalCount }} {{ \Illuminate\Support\Str::plural('activity', $totalCount) }}
-        </span>
+    <form method="GET" action="{{ route('activities.index') }}" class="ad-filter-card" aria-labelledby="ad-filter-heading" data-activity-filters>
+        <div class="ad-filter-heading">
+            <div><span class="ad-filter-icon"><x-ui-icon name="search" :size="19" /></span><h3 id="ad-filter-heading">Find an activity</h3></div>
+            <p>Search across published community extension activities.</p>
+        </div>
+        <div class="ad-filter-fields">
+            <div class="ad-filter-field">
+                <label for="ad-search">Search activities</label>
+                <div class="ad-search-wrap"><x-ui-icon name="search" :size="18" /><input type="search" id="ad-search" name="q" value="{{ $filterValue('q', $term) }}" placeholder="Activity, organization, or place..." autocomplete="off"></div>
+            </div>
+            <div class="ad-filter-field">
+                <label for="ad-organization">Organization</label>
+                <select id="ad-organization" name="org">
+                    <option value="">All organizations</option>
+                    @foreach($organizations as $org)<option value="{{ $org->id }}" @selected($filterValue('org', $orgId) === (string) $org->id)>{{ $org->organization_name ?? $org->name }}</option>@endforeach
+                </select>
+            </div>
+            <div class="ad-filter-field">
+                <label for="ad-status">Activity status</label>
+                <select id="ad-status" name="status">
+                    <option value="">All statuses</option>
+                    <option value="recruiting" @selected($filterValue('status', $status) === 'recruiting')>Recruiting</option>
+                    <option value="applications_closed" @selected($filterValue('status', $status) === 'applications_closed')>Applications closed</option>
+                    <option value="full" @selected($filterValue('status', $status) === 'full')>Full</option>
+                    <option value="completed" @selected($filterValue('status', $status) === 'completed')>Completed</option>
+                </select>
+            </div>
+        </div>
+        <div class="ad-filter-bottom">
+            <fieldset class="ad-date-range" aria-describedby="ad-date-hint">
+                <legend><x-ui-icon name="calendar" :size="17" />Activity date range</legend>
+                <div class="ad-date-controls">
+                    <div class="ad-date-pair">
+                        <div class="ad-filter-field">
+                            <label for="ad-date-from">From</label>
+                            <input type="date" id="ad-date-from" name="from" value="{{ $filterValue('from', $from) }}" aria-describedby="ad-date-hint{{ $dateError !== '' ? ' ad-date-error' : '' }}" @error('from') aria-invalid="true" @enderror>
+                        </div>
+                        <span class="ad-range-divider" aria-hidden="true">→</span>
+                        <div class="ad-filter-field">
+                            <label for="ad-date-to">To</label>
+                            <input type="date" id="ad-date-to" name="to" value="{{ $filterValue('to', $to) }}" aria-describedby="ad-date-hint{{ $dateError !== '' ? ' ad-date-error' : '' }}" @error('to') aria-invalid="true" @enderror>
+                        </div>
+                    </div>
+                    <div class="ad-date-presets" role="group" aria-label="Date shortcuts">
+                        <button type="button" data-date-preset data-from="{{ $today->toDateString() }}" data-to="{{ $today->toDateString() }}" aria-pressed="false">Today</button>
+                        <button type="button" data-date-preset data-from="{{ $today->copy()->startOfMonth()->toDateString() }}" data-to="{{ $today->copy()->endOfMonth()->toDateString() }}" aria-pressed="false">This month</button>
+                        <button type="button" data-date-clear>Clear dates</button>
+                    </div>
+                </div>
+                <p class="ad-date-hint" id="ad-date-hint">Based on the activity's scheduled date. You may leave either date blank.</p>
+                <p class="ad-field-error" id="ad-date-error" role="alert" data-server-error="{{ $dateError !== '' ? '1' : '0' }}" @if($dateError === '') hidden @endif>{{ $dateError ?: 'The To date must be on or after the From date.' }}</p>
+            </fieldset>
+            <div class="ad-filter-actions">
+                <a href="{{ route('activities.index') }}" class="ad-reset">Reset</a>
+                <button type="submit" class="ad-apply"><x-ui-icon name="search" :size="17" />Apply filters</button>
+            </div>
+        </div>
+    </form>
+
+    <div class="ad-results-summary" role="status">
+        <div><strong>Showing {{ $activities->firstItem() ?? 0 }}–{{ $activities->lastItem() ?? 0 }} of {{ $activities->total() }} {{ \Illuminate\Support\Str::plural('activity', $activities->total()) }}</strong>@if($hasFilters)<span>Filtered from {{ $totalCount }} published {{ \Illuminate\Support\Str::plural('activity', $totalCount) }}</span>@endif</div>
+        <span class="ad-date-summary"><x-ui-icon name="calendar" :size="15" />{{ $dateSummary }}</span>
     </div>
 
     @if($activities->isEmpty())
         <div class="card ad-empty">
-            <div style="font-size:2rem; margin-bottom:10px">🔍</div>
+            <div style="margin-bottom:12px"><x-ui-icon name="search" :size="30" /></div>
             @if($term !== '' || $orgId || $status !== '' || $from !== '' || $to !== '')
                 No activities match these filters.
             @else
@@ -121,13 +159,13 @@
 
                     <div class="ad-facts">
                         @if($activity->event_date)
-                            <span>🗓️ {{ $activity->event_date->format('M j, Y') }}</span>
+                            <span class="ad-fact"><x-ui-icon name="calendar" :size="15" /><time datetime="{{ $activity->event_date->toDateString() }}">{{ $activity->event_date->format('M j, Y') }}</time></span>
                         @endif
                         @if($activity->event_location)
-                            <span>📍 {{ \Illuminate\Support\Str::limit($activity->event_location, 34) }}</span>
+                            <span class="ad-fact"><x-ui-icon name="location" :size="15" />{{ \Illuminate\Support\Str::limit($activity->event_location, 34) }}</span>
                         @endif
                         @if($isRecruiting)
-                            <span>👥 {{ $activity->approved_volunteers }} of {{ $activity->slots_needed }} volunteers</span>
+                            <span class="ad-fact"><x-ui-icon name="user" :size="15" />{{ $activity->approved_volunteers }} of {{ $activity->slots_needed }} volunteers</span>
                         @endif
                     </div>
 
@@ -150,4 +188,5 @@
             {{ $activities->links('partials.pagination') }}
         </div>
     @endif
+    <script src="{{ asset('js/activity-directory-filters.js') }}?v={{ filemtime(public_path('js/activity-directory-filters.js')) }}" defer></script>
 @endsection
