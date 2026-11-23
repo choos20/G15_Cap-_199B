@@ -28,7 +28,7 @@ class AcademicCatalog
         return Schema::hasTable('academic_programs')
             ? DB::table('academic_programs as programs')
                 ->join('academic_departments as departments', 'departments.id', '=', 'programs.department_id')
-                ->select(['programs.*', 'departments.code as department', 'departments.is_active as department_active'])
+                ->select(['programs.*', 'departments.code as department', 'departments.name as department_name', 'departments.is_active as department_active'])
                 ->orderBy('programs.code')->get()
             : collect();
     }

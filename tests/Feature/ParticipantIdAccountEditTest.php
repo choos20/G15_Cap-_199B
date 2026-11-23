@@ -259,6 +259,36 @@ class ParticipantIdAccountEditTest extends TestCase
         $this->assertSame('BSIT', $participant->fresh()->program);
     }
 
+    public function test_catalog_availability_is_saved_and_validation_keeps_the_correct_editor_context(): void
+    {
+        $editor = User::factory()->create(['role' => 'coordinator']);
+        $this->actingAs($editor)->post(route('academic-catalog.store', 'departments'), [
+            'code' => 'COL', 'name' => 'College of Law', 'is_active' => '0',
+        ])->assertSessionHasNoErrors()->assertRedirect(route('academic-catalog.index', ['tab' => 'departments']));
+        $this->assertDatabaseHas('academic_departments', ['code' => 'COL', 'is_active' => false]);
+        $this->post(route('academic-catalog.store', 'departments'), [
+            'code' => 'INVALID', 'name' => 'Invalid availability', 'is_active' => 'other',
+        ])->assertSessionHasErrors('is_active');
+        $this->assertDatabaseMissing('academic_departments', ['code' => 'INVALID']);
+
+        $programId = DB::table('academic_programs')->where('code', 'BSIT')->value('id');
+        $pageUrl = route('academic-catalog.index', ['tab' => 'programs']);
+        $this->from($pageUrl)->put(route('academic-catalog.update', ['programs', $programId]), [
+            '_catalog_kind' => 'programs', '_catalog_id' => (string) $programId,
+            'code' => 'CHANGED', 'name' => 'Bachelor of Science in Civil Engineering', 'is_active' => '0',
+        ])->assertSessionHasErrors('name')->assertRedirect($pageUrl);
+        $page = $this->get($pageUrl)->assertOk();
+        $document = new \DOMDocument();
+        @$document->loadHTML($page->getContent());
+        $xpath = new \DOMXPath($document);
+        $data = json_decode($xpath->evaluate('string(//script[@data-catalog-data])'), true, 512, JSON_THROW_ON_ERROR);
+        $this->assertSame('programs', $data['oldInput']['kind']);
+        $this->assertSame((string) $programId, $data['oldInput']['id']);
+        $this->assertSame('Bachelor of Science in Civil Engineering', $data['oldInput']['name']);
+        $this->assertSame('0', $data['oldInput']['is_active']);
+        $this->assertDatabaseHas('academic_programs', ['id' => $programId, 'code' => 'BSIT', 'is_active' => true]);
+    }
+
     public function test_account_creation_uses_the_same_catalog_validation_and_normalization(): void
     {
         Mail::fake();

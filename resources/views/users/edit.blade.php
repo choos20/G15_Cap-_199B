@@ -5,22 +5,37 @@
 
 @section('content')
     <style>
+        .cu-form-shell,.cu-access-card { width:100%; max-width:1120px; }
+        .cu-form-card { padding:0; overflow:hidden; border:1px solid #e0e9e4; }
         .cu-section { padding:28px; }
         .cu-section + .cu-section { border-top:1px solid #e5e7eb; }
         .cu-section-head { display:flex; align-items:center; gap:14px; margin-bottom:22px; }
         .cu-section-icon { width:42px; height:42px; border-radius:14px; display:flex; align-items:center; justify-content:center; background:#eef2ff; color:#4338ca; flex-shrink:0; }
         .cu-section-title { font-size:1.05rem; font-weight:700; color:#0f172a; margin:0; }
-        .cu-section-sub { font-size:0.88rem; color:#64748b; margin-top:2px; }
+        .cu-section-sub { font-size:0.85rem; color:#6b7f77; margin-top:5px; line-height:1.7; }
         .cu-grid { display:grid; gap:18px; }
         .cu-grid-2 { grid-template-columns:repeat(2,minmax(0,1fr)); }
-        @media (max-width:820px) { .cu-grid-2 { grid-template-columns:1fr; } }
+        .cu-grid-3 { grid-template-columns:repeat(3,minmax(0,1fr)); }
+        .cu-field { min-width:0; }
+        .cu-field-wide { grid-column:1/-1; }
+        .cu-contact { margin-top:24px; padding-top:24px; border-top:1px solid #edf2ef; }
+        .cu-subheading { margin:0 0 16px; color:#426353; font-size:.78rem; font-weight:700; }
+        .cu-section-top { display:flex; align-items:flex-start; justify-content:space-between; gap:20px; margin-bottom:22px; }
+        .cu-section-top .cu-section-head { margin-bottom:0; }
+        .cu-manage-link { display:inline-flex; align-items:center; gap:7px; flex-shrink:0; padding:10px 12px; border:1px solid #c9e7d7; border-radius:9px; background:#f2fbf6; color:#147352; font-size:.76rem; font-weight:650; text-decoration:none; }
+        .cu-manage-link:hover { background:#e3f6ec; }
+        .cu-academic-name { margin-top:10px; padding:12px 14px; border:1px solid #e2eee6; border-radius:10px; background:#f7fbf8; }
+        .cu-academic-name > span { display:block; margin-bottom:5px; color:#7c9386; font-size:.69rem; font-weight:600; }
+        .cu-academic-name > strong { display:block; color:#345d45; font-size:.84rem; font-weight:550; line-height:1.6; overflow-wrap:anywhere; }
+        @media (max-width:1180px) { .cu-grid-3 { grid-template-columns:repeat(2,minmax(0,1fr)); } .cu-section-top { flex-wrap:wrap; gap:14px; } }
+        @media (max-width:640px) { .cu-grid-2,.cu-grid-3 { grid-template-columns:1fr; } .cu-section { padding:22px 18px; } .cu-actions { padding:20px 18px !important; flex-wrap:wrap; } .cu-actions > * { justify-content:center; flex:1; } }
         .cu-field label { display:block; font-weight:700; font-size:0.9rem; color:#0f172a; margin-bottom:8px; }
         .cu-field input[type=text], .cu-field input[type=email], .cu-field select, .cu-field textarea {
-            width:100%; padding:13px 14px; border:1px solid #d1d5db; border-radius:12px; font:inherit; background:#f8fafc; transition:all 150ms ease;
+            width:100%; min-height:46px; padding:12px 14px; border:1px solid #d7e2dc; border-radius:10px; font:inherit; background:#fbfdfc; transition:all 150ms ease;
         }
-        .cu-field input:focus, .cu-field select:focus, .cu-field textarea:focus { outline:none; border-color:#3b82f6; background:#fff; box-shadow:0 0 0 4px rgba(59,130,246,0.1); }
+        .cu-field input:focus, .cu-field select:focus, .cu-field textarea:focus { outline:none; border-color:#0b956c; background:#fff; box-shadow:0 0 0 3px rgba(11,149,108,0.1); }
         .cu-field input:disabled,.cu-field select:disabled { background:#f1f5f9; color:#64748b; cursor:not-allowed; }
-        .cu-field .hint { font-size:0.82rem; color:#94a3b8; margin-top:6px; }
+        .cu-field .hint { font-size:0.76rem; color:#7f9387; margin-top:7px; line-height:1.6; }
         .cu-role-pill { display:inline-flex; padding:8px 16px; border-radius:999px; font-size:0.9rem; font-weight:700; background:#eef2ff; color:#4338ca; }
         .cu-logo-drop {
             display:flex; align-items:center; gap:16px; padding:16px; border:2px dashed #cbd5e1; border-radius:16px; background:#f8fbff; cursor:pointer; transition:all 150ms ease;
@@ -59,24 +74,24 @@
         </div>
     @endif
 
-    <form method="POST" action="{{ route('users.update', $user) }}" enctype="multipart/form-data" novalidate
+    <form method="POST" action="{{ route('users.update', $user) }}" enctype="multipart/form-data" novalidate class="cu-form-shell"
           @if($user->role === 'participant' && $canEditAcademics) data-participant-academics data-participant-account="1" @endif>
         @csrf
         <input type="hidden" name="remove_org_logo" id="cu-remove-org-logo" value="0">
 
-        <div class="card" style="padding:0; overflow:hidden; max-width:760px">
+        <div class="card cu-form-card">
             <div class="cu-section">
                 <div class="cu-section-head">
                     <div class="cu-section-icon" style="background:#fef3c7; color:#92400e">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10zm0 2c-4.4 0-8 2.2-8 5v2h16v-2c0-2.8-3.6-5-8-5z" fill="currentColor"/></svg>
                     </div>
                     <div>
-                        <h3 class="cu-section-title">Account</h3>
-                        <div class="cu-section-sub">CSA Directors can change student-organization names and emails; the CELP Head can change any account.</div>
+                        <h3 class="cu-section-title">Account details</h3>
+                        <div class="cu-section-sub">Review the account holder's identity and contact information.</div>
                     </div>
                 </div>
 
-                <div class="cu-grid cu-grid-2">
+                <div class="cu-grid cu-grid-3">
                     <div class="cu-field">
                         <label @if($canChangeName) for="first_name" @endif>{{ $canChangeName ? 'First name' : 'Name' }}</label>
                         @if($canChangeName)
@@ -85,29 +100,6 @@
                             <input type="text" value="{{ $user->name }}" disabled>
                         @endif
                     </div>
-                    <div class="cu-field">
-                        <label>Email</label>
-                        @if($canChangeEmail)
-                            <input type="email" id="email" name="email" value="{{ old('email', $user->email) }}" autocomplete="email" required>
-                            <div class="hint">The new address must be verified at the account's next sign-in. The previous address will be notified.</div>
-                        @else
-                            <input type="email" value="{{ $user->email }}" disabled>
-                        @endif
-                    </div>
-                    @if($user->role === 'participant')
-                        <div class="cu-field">
-                            <label for="id_number" id="id_number_label">{{ $user->idNumberLabel() }} <span style="color:#b91c1c">*</span></label>
-                            <input type="text" id="id_number" name="id_number" value="{{ old('id_number', $user->id_number) }}" maxlength="50" autocomplete="off" required>
-                            <div class="hint">Required for matching this participant to the attendance CSV roster. Keep leading zeros; letters and numbers are accepted.</div>
-                        </div>
-                    @endif
-                    @if($canChangeEmail)
-                        <div class="cu-field">
-                            <label for="email_confirmation">Confirm new email</label>
-                            <input type="email" id="email_confirmation" name="email_confirmation" value="{{ old('email_confirmation') }}" autocomplete="email">
-                            <div class="hint">Required only when changing the email address.</div>
-                        </div>
-                    @endif
                     @if($canChangeName)
                         <div class="cu-field">
                             <label for="middle_name">Middle name</label>
@@ -122,20 +114,53 @@
                             <input type="text" id="suffix" name="suffix" value="{{ old('suffix', $user->suffix) }}" autocomplete="honorific-suffix">
                         </div>
                     @endif
+                    @if($user->role === 'participant')
+                        <div class="cu-field">
+                            <label for="id_number" id="id_number_label">{{ $user->idNumberLabel() }} <span style="color:#b91c1c">*</span></label>
+                            <input type="text" id="id_number" name="id_number" value="{{ old('id_number', $user->id_number) }}" maxlength="50" autocomplete="off" required>
+                            <div class="hint">Required for matching this participant to the attendance CSV roster. Keep leading zeros; letters and numbers are accepted.</div>
+                        </div>
+                    @endif
+                    <div class="cu-field">
+                        <label>Role</label>
+                        <div><span class="cu-role-pill">{{ ucwords(str_replace('_', ' ', $user->role)) }}</span></div>
+                    </div>
                 </div>
 
-                <div class="cu-field" style="margin-top:18px">
-                    <label>Role</label>
-                    <div><span class="cu-role-pill">{{ ucwords(str_replace('_', ' ', $user->role)) }}</span></div>
+                <div class="cu-contact">
+                    <h4 class="cu-subheading">Contact information</h4>
+                    <div class="cu-grid cu-grid-2">
+                        <div class="cu-field">
+                            <label for="email">Email address</label>
+                            @if($canChangeEmail)
+                                <input type="email" id="email" name="email" value="{{ old('email', $user->email) }}" autocomplete="email" required>
+                                <div class="hint">A new email address requires verification at the next sign-in. The previous address will be notified.</div>
+                            @else
+                                <input type="email" id="email" value="{{ $user->email }}" disabled>
+                            @endif
+                        </div>
+                        @if($canChangeEmail)
+                            <div class="cu-field">
+                                <label for="email_confirmation">Confirm new email</label>
+                                <input type="email" id="email_confirmation" name="email_confirmation" value="{{ old('email_confirmation') }}" autocomplete="email">
+                                <div class="hint">Required only when changing the email address.</div>
+                            </div>
+                        @endif
+                    </div>
                 </div>
             </div>
 
             @if($user->role === 'participant')
             <div class="cu-section">
-                <h3 class="cu-section-title" style="margin-bottom:10px">Participant details</h3>
+                <div class="cu-section-top">
+                    <div class="cu-section-head">
+                        <span class="cu-section-icon" style="background:#ecf9f1;color:#08765a"><x-ui-icon name="building" /></span>
+                        <div><h3 class="cu-section-title">Participant details</h3><p class="cu-section-sub" style="margin-bottom:0">Update the college and program shown on attendance reports.</p></div>
+                    </div>
+                    @if($canEditAcademics)<a class="cu-manage-link" href="{{ route('academic-catalog.index') }}" target="_blank" rel="noopener"><x-ui-icon name="settings" :size="16" />Manage colleges &amp; programs</a>@endif
+                </div>
                 @if($canEditAcademics)
                     <input type="hidden" name="academic_details" value="1">
-                    <p class="cu-section-sub" style="margin-bottom:18px">Complete missing participant details or update their program here. Saved changes appear on attendance reports. <a href="{{ route('academic-catalog.index') }}" target="_blank" rel="noopener">Manage colleges &amp; programs</a></p>
                     <div class="cu-grid cu-grid-2">
                         <div class="cu-field">
                             <label for="participant_type">Participant type</label>
@@ -146,11 +171,11 @@
                         </div>
                         <div class="cu-field">
                             <label for="affiliation" id="affiliation_label">College / Department</label>
-                            @include('partials.academic_select', ['academicField' => 'affiliation', 'academicCurrent' => $user->affiliation])
+                            @include('partials.academic_select', ['academicField' => 'affiliation', 'academicCurrent' => $user->affiliation, 'academicCompact' => true])
                         </div>
-                        <div class="cu-field" id="program-field">
+                        <div class="cu-field cu-field-wide" id="program-field">
                             <label for="program" id="program_label">Program</label>
-                            @include('partials.academic_select', ['academicField' => 'program', 'academicCurrent' => $user->program])
+                            @include('partials.academic_select', ['academicField' => 'program', 'academicCurrent' => $user->program, 'academicCompact' => true])
                         </div>
                         <div class="cu-field" id="employment-field">
                             <label for="employment_type">Employment type</label>
@@ -224,7 +249,7 @@
     {{-- Recovery path when the credential email never arrived. Nobody but the
          account holder knows the password, so this is the only way back in. --}}
     @if($user->id !== auth()->id())
-        <div class="card" style="max-width:760px; margin-top:18px; padding:24px">
+        <div class="card cu-access-card" style="margin-top:18px; padding:24px">
             <div style="display:flex; align-items:flex-start; gap:16px; flex-wrap:wrap">
                 <div style="flex:1; min-width:min(260px,100%)">
                     <h3 style="margin:0 0 6px; font-size:1rem; color:#0f172a">Sign-in access</h3>

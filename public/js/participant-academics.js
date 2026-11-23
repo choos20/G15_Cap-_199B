@@ -27,6 +27,13 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             if (resetProgram && program.selectedOptions[0]?.disabled) program.value = '';
 
+            [department, program].forEach(select => {
+                const summary = form.querySelector(`[data-academic-selection="${select.name}"]`);
+                if (summary) summary.textContent = select.value
+                    ? select.selectedOptions[0]?.dataset.academicName || select.value
+                    : 'Select an option above to see its full name.';
+            });
+
             const hasPrograms = Array.from(program.options).some(option => option.value && !option.disabled);
             program.disabled = !active || !spec?.program || !department.value || !hasPrograms;
             program.required = !program.disabled;
@@ -66,6 +73,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         };
         department.addEventListener('change', () => update(true));
+        program.addEventListener('change', () => update());
         form.querySelectorAll('[name="participant_type"], [name="role"]').forEach(input => input.addEventListener('change', () => update()));
         update();
     });

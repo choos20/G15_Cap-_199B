@@ -45,15 +45,21 @@ class AcademicCatalogController extends Controller
                     $fail('That name is already in the list. Use its existing code.');
                 }
             }],
+            'is_active' => ['sometimes', 'required', 'boolean'],
         ];
         if ($kind === 'programs') {
             $rules['department_id'] = ['required', 'integer', Rule::exists('academic_departments', 'id')->where('is_active', true)];
         }
-        $data = $request->validate($rules);
+        $data = $request->validate($rules, [], [
+            'code' => $kind === 'programs' ? 'program code' : 'college code',
+            'name' => $kind === 'programs' ? 'program name' : 'college name',
+            'department_id' => 'college / department', 'is_active' => 'availability',
+        ]);
         $id = DB::table($table)->insertGetId($data + ['is_active' => true, 'created_at' => now(), 'updated_at' => now()]);
         AuditLog::record('academic_catalog.created', 'Added '.$data['code'].' to the academic '.$kind.' list.', null, ['kind' => $kind, 'id' => $id]);
 
-        return redirect()->route('academic-catalog.index')->with('status', 'Academic list updated.');
+        return redirect()->route('academic-catalog.index', ['tab' => $kind])
+            ->with('status', ($kind === 'programs' ? 'Program ' : 'College / department ').$data['code'].' added successfully.');
     }
 
     public function update(Request $request, string $kind, int $id)
@@ -73,11 +79,12 @@ class AcademicCatalogController extends Controller
                 }
             }],
             'is_active' => ['required', 'boolean'],
-        ]);
+        ], [], ['name' => $kind === 'programs' ? 'program name' : 'college name', 'is_active' => 'availability']);
         // Codes and program ownership stay stable because profiles store codes.
         DB::table($table)->where('id', $id)->update($data + ['updated_at' => now()]);
         AuditLog::record('academic_catalog.updated', 'Updated '.$entry->code.' in the academic '.$kind.' list.', null, ['kind' => $kind, 'id' => $id]);
 
-        return redirect()->route('academic-catalog.index')->with('status', 'Academic list updated.');
+        return redirect()->route('academic-catalog.index', ['tab' => $kind])
+            ->with('status', ($kind === 'programs' ? 'Program ' : 'College / department ').$entry->code.' updated successfully.');
     }
 }
