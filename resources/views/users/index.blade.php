@@ -33,6 +33,11 @@
         .ua-table td { padding:14px 16px; border-bottom:1px solid #f1f5f9; vertical-align:middle; }
         .ua-table tr:last-child td { border-bottom:none; }
         .ua-table tr:hover td { background:#f8fafc; }
+        .ua-group-row td { padding:16px 16px 8px; border-bottom:0; background:#f8fafc; }
+        .ua-group-row[hidden] { display:none !important; }
+        .ua-group-heading { display:flex; align-items:center; gap:10px; }
+        .ua-group-name { color:#0f172a; font-size:0.86rem; font-weight:800; letter-spacing:0.02em; }
+        .ua-group-count { display:inline-flex; align-items:center; min-height:22px; padding:2px 9px; border-radius:999px; background:#e2e8f0; color:#475569; font-size:0.72rem; font-weight:800; }
         .ua-avatar { width:38px; height:38px; border-radius:50%; background:#0b6a4a; color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:0.85rem; flex-shrink:0; }
         .ua-name-cell { display:flex; align-items:center; gap:12px; }
         .ua-pill { display:inline-flex; padding:5px 12px; border-radius:999px; font-size:0.8rem; font-weight:700; white-space:nowrap; }
@@ -103,6 +108,10 @@
         .uf-opt:hover { background:#f8fafc; }
         .uf-opt input { width:16px; height:16px; accent-color:#0b6a4a; cursor:pointer; flex-shrink:0; margin:0; }
         .uf-opt-count { margin-left:auto; color:#94a3b8; font-size:0.82rem; font-variant-numeric:tabular-nums; }
+        .uf-subfilter { margin:8px -8px -8px; padding:10px 8px 4px; border-top:1px solid #f1f5f9; }
+        .uf-subfilter[hidden] { display:none; }
+        .uf-subfilter-title { padding:4px 10px 6px; color:#94a3b8; font-size:0.72rem; font-weight:800; letter-spacing:0.05em; text-transform:uppercase; }
+        .uf-subfilter .uf-opt { padding-left:18px; }
         .ua-no-match td { padding:34px; text-align:center; color:#64748b; }
         .ua-no-match[hidden] { display:none; }
         @media(max-width:640px) {
@@ -113,6 +122,8 @@
             .ua-table-wrap { overflow:visible !important; background:transparent; box-shadow:none; }
             .ua-table, .ua-table tbody { display:block; width:100%; white-space:normal; }
             .ua-table thead { display:none; }
+            .ua-table tr.ua-group-row { display:block; margin:0; padding:0; border:0; background:transparent; box-shadow:none; }
+            .ua-table tr.ua-group-row td { display:block; padding:14px 15px 8px; border-bottom:0; background:#f8fafc; }
             .ua-table tr.ua-row {
                 display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:0 14px;
                 margin-bottom:12px; padding:13px 15px; overflow:hidden;
@@ -162,12 +173,24 @@
             ->merge($roleCounts->keys())
             ->unique()
             ->values();
+        $roleGroups = collect($roleLabels)->keys()
+            ->merge($users->pluck('role')->unique())
+            ->unique()
+            ->mapWithKeys(fn($role) => [
+                $role => $users->where('role', $role)
+                    ->sortBy(fn($account) => mb_strtolower((string) $account->name))
+                    ->values(),
+            ])
+            ->filter(fn($group) => $group->isNotEmpty());
+        $classificationCounts = $users->where('role', 'student_org')
+            ->groupBy('org_classification')
+            ->map->count();
     @endphp
 
     <div style="display:flex; align-items:center; gap:14px; margin-bottom:18px; flex-wrap:wrap; position:relative">
         <span id="ua-count" style="background:#f1f5f9; color:#334155; font-weight:700; padding:8px 16px; border-radius:999px; font-size:0.9rem">{{ $users->count() }} {{ \Illuminate\Support\Str::plural('account', $users->count()) }}</span>
 
-        @if($filterRoles->count() > 1)
+        @if($filterRoles->count() > 1 || $roleCounts->has('student_org'))
             <div class="uf-wrap">
                 <button type="button" class="uf-btn" id="uf-btn" aria-haspopup="true" aria-expanded="false" aria-controls="uf-panel">
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M3 5h18l-7 8v6l-4 2v-8L3 5z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
@@ -176,7 +199,7 @@
                 </button>
                 <div class="uf-panel" id="uf-panel">
                     <div class="uf-panel-head">
-                        <span class="uf-panel-title">Filter by role</span>
+                        <span class="uf-panel-title">Filter accounts</span>
                         <button type="button" class="uf-clear" id="uf-clear" disabled>Clear</button>
                     </div>
                     @foreach($filterRoles as $role)
@@ -187,6 +210,23 @@
                             <span class="uf-opt-count">{{ $roleCounts[$role] }}</span>
                         </label>
                     @endforeach
+                    @if($roleCounts->has('student_org'))
+                        <div class="uf-subfilter" id="uf-org-type" hidden>
+                            <div class="uf-subfilter-title">Student Organization type</div>
+                            <label class="uf-opt">
+                                <input type="radio" name="org_classification_filter" class="uf-classification-check uf-classification-all" value="" checked>
+                                <span class="ua-pill" style="background:#f1f5f9; color:#334155">All</span>
+                                <span class="uf-opt-count">{{ $roleCounts['student_org'] }}</span>
+                            </label>
+                            @foreach(\App\Models\User::ORG_CLASSIFICATIONS as $classification => $label)
+                                <label class="uf-opt">
+                                    <input type="radio" name="org_classification_filter" class="uf-classification-check" value="{{ $classification }}">
+                                    <span class="ua-pill" style="background:#f0fdf4; color:#166534">{{ $label }}</span>
+                                    <span class="uf-opt-count">{{ $classificationCounts->get($classification, 0) }}</span>
+                                </label>
+                            @endforeach
+                        </div>
+                    @endif
                 </div>
             </div>
         @endif
@@ -221,11 +261,20 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach($users as $u)
-                        @php
-                            [$roleBg, $roleColor] = $roleColors[$u->role] ?? ['#f1f5f9', '#334155'];
-                        @endphp
-                        <tr class="ua-row" data-role="{{ $u->role }}">
+                    @foreach($roleGroups as $role => $groupUsers)
+                        <tr class="ua-group-row" data-role="{{ $role }}">
+                            <td colspan="7">
+                                <div class="ua-group-heading">
+                                    <span class="ua-group-name">{{ $roleLabels[$role] ?? ucwords(str_replace('_', ' ', $role)) }}</span>
+                                    <span class="ua-group-count">{{ $groupUsers->count() }} {{ \Illuminate\Support\Str::plural('account', $groupUsers->count()) }}</span>
+                                </div>
+                            </td>
+                        </tr>
+                        @foreach($groupUsers as $u)
+                            @php
+                                [$roleBg, $roleColor] = $roleColors[$u->role] ?? ['#f1f5f9', '#334155'];
+                            @endphp
+                        <tr class="ua-row" data-role="{{ $u->role }}" data-org-classification="{{ $u->role === 'student_org' ? ($u->org_classification ?? '') : '' }}">
                             <td data-label="Name">
                                 <div class="ua-name-cell">
                                     <x-profile-avatar :name="$u->name" :photo-url="$u->profilePhotoUrl()" :size="38" />
@@ -275,9 +324,10 @@
                                 </div>
                             </td>
                         </tr>
+                        @endforeach
                     @endforeach
                     <tr class="ua-no-match" id="ua-no-match" hidden>
-                        <td colspan="7">No accounts match this filter.</td>
+                        <td colspan="7">No accounts match these filters.</td>
                     </tr>
                 </tbody>
             </table>
@@ -308,7 +358,10 @@
                 const badge = document.getElementById('uf-badge');
                 const clearBtn = document.getElementById('uf-clear');
                 const checks = Array.from(document.querySelectorAll('.uf-check'));
+                const classificationPanel = document.getElementById('uf-org-type');
+                const classificationChecks = Array.from(document.querySelectorAll('.uf-classification-check'));
                 const rows = Array.from(document.querySelectorAll('.ua-row'));
+                const groupRows = Array.from(document.querySelectorAll('.ua-group-row'));
                 const noMatch = document.getElementById('ua-no-match');
                 const countChip = document.getElementById('ua-count');
 
@@ -318,22 +371,41 @@
                 };
 
                 const apply = () => {
-                    const picked = checks.filter((c) => c.checked).map((c) => c.value);
+                    const pickedRoles = checks.filter((c) => c.checked).map((c) => c.value);
+                    const studentOrgSelected = pickedRoles.includes('student_org');
+                    if (!studentOrgSelected) {
+                        classificationChecks.forEach((c) => { c.checked = c.classList.contains('uf-classification-all'); });
+                    }
+                    const pickedClassifications = studentOrgSelected
+                        ? classificationChecks.filter((c) => c.checked && c.value !== '').map((c) => c.value)
+                        : [];
+                    const activeFilters = pickedRoles.length + pickedClassifications.length;
                     let shown = 0;
 
+                    if (classificationPanel) classificationPanel.hidden = !studentOrgSelected;
+
                     rows.forEach((row) => {
-                        const match = picked.length === 0 || picked.includes(row.dataset.role);
+                        const roleMatch = pickedRoles.length === 0 || pickedRoles.includes(row.dataset.role);
+                        const classificationMatch = pickedClassifications.length === 0
+                            || row.dataset.role !== 'student_org'
+                            || pickedClassifications.includes(row.dataset.orgClassification);
+                        const match = roleMatch && classificationMatch;
                         row.hidden = !match;
                         if (match) shown += 1;
+                    });
+
+                    groupRows.forEach((group) => {
+                        const hasVisibleAccount = rows.some((row) => row.dataset.role === group.dataset.role && !row.hidden);
+                        group.hidden = !hasVisibleAccount;
                     });
 
                     noMatch.hidden = shown > 0;
                     countChip.textContent = `${shown} ${shown === 1 ? 'account' : 'accounts'}`;
 
-                    filterBtn.classList.toggle('is-on', picked.length > 0);
-                    badge.hidden = picked.length === 0;
-                    badge.textContent = String(picked.length);
-                    clearBtn.disabled = picked.length === 0;
+                    filterBtn.classList.toggle('is-on', activeFilters > 0);
+                    badge.hidden = activeFilters === 0;
+                    badge.textContent = String(activeFilters);
+                    clearBtn.disabled = activeFilters === 0;
                 };
 
                 filterBtn.addEventListener('click', (event) => {
@@ -345,9 +417,11 @@
 
                 panel.addEventListener('click', (event) => event.stopPropagation());
                 checks.forEach((c) => c.addEventListener('change', apply));
+                classificationChecks.forEach((c) => c.addEventListener('change', apply));
 
                 clearBtn.addEventListener('click', () => {
                     checks.forEach((c) => { c.checked = false; });
+                    classificationChecks.forEach((c) => { c.checked = c.classList.contains('uf-classification-all'); });
                     apply();
                 });
 
