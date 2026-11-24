@@ -23,6 +23,31 @@
         line-height: 1.55;
     }
 
+    .mfa-back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        margin-top: 4px;
+        color: #d9fae4;
+        font-size: 0.8rem;
+        font-weight: 700;
+        text-decoration: none;
+    }
+
+    .mfa-back-link svg {
+        width: 16px;
+        height: 16px;
+        stroke: currentColor;
+        stroke-width: 1.8;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+    }
+
+    .mfa-back-link:hover {
+        color: #ffffff;
+        text-decoration: underline;
+    }
+
     .mfa-step {
         margin-top: 20px;
         padding: 18px;
@@ -182,6 +207,7 @@
     .mfa-primary-button:focus-visible,
     .mfa-secondary-button:focus-visible,
     .mfa-manual-key summary:focus-visible,
+    .mfa-back-link:focus-visible,
     .mfa-logout:focus-visible {
         outline: 3px solid rgba(168, 243, 200, 0.72);
         outline-offset: 3px;
