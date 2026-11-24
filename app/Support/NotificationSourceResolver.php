@@ -17,7 +17,7 @@ final class NotificationSourceResolver
 {
     /**
      * @param iterable<int, mixed> $notifications
-     * @return array<string, array{label:string, detail:?string, initials:string, avatar_url:?string, fallback:bool}>
+     * @return array<string, array{label:string, detail:?string, initials:string, avatar_url:?string, avatar_type:string, fallback:bool}>
      */
     public static function for(iterable $notifications): array
     {
@@ -104,6 +104,7 @@ final class NotificationSourceResolver
             'detail' => $context ? $displayName : null,
             'initials' => self::initialsFor($displayName),
             'avatar_url' => $isOrganization ? $user->orgLogoUrl() : $user->profilePhotoUrl(),
+            'avatar_type' => $isOrganization ? 'organization' : 'person',
             'fallback' => false,
         ];
     }
@@ -117,7 +118,7 @@ final class NotificationSourceResolver
             ->implode('') ?: 'PL';
     }
 
-    /** @return array{label:string, detail:?string, initials:string, avatar_url:?string, fallback:bool} */
+    /** @return array{label:string, detail:?string, initials:string, avatar_url:?string, avatar_type:string, fallback:bool} */
     private static function fallbackSource(string $label): array
     {
         return [
@@ -125,6 +126,7 @@ final class NotificationSourceResolver
             'detail' => null,
             'initials' => 'PL',
             'avatar_url' => null,
+            'avatar_type' => 'fallback',
             'fallback' => true,
         ];
     }

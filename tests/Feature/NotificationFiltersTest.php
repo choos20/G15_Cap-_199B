@@ -106,6 +106,7 @@ class NotificationFiltersTest extends TestCase
 
                 return $actorSource['label'] === $actor->organization_name
                     && $actorSource['initials'] === 'UB'
+                    && $actorSource['avatar_type'] === 'organization'
                     && $actorSource['fallback'] === false
                     && $removedSource['label'] === 'Former account'
                     && $removedSource['fallback'] === true
