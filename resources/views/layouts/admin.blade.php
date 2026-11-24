@@ -6,6 +6,7 @@
     <title>@yield('title', config('app.name', 'ProjectLink'))</title>
     <link rel="icon" type="image/png" href="{{ asset('images/Logo_nobg.png') }}">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ asset('css/notifications.css') }}?v={{ substr(md5_file(public_path('css/notifications.css')), 0, 12) }}">
     <style>
         :root{--sidebar:#0b2926;--sidebar-deep:#08211f;--accent:#13b886;--muted:#52665d;--text-secondary:#52665d;--text-muted:#5b7067;--card:#ffffff;--text:#16352d}
         *{box-sizing:border-box}
@@ -307,18 +308,27 @@
                             <div class="search-empty">No notifications yet.</div>
                         @else
                             @foreach($navRecentNotifications as $notification)
-                                <form action="{{ route('notifications.read', $notification->id) }}" method="POST" style="border-top:1px solid #f1f5f9;">
+                                @php
+                                    $notificationSource = ($notificationSources ?? [])[(string) $notification->id] ?? [
+                                        'label' => 'ProjectLink',
+                                        'initials' => 'PL',
+                                        'avatar_url' => null,
+                                        'fallback' => true,
+                                    ];
+                                    $notificationTitle = $notification->data['title'] ?? 'Notification';
+                                    $notificationBody = $notification->data['body'] ?? '';
+                                    $notificationUnread = $notification->read_at === null;
+                                @endphp
+                                <form action="{{ route('notifications.read', $notification->id) }}" method="POST" class="notification-preview-form">
                                     @csrf
-                                    <button type="submit" style="width:100%; text-align:left; padding:12px 16px; background:{{ $notification->read_at ? 'transparent' : '#eff6ff' }}; border:none; cursor:pointer; display:flex; gap:8px; align-items:flex-start;">
-                                        @unless($notification->read_at)
-                                            <span style="width:8px; height:8px; border-radius:50%; background:#2563eb; margin-top:5px; flex-shrink:0;"></span>
-                                        @else
-                                            <span style="width:8px; flex-shrink:0;"></span>
-                                        @endunless
-                                        <span>
-                                            <span class="item-title" style="display:block">{{ $notification->data['title'] ?? 'Notification' }}</span>
-                                            <span class="item-subtitle" style="display:block">{{ \Illuminate\Support\Str::limit($notification->data['body'] ?? '', 70) }}</span>
+                                    <button type="submit" class="notification-preview{{ $notificationUnread ? ' is-unread' : '' }}" aria-label="{{ $notificationUnread ? 'Open unread notification: ' : 'Open notification: ' }}{{ $notificationTitle }}">
+                                        <x-notification-avatar :source="$notificationSource" :size="32" />
+                                        <span class="notification-preview-copy">
+                                            <span class="notification-preview-title">{{ $notificationTitle }}</span>
+                                            <span class="notification-preview-body">{{ \Illuminate\Support\Str::limit($notificationBody, 70) }}</span>
+                                            <span class="notification-preview-time">{{ $notification->created_at->diffForHumans() }}</span>
                                         </span>
+                                        @if($notificationUnread)<span class="notification-unread-dot"><span class="notification-sr-only">Unread</span></span>@endif
                                     </button>
                                 </form>
                             @endforeach

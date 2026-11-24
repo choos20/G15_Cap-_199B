@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Support\NotificationSourceResolver;
 use Illuminate\Http\Request;
 
 class NotificationController extends Controller
@@ -57,6 +58,7 @@ class NotificationController extends Controller
             'unreadCount' => $request->user()->unreadNotifications()->count(),
             'hasNotifications' => $request->user()->notifications()->exists(),
             'notifications' => $notifications,
+            'notificationSources' => NotificationSourceResolver::for($notifications->getCollection()),
             'filter' => $filter,
             'search' => $search,
         ]);

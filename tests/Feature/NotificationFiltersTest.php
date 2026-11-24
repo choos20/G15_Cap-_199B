@@ -75,12 +75,45 @@ class NotificationFiltersTest extends TestCase
             });
     }
 
-    private function createNotification(User $user, string $title, string $body, $readAt = null): void
+    public function test_notification_source_falls_back_when_actor_has_been_removed(): void
     {
-        $user->notifications()->create([
+        $viewer = User::factory()->create(['role' => 'participant']);
+        $actor = User::factory()->create(['role' => 'celp_secretary']);
+        $actorNotification = $this->createNotification(
+            $viewer,
+            'Project approved',
+            'Your project has been approved.',
+            null,
+            ['actor_id' => $actor->id, 'actor_type' => 'user']
+        );
+        $removedActorNotification = $this->createNotification(
+            $viewer,
+            'Review completed',
+            'The review was completed by an account that is no longer available.',
+            null,
+            ['actor_id' => 999999, 'actor_type' => 'user']
+        );
+
+        $this->actingAs($viewer)
+            ->get(route('notifications.index'))
+            ->assertViewHas('notificationSources', function (array $sources) use ($actor, $actorNotification, $removedActorNotification) {
+                $actorSource = $sources[(string) $actorNotification->id] ?? [];
+                $removedSource = $sources[(string) $removedActorNotification->id] ?? [];
+
+                return $actorSource['label'] === $actor->name
+                    && $actorSource['fallback'] === false
+                    && $removedSource['label'] === 'Former account'
+                    && $removedSource['fallback'] === true
+                    && $removedSource['avatar_url'] === null;
+            });
+    }
+
+    private function createNotification(User $user, string $title, string $body, $readAt = null, array $extraData = [])
+    {
+        return $user->notifications()->create([
             'id' => (string) Str::uuid(),
             'type' => 'project.update',
-            'data' => ['title' => $title, 'body' => $body],
+            'data' => array_merge(['title' => $title, 'body' => $body], $extraData),
             'read_at' => $readAt,
         ]);
     }

@@ -603,7 +603,13 @@ class ProjectController extends Controller
         }
 
         try {
-            Notification::send($recipients, new ProjectStatusChanged($project, $title, $body, $url));
+            Notification::send($recipients, new ProjectStatusChanged(
+                $project,
+                $title,
+                $body,
+                $url,
+                auth()->user() instanceof User ? auth()->user() : null
+            ));
         } catch (\Exception $e) {
             // non-fatal
         }

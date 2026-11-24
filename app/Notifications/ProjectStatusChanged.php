@@ -3,6 +3,7 @@
 namespace App\Notifications;
 
 use App\Models\Project;
+use App\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -15,13 +16,15 @@ class ProjectStatusChanged extends Notification
     public string $title;
     public string $body;
     public string $url;
+    public ?int $actorId;
 
-    public function __construct(Project $project, string $title, string $body, string $url)
+    public function __construct(Project $project, string $title, string $body, string $url, ?User $actor = null)
     {
         $this->project = $project;
         $this->title = $title;
         $this->body = $body;
         $this->url = $url;
+        $this->actorId = $actor?->getKey();
     }
 
     public function via($notifiable)
@@ -58,11 +61,13 @@ class ProjectStatusChanged extends Notification
             $storedUrl .= '#'.$notificationFragment;
         }
 
-        return [
+        return array_filter([
             'project_id' => $this->project->id,
+            'actor_id' => $this->actorId,
+            'actor_type' => $this->actorId ? 'user' : null,
             'title' => $this->title,
             'body' => $this->body,
             'url' => $storedUrl,
-        ];
+        ], static fn ($value) => $value !== null);
     }
 }

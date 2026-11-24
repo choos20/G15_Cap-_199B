@@ -7,10 +7,9 @@
     <style>
         .notification-read-all{padding:10px 16px;border-radius:10px;background:#f8fafc;color:#0f172a;border:1px solid #e2e8f0;font-weight:600;cursor:pointer}
         .notification-read-all:disabled{color:#5b7067;background:#f8fafc;cursor:not-allowed}
-        .notification-caught-up{display:flex;align-items:center;gap:8px;margin-bottom:16px;padding:12px 14px;background:#ecfdf5;color:#065f46;border:1px solid #d1fae5;border-radius:12px;font-size:.88rem}
     </style>
     <div class="card" style="padding:24px;">
-        <div style="display:flex; justify-content:space-between; align-items:center; gap:16px; flex-wrap:wrap; margin-bottom:18px">
+        <div class="notification-page-header">
             <h3 style="margin:0">Notifications</h3>
             <form action="{{ route('notifications.read_all') }}" method="POST">
                 @csrf
@@ -26,28 +25,28 @@
             <div style="margin-bottom:16px; padding:10px 14px; background:#ecfdf5; color:#134e4a; border-radius:8px">{{ session('status') }}</div>
         @endif
 
-        <form action="{{ route('notifications.index') }}" method="GET" style="display:flex; gap:10px; align-items:end; flex-wrap:wrap; margin-bottom:18px;">
-            <label style="display:grid; gap:6px; color:#475569; font-size:0.9rem; font-weight:600;">
+        <form action="{{ route('notifications.index') }}" method="GET" class="notification-filter">
+            <label>
                 Search
                 <input type="search" name="search" value="{{ $search }}" maxlength="100" placeholder="Search title or message"
-                       style="min-width:240px; padding:10px 12px; border:1px solid #cbd5e1; border-radius:10px;">
+                >
             </label>
-            <label style="display:grid; gap:6px; color:#475569; font-size:0.9rem; font-weight:600;">
+            <label>
                 Show
-                <select name="filter" style="min-width:140px; padding:10px 12px; border:1px solid #cbd5e1; border-radius:10px; background:#fff;">
+                <select name="filter">
                     <option value="all" @selected($filter === 'all')>All</option>
                     <option value="unread" @selected($filter === 'unread')>Unread</option>
                     <option value="read" @selected($filter === 'read')>Read</option>
                 </select>
             </label>
-            <button type="submit" style="padding:10px 16px; border-radius:10px; background:#2563eb; color:#fff; border:1px solid #2563eb; font-weight:600; cursor:pointer;">Apply</button>
+            <button type="submit" class="notification-filter-apply">Apply</button>
             @if($search !== '' || $filter !== 'all')
-                <a href="{{ route('notifications.index') }}" style="padding:10px 12px; color:#475569; font-weight:600;">Clear</a>
+                <a href="{{ route('notifications.index') }}" class="notification-filter-clear">Clear</a>
             @endif
         </form>
 
         @if($notifications->isEmpty())
-            <div style="padding:22px; border-radius:18px; background:#f8fafc; border:1px solid #e2e8f0; color:#334155">
+            <div class="notification-empty">
                 @if($search !== '' || $filter !== 'all')
                     No notifications match your search and filter.
                 @else
@@ -55,20 +54,36 @@
                 @endif
             </div>
         @else
-            <div style="display:grid; gap:12px">
+            <div class="notification-list">
                 @foreach($notifications as $notification)
-                    <form action="{{ route('notifications.read', $notification->id) }}" method="POST">
+                    @php
+                        $notificationSource = $notificationSources[(string) $notification->id] ?? [
+                            'label' => 'ProjectLink',
+                            'initials' => 'PL',
+                            'avatar_url' => null,
+                            'fallback' => true,
+                        ];
+                        $notificationTitle = $notification->data['title'] ?? 'Notification';
+                        $notificationBody = $notification->data['body'] ?? '';
+                        $notificationUnread = $notification->read_at === null;
+                    @endphp
+                    <form action="{{ route('notifications.read', $notification->id) }}" method="POST" class="notification-form">
                         @csrf
-                        <button type="submit" style="width:100%; text-align:left; border:1px solid {{ $notification->read_at ? '#e5e7eb' : '#93c5fd' }}; background:{{ $notification->read_at ? '#ffffff' : '#eff6ff' }}; border-radius:16px; padding:16px 18px; cursor:pointer; display:flex; gap:12px; align-items:flex-start;">
-                            @unless($notification->read_at)
-                                <span style="width:10px; height:10px; border-radius:50%; background:#2563eb; margin-top:6px; flex-shrink:0;"></span>
-                            @else
-                                <span style="width:10px; height:10px; flex-shrink:0;"></span>
-                            @endunless
-                            <span style="flex:1">
-                                <span style="display:block; font-weight:700; color:#0f172a;">{{ $notification->data['title'] ?? 'Notification' }}</span>
-                                <span style="display:block; color:#475569; margin-top:4px;">{{ $notification->data['body'] ?? '' }}</span>
-                                <span style="display:block; color:#5b7067; font-size:0.85rem; margin-top:6px;">{{ $notification->created_at->diffForHumans() }}</span>
+                        <button type="submit" class="notification-row{{ $notificationUnread ? ' is-unread' : '' }}" aria-label="{{ $notificationUnread ? 'Open unread notification: ' : 'Open notification: ' }}{{ $notificationTitle }}">
+                            <x-notification-avatar :source="$notificationSource" :size="44" />
+                            <span class="notification-copy">
+                                <span class="notification-source-row">
+                                    <span class="notification-source{{ ($notificationSource['fallback'] ?? false) ? ' notification-source--fallback' : '' }}">{{ $notificationSource['label'] }}</span>
+                                    @if($notificationUnread)<span class="notification-new-label">New</span>@endif
+                                </span>
+                                <span class="notification-title">{{ $notificationTitle }}</span>
+                                <span class="notification-body">{{ $notificationBody }}</span>
+                            </span>
+                            <span class="notification-row__right">
+                                <time class="notification-time" datetime="{{ $notification->created_at->toIso8601String() }}">{{ $notification->created_at->diffForHumans() }}</time>
+                                @if($notificationUnread)
+                                    <span class="notification-unread-dot"><span class="notification-sr-only">Unread</span></span>
+                                @endif
                             </span>
                         </button>
                     </form>

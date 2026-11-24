@@ -6,6 +6,7 @@ use App\Models\Announcement;
 use App\Models\AttendanceRecord;
 use App\Models\VolunteerApplication;
 use App\Models\VolunteerApplicationAttachment;
+use App\Models\User;
 use App\Notifications\ProjectStatusChanged;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -393,7 +394,8 @@ class ParticipantController extends Controller
                     $announcement->project,
                     'New volunteer application',
                     "{$user->name} applied to \"{$announcement->title}\".",
-                    route('student_org.volunteers.show', $announcement)
+                    route('student_org.volunteers.show', $announcement),
+                    $user instanceof User ? $user : null
                 ));
             } catch (\Exception $e) {
                 // non-fatal

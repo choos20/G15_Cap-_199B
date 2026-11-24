@@ -280,10 +280,10 @@ class StudentOrgController extends Controller
         }
 
         $application = $result['application'];
-        $this->notifyApplicant($application, 'Volunteer application approved', "Your application for \"{$application->announcement->title}\" has been approved.");
+        $this->notifyApplicant($application, 'Volunteer application approved', "Your application for \"{$application->announcement->title}\" has been approved.", $user);
 
         foreach ($result['declined_applications'] as $pending) {
-            $this->notifyApplicant($pending, 'No slots available', "\"{$application->announcement->title}\" has reached its volunteer capacity. Your application was not accepted this time.");
+            $this->notifyApplicant($pending, 'No slots available', "\"{$application->announcement->title}\" has reached its volunteer capacity. Your application was not accepted this time.", $user);
         }
 
         return back()->with('status', 'Application approved.');
@@ -309,17 +309,17 @@ class StudentOrgController extends Controller
             'decided_at' => now(),
         ]);
 
-        $this->notifyApplicant($application, 'Volunteer application update', "Your application for \"{$application->announcement->title}\" was not approved this time.");
+        $this->notifyApplicant($application, 'Volunteer application update', "Your application for \"{$application->announcement->title}\" was not approved this time.", $user);
 
         return back()->with('status', 'Application declined.');
     }
 
-    private function notifyApplicant(VolunteerApplication $application, string $title, string $body): void
+    private function notifyApplicant(VolunteerApplication $application, string $title, string $body, ?User $actor = null): void
     {
         try {
             Notification::send(
                 $application->applicant,
-                new ProjectStatusChanged($application->announcement->project, $title, $body, route('participant.applications'))
+                new ProjectStatusChanged($application->announcement->project, $title, $body, route('participant.applications'), $actor)
             );
         } catch (\Exception $e) {
             // non-fatal

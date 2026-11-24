@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Models\Project;
+use App\Support\NotificationSourceResolver;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -46,6 +47,7 @@ class AppServiceProvider extends ServiceProvider
             $returnedNotificationCount = 0;
             $navUnreadCount = 0;
             $navRecentNotifications = collect();
+            $notificationSources = [];
 
             if (Auth::check()) {
                 if (in_array(Auth::user()->role, ['student_org', 'college_department'])) {
@@ -61,12 +63,14 @@ class AppServiceProvider extends ServiceProvider
 
                 $navUnreadCount = Auth::user()->unreadNotifications()->count();
                 $navRecentNotifications = Auth::user()->notifications()->latest()->take(8)->get();
+                $notificationSources = NotificationSourceResolver::for($navRecentNotifications);
             }
 
             $view->with([
                 'returnedNotificationCount' => $returnedNotificationCount,
                 'navUnreadCount' => $navUnreadCount,
                 'navRecentNotifications' => $navRecentNotifications,
+                'notificationSources' => $notificationSources,
             ]);
         });
     }
