@@ -4,28 +4,6 @@
 @section('subtitle', 'Community extension activities across all organizations')
 
 @section('content')
-    <style>
-        .ad-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(min(340px,100%),1fr)); gap:16px; }
-        .ad-card { background:#fff; border-radius:16px; box-shadow:0 6px 18px rgba(11,42,42,0.06); padding:22px; display:flex; flex-direction:column; }
-        .ad-card:hover { box-shadow:0 12px 26px rgba(11,42,42,0.11); }
-        .ad-tags { display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:10px; }
-        .ad-tag { font-size:0.74rem; font-weight:700; padding:4px 10px; border-radius:999px; white-space:nowrap; }
-        .ad-title { font-weight:700; font-size:1.06rem; color:#0f172a; line-height:1.4; }
-        .ad-org { color:#0b6a4a; font-weight:600; font-size:0.88rem; margin-top:8px; }
-        .ad-org-link { display:inline-flex; align-items:center; gap:8px; color:inherit; text-decoration:none; }
-        .ad-org-link:hover { text-decoration:underline; }
-        .ad-desc { color:#475569; font-size:0.9rem; margin-top:10px; line-height:1.6;
-                   overflow:hidden; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; }
-        .ad-facts { display:flex; flex-wrap:wrap; gap:8px 16px; margin-top:14px; font-size:0.85rem; color:#52665d; }
-        .ad-foot { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-top:16px; padding-top:14px; border-top:1px solid #f1f5f9; }
-        .ad-view { display:inline-flex; align-items:center; gap:6px; padding:9px 16px; border-radius:10px;
-                   background:#0b6a4a; color:#fff; text-decoration:none; font-weight:700; font-size:0.86rem; }
-        .ad-view:hover { background:#0f8a61; }
-        .ad-empty { padding:52px; text-align:center; color:#52665d; }
-        .ad-fact { display:inline-flex; align-items:center; gap:6px; }
-        .ad-fact svg { flex-shrink:0; }
-    </style>
-
     @php
         $hasFilters = $term !== '' || $orgId || $status !== '' || $from !== '' || $to !== '';
         $filterValue = fn ($key, $default = '') => is_scalar(old($key, $default)) ? (string) old($key, $default) : '';
@@ -43,13 +21,13 @@
 
     <form method="GET" action="{{ route('activities.index') }}" class="ad-filter-card" aria-labelledby="ad-filter-heading" data-activity-filters>
         <div class="ad-filter-heading">
-            <div><span class="ad-filter-icon"><x-ui-icon name="search" :size="19" /></span><h3 id="ad-filter-heading">Find an activity</h3></div>
+            <div><span class="ad-filter-icon"><x-ui-icon name="calendar" :size="20" /></span><h3 id="ad-filter-heading">Find an activity</h3></div>
             <p>Search across published community extension activities.</p>
         </div>
         <div class="ad-filter-fields">
             <div class="ad-filter-field">
                 <label for="ad-search">Search activities</label>
-                <div class="ad-search-wrap"><x-ui-icon name="search" :size="18" /><input type="search" id="ad-search" name="q" value="{{ $filterValue('q', $term) }}" placeholder="Activity, organization, or place..." autocomplete="off"></div>
+                <div class="ad-search-wrap"><x-ui-icon name="search" :size="18" /><input type="search" id="ad-search" name="q" value="{{ $filterValue('q', $term) }}" placeholder="Search by activity, organization, or location" autocomplete="off"></div>
             </div>
             <div class="ad-filter-field">
                 <label for="ad-organization">Organization</label>
@@ -86,6 +64,7 @@
                     </div>
                     <div class="ad-date-presets" role="group" aria-label="Date shortcuts">
                         <button type="button" data-date-preset data-from="{{ $today->toDateString() }}" data-to="{{ $today->toDateString() }}" aria-pressed="false">Today</button>
+                        <button type="button" data-date-preset data-from="{{ $today->copy()->startOfWeek()->toDateString() }}" data-to="{{ $today->copy()->endOfWeek()->toDateString() }}" aria-pressed="false">This week</button>
                         <button type="button" data-date-preset data-from="{{ $today->copy()->startOfMonth()->toDateString() }}" data-to="{{ $today->copy()->endOfMonth()->toDateString() }}" aria-pressed="false">This month</button>
                         <button type="button" data-date-clear>Clear dates</button>
                     </div>
