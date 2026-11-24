@@ -8,8 +8,11 @@
     $avatarUrl = is_string($source['avatar_url'] ?? null) ? $source['avatar_url'] : null;
     $initials = trim((string) ($source['initials'] ?? 'PL')) ?: 'PL';
     $fallback = (bool) ($source['fallback'] ?? false);
-    if ($avatarUrl === null && $fallback) {
+    $usesProjectLinkFallback = $isLogo && $avatarUrl === null;
+    if ($usesProjectLinkFallback) {
         $avatarUrl = asset('images/Logo_nobg.png');
+        $initials = 'PL';
+        $fallback = true;
     }
 @endphp
 
