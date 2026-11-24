@@ -116,7 +116,25 @@
                                                 <td class="ac-entry-name">{{ $entry->name }}</td>
                                                 @if($kind === 'programs')<td><span class="ac-college-code" title="{{ $entry->department_name }}">{{ $entry->department }}</span></td>@endif
                                                 <td><span class="ac-badge {{ $available ? 'is-active' : 'is-inactive' }}"><span aria-hidden="true"></span>{{ $available ? 'Active' : 'Inactive' }}</span>@if($kind === 'programs' && $entry->is_active && !$entry->department_active)<small class="ac-parent-inactive">College inactive</small>@endif</td>
-                                                <td><button type="button" class="ac-edit-button" data-catalog-edit data-kind="{{ $kind }}" data-id="{{ $entry->id }}" aria-label="Edit {{ $kind === 'programs' ? 'program' : 'college' }} {{ $entry->code }}" aria-pressed="false"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m16 3 5 5-12 12-6 1 1-6L16 3Z M14 5l5 5"/></svg></button></td>
+                                                <td>
+                                                    <div class="ac-action-group">
+                                                        <button type="button" class="ac-edit-button" data-catalog-edit data-kind="{{ $kind }}" data-id="{{ $entry->id }}" aria-label="Edit {{ $kind === 'programs' ? 'program' : 'college' }} {{ $entry->code }}" aria-pressed="false"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m16 3 5 5-12 12-6 1 1-6L16 3Z M14 5l5 5"/></svg></button>
+                                                        @if($entry->is_active)
+                                                            <form method="POST" action="{{ route('academic-catalog.destroy', [$kind, $entry->id]) }}" class="ac-action-form" data-confirm
+                                                                  data-confirm-title="Archive {{ $kind === 'programs' ? 'program' : 'college / department' }}?"
+                                                                  data-confirm-body="{name} will be marked inactive and hidden from new participant assignments. Existing participant records will keep their saved details."
+                                                                  data-confirm-name="{{ $entry->code }}"
+                                                                  data-confirm-note="{{ $kind === 'programs' ? 'You can reactivate it later from Edit.' : 'Archive all active programs under this college first. The system will block this action while any remain active.' }}"
+                                                                  data-confirm-ok="Archive"
+                                                                  data-confirm-cancel="Keep active"
+                                                                  data-confirm-tone="warning">
+                                                                @csrf
+                                                                @method('DELETE')
+                                                                <button type="submit" class="ac-archive-button" aria-label="Archive {{ $kind === 'programs' ? 'program' : 'college' }} {{ $entry->code }}" title="Archive {{ $entry->code }}"><x-ui-icon name="archive" :size="17" /></button>
+                                                            </form>
+                                                        @endif
+                                                    </div>
+                                                </td>
                                             </tr>
                                         @endforeach
                                         <tr data-catalog-empty @if($entries->isNotEmpty()) hidden @endif><td colspan="{{ $kind === 'programs' ? 5 : 4 }}"><div class="ac-empty"><x-ui-icon name="search" :size="29" /><strong data-catalog-empty-title>No entries yet</strong><p data-catalog-empty-note>Add your first entry to start this list.</p><button type="button" class="ac-text-button" data-catalog-clear hidden>Clear filters</button></div></td></tr>

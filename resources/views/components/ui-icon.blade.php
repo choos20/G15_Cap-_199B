@@ -17,6 +17,7 @@
         @case('user') <circle cx="12" cy="8" r="3.5"/><path d="M4.5 20a7.5 7.5 0 0 1 15 0"/> @break
         @case('lock') <rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3M12 14v3"/> @break
         @case('user-lock') <circle cx="8.5" cy="8" r="3"/><path d="M3.5 20v-1.4A4.6 4.6 0 0 1 8.1 14h.8a4.6 4.6 0 0 1 4.6 4.6V20"/><rect x="14" y="13" width="7" height="6.5" rx="1.2"/><path d="M15.8 13v-1.4a1.7 1.7 0 0 1 3.4 0V13"/> @break
+        @case('archive') <path d="M4 7h16v13H4z"/><path d="M3 4h18v3H3zM9 11h6"/> @break
         @case('building') <path d="M3 21h18M5 21V4h10v17m0-11h4v11M8 8h3m-3 4h3m-3 4h3"/> @break
         @case('file') <path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9Zm0 0v6h6M8 13h8m-8 4h5"/> @break
         @case('home') <path d="m3 10 9-7 9 7v10H3Zm6 10v-7h6v7"/> @break

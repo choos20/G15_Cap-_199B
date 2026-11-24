@@ -87,4 +87,42 @@ class AcademicCatalogController extends Controller
         return redirect()->route('academic-catalog.index', ['tab' => $kind])
             ->with('status', ($kind === 'programs' ? 'Program ' : 'College / department ').$entry->code.' updated successfully.');
     }
+
+    public function destroy(Request $request, string $kind, int $id)
+    {
+        $this->guard($request);
+        abort_unless(in_array($kind, ['departments', 'programs'], true), 404);
+
+        $table = 'academic_'.$kind;
+        $entry = DB::table($table)->find($id);
+        abort_unless($entry, 404);
+
+        if (! $entry->is_active) {
+            return redirect()->route('academic-catalog.index', ['tab' => $kind])
+                ->with('status', ($kind === 'programs' ? 'Program ' : 'College / department ').$entry->code.' is already inactive.');
+        }
+
+        if ($kind === 'departments') {
+            $activePrograms = DB::table('academic_programs')
+                ->where('department_id', $id)
+                ->where('is_active', true)
+                ->count();
+
+            if ($activePrograms > 0) {
+                return redirect()->route('academic-catalog.index', ['tab' => $kind])
+                    ->withErrors([
+                        'catalog' => 'Archive the '.$activePrograms.' active program'.($activePrograms === 1 ? '' : 's').' under '.$entry->code.' before archiving this college / department.',
+                    ]);
+            }
+        }
+
+        DB::table($table)->where('id', $id)->update([
+            'is_active' => false,
+            'updated_at' => now(),
+        ]);
+        AuditLog::record('academic_catalog.archived', 'Archived '.$entry->code.' from the academic '.$kind.' list.', null, ['kind' => $kind, 'id' => $id]);
+
+        return redirect()->route('academic-catalog.index', ['tab' => $kind])
+            ->with('status', ($kind === 'programs' ? 'Program ' : 'College / department ').$entry->code.' archived. Existing participant records were preserved.');
+    }
 }

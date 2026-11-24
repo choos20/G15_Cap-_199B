@@ -901,6 +901,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/academic-catalog', [AcademicCatalogController::class, 'index'])->name('academic-catalog.index');
     Route::post('/academic-catalog/{kind}', [AcademicCatalogController::class, 'store'])->name('academic-catalog.store');
     Route::put('/academic-catalog/{kind}/{id}', [AcademicCatalogController::class, 'update'])->whereNumber('id')->name('academic-catalog.update');
+    Route::delete('/academic-catalog/{kind}/{id}', [AcademicCatalogController::class, 'destroy'])->whereNumber('id')->name('academic-catalog.destroy');
 
     Route::get('/users', function (Request $request) {
         $user = $request->user();

@@ -250,6 +250,44 @@ class ParticipantIdAccountEditTest extends TestCase
         $this->assertDatabaseHas('academic_programs', ['id' => $programId, 'code' => 'BSBIO', 'is_active' => false]);
     }
 
+    public function test_staff_can_archive_catalog_entries_without_deleting_records(): void
+    {
+        $editor = User::factory()->create(['role' => 'coordinator']);
+        $participant = User::factory()->create([
+            'role' => 'participant',
+            'participant_type' => 'student',
+            'affiliation' => 'COECS',
+            'program' => 'BSIT',
+        ]);
+        $collegeId = DB::table('academic_departments')->where('code', 'COECS')->value('id');
+        $programId = DB::table('academic_programs')->where('code', 'BSIT')->value('id');
+
+        $this->actingAs(User::factory()->create(['role' => 'participant']))
+            ->delete(route('academic-catalog.destroy', ['programs', $programId]))
+            ->assertForbidden();
+
+        $this->actingAs($editor)
+            ->delete(route('academic-catalog.destroy', ['departments', $collegeId]))
+            ->assertSessionHasErrors('catalog');
+        $this->assertDatabaseHas('academic_departments', ['id' => $collegeId, 'is_active' => true]);
+
+        $this->actingAs($editor)
+            ->delete(route('academic-catalog.destroy', ['programs', $programId]))
+            ->assertSessionHasNoErrors()
+            ->assertRedirect(route('academic-catalog.index', ['tab' => 'programs']));
+        $this->assertDatabaseHas('academic_programs', ['id' => $programId, 'is_active' => false]);
+        $this->assertDatabaseHas('academic_programs', ['id' => $programId, 'code' => 'BSIT']);
+        $this->assertSame('BSIT', $participant->fresh()->program);
+        $this->assertDatabaseHas('audit_logs', ['action' => 'academic_catalog.archived']);
+
+        DB::table('academic_programs')->where('department_id', $collegeId)->update(['is_active' => false]);
+        $this->actingAs($editor)
+            ->delete(route('academic-catalog.destroy', ['departments', $collegeId]))
+            ->assertSessionHasNoErrors()
+            ->assertRedirect(route('academic-catalog.index', ['tab' => 'departments']));
+        $this->assertDatabaseHas('academic_departments', ['id' => $collegeId, 'is_active' => false]);
+    }
+
     public function test_existing_inactive_and_legacy_values_can_be_preserved(): void
     {
         DB::table('academic_programs')->where('code', 'BSIT')->update(['is_active' => false]);
