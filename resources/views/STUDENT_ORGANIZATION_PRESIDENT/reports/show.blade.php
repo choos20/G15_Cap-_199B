@@ -219,8 +219,8 @@
             <div class="or-date-picker" data-date-picker data-date-field="from">
                 <div class="or-date-input-shell">
                     <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="4" y="5" width="16" height="15" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="M8 3v4m8-4v4M4 10h16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
-                    <input type="date" name="from" id="from" value="{{ $filters['from'] }}" class="or-date-native">
-                    <button type="button" class="or-date-trigger" aria-label="Choose submitted from date" aria-haspopup="dialog" aria-expanded="false" aria-controls="from-calendar">
+                    <input type="date" name="from" id="from" value="{{ $filters['from'] }}" class="or-date-native pl-date-control">
+                    <button type="button" class="or-date-trigger pl-date-control" aria-label="Choose submitted from date" aria-haspopup="dialog" aria-expanded="false" aria-controls="from-calendar">
                         <span class="or-date-value"></span>
                         <svg class="or-date-chevron" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m6 9 6 6 6-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
                     </button>
@@ -233,7 +233,7 @@
                     </div>
                     <div class="or-calendar-weekdays" aria-hidden="true"><span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span></div>
                     <div class="or-calendar-grid" data-calendar-grid role="grid"></div>
-                    <div class="or-calendar-foot"><button type="button" class="or-calendar-action" data-date-clear>Clear</button><button type="button" class="or-calendar-action" data-date-today>Today</button></div>
+                    <div class="or-calendar-foot"><button type="button" class="or-calendar-action pl-date-action pl-date-action-secondary" data-date-clear>Clear</button><button type="button" class="or-calendar-action pl-date-action pl-date-action-quick" data-date-today>Today</button></div>
                 </div>
             </div>
         </div>
@@ -242,8 +242,8 @@
             <div class="or-date-picker or-date-picker--to" data-date-picker data-date-field="to">
                 <div class="or-date-input-shell">
                     <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="4" y="5" width="16" height="15" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="M8 3v4m8-4v4M4 10h16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
-                    <input type="date" name="to" id="to" value="{{ $filters['to'] }}" class="or-date-native">
-                    <button type="button" class="or-date-trigger" aria-label="Choose submitted to date" aria-haspopup="dialog" aria-expanded="false" aria-controls="to-calendar">
+                    <input type="date" name="to" id="to" value="{{ $filters['to'] }}" class="or-date-native pl-date-control">
+                    <button type="button" class="or-date-trigger pl-date-control" aria-label="Choose submitted to date" aria-haspopup="dialog" aria-expanded="false" aria-controls="to-calendar">
                         <span class="or-date-value"></span>
                         <svg class="or-date-chevron" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m6 9 6 6 6-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
                     </button>
@@ -256,13 +256,13 @@
                     </div>
                     <div class="or-calendar-weekdays" aria-hidden="true"><span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span></div>
                     <div class="or-calendar-grid" data-calendar-grid role="grid"></div>
-                    <div class="or-calendar-foot"><button type="button" class="or-calendar-action" data-date-clear>Clear</button><button type="button" class="or-calendar-action" data-date-today>Today</button></div>
+                    <div class="or-calendar-foot"><button type="button" class="or-calendar-action pl-date-action pl-date-action-secondary" data-date-clear>Clear</button><button type="button" class="or-calendar-action pl-date-action pl-date-action-quick" data-date-today>Today</button></div>
                 </div>
             </div>
         </div>
         <div class="or-actions">
-            <button type="submit" class="or-button or-button-primary">Apply filters</button>
-            @if($report === 'attendance')<a class="or-button" href="{{ route('student_org.reports.show', ['report' => $report]) }}">Reset</a>@endif
+            <button type="submit" class="or-button or-button-primary pl-date-action pl-date-action-primary">Apply filters</button>
+            @if($report === 'attendance')<a class="or-button pl-date-action pl-date-action-secondary" href="{{ route('student_org.reports.show', ['report' => $report]) }}">Reset</a>@endif
             <a class="or-button" href="{{ route('student_org.reports.show', array_merge(['report' => $report], request()->query(), ['format' => 'csv'])) }}">CSV</a>
             <button type="button" class="or-button" onclick="window.print()">Print</button>
         </div>

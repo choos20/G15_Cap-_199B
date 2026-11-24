@@ -43,14 +43,14 @@
         </div>
         <div class="rp-field">
             <label for="from">From</label>
-            <input type="date" name="from" id="from" value="{{ $f['from'] }}">
+            <input type="date" name="from" id="from" class="pl-date-control" value="{{ $f['from'] }}">
         </div>
         <div class="rp-field">
             <label for="to">To</label>
-            <input type="date" name="to" id="to" value="{{ $f['to'] }}">
+            <input type="date" name="to" id="to" class="pl-date-control" value="{{ $f['to'] }}">
         </div>
         <div class="rp-actions">
-            <button type="submit" class="rp-btn rp-btn-primary">Apply</button>
+            <button type="submit" class="rp-btn rp-btn-primary pl-date-action pl-date-action-primary">Apply</button>
             <a href="{{ route('reports.activities', array_merge(request()->query(), ['format' => 'csv'])) }}" class="rp-btn">CSV</a>
             <button type="button" class="rp-btn" onclick="window.print()">Print</button>
         </div>

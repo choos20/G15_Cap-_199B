@@ -75,10 +75,10 @@
         <div class="la-field la-search-field"><label for="login-audit-q">Search</label><input id="login-audit-q" type="search" name="q" value="{{ $term }}" placeholder="Name, email, device, location..."></div>
         <div class="la-field"><label for="login-audit-role">Role</label><select id="login-audit-role" name="role"><option value="">All roles</option>@foreach(($visibleRoles ?? \App\Services\LoginActivityAccess::ALL_ROLES) as $option)<option value="{{ $option }}" @selected($role === $option)>{{ role_label($option) }}</option>@endforeach</select></div>
         <div class="la-field"><label for="login-audit-status">Status</label><select id="login-audit-status" name="status"><option value="">All statuses</option><option value="success" @selected($status === 'success')>Successful</option><option value="failed_password" @selected($status === 'failed_password')>Wrong password</option><option value="failed_mfa" @selected($status === 'failed_mfa')>MFA failed</option><option value="inactive_account" @selected($status === 'inactive_account')>Inactive account</option><option value="email_unverified" @selected($status === 'email_unverified')>Email not verified</option></select></div>
-        <div class="la-field"><label for="login-audit-from">From</label><input id="login-audit-from" type="date" name="from" value="{{ $from }}"></div>
-        <div class="la-field"><label for="login-audit-to">To</label><input id="login-audit-to" type="date" name="to" value="{{ $to }}"></div>
+        <div class="la-field"><label for="login-audit-from">From</label><input id="login-audit-from" class="pl-date-control" type="date" name="from" value="{{ $from }}"></div>
+        <div class="la-field"><label for="login-audit-to">To</label><input id="login-audit-to" class="pl-date-control" type="date" name="to" value="{{ $to }}"></div>
         <label class="la-check"><input type="checkbox" name="suspicious" value="1" @checked($suspiciousOnly)> Flagged only</label>
-        <button type="submit">Apply filters</button>
+        <button class="pl-date-action pl-date-action-primary" type="submit">Apply filters</button>
     </form>
 
     <section class="la-table-panel">

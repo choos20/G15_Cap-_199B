@@ -7,6 +7,7 @@
     <link rel="icon" type="image/png" href="{{ asset('images/Logo_nobg.png') }}">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('css/notifications.css') }}?v={{ substr(md5_file(public_path('css/notifications.css')), 0, 12) }}">
+    <link rel="stylesheet" href="{{ asset('css/date-range-filters.css') }}?v={{ substr(md5_file(public_path('css/date-range-filters.css')), 0, 12) }}">
     <style>
         :root{--sidebar:#0b2926;--sidebar-deep:#08211f;--accent:#13b886;--muted:#52665d;--text-secondary:#52665d;--text-muted:#5b7067;--card:#ffffff;--text:#16352d}
         *{box-sizing:border-box}

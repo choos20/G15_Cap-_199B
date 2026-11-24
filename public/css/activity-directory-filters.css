@@ -72,22 +72,22 @@
 .ad-date-range { min-inline-size: 0; margin: 0; padding: 0; border: 0; }
 .ad-date-range legend { display: flex; align-items: center; gap: 7px; margin-bottom: 12px; padding: 0; color: #244c3b; font-size: .82rem; font-weight: 800; }
 .ad-date-range legend svg { color: #087c5b; }
-.ad-date-controls { display: flex; align-items: flex-end; flex-wrap: wrap; gap: 12px 18px; }
+.ad-date-controls { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; }
 .ad-date-pair { display: grid; grid-template-columns: minmax(0, 1fr) 18px minmax(0, 1fr); align-items: start; gap: 10px; flex: 0 1 420px; width: 100%; min-width: 0; }
 .ad-date-pair input { color-scheme: light; }
 .ad-range-divider { display: flex; align-items: center; justify-content: center; height: 46px; margin-top: 24px; color: #6b8277; font-size: 1rem; }
-.ad-date-presets { display: flex; align-items: center; flex-wrap: wrap; gap: 7px; padding-bottom: 5px; }
-.ad-date-presets button { min-height: 34px; padding: 7px 11px; border: 1px solid #d6e8dc; border-radius: 999px; background: #f7fbf8; color: #3f6b57; font: inherit; font-size: .74rem; font-weight: 650; line-height: 1.35; cursor: pointer; white-space: nowrap; transition: background-color 160ms ease, border-color 160ms ease, color 160ms ease; }
+.ad-date-presets { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
+.ad-date-presets button { min-height: 44px; height: 44px; padding: 0 13px; border: 1px solid #b9dec8; border-radius: 8px; background: #f7fbf8; color: #1f5c43; font: inherit; font-size: .78rem; font-weight: 700; line-height: 1; cursor: pointer; white-space: nowrap; transition: background-color 160ms ease, border-color 160ms ease, color 160ms ease; }
 .ad-date-presets button:hover { border-color: #9ed9b8; background: #ecf9f1; color: #086b4c; }
 .ad-date-presets button[aria-pressed="true"] { border-color: #8bd5b8; background: #dcf6e7; color: #086b4c; }
-.ad-date-presets [data-date-clear] { border-color: transparent; background: transparent; color: #52665d; text-decoration: underline; text-underline-offset: 3px; }
-.ad-date-presets [data-date-clear]:hover { border-color: transparent; background: #f4faf6; color: #245d43; }
+.ad-date-presets [data-date-clear] { border-color: #cbded1; background: #fff; color: #243b35; text-decoration: none; }
+.ad-date-presets [data-date-clear]:hover { border-color: #8fcdb0; background: #f3fbf6; color: #075f45; }
 .ad-date-hint { margin: 9px 0 0; color: #52665d; font-size: .75rem; line-height: 1.55; }
 .ad-field-error { margin: 8px 0 0; color: #a62f25; font-size: .78rem; line-height: 1.5; }
 .ad-filter-field [aria-invalid="true"] { border-color: #b44c3d; background: #fffaf9; }
 .ad-filter-actions { display: flex; align-items: center; align-self: end; gap: 10px; }
 .ad-apply,
-.ad-reset { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 46px; padding: 11px 18px; border: 1px solid; border-radius: 10px; font: inherit; font-size: .82rem; font-weight: 750; text-decoration: none; cursor: pointer; white-space: nowrap; }
+.ad-reset { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; height: 44px; padding: 0 16px; border: 1px solid; border-radius: 8px; font: inherit; font-size: .82rem; font-weight: 750; text-decoration: none; cursor: pointer; white-space: nowrap; }
 .ad-apply { border-color: #087c5b; background: #087c5b; color: #fff; box-shadow: 0 6px 14px rgba(8, 124, 91, .14); }
 .ad-apply:hover { border-color: #066548; background: #066548; box-shadow: 0 8px 18px rgba(8, 124, 91, .2); }
 .ad-reset { border-color: #d4e5da; background: #fff; color: #3f6b57; }

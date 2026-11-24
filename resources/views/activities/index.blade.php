@@ -54,27 +54,27 @@
                     <div class="ad-date-pair">
                         <div class="ad-filter-field">
                             <label for="ad-date-from">From</label>
-                            <input type="date" id="ad-date-from" name="from" value="{{ $filterValue('from', $from) }}" aria-describedby="ad-date-hint{{ $dateError !== '' ? ' ad-date-error' : '' }}" @error('from') aria-invalid="true" @enderror>
+                            <input type="date" id="ad-date-from" name="from" class="pl-date-control" value="{{ $filterValue('from', $from) }}" aria-describedby="ad-date-hint{{ $dateError !== '' ? ' ad-date-error' : '' }}" @error('from') aria-invalid="true" @enderror>
                         </div>
                         <span class="ad-range-divider" aria-hidden="true">→</span>
                         <div class="ad-filter-field">
                             <label for="ad-date-to">To</label>
-                            <input type="date" id="ad-date-to" name="to" value="{{ $filterValue('to', $to) }}" aria-describedby="ad-date-hint{{ $dateError !== '' ? ' ad-date-error' : '' }}" @error('to') aria-invalid="true" @enderror>
+                            <input type="date" id="ad-date-to" name="to" class="pl-date-control" value="{{ $filterValue('to', $to) }}" aria-describedby="ad-date-hint{{ $dateError !== '' ? ' ad-date-error' : '' }}" @error('to') aria-invalid="true" @enderror>
                         </div>
                     </div>
                     <div class="ad-date-presets" role="group" aria-label="Date shortcuts">
-                        <button type="button" data-date-preset data-from="{{ $today->toDateString() }}" data-to="{{ $today->toDateString() }}" aria-pressed="false">Today</button>
-                        <button type="button" data-date-preset data-from="{{ $today->copy()->startOfWeek()->toDateString() }}" data-to="{{ $today->copy()->endOfWeek()->toDateString() }}" aria-pressed="false">This week</button>
-                        <button type="button" data-date-preset data-from="{{ $today->copy()->startOfMonth()->toDateString() }}" data-to="{{ $today->copy()->endOfMonth()->toDateString() }}" aria-pressed="false">This month</button>
-                        <button type="button" data-date-clear>Clear dates</button>
+                        <button type="button" class="pl-date-action pl-date-action-quick" data-date-preset data-from="{{ $today->toDateString() }}" data-to="{{ $today->toDateString() }}" aria-pressed="false">Today</button>
+                        <button type="button" class="pl-date-action pl-date-action-quick" data-date-preset data-from="{{ $today->copy()->startOfWeek()->toDateString() }}" data-to="{{ $today->copy()->endOfWeek()->toDateString() }}" aria-pressed="false">This week</button>
+                        <button type="button" class="pl-date-action pl-date-action-quick" data-date-preset data-from="{{ $today->copy()->startOfMonth()->toDateString() }}" data-to="{{ $today->copy()->endOfMonth()->toDateString() }}" aria-pressed="false">This month</button>
+                        <button type="button" class="pl-date-action pl-date-action-secondary" data-date-clear>Clear dates</button>
                     </div>
                 </div>
                 <p class="ad-date-hint" id="ad-date-hint">Based on the activity's scheduled date. You may leave either date blank.</p>
                 <p class="ad-field-error" id="ad-date-error" role="alert" data-server-error="{{ $dateError !== '' ? '1' : '0' }}" @if($dateError === '') hidden @endif>{{ $dateError ?: 'The To date must be on or after the From date.' }}</p>
             </fieldset>
-            <div class="ad-filter-actions">
-                <a href="{{ route('activities.index') }}" class="ad-reset">Reset</a>
-                <button type="submit" class="ad-apply"><x-ui-icon name="search" :size="17" />Apply filters</button>
+            <div class="ad-filter-actions pl-date-actions">
+                <a href="{{ route('activities.index') }}" class="ad-reset pl-date-action pl-date-action-secondary">Reset</a>
+                <button type="submit" class="ad-apply pl-date-action pl-date-action-primary"><x-ui-icon name="search" :size="17" />Apply filters</button>
             </div>
         </div>
     </form>

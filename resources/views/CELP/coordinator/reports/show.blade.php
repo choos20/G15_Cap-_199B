@@ -70,14 +70,14 @@
         </div>
         <div class="cr-field">
             <label for="from">From</label>
-            <input type="date" name="from" id="from" value="{{ $filters['from'] }}">
+            <input type="date" name="from" id="from" class="pl-date-control" value="{{ $filters['from'] }}">
         </div>
         <div class="cr-field">
             <label for="to">To</label>
-            <input type="date" name="to" id="to" value="{{ $filters['to'] }}">
+            <input type="date" name="to" id="to" class="pl-date-control" value="{{ $filters['to'] }}">
         </div>
         <div class="cr-actions">
-            <button type="submit" class="cr-button cr-button-primary">Apply filters</button>
+            <button type="submit" class="cr-button cr-button-primary pl-date-action pl-date-action-primary">Apply filters</button>
             <a class="cr-button" href="{{ route($reportRoutes['show'], array_merge(['report' => $report], request()->query(), ['format' => 'csv'])) }}">CSV</a>
             <button type="button" class="cr-button" onclick="window.print()">Print</button>
         </div>

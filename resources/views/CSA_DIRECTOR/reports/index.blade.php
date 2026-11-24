@@ -47,13 +47,13 @@
             </div>
             <div class="csr-field">
                 <label for="from">From date (optional)</label>
-                <input type="date" name="from" id="from" value="{{ $filters['from'] }}">
+                <input type="date" name="from" id="from" class="pl-date-control" value="{{ $filters['from'] }}">
             </div>
             <div class="csr-field">
                 <label for="to">To date (optional)</label>
-                <input type="date" name="to" id="to" value="{{ $filters['to'] }}">
+                <input type="date" name="to" id="to" class="pl-date-control" value="{{ $filters['to'] }}">
             </div>
-            <button class="csr-button" type="submit">Apply filters</button>
+            <button class="csr-button pl-date-action pl-date-action-primary" type="submit">Apply filters</button>
         </form>
 
         <div class="csr-grid">
