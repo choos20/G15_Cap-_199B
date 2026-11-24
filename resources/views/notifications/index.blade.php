@@ -76,7 +76,7 @@
             </div>
 
             <div style="margin-top:18px">
-                {{ $notifications->links() }}
+                {{ $notifications->links('partials.pagination') }}
             </div>
         @endif
     </div>

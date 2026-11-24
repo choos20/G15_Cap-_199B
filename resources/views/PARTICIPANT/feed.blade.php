@@ -106,7 +106,7 @@
                     </article>
                 @endforeach
             </div>
-            <div style="margin-top:14px">{{ $participantAnnouncements->links() }}</div>
+            <div style="margin-top:14px">{{ $participantAnnouncements->links('partials.pagination') }}</div>
         </section>
     @endif
 
@@ -184,6 +184,6 @@
                 </div>
             @endforeach
         </div>
-        <div style="margin-top:20px">{{ $opportunities->links() }}</div>
+        <div style="margin-top:20px">{{ $opportunities->links('partials.pagination') }}</div>
     @endif
 @endsection

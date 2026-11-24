@@ -45,6 +45,6 @@
                 </article>
             @endforeach
         </div>
-        <div style="margin-top:20px">{{ $records->links() }}</div>
+        <div style="margin-top:20px">{{ $records->links('partials.pagination') }}</div>
     @endif
 @endsection
