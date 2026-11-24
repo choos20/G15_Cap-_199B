@@ -68,14 +68,14 @@
                         <button type="button" class="pl-date-action pl-date-action-quick" data-date-preset data-from="{{ $today->copy()->startOfMonth()->toDateString() }}" data-to="{{ $today->copy()->endOfMonth()->toDateString() }}" aria-pressed="false">This month</button>
                         <button type="button" class="pl-date-action pl-date-action-secondary" data-date-clear>Clear dates</button>
                     </div>
+                    <div class="ad-filter-actions pl-date-actions">
+                        <a href="{{ route('activities.index') }}" class="ad-reset pl-date-action pl-date-action-secondary">Reset</a>
+                        <button type="submit" class="ad-apply pl-date-action pl-date-action-primary"><x-ui-icon name="search" :size="17" />Apply filters</button>
+                    </div>
                 </div>
                 <p class="ad-date-hint" id="ad-date-hint">Based on the activity's scheduled date. You may leave either date blank.</p>
                 <p class="ad-field-error" id="ad-date-error" role="alert" data-server-error="{{ $dateError !== '' ? '1' : '0' }}" @if($dateError === '') hidden @endif>{{ $dateError ?: 'The To date must be on or after the From date.' }}</p>
             </fieldset>
-            <div class="ad-filter-actions pl-date-actions">
-                <a href="{{ route('activities.index') }}" class="ad-reset pl-date-action pl-date-action-secondary">Reset</a>
-                <button type="submit" class="ad-apply pl-date-action pl-date-action-primary"><x-ui-icon name="search" :size="17" />Apply filters</button>
-            </div>
         </div>
     </form>
 
