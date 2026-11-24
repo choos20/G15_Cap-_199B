@@ -50,7 +50,11 @@ class AccountCreationCancelTest extends TestCase
             ->assertSee('data-confirm-cancel="Keep creating"', false)
             ->assertSee('data-confirm-navigation', false)
             ->assertSee('data-confirm-title="Leave account creation?"', false)
-            ->assertSee('data-confirm-body="You have unsaved changes. If you leave now, they will be lost."', false);
+            ->assertSee('data-confirm-body="You have unsaved changes. If you leave now, they will be lost."', false)
+            ->assertSee('autocomplete="email"', false)
+            ->assertDontSee('Institutional or personal address')
+            ->assertDontSee('paste is disabled')
+            ->assertDontSee('onpaste="return false;"', false);
 
         foreach (['celp_head', 'coordinator', 'celp_secretary'] as $role) {
             $creator = User::factory()->create(['role' => $role]);

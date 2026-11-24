@@ -337,6 +337,12 @@ class ParticipantIdAccountEditTest extends TestCase
             'role' => 'participant', 'participant_type' => 'student', 'id_number' => '000765',
             'affiliation' => 'COECS', 'program' => 'BSBA',
         ];
+        $mismatchedEmailPayload = $payload;
+        $mismatchedEmailPayload['program'] = 'BSIT';
+        $mismatchedEmailPayload['email_confirmation'] = 'different@example.com';
+        $this->actingAs($editor)
+            ->post(route('users.store'), $mismatchedEmailPayload)
+            ->assertSessionHasErrors('email');
         $this->actingAs($editor)->post(route('users.store'), $payload)->assertSessionHasErrors('program');
         $payload['affiliation'] = ' college of engineering and computer studies ';
         $payload['program'] = ' bachelor of science in information technology ';

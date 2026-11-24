@@ -256,22 +256,13 @@
                     <div class="cu-field">
                         <label for="email">Email address</label>
                         <input type="email" id="email" name="email" value="{{ old('email') }}" required
-                               autocomplete="off" spellcheck="false">
-                        @php $acctDomains = allowed_account_email_domains(); @endphp
-                        @if($acctDomains)
-                            <div class="hint">Must end in {{ collect($acctDomains)->map(fn($d) => '@' . $d)->implode(' or ') }}. The password is emailed here.</div>
-                        @else
-                            <div class="hint">Institutional or personal address (e.g. @hnu.edu.ph or @gmail.com). The password is emailed here, so check it carefully.</div>
-                        @endif
+                               autocomplete="email" spellcheck="false">
                     </div>
-                    {{-- Retyping is the only thing that catches a typo in an address
-                         that is otherwise perfectly well-formed. --}}
                     <div class="cu-field">
                         <label for="email_confirmation">Confirm email address</label>
                         <input type="email" id="email_confirmation" name="email_confirmation"
                                value="{{ old('email_confirmation') }}" required
-                               autocomplete="off" spellcheck="false" onpaste="return false;">
-                        <div class="hint">Retype it — paste is disabled here on purpose.</div>
+                               autocomplete="email" spellcheck="false">
                     </div>
                 </div>
 
