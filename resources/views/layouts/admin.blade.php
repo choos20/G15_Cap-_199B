@@ -311,6 +311,7 @@
                                 @php
                                     $notificationSource = ($notificationSources ?? [])[(string) $notification->id] ?? [
                                         'label' => 'ProjectLink',
+                                        'detail' => null,
                                         'initials' => 'PL',
                                         'avatar_url' => null,
                                         'fallback' => true,
@@ -324,6 +325,7 @@
                                     <button type="submit" class="notification-preview{{ $notificationUnread ? ' is-unread' : '' }}" aria-label="{{ $notificationUnread ? 'Open unread notification: ' : 'Open notification: ' }}{{ $notificationTitle }}">
                                         <x-notification-avatar :source="$notificationSource" :size="32" />
                                         <span class="notification-preview-copy">
+                                            <span class="notification-preview-source">{{ $notificationSource['label'] }}@if(!empty($notificationSource['detail'])) · {{ $notificationSource['detail'] }}@endif</span>
                                             <span class="notification-preview-title">{{ $notificationTitle }}</span>
                                             <span class="notification-preview-body">{{ \Illuminate\Support\Str::limit($notificationBody, 70) }}</span>
                                             <span class="notification-preview-time">{{ $notification->created_at->diffForHumans() }}</span>

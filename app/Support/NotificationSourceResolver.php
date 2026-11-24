@@ -17,7 +17,7 @@ final class NotificationSourceResolver
 {
     /**
      * @param iterable<int, mixed> $notifications
-     * @return array<string, array{label:string, initials:string, avatar_url:?string, fallback:bool}>
+     * @return array<string, array{label:string, detail:?string, initials:string, avatar_url:?string, fallback:bool}>
      */
     public static function for(iterable $notifications): array
     {
@@ -67,7 +67,7 @@ final class NotificationSourceResolver
             return [
                 (string) $notification->getKey() => $creator instanceof User
                     && self::isAvailable($creator)
-                    ? self::userSource($creator)
+                    ? self::userSource($creator, 'Activity organization')
                     : self::fallbackSource($projectId !== null ? 'Former organization' : 'ProjectLink'),
             ];
         })->all();
@@ -91,26 +91,38 @@ final class NotificationSourceResolver
         return $user->getAttribute('is_active') !== false;
     }
 
-    /** @return array{label:string, initials:string, avatar_url:?string, fallback:bool} */
-    private static function userSource(User $user): array
+    /** @return array{label:string, detail:?string, initials:string, avatar_url:?string, fallback:bool} */
+    private static function userSource(User $user, ?string $context = null): array
     {
         $isOrganization = in_array($user->role, ['student_org', 'college_department'], true);
+        $displayName = $isOrganization
+            ? ($user->organization_name ?: $user->name)
+            : $user->name;
 
         return [
-            'label' => $isOrganization
-                ? ($user->organization_name ?: $user->name)
-                : $user->name,
-            'initials' => $user->initials() ?: 'PL',
+            'label' => $context ?: $displayName,
+            'detail' => $context ? $displayName : null,
+            'initials' => self::initialsFor($displayName),
             'avatar_url' => $isOrganization ? $user->orgLogoUrl() : $user->profilePhotoUrl(),
             'fallback' => false,
         ];
     }
 
-    /** @return array{label:string, initials:string, avatar_url:?string, fallback:bool} */
+    private static function initialsFor(?string $displayName): string
+    {
+        return collect(preg_split('/\s+/', trim((string) $displayName)))
+            ->filter()
+            ->map(fn ($part) => mb_strtoupper(mb_substr($part, 0, 1)))
+            ->take(2)
+            ->implode('') ?: 'PL';
+    }
+
+    /** @return array{label:string, detail:?string, initials:string, avatar_url:?string, fallback:bool} */
     private static function fallbackSource(string $label): array
     {
         return [
             'label' => $label,
+            'detail' => null,
             'initials' => 'PL',
             'avatar_url' => null,
             'fallback' => true,

@@ -59,6 +59,7 @@
                     @php
                         $notificationSource = $notificationSources[(string) $notification->id] ?? [
                             'label' => 'ProjectLink',
+                            'detail' => null,
                             'initials' => 'PL',
                             'avatar_url' => null,
                             'fallback' => true,
@@ -74,6 +75,7 @@
                             <span class="notification-copy">
                                 <span class="notification-source-row">
                                     <span class="notification-source{{ ($notificationSource['fallback'] ?? false) ? ' notification-source--fallback' : '' }}">{{ $notificationSource['label'] }}</span>
+                                    @if(!empty($notificationSource['detail']))<span class="notification-source-detail">· {{ $notificationSource['detail'] }}</span>@endif
                                     @if($notificationUnread)<span class="notification-new-label">New</span>@endif
                                 </span>
                                 <span class="notification-title">{{ $notificationTitle }}</span>

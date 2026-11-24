@@ -78,7 +78,11 @@ class NotificationFiltersTest extends TestCase
     public function test_notification_source_falls_back_when_actor_has_been_removed(): void
     {
         $viewer = User::factory()->create(['role' => 'participant']);
-        $actor = User::factory()->create(['role' => 'celp_secretary']);
+        $actor = User::factory()->create([
+            'role' => 'student_org',
+            'name' => 'Maria B. Representative',
+            'organization_name' => 'United Balilinhon Students Association',
+        ]);
         $actorNotification = $this->createNotification(
             $viewer,
             'Project approved',
@@ -100,7 +104,8 @@ class NotificationFiltersTest extends TestCase
                 $actorSource = $sources[(string) $actorNotification->id] ?? [];
                 $removedSource = $sources[(string) $removedActorNotification->id] ?? [];
 
-                return $actorSource['label'] === $actor->name
+                return $actorSource['label'] === $actor->organization_name
+                    && $actorSource['initials'] === 'UB'
                     && $actorSource['fallback'] === false
                     && $removedSource['label'] === 'Former account'
                     && $removedSource['fallback'] === true
