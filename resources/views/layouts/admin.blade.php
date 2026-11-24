@@ -323,7 +323,7 @@
                                 <form action="{{ route('notifications.read', $notification->id) }}" method="POST" class="notification-preview-form">
                                     @csrf
                                     <button type="submit" class="notification-preview{{ $notificationUnread ? ' is-unread' : '' }}" aria-label="{{ $notificationUnread ? 'Open unread notification: ' : 'Open notification: ' }}{{ $notificationTitle }}">
-                                        <x-notification-avatar :source="$notificationSource" :size="32" />
+                                        <x-notification-avatar :source="$notificationSource" :size="44" />
                                         <span class="notification-preview-copy">
                                             <span class="notification-preview-source">{{ $notificationSource['label'] }}@if(!empty($notificationSource['detail'])) · {{ $notificationSource['detail'] }}@endif</span>
                                             <span class="notification-preview-title">{{ $notificationTitle }}</span>

@@ -114,6 +114,38 @@ class NotificationFiltersTest extends TestCase
             });
     }
 
+    public function test_notification_avatar_uses_only_logo_or_initials_fallback(): void
+    {
+        $logoMarkup = view('components.notification-avatar', [
+            'source' => [
+                'initials' => 'UB',
+                'avatar_url' => 'https://example.test/organization-logo.png',
+                'avatar_type' => 'organization',
+                'fallback' => false,
+            ],
+            'size' => 44,
+        ])->render();
+
+        $this->assertStringContainsString('<img src=', $logoMarkup);
+        $this->assertStringContainsString('--notification-avatar-size: 44px', $logoMarkup);
+        $this->assertStringContainsString('https://example.test/organization-logo.png', $logoMarkup);
+        $this->assertStringNotContainsString('class="notification-avatar__initials"', $logoMarkup);
+
+        $initialsMarkup = view('components.notification-avatar', [
+            'source' => [
+                'initials' => 'UB',
+                'avatar_url' => null,
+                'avatar_type' => 'organization',
+                'fallback' => false,
+            ],
+            'size' => 44,
+        ])->render();
+
+        $this->assertStringContainsString('class="notification-avatar__initials"', $initialsMarkup);
+        $this->assertStringContainsString('>UB</span>', $initialsMarkup);
+        $this->assertStringNotContainsString('<img', $initialsMarkup);
+    }
+
     private function createNotification(User $user, string $title, string $body, $readAt = null, array $extraData = [])
     {
         return $user->notifications()->create([

@@ -5,6 +5,9 @@
     flex: 0 0 var(--notification-avatar-size);
     width: var(--notification-avatar-size);
     height: var(--notification-avatar-size);
+    min-width: var(--notification-avatar-size);
+    min-height: var(--notification-avatar-size);
+    aspect-ratio: 1 / 1;
     overflow: hidden;
     border: 1px solid #c7e8d5;
     border-radius: 50%;
@@ -36,10 +39,9 @@
     display: block;
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    object-fit: contain;
+    object-position: center;
 }
-
-.notification-avatar.is-logo img { object-fit: contain; }
 
 .notification-avatar__initials { display: inline-flex; align-items: center; justify-content: center; }
 

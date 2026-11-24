@@ -118,7 +118,7 @@
                                 $notificationTitle = $notification->data['title'] ?? 'Notification';
                                 $notificationUnread = $notification->read_at === null;
                             @endphp
-                            <li><form action="{{ route('notifications.read', $notification->id) }}" method="POST">@csrf<button class="ph-update" type="submit" aria-label="{{ $notificationUnread ? 'Open unread notification: ' : 'Open notification: ' }}{{ $notificationTitle }}"><x-notification-avatar :source="$notificationSource" :size="32" /><span class="ph-update-copy"><strong>{{ $notificationTitle }}</strong><small>{{ $notification->created_at->diffForHumans() }}</small></span>@if($notificationUnread)<span class="ph-unread-dot"><span class="ph-sr-only">Unread</span></span>@endif</button></form></li>
+                            <li><form action="{{ route('notifications.read', $notification->id) }}" method="POST">@csrf<button class="ph-update" type="submit" aria-label="{{ $notificationUnread ? 'Open unread notification: ' : 'Open notification: ' }}{{ $notificationTitle }}"><x-notification-avatar :source="$notificationSource" :size="44" /><span class="ph-update-copy"><strong>{{ $notificationTitle }}</strong><small>{{ $notification->created_at->diffForHumans() }}</small></span>@if($notificationUnread)<span class="ph-unread-dot"><span class="ph-sr-only">Unread</span></span>@endif</button></form></li>
                         @endforeach
                     </ul>
                 @endif
