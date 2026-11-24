@@ -63,7 +63,7 @@
                 width: auto;
                 min-width: 14px;
                 border: 0;
-                color: #8aa097;
+                color: #52665d;
             }
 
             .pg svg {

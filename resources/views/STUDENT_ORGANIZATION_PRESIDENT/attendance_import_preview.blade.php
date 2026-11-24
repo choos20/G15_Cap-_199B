@@ -7,7 +7,7 @@
     <style>
         .attendance-import-preview-table { width:100%; border-collapse:collapse; }
         .attendance-import-preview-table th, .attendance-import-preview-table td { padding:12px 14px; text-align:left; vertical-align:top; border-bottom:1px solid #e5e7eb; }
-        .attendance-import-preview-table th { color:#64748b; font-size:0.78rem; text-transform:uppercase; letter-spacing:0.04em; }
+        .attendance-import-preview-table th { color:#52665d; font-size:0.78rem; text-transform:uppercase; letter-spacing:0.04em; }
         .attendance-import-preview-table tr.invalid { background:#fff7f7; }
         .attendance-import-summary { display:flex; flex-wrap:wrap; gap:12px; margin:18px 0; }
         .attendance-import-summary div { padding:16px 20px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:14px; }
@@ -15,7 +15,7 @@
         .attendance-import-primary { border:0; border-radius:12px; padding:12px 16px; background:#0fbf91; color:#fff; font-weight:700; cursor:pointer; }
         .attendance-import-primary:disabled { opacity:.55; cursor:not-allowed; }
         .attendance-import-secondary { display:inline-flex; align-items:center; border:1px solid #cbd5e1; border-radius:12px; padding:12px 16px; background:#f8fafc; color:#0f172a; font-weight:700; text-decoration:none; }
-        .attendance-import-stepper { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin:18px 0; color:#64748b; font-size:.82rem; }
+        .attendance-import-stepper { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin:18px 0; color:#52665d; font-size:.82rem; }
         .attendance-import-stepper span { display:flex; align-items:center; gap:8px; }
         .attendance-import-stepper b { display:grid; place-items:center; width:26px; height:26px; border-radius:50%; background:#e2e8f0; color:#475569; }
         .attendance-import-stepper .done, .attendance-import-stepper .active { color:#0b6a4a; font-weight:700; }

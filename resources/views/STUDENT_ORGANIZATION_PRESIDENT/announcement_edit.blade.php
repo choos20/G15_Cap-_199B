@@ -27,7 +27,7 @@
             background:#fff; color:#0f172a; font:inherit;
         }
         .ann-edit-field textarea { min-height:110px; resize:vertical; }
-        .ann-edit-help { margin-top:5px; color:#64748b; font-size:.82rem; }
+        .ann-edit-help { margin-top:5px; color:#52665d; font-size:.82rem; }
         .ann-edit-error { margin-top:6px; color:#b91c1c; font-size:.88rem; }
         .ann-edit-category-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
         .ann-edit-category { display:flex; align-items:flex-start; gap:11px; min-height:94px; padding:15px; border:1px solid #dfe9e4; border-radius:14px; background:#fff; cursor:pointer; transition:border-color .18s ease,background .18s ease,box-shadow .18s ease; }
@@ -41,7 +41,7 @@
         .ann-edit-files { display:grid; gap:9px; margin-top:10px; }
         .ann-edit-file { display:flex; align-items:center; gap:12px; padding:11px 13px; border:1px solid #e2e8f0; border-radius:10px; background:#f8fafc; }
         .ann-edit-file-info { flex:1; min-width:0; overflow-wrap:anywhere; font-size:.9rem; font-weight:600; }
-        .ann-edit-file-info span { display:block; margin-top:3px; color:#64748b; font-size:.78rem; font-weight:400; }
+        .ann-edit-file-info span { display:block; margin-top:3px; color:#52665d; font-size:.78rem; font-weight:400; }
         .ann-edit-file a { color:#08734e; font-size:.84rem; font-weight:700; }
         .ann-edit-remove { padding:7px 10px; border:1px solid #fecaca; border-radius:8px; background:#fff; color:#b91c1c; font-weight:700; cursor:pointer; }
         .ann-edit-actions { display:flex; justify-content:flex-end; gap:10px; flex-wrap:wrap; margin-top:20px; }
@@ -182,13 +182,13 @@
                     </div>
 
                     <div class="ann-edit-field" data-category-fields="recruitment">
-                        <label for="latitude">Map latitude <span style="font-weight:400; color:#64748b">(optional)</span></label>
+                        <label for="latitude">Map latitude <span style="font-weight:400; color:#52665d">(optional)</span></label>
                         <input id="latitude" name="latitude" type="number" step="any" min="-90" max="90" value="{{ old('latitude', $announcement->latitude) }}">
                         @error('latitude')<div class="ann-edit-error">{{ $message }}</div>@enderror
                     </div>
 
                     <div class="ann-edit-field" data-category-fields="recruitment">
-                        <label for="longitude">Map longitude <span style="font-weight:400; color:#64748b">(optional)</span></label>
+                        <label for="longitude">Map longitude <span style="font-weight:400; color:#52665d">(optional)</span></label>
                         <input id="longitude" name="longitude" type="number" step="any" min="-180" max="180" value="{{ old('longitude', $announcement->longitude) }}">
                         @error('longitude')<div class="ann-edit-error">{{ $message }}</div>@enderror
                     </div>

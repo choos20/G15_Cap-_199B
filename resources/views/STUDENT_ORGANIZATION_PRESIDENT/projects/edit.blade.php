@@ -60,7 +60,7 @@
             box-shadow:0 0 0 4px rgba(59,130,246,0.12);
         }
         .textarea-field { min-height:150px; resize:vertical; }
-        .field-helper { margin-top:8px; color:#64748b; font-size:0.9rem; }
+        .field-helper { margin-top:8px; color:#52665d; font-size:0.9rem; }
         .dropzone {
             position:relative;
             min-height:180px;
@@ -135,7 +135,7 @@
             text-overflow:ellipsis;
             white-space:nowrap;
         }
-        .attachment-info span { display:block; color:#64748b; margin-top:4px; font-size:0.92rem; }
+        .attachment-info span { display:block; color:#52665d; margin-top:4px; font-size:0.92rem; }
         .attachment-remove {
             border:1px solid #cbd5e1;
             background:#ffffff;

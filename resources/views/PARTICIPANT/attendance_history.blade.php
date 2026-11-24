@@ -15,7 +15,7 @@
     @endphp
 
     @if($records->isEmpty())
-        <div class="card" style="padding:40px; text-align:center; color:#64748b">
+        <div class="card" style="padding:40px; text-align:center; color:#52665d">
             <div style="font-size:2rem; margin-bottom:10px">📋</div>
             No attendance records yet.
         </div>
@@ -31,7 +31,7 @@
                     <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:16px; flex-wrap:wrap">
                         <div>
                             <h3 style="margin:0; color:#0f172a">{{ $record->session?->project?->title ?? 'Activity unavailable' }}</h3>
-                            <div style="margin-top:8px; color:#64748b">Attendance session</div>
+                            <div style="margin-top:8px; color:#52665d">Attendance session</div>
                         </div>
                         <span style="display:inline-flex; padding:6px 12px; border-radius:999px; background:{{ $background }}; color:{{ $color }}; font-size:0.82rem; font-weight:700">
                             {{ $label }}

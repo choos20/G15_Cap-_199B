@@ -58,7 +58,7 @@
         .rh-icon { width:46px; height:46px; border-radius:14px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
         .rh-name { font-weight:700; font-size:1.05rem; color:#0f172a; }
         .rh-blurb { color:#475569; font-size:0.9rem; line-height:1.6; margin-top:7px; }
-        .rh-meta { color:#94a3b8; font-size:0.8rem; margin-top:10px; font-weight:600; }
+        .rh-meta { color:#5b7067; font-size:0.8rem; margin-top:10px; font-weight:600; }
     </style>
 
     <div class="rh-grid">

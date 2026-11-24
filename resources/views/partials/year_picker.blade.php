@@ -61,7 +61,7 @@
                       font:inherit; color:#0f172a; cursor:pointer; text-align:left; transition:all 150ms ease; }
         .yp-trigger:hover { border-color:#cbd5e1; }
         .yp-trigger[aria-expanded="true"] { border-color:#3b82f6; background:#fff; box-shadow:0 0 0 4px rgba(59,130,246,0.1); }
-        .yp-placeholder { color:#94a3b8; }
+        .yp-placeholder { color:#5b7067; }
 
         .yp-pop { position:absolute; z-index:60; top:calc(100% + 8px); left:0; width:270px; padding:12px;
                   background:#fff; border:1px solid #e5e7eb; border-radius:16px;

@@ -16,12 +16,12 @@
         .ad-org-link:hover { text-decoration:underline; }
         .ad-desc { color:#475569; font-size:0.9rem; margin-top:10px; line-height:1.6;
                    overflow:hidden; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; }
-        .ad-facts { display:flex; flex-wrap:wrap; gap:8px 16px; margin-top:14px; font-size:0.85rem; color:#64748b; }
+        .ad-facts { display:flex; flex-wrap:wrap; gap:8px 16px; margin-top:14px; font-size:0.85rem; color:#52665d; }
         .ad-foot { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-top:16px; padding-top:14px; border-top:1px solid #f1f5f9; }
         .ad-view { display:inline-flex; align-items:center; gap:6px; padding:9px 16px; border-radius:10px;
                    background:#0b6a4a; color:#fff; text-decoration:none; font-weight:700; font-size:0.86rem; }
         .ad-view:hover { background:#0f8a61; }
-        .ad-empty { padding:52px; text-align:center; color:#64748b; }
+        .ad-empty { padding:52px; text-align:center; color:#52665d; }
         .ad-fact { display:inline-flex; align-items:center; gap:6px; }
         .ad-fact svg { flex-shrink:0; }
     </style>
@@ -170,7 +170,7 @@
                     </div>
 
                     <div class="ad-foot">
-                        <span style="color:#94a3b8; font-size:0.8rem">
+                        <span style="color:#5b7067; font-size:0.8rem">
                             {{ $activity->published_at ? 'Posted ' . $activity->published_at->diffForHumans() : '' }}
                         </span>
                         <a href="{{ route('activities.show', $activity) }}" class="ad-view">

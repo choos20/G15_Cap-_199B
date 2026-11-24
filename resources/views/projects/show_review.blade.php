@@ -8,7 +8,7 @@
         <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:16px; flex-wrap:wrap">
             <div>
                 <h3 style="margin:0; font-size:1.4rem; color:#0f172a">{{ $project->title }}</h3>
-                <div style="display:flex; align-items:center; gap:9px; color:#64748b; margin-top:8px; flex-wrap:wrap">
+                <div style="display:flex; align-items:center; gap:9px; color:#52665d; margin-top:8px; flex-wrap:wrap">
                     <x-organization-avatar :organization="$project->creator" :size="30" />
                     <span>{{ $project->creator->organization_name ?? $project->creator->name ?? '—' }}</span>
                     <span>· 🕒 Submitted {{ $project->created_at->diffForHumans() }}</span>
@@ -34,7 +34,7 @@
                             <div style="width:42px; height:42px; border-radius:12px; background:#eef2ff; color:#4338ca; display:flex; align-items:center; justify-content:center; font-size:1.1rem; flex-shrink:0;">📄</div>
                             <div style="flex:1; min-width:0">
                                 <div style="font-weight:600; color:#0f172a; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">{{ $attachment->file_name }}</div>
-                                <div style="font-size:0.85rem; color:#64748b;">{{ strtoupper(pathinfo($attachment->file_name, PATHINFO_EXTENSION)) }} · {{ number_format($attachment->file_size / 1024 / 1024, 2) }} MB</div>
+                                <div style="font-size:0.85rem; color:#52665d;">{{ strtoupper(pathinfo($attachment->file_name, PATHINFO_EXTENSION)) }} · {{ number_format($attachment->file_size / 1024 / 1024, 2) }} MB</div>
                             </div>
                         </a>
                     @endforeach
@@ -97,7 +97,7 @@
                     <button name="action" value="return" style="padding:12px 22px; border-radius:12px; background:#fff7ed; color:#9a3412; border:1px solid #fed7aa; font-weight:700; cursor:pointer;">Return to applicant</button>
                 </form>
             @else
-                <div style="color:#64748b">You are not authorized to review this submission.</div>
+                <div style="color:#52665d">You are not authorized to review this submission.</div>
             @endif
         </div>
     </div>

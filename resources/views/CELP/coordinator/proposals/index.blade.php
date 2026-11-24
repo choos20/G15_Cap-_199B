@@ -13,7 +13,7 @@
                 @foreach($proposals as $p)
                     <li style="margin-bottom:8px">
                         <a href="{{ route('proposals.show', $p) }}">{{ $p->title }}</a>
-                        <div style="font-size:0.9rem; color:#6b7280">Submitted by: {{ $p->applicant->name }}</div>
+                        <div style="font-size:0.9rem; color:#52665d">Submitted by: {{ $p->applicant->name }}</div>
                     </li>
                 @endforeach
             </ul>

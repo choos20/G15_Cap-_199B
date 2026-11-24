@@ -11,7 +11,7 @@
 
     <style>
         .ab-tabs { display:flex; gap:26px; border-bottom:1px solid #e2e8f0; margin-bottom:22px; }
-        .ab-tab { padding:0 0 12px; color:#64748b; text-decoration:none; font-weight:600; font-size:0.95rem;
+        .ab-tab { padding:0 0 12px; color:#52665d; text-decoration:none; font-weight:600; font-size:0.95rem;
                   border-bottom:2px solid transparent; margin-bottom:-1px; }
         .ab-tab:hover { color:#0f172a; }
         .ab-tab.is-on { color:#0b6a4a; border-bottom-color:#0b6a4a; font-weight:700; }
@@ -29,15 +29,15 @@
         .ab-field:last-child { margin-bottom:0; }
         .ab-label { display:flex; align-items:center; justify-content:space-between; gap:10px;
                     font-size:0.86rem; font-weight:600; color:#334155; margin-bottom:7px; }
-        .ab-count { font-size:0.78rem; color:#94a3b8; font-variant-numeric:tabular-nums; }
+        .ab-count { font-size:0.78rem; color:#5b7067; font-variant-numeric:tabular-nums; }
         .ab-input, .ab-textarea, .ab-select {
             width:100%; padding:11px 13px; border:1px solid #d1d5db; border-radius:11px; font:inherit;
             font-size:0.93rem; color:#0f172a; background:#fff; transition:border-color 150ms ease, box-shadow 150ms ease;
         }
         .ab-input:focus, .ab-textarea:focus { outline:none; border-color:#0b6a4a; box-shadow:0 0 0 4px rgba(11,106,74,0.10); }
-        .ab-input[readonly] { background:#f1f5f9; color:#64748b; cursor:not-allowed; }
+        .ab-input[readonly] { background:#f1f5f9; color:#52665d; cursor:not-allowed; }
         .ab-textarea { resize:vertical; min-height:84px; line-height:1.6; }
-        .ab-hint { font-size:0.8rem; color:#94a3b8; margin-top:6px; }
+        .ab-hint { font-size:0.8rem; color:#5b7067; margin-top:6px; }
         .ab-grid2 { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
         @media (max-width:620px) { .ab-grid2 { grid-template-columns:1fr; } }
 
@@ -60,14 +60,14 @@
         .ab-chip input:checked + span { background:#0b6a4a; border-color:#0b6a4a; color:#fff; }
         .ab-chip input:focus-visible + span { box-shadow:0 0 0 4px rgba(11,106,74,0.18); }
 
-        .ab-preview-label { font-size:0.74rem; font-weight:700; color:#94a3b8; letter-spacing:0.08em;
+        .ab-preview-label { font-size:0.74rem; font-weight:700; color:#5b7067; letter-spacing:0.08em;
                             text-transform:uppercase; margin-bottom:10px; }
         .ab-preview { background:#fff; border-radius:16px; box-shadow:0 6px 18px rgba(11,42,42,0.06); padding:22px; }
         .ab-pv-logo { width:56px; height:56px; border-radius:14px; border:1px solid #e2e8f0; background:#f8fafc;
                       display:flex; align-items:center; justify-content:center; overflow:hidden; margin-bottom:14px; }
         .ab-pv-logo img { width:100%; height:100%; object-fit:cover; }
         .ab-pv-name { font-weight:700; font-size:1.08rem; color:#0f172a; }
-        .ab-pv-sub { color:#64748b; font-size:0.86rem; margin-top:3px; }
+        .ab-pv-sub { color:#52665d; font-size:0.86rem; margin-top:3px; }
         .ab-pv-desc { color:#475569; font-size:0.9rem; line-height:1.6; margin-top:12px; }
         .ab-pv-tags { display:flex; flex-wrap:wrap; gap:8px; margin-top:14px; padding-top:14px; border-top:1px solid #f1f5f9; }
         .ab-pv-tag { background:#ecfdf5; color:#047857; font-size:0.76rem; font-weight:700; padding:5px 11px; border-radius:999px; }
@@ -83,7 +83,7 @@
         .ab-bar { display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap;
                   background:#fff; border-radius:14px; box-shadow:0 6px 18px rgba(11,42,42,0.06);
                   padding:14px 20px; margin-top:18px; position:sticky; bottom:14px; }
-        .ab-saved { color:#64748b; font-size:0.85rem; }
+        .ab-saved { color:#52665d; font-size:0.85rem; }
         .ab-btn { padding:12px 22px; border-radius:11px; border:1px solid #d1d5db; background:#fff; color:#0f172a;
                   font:inherit; font-weight:700; cursor:pointer; text-decoration:none; display:inline-flex; align-items:center; }
         .ab-btn-primary { background:#0b6a4a; border-color:#0b6a4a; color:#fff; }
@@ -94,13 +94,13 @@
         .ab-avatar { width:42px; height:42px; border-radius:50%; background:#0b6a4a; color:#fff; font-weight:700;
                      font-size:0.88rem; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
         .ab-of-name { font-weight:700; color:#0f172a; }
-        .ab-of-pos { color:#64748b; font-size:0.86rem; margin-top:2px; }
+        .ab-of-pos { color:#52665d; font-size:0.86rem; margin-top:2px; }
         .ab-of-actions { margin-left:auto; display:flex; gap:6px; align-items:center; }
         .ab-mini { width:30px; height:30px; border-radius:8px; border:1px solid #e2e8f0; background:#fff;
                    cursor:pointer; color:#475569; font-size:0.9rem; line-height:1; }
         .ab-mini:hover:not(:disabled) { background:#f8fafc; border-color:#cbd5e1; }
         .ab-mini:disabled { opacity:0.35; cursor:default; }
-        .ab-empty { padding:34px; text-align:center; color:#64748b; }
+        .ab-empty { padding:34px; text-align:center; color:#52665d; }
     </style>
 
     @if(session('status'))
@@ -363,7 +363,7 @@
                                                     @csrf
                                                     <label for="officer-avatar-{{ $officer->id }}" style="display:block; margin-bottom:7px; color:#334155; font-size:.78rem; font-weight:700">Upload or replace photo</label>
                                                     <input id="officer-avatar-{{ $officer->id }}" type="file" name="avatar" accept="image/jpeg,image/png,image/webp" required style="width:100%; font-size:.75rem">
-                                                    <small style="display:block; margin-top:5px; color:#64748b">Use JPG, PNG, or WebP, at least 256 × 256 pixels, and no larger than 2 MB.</small>
+                                                    <small style="display:block; margin-top:5px; color:#52665d">Use JPG, PNG, or WebP, at least 256 × 256 pixels, and no larger than 2 MB.</small>
                                                     @error('avatar')
                                                         <div style="margin-top:6px; color:#b91c1c; font-size:.75rem">{{ $message }}</div>
                                                     @enderror
@@ -381,7 +381,7 @@
                                                         <button type="submit" class="ab-btn" style="margin-top:8px; padding:8px 10px; color:#b91c1c; font-size:.78rem">Remove photo</button>
                                                     </form>
                                                 @endif
-                                                <div style="margin-top:8px; color:#64748b; font-size:.7rem">JPG, PNG, or WebP; maximum 2 MB.</div>
+                                                <div style="margin-top:8px; color:#52665d; font-size:.7rem">JPG, PNG, or WebP; maximum 2 MB.</div>
                                             </div>
                                         </details>
                                     @endif
@@ -402,7 +402,7 @@
                                     </div>
                                 </div>
                                 <div class="ab-field" style="margin-top:12px; margin-bottom:0">
-                                    <div class="ab-label"><label>Email <span style="font-weight:400; color:#94a3b8">(optional)</span></label></div>
+                                    <div class="ab-label"><label>Email <span style="font-weight:400; color:#5b7067">(optional)</span></label></div>
                                     <input class="ab-input" name="email" type="email" value="{{ $officer->email }}" maxlength="150">
                                 </div>
                                 <div style="display:flex; gap:10px; margin-top:14px">
@@ -421,7 +421,7 @@
                         </span>
                         <div>
                             <h3 style="margin:0; font-size:1.02rem; color:#0f172a">Add an officer</h3>
-                            <div style="margin-top:3px; color:#64748b; font-size:0.85rem">
+                            <div style="margin-top:3px; color:#52665d; font-size:0.85rem">
                                 The president is listed automatically. Add other officer positions here.
                             </div>
                         </div>
@@ -439,7 +439,7 @@
                             </div>
                         </div>
                         <div class="ab-field" style="margin-top:14px">
-                            <div class="ab-label"><label for="of-email">Email <span style="font-weight:400; color:#94a3b8">(optional)</span></label></div>
+                            <div class="ab-label"><label for="of-email">Email <span style="font-weight:400; color:#5b7067">(optional)</span></label></div>
                             <input class="ab-input" id="of-email" name="email" type="email" maxlength="150">
                         </div>
                         <button type="submit" class="ab-btn ab-btn-primary" style="margin-top:16px">Add officer</button>

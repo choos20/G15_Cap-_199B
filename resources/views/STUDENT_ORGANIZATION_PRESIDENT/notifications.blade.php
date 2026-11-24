@@ -44,7 +44,7 @@
                                 <div style="display:inline-flex; align-items:center; gap:8px; padding:8px 12px; border-radius:999px; background:{{ $statusColor }}; color:#0f172a; font-weight:700; font-size:0.92rem">Returned proposal</div>
                             </div>
                             <div style="text-align:right; min-width:120px">
-                                <div style="font-size:0.85rem; color:#64748b;">Current status</div>
+                                <div style="font-size:0.85rem; color:#52665d;">Current status</div>
                                 <div style="margin-top:8px; font-weight:700; color:#0f172a">{{ ucwords(str_replace('_', ' ', $project->status)) }}</div>
                                 <a href="{{ route('projects.edit', $project) }}" style="display:inline-block; margin-top:12px; padding:10px 14px; border-radius:14px; background:#0f172a; color:#ffffff; text-decoration:none; font-size:0.92rem;">Edit and resubmit</a>
                             </div>

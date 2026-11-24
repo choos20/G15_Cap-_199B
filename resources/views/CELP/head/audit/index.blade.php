@@ -23,28 +23,28 @@
                    border:1px solid #e2e8f0; color:#334155; text-decoration:none; font-size:0.86rem; font-weight:700; }
         .al-chip:hover { border-color:#cbd5e1; background:#f8fafc; }
         .al-chip.is-on { background:#0b6a4a; border-color:#0b6a4a; color:#fff; }
-        .al-chip-n { color:#94a3b8; font-variant-numeric:tabular-nums; }
+        .al-chip-n { color:#5b7067; font-variant-numeric:tabular-nums; }
         .al-chip.is-on .al-chip-n { color:rgba(255,255,255,0.75); }
 
         .al-entry { display:flex; gap:16px; padding:16px 22px; border-bottom:1px solid #f1f5f9; }
         .al-entry:last-child { border-bottom:none; }
         .al-entry:hover { background:#f8fafc; }
-        .al-when { flex-shrink:0; width:150px; color:#64748b; font-size:0.82rem; line-height:1.5; }
+        .al-when { flex-shrink:0; width:150px; color:#52665d; font-size:0.82rem; line-height:1.5; }
         .al-when strong { display:block; color:#0f172a; font-weight:600; }
         .al-body { flex:1; min-width:0; }
         .al-summary { color:#0f172a; font-size:0.94rem; }
-        .al-actor { color:#64748b; font-size:0.84rem; margin-top:5px; }
+        .al-actor { color:#52665d; font-size:0.84rem; margin-top:5px; }
         .al-pill { display:inline-flex; padding:4px 11px; border-radius:999px; font-size:0.74rem; font-weight:700; white-space:nowrap; }
         .al-context { margin-top:9px; padding:9px 13px; border-radius:9px; background:#f8fafc; border:1px solid #e2e8f0; font-size:0.84rem; color:#475569; }
         .al-context dt { display:inline; font-weight:700; color:#334155; }
         .al-context dd { display:inline; margin:0 14px 0 4px; }
-        .al-empty { padding:48px; text-align:center; color:#64748b; }
+        .al-empty { padding:48px; text-align:center; color:#52665d; }
         @media (max-width:640px) { .al-entry { flex-direction:column; gap:8px; } .al-when { width:auto; } }
     </style>
 
     <div class="al-toolbar">
         <form method="GET" action="{{ route('audit.index') }}" class="al-search">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="7" stroke="#94a3b8" stroke-width="2"/><path d="M20 20l-3.5-3.5" stroke="#94a3b8" stroke-width="2" stroke-linecap="round"/></svg>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="7" stroke="#5b7067" stroke-width="2"/><path d="M20 20l-3.5-3.5" stroke="#5b7067" stroke-width="2" stroke-linecap="round"/></svg>
             <input type="search" name="q" value="{{ $term }}" placeholder="Search action, person, or subject..." aria-label="Search audit log">
             @if($scope)
                 <input type="hidden" name="scope" value="{{ $scope }}">

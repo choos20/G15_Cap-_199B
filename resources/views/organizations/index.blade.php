@@ -12,7 +12,7 @@
         .od-search input { border:none; outline:none; font:inherit; font-size:0.92rem; width:100%; min-width:0; background:transparent; color:#0f172a; }
         .od-classification { display:flex; align-items:center; gap:8px; min-height:40px; padding:0 12px;
                              border:1px solid #e2e8f0; border-radius:999px; background:#fff; color:#475569; }
-        .od-classification svg { width:16px; height:16px; flex:0 0 16px; color:#64748b; }
+        .od-classification svg { width:16px; height:16px; flex:0 0 16px; color:#52665d; }
         .od-classification select { max-width:195px; border:0; outline:0; background:transparent; color:#334155;
                                    font:inherit; font-size:0.84rem; cursor:pointer; }
         .od-sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
@@ -29,21 +29,21 @@
         .od-card:hover { box-shadow:0 14px 30px rgba(11,42,42,0.12); transform:translateY(-2px); }
         .od-head { display:flex; align-items:center; gap:14px; }
         .od-name { font-weight:700; font-size:1.02rem; color:#0f172a; line-height:1.35; }
-        .od-sub { color:#64748b; font-size:0.84rem; margin-top:3px; }
+        .od-sub { color:#52665d; font-size:0.84rem; margin-top:3px; }
         .od-desc { color:#475569; font-size:0.89rem; line-height:1.6; margin-top:14px;
                    overflow:hidden; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; min-height:0; }
         .od-tags { display:flex; flex-wrap:wrap; gap:7px; margin-top:14px; }
         .od-tag { background:#ecfdf5; color:#047857; font-size:0.74rem; font-weight:700; padding:4px 10px; border-radius:999px; }
         .od-foot { display:flex; align-items:center; gap:14px; margin-top:auto; padding-top:14px;
-                   border-top:1px solid #f1f5f9; color:#94a3b8; font-size:0.8rem; font-weight:600; }
-        .od-empty { padding:52px; text-align:center; color:#64748b; }
-        .od-thin { color:#cbd5e1; font-style:italic; }
+                   border-top:1px solid #f1f5f9; color:#5b7067; font-size:0.8rem; font-weight:600; }
+        .od-empty { padding:52px; text-align:center; color:#52665d; }
+        .od-thin { color:#52665d; font-style:italic; }
     </style>
 
     <div class="od-toolbar">
         <form method="GET" action="{{ route('organizations.index') }}" class="od-toolbar-form">
             <label class="od-search">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="7" stroke="#94a3b8" stroke-width="2"/><path d="M20 20l-3.5-3.5" stroke="#94a3b8" stroke-width="2" stroke-linecap="round"/></svg>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="7" stroke="#5b7067" stroke-width="2"/><path d="M20 20l-3.5-3.5" stroke="#5b7067" stroke-width="2" stroke-linecap="round"/></svg>
                 <input type="search" name="q" value="{{ $term }}" placeholder="Search organization, acronym or college..." aria-label="Search organizations">
             </label>
             @if($advocacy)<input type="hidden" name="advocacy" value="{{ $advocacy }}">@endif

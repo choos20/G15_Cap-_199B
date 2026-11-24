@@ -10,7 +10,7 @@
         .cu-section-head { display:flex; align-items:center; gap:14px; margin-bottom:22px; }
         .cu-section-icon { width:42px; height:42px; border-radius:14px; display:flex; align-items:center; justify-content:center; background:#eef2ff; color:#4338ca; flex-shrink:0; }
         .cu-section-title { font-size:1.05rem; font-weight:700; color:#0f172a; margin:0; }
-        .cu-section-sub { font-size:0.88rem; color:#64748b; margin-top:2px; }
+        .cu-section-sub { font-size:0.88rem; color:#52665d; margin-top:2px; }
         .cu-grid { display:grid; gap:18px; }
         .cu-grid-3 { grid-template-columns:repeat(3,minmax(0,1fr)); }
         .cu-grid-2 { grid-template-columns:repeat(2,minmax(0,1fr)); }
@@ -20,8 +20,8 @@
             width:100%; padding:13px 14px; border:1px solid #d1d5db; border-radius:12px; font:inherit; background:#f8fafc; transition:all 150ms ease;
         }
         .cu-field input:focus, .cu-field select:focus, .cu-field textarea:focus { outline:none; border-color:#3b82f6; background:#fff; box-shadow:0 0 0 4px rgba(59,130,246,0.1); }
-        .cu-field .hint { font-size:0.82rem; color:#94a3b8; margin-top:6px; }
-        .cu-field select:disabled { background:#f1f5f9; color:#64748b; cursor:not-allowed; }
+        .cu-field .hint { font-size:0.82rem; color:#5b7067; margin-top:6px; }
+        .cu-field select:disabled { background:#f1f5f9; color:#52665d; cursor:not-allowed; }
         .cu-role-card { display:block; cursor:pointer; }
         .cu-role-card input { position:absolute; opacity:0; pointer-events:none; }
         .cu-role-options { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:14px; }
@@ -38,7 +38,7 @@
         .cu-logo-preview { width:56px; height:56px; border-radius:14px; background:#dbeafe; color:#1d4ed8; display:flex; align-items:center; justify-content:center; font-size:1.4rem; flex-shrink:0; overflow:hidden; }
         .cu-logo-preview img { width:100%; height:100%; object-fit:cover; }
         .cu-logo-text strong { display:block; color:#0f172a; font-size:0.92rem; }
-        .cu-logo-text span { color:#64748b; font-size:0.85rem; }
+        .cu-logo-text span { color:#52665d; font-size:0.85rem; }
         .cu-actions { display:flex; justify-content:flex-end; gap:12px; padding:24px 28px; background:#f8fafc; border-top:1px solid #e5e7eb; border-radius:0 0 24px 24px; }
         .cu-btn-secondary { padding:13px 24px; border-radius:12px; background:#ffffff; color:#0f172a; border:1px solid #d1d5db; font-weight:700; text-decoration:none; display:inline-flex; align-items:center; }
         .cu-btn-primary { padding:13px 26px; border-radius:12px; background:#0b6a4a; color:#ffffff; border:none; font-weight:700; cursor:pointer; }
@@ -235,7 +235,7 @@
                         <input type="text" id="firstname" name="firstname" value="{{ old('firstname') }}" required>
                     </div>
                     <div class="cu-field">
-                        <label for="middlename">Middle name <span style="font-weight:400; color:#94a3b8">(optional)</span></label>
+                        <label for="middlename">Middle name <span style="font-weight:400; color:#5b7067">(optional)</span></label>
                         <input type="text" id="middlename" name="middlename" value="{{ old('middlename') }}">
                     </div>
                     <div class="cu-field">
@@ -246,7 +246,7 @@
 
                 <div class="cu-grid cu-grid-3" style="margin-top:18px">
                     <div class="cu-field">
-                        <label for="suffix">Suffix <span style="font-weight:400; color:#94a3b8">(optional)</span></label>
+                        <label for="suffix">Suffix <span style="font-weight:400; color:#5b7067">(optional)</span></label>
                         <input type="text" id="suffix" name="suffix" value="{{ old('suffix') }}">
                     </div>
                     <div class="cu-field">

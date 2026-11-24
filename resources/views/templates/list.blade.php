@@ -24,13 +24,13 @@
         .tpl-source-badge { display:inline-flex; align-items:center; padding:3px 8px; border-radius:999px; font-size:0.72rem; font-weight:800; letter-spacing:0.03em; }
         .tpl-source-celp { background:#eaf3ff; color:#2456a6; }
         .tpl-source-csa { background:#e7f8ef; color:#08734e; }
-        .tpl-source-unknown { background:#f1f5f9; color:#64748b; }
+        .tpl-source-unknown { background:#f1f5f9; color:#52665d; }
         .tpl-download-btn { color:#0b6a4a; text-decoration:none; font-weight:700; padding:10px 16px;
                             border-radius:10px; background:#ecfdf5; border:1px solid #a7f3d0; }
         .tpl-download-btn:hover { background:#d1fae5; }
-        .tpl-empty { padding:48px; text-align:center; color:#64748b; }
+        .tpl-empty { padding:48px; text-align:center; color:#52665d; }
         .tpl-toolbar { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:16px; }
-        .tpl-search, .tpl-office { display:flex; align-items:center; gap:9px; background:#fff; border:1px solid #e2e8f0; border-radius:999px; padding:10px 14px; color:#64748b; }
+        .tpl-search, .tpl-office { display:flex; align-items:center; gap:9px; background:#fff; border:1px solid #e2e8f0; border-radius:999px; padding:10px 14px; color:#52665d; }
         .tpl-search { flex:1 1 280px; min-width:0; }
         .tpl-search input, .tpl-office select { border:0; outline:0; background:transparent; color:#334155; font:inherit; min-width:0; }
         .tpl-search input { width:100%; }
@@ -43,7 +43,7 @@
         <span style="background:#f1f5f9; color:#334155; font-weight:700; padding:8px 16px; border-radius:999px; font-size:0.9rem">
             {{ $templates->count() }} of {{ $allCount }} {{ \Illuminate\Support\Str::plural('form', $allCount) }}
         </span>
-        <span style="color:#64748b; font-size:0.9rem">
+        <span style="color:#52665d; font-size:0.9rem">
             Fill these out and attach them to your proposal.
         </span>
     </div>
@@ -92,7 +92,7 @@
                                 <span style="font-weight:700; color:#0f172a">{{ $t->original_name }}</span>
                                 <span class="tpl-source-badge {{ $sourceClass }}">{{ $t->sourceLabel() }}</span>
                             </div>
-                            <div style="font-size:0.88rem; color:#64748b; margin-top:4px">
+                            <div style="font-size:0.88rem; color:#52665d; margin-top:4px">
                                 Uploaded by {{ $t->uploader->name ?? '—' }} &middot; {{ $t->created_at->diffForHumans() }}
                             </div>
                         </div>

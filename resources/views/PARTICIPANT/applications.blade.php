@@ -13,7 +13,7 @@
         .application-status{flex:0 0 auto; white-space:nowrap}
         .application-organization{display:inline-flex; align-items:center; gap:8px; max-width:100%; margin-top:9px; color:#0b6a4a; font-size:.87rem; font-weight:600; text-decoration:none}
         .application-organization span{min-width:0; overflow-wrap:break-word; word-break:normal}
-        .application-meta{font-size:.88rem; color:#64748b; margin-top:6px; overflow-wrap:break-word; word-break:normal}
+        .application-meta{font-size:.88rem; color:#52665d; margin-top:6px; overflow-wrap:break-word; word-break:normal}
         .application-attachments{margin-top:8px; display:grid; gap:8px}
         .application-attachments > div{overflow-wrap:break-word; word-break:normal}
         .application-attachment{font-size:.84rem; color:#334155; overflow-wrap:anywhere; word-break:normal}
@@ -61,7 +61,7 @@
     @endif
 
     @if($applications->isEmpty())
-        <div class="card" style="padding:40px; text-align:center; color:#64748b">
+        <div class="card" style="padding:40px; text-align:center; color:#52665d">
             <div style="font-size:2rem; margin-bottom:10px">📋</div>
             You haven't applied to any activities yet.
             <div style="margin-top:14px"><a href="{{ route('participant.activities') }}" style="color:#2563eb; text-decoration:none; font-weight:700;">Browse open activities</a></div>
@@ -86,7 +86,7 @@
                                 <span>{{ $application->announcement->creator->organization_name ?? $application->announcement->creator->name }}</span>
                             </a>
                         @else
-                            <div class="application-organization" style="color:#64748b">
+                            <div class="application-organization" style="color:#52665d">
                                 <x-organization-avatar :organization="null" :size="30" />
                                 <span>Organization unavailable</span>
                             </div>

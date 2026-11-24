@@ -59,16 +59,16 @@
         .or-button:hover { border-color:#9ed4bd; background:#f8fffb; box-shadow:0 7px 16px rgba(11,42,42,.07); transform:translateY(-1px); }
         .or-button-primary { border-color:#0b7656; background:#0b7656; color:#fff; box-shadow:0 7px 14px rgba(11,118,86,.16); }
         .or-button-primary:hover { border-color:#075c43; background:#075c43; color:#fff; }
-        .or-note { display:flex; align-items:flex-start; gap:8px; margin:0 0 16px; color:#71817c; font-size:.78rem; line-height:1.5; }
+        .or-note { display:flex; align-items:flex-start; gap:8px; margin:0 0 16px; color:#52665d; font-size:.78rem; line-height:1.5; }
         .or-note svg { width:16px; height:16px; flex:0 0 16px; margin-top:1px; color:#0b8c65; }
         .or-summary { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:12px; margin-bottom:18px; }
         .or-metric { position:relative; overflow:hidden; padding:17px 18px; border:1px solid #e5ebe8; border-radius:15px; background:#fff; box-shadow:0 8px 20px rgba(11,42,42,.04); }
         .or-metric::after { position:absolute; right:-18px; bottom:-24px; width:70px; height:70px; border-radius:50%; background:#effbf5; content:''; }
-        .or-metric-label { position:relative; z-index:1; color:#71817c; font-size:.77rem; font-weight:750; }
+        .or-metric-label { position:relative; z-index:1; color:#52665d; font-size:.77rem; font-weight:750; }
         .or-metric-value { position:relative; z-index:1; margin-top:7px; color:#173e34; font-size:1.55rem; font-weight:800; font-variant-numeric:tabular-nums; }
         .or-table-wrap { overflow:auto; border:1px solid #e5ebe8; border-radius:15px; background:#fff; box-shadow:0 8px 20px rgba(11,42,42,.04); }
         .or-table { width:100%; border-collapse:collapse; font-size:.86rem; }
-        .or-table th { padding:12px 13px; border-bottom:1px solid #e5ebe8; background:#fbfdfc; color:#71817c; font-size:.7rem; font-weight:800; text-align:left; text-transform:uppercase; white-space:nowrap; }
+        .or-table th { padding:12px 13px; border-bottom:1px solid #e5ebe8; background:#fbfdfc; color:#52665d; font-size:.7rem; font-weight:800; text-align:left; text-transform:uppercase; white-space:nowrap; }
         .or-table td { padding:13px; border-bottom:1px solid #f0f3f1; color:#263d34; vertical-align:top; }
         .or-table tbody tr:hover { background:#fbfefc; }
         .or-table tr:last-child td { border-bottom:0; }

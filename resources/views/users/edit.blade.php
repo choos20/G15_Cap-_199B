@@ -34,7 +34,7 @@
             width:100%; min-height:46px; padding:12px 14px; border:1px solid #d7e2dc; border-radius:10px; font:inherit; background:#fbfdfc; transition:all 150ms ease;
         }
         .cu-field input:focus, .cu-field select:focus, .cu-field textarea:focus { outline:none; border-color:#0b956c; background:#fff; box-shadow:0 0 0 3px rgba(11,149,108,0.1); }
-        .cu-field input:disabled,.cu-field select:disabled { background:#f1f5f9; color:#64748b; cursor:not-allowed; }
+        .cu-field input:disabled,.cu-field select:disabled { background:#f1f5f9; color:#52665d; cursor:not-allowed; }
         .cu-field .hint { font-size:0.76rem; color:#7f9387; margin-top:7px; line-height:1.6; }
         .cu-role-pill { display:inline-flex; padding:8px 16px; border-radius:999px; font-size:0.9rem; font-weight:700; background:#eef2ff; color:#4338ca; }
         .cu-logo-drop {
@@ -44,7 +44,7 @@
         .cu-logo-preview { width:56px; height:56px; border-radius:14px; background:#dbeafe; color:#1d4ed8; display:flex; align-items:center; justify-content:center; font-size:1.4rem; flex-shrink:0; overflow:hidden; }
         .cu-logo-preview img { width:100%; height:100%; object-fit:cover; }
         .cu-logo-text strong { display:block; color:#0f172a; font-size:0.92rem; }
-        .cu-logo-text span { color:#64748b; font-size:0.85rem; }
+        .cu-logo-text span { color:#52665d; font-size:0.85rem; }
         .cu-remove-logo { margin-top:12px; background:#fef2f2; color:#b91c1c; border:1px solid #fecaca; padding:9px 16px; border-radius:10px; font-weight:700; font-size:0.85rem; cursor:pointer; }
         .cu-actions { display:flex; justify-content:flex-end; gap:12px; padding:24px 28px; background:#f8fafc; border-top:1px solid #e5e7eb; border-radius:0 0 24px 24px; }
         .cu-btn-secondary { padding:13px 24px; border-radius:12px; background:#ffffff; color:#0f172a; border:1px solid #d1d5db; font-weight:700; text-decoration:none; display:inline-flex; align-items:center; }
@@ -253,7 +253,7 @@
             <div style="display:flex; align-items:flex-start; gap:16px; flex-wrap:wrap">
                 <div style="flex:1; min-width:min(260px,100%)">
                     <h3 style="margin:0 0 6px; font-size:1rem; color:#0f172a">Sign-in access</h3>
-                    <div style="color:#64748b; font-size:0.9rem; line-height:1.6">
+                    <div style="color:#52665d; font-size:0.9rem; line-height:1.6">
                         @if($user->must_change_password)
                             This account still has an unused temporary password and hasn't set its own yet.
                         @else

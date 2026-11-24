@@ -7,7 +7,7 @@
     <style>
         .cr-toolbar { display:flex; align-items:flex-end; gap:11px; flex-wrap:wrap; margin-bottom:18px; padding:16px; border:1px solid #e5ebe8; border-radius:14px; background:#fff; }
         .cr-field { display:flex; flex:1 1 150px; min-width:0; max-width:100%; flex-direction:column; gap:5px; }
-        .cr-field label { color:#71817c; font-size:.73rem; font-weight:750; letter-spacing:.04em; text-transform:uppercase; }
+        .cr-field label { color:#52665d; font-size:.73rem; font-weight:750; letter-spacing:.04em; text-transform:uppercase; }
         .cr-field input, .cr-field select { min-width:0; width:100%; min-height:39px; padding:8px 10px; border:1px solid #dfe7e3; border-radius:9px; background:#fff; color:#253c34; font:inherit; font-size:.84rem; }
         .cr-actions { display:flex; flex-wrap:wrap; gap:8px; margin-left:auto; }
         .cr-button { display:inline-flex; align-items:center; justify-content:center; min-height:39px; padding:8px 14px; border:1px solid #dfe7e3; border-radius:9px; background:#fff; color:#334b42; font:inherit; font-size:.84rem; font-weight:750; text-decoration:none; cursor:pointer; }
@@ -15,11 +15,11 @@
         .cr-back { display:inline-flex; margin-bottom:14px; color:#08734e; font-size:.85rem; font-weight:700; text-decoration:none; }
         .cr-summary { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:12px; margin-bottom:18px; }
         .cr-metric { padding:16px 18px; border:1px solid #e5ebe8; border-radius:13px; background:#fff; }
-        .cr-metric-label { color:#71817c; font-size:.77rem; font-weight:700; }
+        .cr-metric-label { color:#52665d; font-size:.77rem; font-weight:700; }
         .cr-metric-value { margin-top:7px; color:#173e34; font-size:1.55rem; font-weight:800; }
         .cr-table-wrap { overflow:auto; border:1px solid #e5ebe8; border-radius:13px; background:#fff; }
         .cr-table { width:100%; border-collapse:collapse; font-size:.86rem; }
-        .cr-table th { padding:11px 13px; border-bottom:1px solid #e5ebe8; color:#71817c; font-size:.72rem; text-align:left; text-transform:uppercase; white-space:nowrap; }
+        .cr-table th { padding:11px 13px; border-bottom:1px solid #e5ebe8; color:#52665d; font-size:.72rem; text-align:left; text-transform:uppercase; white-space:nowrap; }
         .cr-table td { padding:12px 13px; border-bottom:1px solid #f0f3f1; color:#263d34; vertical-align:top; }
         .cr-table tr:last-child td { border-bottom:0; }
         .cr-num { font-variant-numeric:tabular-nums; }
@@ -27,7 +27,7 @@
         .cr-section { margin:18px 0; padding:20px; border:1px solid #e5ebe8; border-radius:13px; background:#fff; }
         .cr-section h2 { margin:0; color:#173e34; font-size:.98rem; }
         .cr-section-intro { margin:5px 0 12px; color:#82918b; font-size:.81rem; }
-        .cr-filter-note { margin:-8px 0 16px; color:#71817c; font-size:.78rem; }
+        .cr-filter-note { margin:-8px 0 16px; color:#52665d; font-size:.78rem; }
         .cr-criterion { display:grid; grid-template-columns:minmax(150px,260px) 1fr 54px; gap:12px; align-items:center; padding:8px 0; }
         .cr-track { height:11px; overflow:hidden; border-radius:99px; background:#edf2ef; }
         .cr-track span { display:block; height:100%; border-radius:99px; background:linear-gradient(90deg,#35ad7d,#08734e); }

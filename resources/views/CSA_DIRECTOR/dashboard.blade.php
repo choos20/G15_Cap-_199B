@@ -45,7 +45,7 @@
         .csa-stat-icon.is-approved { border-color:#d2eadc; background:linear-gradient(145deg,#f2fbf5,#e5f5eb); color:#08734e; }
         .csa-stat-icon.is-forms { border-color:#dce2fa; background:linear-gradient(145deg,#f5f6ff,#e9edff); color:#4338ca; }
         .csa-stat-icon svg { width:23px; height:23px; }
-        .csa-stat-label { color:#64748b; font-size:0.82rem; font-weight:700; line-height:1.35; }
+        .csa-stat-label { color:#52665d; font-size:0.82rem; font-weight:700; line-height:1.35; }
         .csa-stat-value { margin-top:4px; color:#102e2a; font-size:1.55rem; font-weight:800; line-height:1.1; }
         .csa-stat-link { display:inline-block; margin-top:5px; color:#08734e; font-size:0.8rem; font-weight:700; text-decoration:none; }
         .csa-stat-link:hover, .csa-panel-link:hover { text-decoration:underline; }
@@ -55,7 +55,7 @@
         .csa-panel-head { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:8px 12px; margin-bottom:8px; }
         .csa-panel-head h3 { margin:0; color:#123d33; font-size:1.02rem; }
         .csa-panel-link { color:#08734e; font-size:0.83rem; font-weight:700; text-decoration:none; white-space:nowrap; }
-        .csa-chart-period { color:#71817c; font-size:0.72rem; }
+        .csa-chart-period { color:#52665d; font-size:0.72rem; }
         .csa-chart-panel { min-width:0; padding:20px; border:1px solid #e8edf0; border-radius:15px; background:#fff; box-shadow:0 5px 16px rgba(11,42,42,0.04); }
         .csa-chart-title { display:flex; align-items:center; gap:9px; margin:0; color:#123d33; font-size:0.98rem; }
         .csa-chart-icon { display:flex; align-items:center; justify-content:center; width:34px; height:34px; flex:0 0 34px; border-radius:11px; background:#edf6f3; color:#087f67; }
@@ -74,14 +74,14 @@
         .csa-donut-track { fill:none; stroke:#e9eff2; stroke-width:16; }
         .csa-donut-segment { fill:none; stroke-width:16; transform:rotate(-90deg); transform-origin:80px 80px; }
         .csa-donut-total { fill:#183b32; font-size:25px; font-weight:800; text-anchor:middle; }
-        .csa-donut-label { fill:#71817c; font-size:10px; font-weight:650; text-anchor:middle; }
+        .csa-donut-label { fill:#52665d; font-size:10px; font-weight:650; text-anchor:middle; }
         .csa-status-legend { display:grid; gap:8px; }
         .csa-status-legend-row { display:grid; grid-template-columns:minmax(0,1fr) auto auto; align-items:center; gap:8px; padding:8px; border:1px solid #edf1f3; border-radius:10px; background:#fff; }
         .csa-status-legend-name { display:flex; align-items:center; gap:7px; color:#52645e; font-size:0.72rem; font-weight:700; }
         .csa-status-dot { width:9px; height:9px; flex:0 0 9px; border-radius:50%; }
         .csa-status-count { color:#183b32; font-size:0.84rem; font-weight:800; font-variant-numeric:tabular-nums; }
         .csa-status-percent { min-width:32px; color:#7b8d84; font-size:0.68rem; text-align:right; }
-        .csa-panel-description { margin:0 0 15px; color:#71817c; font-size:0.86rem; line-height:1.5; }
+        .csa-panel-description { margin:0 0 15px; color:#52665d; font-size:0.86rem; line-height:1.5; }
         .csa-queue { display:flex; flex-direction:column; gap:9px; margin:0; padding:0; list-style:none; }
         .csa-queue-item { display:flex; align-items:center; justify-content:space-between; gap:14px; padding:13px 14px; border:1px solid #e6edf0; border-radius:12px; background:#fbfdfc; }
         .csa-queue-item.is-oldest { border-color:#f1dcae; background:#fffdf8; }
@@ -89,7 +89,7 @@
         .csa-queue-titleline { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
         .csa-queue-title { color:#172f2a; font-size:0.93rem; font-weight:750; line-height:1.4; overflow-wrap:anywhere; }
         .csa-priority { padding:3px 8px; border-radius:999px; background:#fff2d5; color:#925d00; font-size:0.68rem; font-weight:800; letter-spacing:0.02em; white-space:nowrap; }
-        .csa-queue-meta { display:flex; align-items:center; gap:7px; flex-wrap:wrap; margin-top:6px; color:#71817c; font-size:0.8rem; line-height:1.4; }
+        .csa-queue-meta { display:flex; align-items:center; gap:7px; flex-wrap:wrap; margin-top:6px; color:#52665d; font-size:0.8rem; line-height:1.4; }
         .csa-review-link { flex:0 0 auto; padding:8px 12px; border-radius:9px; background:#0b7656; color:#fff; font-size:0.82rem; font-weight:700; text-decoration:none; }
         .csa-review-link:hover { background:#086247; }
         .csa-aside { display:flex; flex-direction:column; gap:14px; }

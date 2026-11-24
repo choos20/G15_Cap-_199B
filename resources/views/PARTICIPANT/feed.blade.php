@@ -17,11 +17,11 @@
         .pf-status-tab.is-active { border-color:#0b6a4a; background:#0b6a4a; color:#fff; }
         .pf-status-count { font-size:0.76rem; opacity:0.78; }
         .pf-status-badge { display:inline-flex; align-items:center; padding:4px 10px; border-radius:999px; font-size:0.76rem; font-weight:800; }
-        .pf-results { margin:16px 0; color:#64748b; font-size:0.9rem; }
+        .pf-results { margin:16px 0; color:#52665d; font-size:0.9rem; }
         .pf-announcements { display:grid; gap:10px; }
         .pf-announcement { display:flex; align-items:flex-start; justify-content:space-between; gap:16px; padding:16px; border:1px solid #e6edf0; border-radius:12px; background:#fff; }
         .pf-announcement-title { color:#172f2a; font-size:.96rem; font-weight:750; }
-        .pf-announcement-meta { display:flex; align-items:center; gap:8px; margin-top:6px; color:#71817c; font-size:.82rem; }
+        .pf-announcement-meta { display:flex; align-items:center; gap:8px; margin-top:6px; color:#52665d; font-size:.82rem; }
         .pf-announcement-description { margin-top:8px; color:#475569; font-size:.88rem; line-height:1.5; }
         .pf-announcement-link { flex-shrink:0; color:#08734e; font-size:.85rem; font-weight:700; text-decoration:none; }
         .pf-announcement-link:hover { text-decoration:underline; }
@@ -83,7 +83,7 @@
         <section class="card" style="padding:20px; margin-bottom:18px" aria-labelledby="pf-announcements-title">
             <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:14px">
                 <h2 id="pf-announcements-title" style="margin:0; color:#123d33; font-size:1.05rem">Community announcements</h2>
-                <span style="color:#64748b; font-size:.82rem">General notices, with optional activity links</span>
+                <span style="color:#52665d; font-size:.82rem">General notices, with optional activity links</span>
             </div>
             <div class="pf-announcements">
                 @foreach($participantAnnouncements as $participantAnnouncement)
@@ -111,7 +111,7 @@
     @endif
 
     @if($opportunities->isEmpty())
-        <div class="card" style="padding:40px; text-align:center; color:#64748b">
+        <div class="card" style="padding:40px; text-align:center; color:#52665d">
             <div style="font-size:2rem; margin-bottom:10px">{{ $filters['q'] !== '' || $filters['category'] !== '' ? '🔎' : '🔍' }}</div>
             @if($filters['q'] !== '' || $filters['category'] !== '')
                 No activities match these filters. Try another search or clear the filters.
@@ -157,13 +157,13 @@
                                         {{ $opportunity->creator->organization_name ?? $opportunity->creator->name }}
                                     </a>
                                 @else
-                                    <span style="color:#64748b">Unknown organization</span>
+                                    <span style="color:#52665d">Unknown organization</span>
                                 @endif
                             </div>
                             @if($opportunity->description)
                                 <div style="color:#475569; margin-top:10px; max-width:640px; overflow:hidden; text-overflow:ellipsis; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical;">{{ $opportunity->description }}</div>
                             @endif
-                            <div style="font-size:0.88rem; color:#64748b; margin-top:12px; display:flex; gap:16px; flex-wrap:wrap">
+                            <div style="font-size:0.88rem; color:#52665d; margin-top:12px; display:flex; gap:16px; flex-wrap:wrap">
                                 @if($opportunity->event_date)
                                     <span>🗓️ {{ $opportunity->event_date->format('M j, Y g:i A') }}</span>
                                 @endif

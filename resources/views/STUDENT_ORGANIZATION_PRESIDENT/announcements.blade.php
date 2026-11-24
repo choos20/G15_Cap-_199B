@@ -75,7 +75,7 @@
         .ann-upload-list { display:grid; gap:8px; margin-top:12px; }
         .ann-upload-file { display:flex; align-items:center; gap:12px; padding:11px 13px; border:1px solid #e2e8f0; border-radius:10px; background:#f8fafc; }
         .ann-upload-file-name { flex:1; min-width:0; overflow-wrap:anywhere; color:#0f172a; font-size:.9rem; font-weight:600; }
-        .ann-upload-file-size { display:block; margin-top:3px; color:#64748b; font-size:.78rem; font-weight:400; }
+        .ann-upload-file-size { display:block; margin-top:3px; color:#52665d; font-size:.78rem; font-weight:400; }
         .ann-upload-action { border:0; background:none; color:#0b6a4a; font:inherit; font-size:.84rem; font-weight:700; text-decoration:underline; cursor:pointer; }
         .ann-upload-remove { color:#b91c1c; }
     </style>
@@ -173,25 +173,25 @@
                     <div>
                         <label for="announcement-slots-needed" style="display:block; font-weight:700; margin-bottom:8px">Volunteers needed <span style="color:#b91c1c">*</span></label>
                         <input id="announcement-slots-needed" type="number" name="slots_needed" min="1" step="1" value="{{ old('slots_needed') }}" style="width:100%; padding:14px; border:1px solid #d1d5db; border-radius:12px;" />
-                        <div style="color:#64748b; font-size:0.88rem; margin-top:6px">Enter the number of volunteers your activity needs.</div>
+                        <div style="color:#52665d; font-size:0.88rem; margin-top:6px">Enter the number of volunteers your activity needs.</div>
                         @error('slots_needed')<div style="color:#b91c1c; font-size:0.92rem; margin-top:6px">{{ $message }}</div>@enderror
                     </div>
                     <div>
                         <label for="announcement-application-deadline" style="display:block; font-weight:700; margin-bottom:8px">Application deadline</label>
                         <input id="announcement-application-deadline" type="datetime-local" name="application_deadline" min="{{ now('Asia/Manila')->format('Y-m-d\TH:i') }}" max="{{ now('Asia/Manila')->addYear()->startOfMinute()->format('Y-m-d\TH:i') }}" value="{{ old('application_deadline') }}" style="width:100%; padding:14px; border:1px solid #d1d5db; border-radius:12px;" />
-                        <div style="color:#64748b; font-size:0.92rem; margin-top:6px">Choose the date and time applications close. Leave blank for no deadline.</div>
+                        <div style="color:#52665d; font-size:0.92rem; margin-top:6px">Choose the date and time applications close. Leave blank for no deadline.</div>
                         @error('application_deadline')<div style="color:#b91c1c; font-size:0.92rem; margin-top:6px">{{ $message }}</div>@enderror
                     </div>
                 </div>
 
                 <div data-category-fields="recruitment">
-                    <label style="display:block; font-weight:700; margin-bottom:8px">Event date &amp; time <span style="font-weight:400; color:#94a3b8">(optional)</span></label>
+                    <label style="display:block; font-weight:700; margin-bottom:8px">Event date &amp; time <span style="font-weight:400; color:#5b7067">(optional)</span></label>
                     <input type="datetime-local" name="event_date" min="{{ now('Asia/Manila')->format('Y-m-d\TH:i') }}" value="{{ old('event_date') }}" style="width:100%; padding:14px; border:1px solid #d1d5db; border-radius:12px;" />
                     @error('event_date')<div style="color:#b91c1c; font-size:0.92rem; margin-top:6px">{{ $message }}</div>@enderror
                 </div>
 
                 <div data-category-fields="recruitment">
-                    <label style="display:block; font-weight:700; margin-bottom:8px">Event location <span style="font-weight:400; color:#94a3b8">(optional)</span></label>
+                    <label style="display:block; font-weight:700; margin-bottom:8px">Event location <span style="font-weight:400; color:#5b7067">(optional)</span></label>
                     <div class="ann-map-search-wrap">
                         <input type="text" id="ann-map-search" name="loc_q_{{ Str::random(8) }}" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search for a venue, building, or address..." style="width:100%; padding:14px; border:1px solid #d1d5db; border-radius:12px;" />
                         <div id="ann-map-search-results" class="ann-map-search-results"></div>
@@ -201,14 +201,14 @@
                     <button type="button" id="ann-use-my-location" class="ann-locate-btn">Use my current location</button>
                     <input type="hidden" id="latitude" name="latitude" value="{{ old('latitude') }}">
                     <input type="hidden" id="longitude" name="longitude" value="{{ old('longitude') }}">
-                    <div style="color:#64748b; font-size:0.92rem; margin-top:6px">Search or click the map to pin the exact activity location.</div>
+                    <div style="color:#52665d; font-size:0.92rem; margin-top:6px">Search or click the map to pin the exact activity location.</div>
                     @error('event_location')<div style="color:#b91c1c; font-size:0.92rem; margin-top:6px">{{ $message }}</div>@enderror
                 </div>
 
                 <div>
                     <label style="display:block; font-weight:700; margin-bottom:8px">Attachments</label>
                     <input id="announcement-attachments" type="file" name="attachments[]" multiple accept="image/jpeg,image/png,application/pdf" style="width:100%;" />
-                    <div style="margin-top:10px; color:#6b7280; font-size:0.95rem;">You may upload up to 5 files. JPG, PNG, PDF only. Max 5MB each.</div>
+                    <div style="margin-top:10px; color:#52665d; font-size:0.95rem;">You may upload up to 5 files. JPG, PNG, PDF only. Max 5MB each.</div>
                     <div id="announcement-attachment-error" role="alert" style="display:none; margin-top:8px; color:#b91c1c; font-size:.9rem;"></div>
                     @error('attachments')<div role="alert" style="margin-top:8px; color:#b91c1c; font-size:.9rem">{{ $message }}</div>@enderror
                     @foreach($errors->getMessages() as $field => $messages)
@@ -238,7 +238,7 @@
             <h3 style="margin:0">From the CELP Secretary</h3>
         </div>
         @if($broadcastAnnouncements->isEmpty())
-            <div style="color:#64748b">No notices from the CELP Secretary right now.</div>
+            <div style="color:#52665d">No notices from the CELP Secretary right now.</div>
         @else
             <div style="display:grid; gap:14px;">
                 @foreach($broadcastAnnouncements as $announcement)
@@ -247,7 +247,7 @@
                             <div style="font-size:1rem; font-weight:700; color:#0f172a;">{{ $announcement->title }}</div>
                             <span style="font-size:0.78rem; font-weight:700; padding:4px 10px; border-radius:999px; background:#eef2ff; color:#4338ca">{{ $announcement->category }}</span>
                         </div>
-                        <div style="font-size:0.85rem; color:#64748b; margin-top:6px;">Posted {{ $announcement->published_at?->diffForHumans() ?? $announcement->created_at->diffForHumans() }}</div>
+                        <div style="font-size:0.85rem; color:#52665d; margin-top:6px;">Posted {{ $announcement->published_at?->diffForHumans() ?? $announcement->created_at->diffForHumans() }}</div>
                         @if($announcement->description)
                             <div style="margin-top:10px; color:#334155; line-height:1.6; white-space:pre-line;">{{ $announcement->description }}</div>
                         @endif
@@ -285,7 +285,7 @@
                                         @endif
                                 @endif
                             </div>
-                            <div style="font-size:0.9rem; color:#64748b; margin-top:6px;">{{ $announcement->category }} · {{ ucfirst($announcement->status) }} · {{ $announcement->created_at->diffForHumans() }}</div>
+                            <div style="font-size:0.9rem; color:#52665d; margin-top:6px;">{{ $announcement->category }} · {{ ucfirst($announcement->status) }} · {{ $announcement->created_at->diffForHumans() }}</div>
                         </a>
                         <div style="display:flex; gap:10px; align-items:center;">
                             <span style="font-size:0.85rem; color:#475569;">{{ $announcement->attachments->count() }} files</span>
@@ -310,7 +310,7 @@
                                 </button>
                             </form>
                             @if($announcement->category === 'Volunteer recruitment')
-                                <span style="font-size:0.82rem; color:#64748b;">Recruitment retained for this activity</span>
+                                <span style="font-size:0.82rem; color:#52665d;">Recruitment retained for this activity</span>
                             @else
                             <form action="{{ route('student_org.announcements.destroy', $announcement) }}" method="POST" data-confirm
                                   data-confirm-title="Remove announcement?"
@@ -573,7 +573,7 @@
                     return;
                 }
                 const thisRequest = ++requestId;
-                resultsBox.innerHTML = '<div class="ann-map-search-item" style="cursor:default; color:#94a3b8">Searching...</div>';
+                resultsBox.innerHTML = '<div class="ann-map-search-item" style="cursor:default; color:#5b7067">Searching...</div>';
                 resultsBox.style.display = 'block';
                 searchTimer = setTimeout(() => {
                     fetch(`https://nominatim.openstreetmap.org/search?format=json&limit=6&q=${encodeURIComponent(query)}`)
@@ -581,7 +581,7 @@
                         .then((results) => {
                             if (thisRequest !== requestId) return;
                             if (!results.length) {
-                                resultsBox.innerHTML = '<div class="ann-map-search-item" style="cursor:default; color:#94a3b8">No results found.</div>';
+                                resultsBox.innerHTML = '<div class="ann-map-search-item" style="cursor:default; color:#5b7067">No results found.</div>';
                                 return;
                             }
                             resultsBox.innerHTML = results.map((result) => `
@@ -590,7 +590,7 @@
                         })
                         .catch(() => {
                             if (thisRequest !== requestId) return;
-                            resultsBox.innerHTML = '<div class="ann-map-search-item" style="cursor:default; color:#94a3b8">Search unavailable. Try clicking the map instead.</div>';
+                            resultsBox.innerHTML = '<div class="ann-map-search-item" style="cursor:default; color:#5b7067">Search unavailable. Try clicking the map instead.</div>';
                         });
                 }, 400);
             });

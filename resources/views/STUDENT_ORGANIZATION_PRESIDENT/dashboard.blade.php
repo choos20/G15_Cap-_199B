@@ -45,14 +45,14 @@
         .org-stat-icon.is-returned{border-color:#f2d6d6;background:linear-gradient(145deg,#fff7f7,#feecec);color:#b42318}
         .org-stat-icon.is-approved{border-color:#d3e9dc;background:linear-gradient(145deg,#f2fbf5,#e5f5eb);color:#08734e}
         .org-stat-icon svg{width:22px;height:22px}
-        .org-stat-label{color:#64748b;font-size:.8rem;font-weight:700;line-height:1.35}
+        .org-stat-label{color:#52665d;font-size:.8rem;font-weight:700;line-height:1.35}
         .org-stat-value{margin-top:4px;color:#102e2a;font-size:1.55rem;font-weight:800;line-height:1.1}
         .org-chart-layout{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(280px,.95fr);gap:18px;align-items:stretch}
         .org-chart-panel{min-width:0;padding:20px;border:1px solid #e8edf0;border-radius:15px;background:#fff;box-shadow:0 5px 16px rgba(11,42,42,.04)}
         .org-chart-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:8px}
         .org-chart-title{display:flex;align-items:center;gap:9px;margin:0;color:#123d33;font-size:1rem}
         .org-chart-icon{display:flex;align-items:center;justify-content:center;width:34px;height:34px;flex:0 0 34px;border-radius:11px;background:#edf6f3;color:#087f67}
-        .org-chart-period{color:#71817c;font-size:.72rem;white-space:nowrap}
+        .org-chart-period{color:#52665d;font-size:.72rem;white-space:nowrap}
         .org-trend-chart{display:block;width:100%;height:auto;margin-top:8px;overflow:visible}
         .org-trend-plot{fill:#f3f6f8}
         .org-trend-gridline{stroke:#dce5eb;stroke-width:1}
@@ -68,7 +68,7 @@
         .org-donut-track{fill:none;stroke:#e9eff2;stroke-width:16}
         .org-donut-segment{fill:none;stroke-width:16;transform:rotate(-90deg);transform-origin:80px 80px}
         .org-donut-total{fill:#183b32;font-size:25px;font-weight:800;text-anchor:middle}
-        .org-donut-label{fill:#71817c;font-size:10px;font-weight:650;text-anchor:middle}
+        .org-donut-label{fill:#52665d;font-size:10px;font-weight:650;text-anchor:middle}
         .org-status-legend{display:grid;gap:7px}
         .org-status-legend-row{display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:center;gap:7px;padding:7px;border:1px solid #edf1f3;border-radius:10px;background:#fff}
         .org-status-legend-name{display:flex;align-items:center;gap:7px;color:#52645e;font-size:.7rem;font-weight:700}
@@ -82,7 +82,7 @@
         .org-panel-head h3{margin:0;color:#123d33;font-size:1rem}
         .org-panel-link{color:#08734e;font-size:.82rem;font-weight:700;text-decoration:none;white-space:nowrap}
         .org-panel-link:hover,.org-template-link:hover{text-decoration:underline}
-        .org-panel-description{margin:0 0 16px;color:#71817c;font-size:.84rem;line-height:1.5}
+        .org-panel-description{margin:0 0 16px;color:#52665d;font-size:.84rem;line-height:1.5}
         .org-pipeline{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px}
         .org-pipeline-step{min-width:0;padding:13px;border:1px solid #e6edf0;border-radius:11px;background:#fbfdfc}
         .org-pipeline-label{min-height:34px;color:#64756e;font-size:.76rem;font-weight:700;line-height:1.4}
@@ -100,7 +100,7 @@
         .org-empty{padding:14px;border:1px dashed #dbe7e1;border-radius:10px;background:#f8fbf9;color:#64756e;font-size:.84rem;line-height:1.5}
         .org-latest{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:18px;align-items:center;padding:18px;border:1px solid #e6edf0;border-radius:12px;background:#fbfdfc}
         .org-latest-title{color:#17362e;font-size:1.08rem;font-weight:800;overflow-wrap:anywhere}
-        .org-latest-meta{margin-top:7px;color:#71817c;font-size:.82rem;line-height:1.5}
+        .org-latest-meta{margin-top:7px;color:#52665d;font-size:.82rem;line-height:1.5}
         .org-status{display:inline-flex;align-items:center;margin-top:10px;padding:5px 9px;border:1px solid #dce9e3;border-radius:999px;background:#f0f8f3;color:#176b50;font-size:.75rem;font-weight:750}
         .org-next-step{margin-top:12px;color:#435850;font-size:.86rem;line-height:1.55}
         .org-latest-action{display:inline-flex;align-items:center;justify-content:center;padding:9px 12px;border-radius:9px;background:#0b7656;color:#fff;font-size:.81rem;font-weight:700;text-decoration:none;white-space:nowrap}

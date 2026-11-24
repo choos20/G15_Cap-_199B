@@ -6,7 +6,7 @@
 @section('content')
     <style>
         .notification-read-all{padding:10px 16px;border-radius:10px;background:#f8fafc;color:#0f172a;border:1px solid #e2e8f0;font-weight:600;cursor:pointer}
-        .notification-read-all:disabled{color:#94a3b8;background:#f8fafc;cursor:not-allowed}
+        .notification-read-all:disabled{color:#5b7067;background:#f8fafc;cursor:not-allowed}
         .notification-caught-up{display:flex;align-items:center;gap:8px;margin-bottom:16px;padding:12px 14px;background:#ecfdf5;color:#065f46;border:1px solid #d1fae5;border-radius:12px;font-size:.88rem}
     </style>
     <div class="card" style="padding:24px;">
@@ -68,7 +68,7 @@
                             <span style="flex:1">
                                 <span style="display:block; font-weight:700; color:#0f172a;">{{ $notification->data['title'] ?? 'Notification' }}</span>
                                 <span style="display:block; color:#475569; margin-top:4px;">{{ $notification->data['body'] ?? '' }}</span>
-                                <span style="display:block; color:#94a3b8; font-size:0.85rem; margin-top:6px;">{{ $notification->created_at->diffForHumans() }}</span>
+                                <span style="display:block; color:#5b7067; font-size:0.85rem; margin-top:6px;">{{ $notification->created_at->diffForHumans() }}</span>
                             </span>
                         </button>
                     </form>

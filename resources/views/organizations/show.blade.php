@@ -21,7 +21,7 @@
                    box-shadow:0 6px 18px rgba(11,42,42,0.12); }
         .op-logo img { width:100%; height:100%; object-fit:cover; }
         .op-title { font-size:1.5rem; font-weight:700; color:#0f172a; margin:14px 0 0; }
-        .op-sub { color:#64748b; font-size:0.92rem; margin-top:5px; }
+        .op-sub { color:#52665d; font-size:0.92rem; margin-top:5px; }
         .op-tags { display:flex; flex-wrap:wrap; gap:8px; margin-top:14px; }
         .op-tag { background:#ecfdf5; color:#047857; font-size:0.78rem; font-weight:700; padding:5px 12px; border-radius:999px; }
         .op-badge { display:inline-flex; align-items:center; gap:7px; background:#ecfdf5; color:#047857;
@@ -45,20 +45,20 @@
         .op-avatar { width:54px; height:54px; border-radius:50%; background:#0b6a4a; color:#fff; font-weight:700;
                      display:flex; align-items:center; justify-content:center; margin:0 auto 10px; font-size:0.95rem; }
         .op-of-name { font-weight:700; color:#0f172a; font-size:0.9rem; }
-        .op-of-pos { color:#64748b; font-size:0.82rem; margin-top:2px; }
+        .op-of-pos { color:#52665d; font-size:0.82rem; margin-top:2px; }
 
         .op-activity { display:flex; gap:14px; align-items:flex-start; padding:14px 0; border-bottom:1px solid #f1f5f9; }
         .op-activity:last-child { border-bottom:none; }
         .op-act-title { font-weight:700; color:#0f172a; }
-        .op-act-meta { color:#64748b; font-size:0.85rem; margin-top:3px; }
+        .op-act-meta { color:#52665d; font-size:0.85rem; margin-top:3px; }
         .op-cat { background:#eff6ff; color:#1d4ed8; font-size:0.72rem; font-weight:700; padding:4px 10px;
                   border-radius:999px; white-space:nowrap; flex-shrink:0; }
 
         .op-foot { display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap;
-                   color:#64748b; font-size:0.85rem; padding:16px 4px 0; }
+                   color:#52665d; font-size:0.85rem; padding:16px 4px 0; }
         .op-foot a { color:#0b6a4a; font-weight:700; text-decoration:none; }
         .op-foot a:hover { text-decoration:underline; }
-        .op-empty { padding:36px; text-align:center; color:#94a3b8; }
+        .op-empty { padding:36px; text-align:center; color:#5b7067; }
         .op-back-link { display:inline-flex; align-items:center; margin-bottom:16px; padding:9px 14px; border:1px solid #bfdbfe;
                         border-radius:9px; background:#eff6ff; color:#1d4ed8; font-weight:700; text-decoration:none;
                         transition:background-color 160ms ease,border-color 160ms ease; }
@@ -173,7 +173,7 @@
                    style="color:#0b6a4a; font-weight:700; font-size:0.86rem; text-decoration:none">View all</a>
             @endif
         </div>
-        <div style="color:#94a3b8; font-size:0.84rem; margin-bottom:12px">Pulled automatically from approved projects.</div>
+        <div style="color:#5b7067; font-size:0.84rem; margin-bottom:12px">Pulled automatically from approved projects.</div>
 
         @if($activities->isEmpty())
             <div class="op-empty" style="padding:26px">No approved activities published yet.</div>

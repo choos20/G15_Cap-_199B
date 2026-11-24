@@ -81,7 +81,7 @@
             margin-bottom:4px;
         }
         .proposal-reference {
-            color:#64748b;
+            color:#52665d;
             font-size:0.92rem;
         }
         .badge {
@@ -107,7 +107,7 @@
             gap:12px;
             align-items:center;
             margin-top:18px;
-            color:#64748b;
+            color:#52665d;
             font-size:0.95rem;
         }
         .proposal-delete {
@@ -212,7 +212,7 @@
                                             <button type="submit" class="proposal-delete">Delete</button>
                                         </form>
                                     @else
-                                        <span style="color:#94a3b8">—</span>
+                                        <span style="color:#5b7067">—</span>
                                     @endif
                                 </td>
                             </tr>
@@ -223,7 +223,7 @@
 
             <div class="proposal-footer">
                 <div id="proposal-count-text">Showing {{ $projects->count() }} of {{ $projects->count() }} proposals</div>
-                <div style="color:#94a3b8;">Tip: type a title or status to filter instantly.</div>
+                <div style="color:#5b7067;">Tip: type a title or status to filter instantly.</div>
             </div>
         @endif
     </div>

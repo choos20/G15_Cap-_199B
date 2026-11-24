@@ -93,7 +93,7 @@
         .chd-trend-badge { overflow:hidden; padding:4px 6px; border-radius:999px; font-size:0.56rem; font-weight:750; line-height:1.2; text-overflow:ellipsis; white-space:nowrap; }
         .chd-trend-badge.is-up { background:#e4f4ec; color:#14704f; }
         .chd-trend-badge.is-down { background:#faeaea; color:#a14343; }
-        .chd-trend-badge.is-flat { background:#f1f5f9; color:#64748b; }
+        .chd-trend-badge.is-flat { background:#f1f5f9; color:#52665d; }
         .chd-stat-arrow { display:flex; align-items:center; justify-content:center; width:30px; height:30px; flex:0 0 30px; margin-left:auto; border:1px solid #e3ebe9; border-radius:50%; background:#fff; color:#54716f; box-shadow:0 2px 6px rgba(24,50,71,0.06); transition:transform 170ms ease,background-color 170ms ease,color 170ms ease,border-color 170ms ease; }
         .chd-stat-arrow svg { width:15px; height:15px; transition:transform 170ms ease; }
         .chd-stat:hover .chd-stat-arrow { transform:translateX(2px); border-color:#0b8b6c; background:#0b8b6c; color:#fff; }

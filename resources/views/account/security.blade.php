@@ -26,21 +26,21 @@
         .sec-stat { min-width:0; padding:17px 18px; border:1px solid #e5e7eb; border-radius:15px; background:#fff; box-shadow:0 6px 18px rgba(15,23,42,.04); }
         .sec-stat-label { color:#000; font-size:.78rem; font-weight:700; text-transform:uppercase; letter-spacing:.04em; }
         .sec-stat-value { margin-top:9px; color:#0f172a; font-size:1.35rem; font-weight:800; }
-        .sec-stat-note { margin-top:4px; color:#94a3b8; font-size:.78rem; }
+        .sec-stat-note { margin-top:4px; color:#5b7067; font-size:.78rem; }
         .sec-settings-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; margin-bottom:18px; }
         .sec-panel { overflow:hidden; padding:0; border:1px solid #e5e7eb; border-radius:16px; background:#fff; box-shadow:0 6px 18px rgba(15,23,42,.04); }
         .sec-panel-head { display:flex; align-items:flex-start; justify-content:space-between; gap:14px; padding:18px 20px; border-bottom:1px solid #eef2f7; }
         .sec-panel-head h3 { margin:0; color:#0f172a; font-size:1rem; }
-        .sec-panel-head p { margin:5px 0 0; color:#64748b; font-size:.83rem; line-height:1.45; }
+        .sec-panel-head p { margin:5px 0 0; color:#52665d; font-size:.83rem; line-height:1.45; }
         .sec-panel-body { padding:20px; }
         .sec-setting-summary { display:flex; align-items:flex-start; justify-content:space-between; gap:16px; }
-        .sec-setting-summary p { margin:8px 0 0; color:#64748b; font-size:.82rem; line-height:1.55; }
+        .sec-setting-summary p { margin:8px 0 0; color:#52665d; font-size:.82rem; line-height:1.55; }
         .sec-status { display:inline-flex; align-items:center; gap:6px; padding:5px 9px; border-radius:999px; font-size:.72rem; font-weight:800; }
         .sec-status.is-on { background:#ecfdf5; color:#047857; }
         .sec-status.is-required { background:#eff6ff; color:#1d4ed8; }
-        .sec-status.is-off { background:#f1f5f9; color:#64748b; }
+        .sec-status.is-off { background:#f1f5f9; color:#52665d; }
         .sec-status-dot { width:6px; height:6px; border-radius:50%; background:currentColor; }
-        .sec-setting-meta { margin-top:16px; padding-top:14px; border-top:1px solid #eef2f7; color:#64748b; font-size:.77rem; line-height:1.5; }
+        .sec-setting-meta { margin-top:16px; padding-top:14px; border-top:1px solid #eef2f7; color:#52665d; font-size:.77rem; line-height:1.5; }
         .sec-inline-form { margin-top:16px; padding-top:16px; border-top:1px solid #eef2f7; }
         .sec-form-field { margin-bottom:12px; }
         .sec-form-field label { display:block; margin-bottom:6px; color:#334155; font-size:.78rem; font-weight:700; }
@@ -48,13 +48,13 @@
         .sec-form-field input:focus { border-color:#12b886; outline:0; box-shadow:0 0 0 4px rgba(18,184,134,.12); }
         .sec-password-wrap { position:relative; }
         .sec-form-field .sec-password-wrap input { padding-right:48px; }
-        .sec-password-toggle { position:absolute; top:50%; right:4px; transform:translateY(-50%); display:flex; align-items:center; justify-content:center; width:40px; height:40px; padding:0; border:0; border-radius:7px; background:transparent; color:#64748b; cursor:pointer; }
+        .sec-password-toggle { position:absolute; top:50%; right:4px; transform:translateY(-50%); display:flex; align-items:center; justify-content:center; width:40px; height:40px; padding:0; border:0; border-radius:7px; background:transparent; color:#52665d; cursor:pointer; }
         .sec-password-toggle[hidden] { display:none; }
         .sec-password-toggle:hover { color:#047857; background:#f0fdf4; }
         .sec-password-toggle:focus-visible { outline:2px solid #047857; outline-offset:-2px; }
         .sec-password-toggle svg { width:20px; height:20px; }
         .sec-form-error { margin-top:5px; color:#b91c1c; font-size:.75rem; line-height:1.4; }
-        .sec-form-help { margin:0 0 14px; color:#64748b; font-size:.77rem; line-height:1.5; }
+        .sec-form-help { margin:0 0 14px; color:#52665d; font-size:.77rem; line-height:1.5; }
         .sec-danger-details { margin-top:16px; border-top:1px solid #fee2e2; padding-top:14px; }
         .sec-danger-details summary { color:#b91c1c; cursor:pointer; font-size:.78rem; font-weight:800; }
         .sec-danger-details[open] summary { margin-bottom:12px; }
@@ -70,13 +70,13 @@
         .sec-table tbody tr:last-child td { border-bottom:0; }
         .sec-table tbody tr:hover { background:#fbfefc; }
         .sec-when strong { display:block; color:#0f172a; font-size:.84rem; }
-        .sec-when small,.sec-muted { display:block; margin-top:4px; color:#94a3b8; font-size:.76rem; }
+        .sec-when small,.sec-muted { display:block; margin-top:4px; color:#5b7067; font-size:.76rem; }
         .sec-device { color:#334155; line-height:1.45; }
-        .sec-device small { display:block; margin-top:3px; color:#94a3b8; }
+        .sec-device small { display:block; margin-top:3px; color:#5b7067; }
         .sec-pill { display:inline-flex; align-items:center; gap:5px; padding:5px 9px; border-radius:999px; font-size:.72rem; font-weight:800; white-space:nowrap; }
         .sec-dot { width:6px; height:6px; border-radius:50%; background:currentColor; }
         .sec-mfa { display:inline-flex; margin-top:6px; padding:3px 7px; border-radius:6px; background:#eff6ff; color:#2563eb; font-size:.68rem; font-weight:700; }
-        .sec-empty { padding:46px 22px; color:#64748b; text-align:center; }
+        .sec-empty { padding:46px 22px; color:#52665d; text-align:center; }
         .sec-empty strong { display:block; margin-bottom:5px; color:#334155; }
         .sec-pagination { padding:16px 20px; border-top:1px solid #eef2f7; }
         @media (max-width:760px) {
@@ -124,7 +124,7 @@
     <div class="sec-stats">
         <div class="sec-stat">
             <div class="sec-stat-label">MFA protection</div>
-            <div class="sec-stat-value" style="color:{{ $mfaEnabled ? '#047857' : '#64748b' }}; font-size:1.1rem;">{{ $mfaEnabled ? 'Enabled' : ($mfaRequired ? 'Setup required' : 'Not enabled') }}</div>
+            <div class="sec-stat-value" style="color:{{ $mfaEnabled ? '#047857' : '#52665d' }}; font-size:1.1rem;">{{ $mfaEnabled ? 'Enabled' : ($mfaRequired ? 'Setup required' : 'Not enabled') }}</div>
             <div class="sec-stat-note">{{ $mfaRequired ? 'Required for this role' : 'Optional for your account' }}</div>
         </div>
         <div class="sec-stat">
@@ -241,7 +241,7 @@
                 <p>Successful and blocked sign-ins for {{ auth()->user()->name }}. Times are shown in {{ $displayTimezoneLabel }}.</p>
             </div>
             @if($lastSuccessful)
-                <div style="text-align:right; color:#64748b; font-size:.77rem;">
+                <div style="text-align:right; color:#52665d; font-size:.77rem;">
                     Last successful login
                     <strong style="display:block; margin-top:3px; color:#334155;">{{ $lastSuccessful->created_at->copy()->timezone($displayTimezone)->format('M j, Y · g:i A') }} {{ $displayTimezoneLabel }}</strong>
                 </div>

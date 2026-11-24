@@ -29,7 +29,7 @@
         .ac-avatar { width:48px; height:48px; border-radius:50%; background:#0b6a4a; color:#fff; font-weight:700;
                      display:flex; align-items:center; justify-content:center; flex-shrink:0; }
         .ac-name { font-weight:700; color:#0f172a; }
-        .ac-meta { color:#64748b; font-size:0.88rem; margin-top:3px; word-break:break-all; }
+        .ac-meta { color:#52665d; font-size:0.88rem; margin-top:3px; word-break:break-all; }
         .ac-pill { display:inline-flex; padding:5px 12px; border-radius:999px; font-size:0.78rem; font-weight:700; white-space:nowrap; }
 
         .ac-note { display:flex; gap:11px; margin-top:18px; padding:14px 16px; border-radius:12px; font-size:0.88rem; line-height:1.6; }

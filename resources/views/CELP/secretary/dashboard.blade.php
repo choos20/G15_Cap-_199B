@@ -46,7 +46,7 @@
         .csd-stat-icon.is-returned { border-color:#fecaca; background:#fff1f2; color:#b91c1c; }
         .csd-stat-icon.is-templates { border-color:#d2eadc; background:#effaf3; color:#08734e; }
         .csd-stat-icon.is-records { border-color:#d2e2fb; background:#eff6ff; color:#2563eb; }
-        .csd-stat-label { color:#64748b; font-size:0.8rem; font-weight:700; line-height:1.35; }
+        .csd-stat-label { color:#52665d; font-size:0.8rem; font-weight:700; line-height:1.35; }
         .csd-stat-value { margin-top:3px; color:#102e2a; font-size:1.55rem; font-weight:800; line-height:1.1; }
         .csd-stat-link { display:inline-block; margin-top:5px; color:#08734e; font-size:0.78rem; font-weight:700; text-decoration:none; }
         .csd-stat-link:hover, .csd-panel-link:hover, .csd-template-link:hover { text-decoration:underline; }
@@ -55,7 +55,7 @@
         .csd-panel-head { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:8px; }
         .csd-panel-head h3 { margin:0; color:#123d33; font-size:1.02rem; }
         .csd-panel-link { color:#08734e; font-size:0.82rem; font-weight:700; text-decoration:none; white-space:nowrap; }
-        .csd-panel-description { margin:0 0 15px; color:#71817c; font-size:0.85rem; line-height:1.5; }
+        .csd-panel-description { margin:0 0 15px; color:#52665d; font-size:0.85rem; line-height:1.5; }
         .csd-queue { display:flex; flex-direction:column; gap:9px; margin:0; padding:0; list-style:none; }
         .csd-queue-item { display:flex; align-items:center; justify-content:space-between; gap:14px; padding:13px 14px; border:1px solid #e6edf0; border-radius:12px; background:#fbfdfc; }
         .csd-queue-item.is-oldest { border-color:#f1dcae; background:#fffdf8; }
@@ -63,7 +63,7 @@
         .csd-queue-titleline { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
         .csd-queue-title { color:#172f2a; font-size:0.92rem; font-weight:750; line-height:1.4; overflow-wrap:anywhere; }
         .csd-priority { padding:3px 8px; border-radius:999px; background:#fff2d5; color:#925d00; font-size:0.68rem; font-weight:800; white-space:nowrap; }
-        .csd-queue-meta { display:flex; align-items:center; gap:7px; flex-wrap:wrap; margin-top:6px; color:#71817c; font-size:0.79rem; line-height:1.4; }
+        .csd-queue-meta { display:flex; align-items:center; gap:7px; flex-wrap:wrap; margin-top:6px; color:#52665d; font-size:0.79rem; line-height:1.4; }
         .csd-review-link { flex:0 0 auto; padding:8px 12px; border-radius:9px; background:#0b7656; color:#fff; font-size:0.81rem; font-weight:700; text-decoration:none; }
         .csd-review-link:hover { background:#086247; }
         .csd-chart-grid { display:grid; grid-template-columns:minmax(0,1.65fr) minmax(260px,0.95fr); gap:14px; align-items:stretch; }
@@ -111,7 +111,7 @@
         .csd-oldest { display:flex; align-items:center; justify-content:space-between; gap:16px; padding:17px; border:1px solid #eadfca; border-radius:12px; background:#fffdf8; }
         .csd-oldest-main { min-width:0; }
         .csd-oldest-title { color:#172f2a; font-size:1.05rem; font-weight:800; line-height:1.4; overflow-wrap:anywhere; }
-        .csd-oldest-meta { display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-top:7px; color:#71817c; font-size:0.81rem; line-height:1.45; }
+        .csd-oldest-meta { display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-top:7px; color:#52665d; font-size:0.81rem; line-height:1.45; }
         .csd-empty { padding:17px; border:1px dashed #dbe7e1; border-radius:11px; background:#f8fbf9; color:#64756e; font-size:0.87rem; line-height:1.5; }
         .csd-focus:focus-visible { outline:3px solid rgba(8,115,78,0.32); outline-offset:3px; }
         @media(max-width:1050px) {

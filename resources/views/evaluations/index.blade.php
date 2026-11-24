@@ -17,10 +17,10 @@
         .ev-filters { display:flex; gap:12px; align-items:center; flex-wrap:wrap; margin-bottom:18px; }
         .ev-search { flex:1; min-width:240px; position:relative; }
         .ev-search input { width:100%; padding:12px 14px 12px 40px; border:1px solid #e2e8f0; border-radius:12px; background:#fff; font-size:0.95rem; }
-        .ev-search svg { position:absolute; left:14px; top:50%; transform:translateY(-50%); color:#94a3b8; }
+        .ev-search svg { position:absolute; left:14px; top:50%; transform:translateY(-50%); color:#5b7067; }
         .ev-select { padding:12px 14px; border:1px solid #e2e8f0; border-radius:12px; background:#fff; font-size:0.9rem; font-weight:600; color:#334155; cursor:pointer; }
         .ev-table { width:100%; border-collapse:collapse; }
-        .ev-table th { text-align:left; padding:12px 18px; font-size:0.78rem; text-transform:uppercase; letter-spacing:0.05em; color:#94a3b8; font-weight:700; border-bottom:1px solid #e5e7eb; }
+        .ev-table th { text-align:left; padding:12px 18px; font-size:0.78rem; text-transform:uppercase; letter-spacing:0.05em; color:#5b7067; font-weight:700; border-bottom:1px solid #e5e7eb; }
         .ev-table td { padding:16px 18px; border-bottom:1px solid #f1f5f9; vertical-align:middle; }
         .ev-table tr:last-child td { border-bottom:none; }
         .ev-table tr:hover td { background:#f8fafc; }
@@ -58,7 +58,7 @@
 
     <div class="card" style="padding:0; overflow:auto">
         @if($activities->isEmpty())
-            <div style="padding:48px; text-align:center; color:#64748b">
+            <div style="padding:48px; text-align:center; color:#52665d">
                 <div style="font-size:2rem; margin-bottom:10px">📋</div>
                 <div style="font-weight:700; color:#334155; margin-bottom:6px">No completed activities for this period</div>
                 <div style="font-size:0.9rem">
@@ -90,7 +90,7 @@
                         <tr>
                             <td>
                                 <div style="font-weight:700; color:#0f172a">{{ $activity->title }}</div>
-                                <div style="display:flex; align-items:center; gap:7px; flex-wrap:wrap; font-size:0.85rem; color:#64748b; margin-top:2px">
+                                <div style="display:flex; align-items:center; gap:7px; flex-wrap:wrap; font-size:0.85rem; color:#52665d; margin-top:2px">
                                     {{ $activity->event_location ?? 'Location not recorded' }}
                                     @if($activity->creator)
                                         <x-organization-avatar :organization="$activity->creator" :size="24" />
@@ -102,12 +102,12 @@
                             <td>
                                 @if($encoded > 0)
                                     <span style="font-weight:700; color:#0f172a">{{ $beneficiaryEncoded }}</span>
-                                    <span style="color:#94a3b8">beneficiary{{ $target !== null ? ' of '.$target.' paper forms received' : '' }}</span>
-                                    <div style="margin-top:3px; color:#94a3b8; font-size:.8rem">
+                                    <span style="color:#5b7067">beneficiary{{ $target !== null ? ' of '.$target.' paper forms received' : '' }}</span>
+                                    <div style="margin-top:3px; color:#5b7067; font-size:.8rem">
                                         {{ $implementerEncoded }} volunteer / implementer{{ $evaluation?->paper_implementer_count !== null ? ' of '.$evaluation->paper_implementer_count.' paper forms received' : '' }}
                                     </div>
                                 @else
-                                    <span style="color:#94a3b8">None yet</span>
+                                    <span style="color:#5b7067">None yet</span>
                                 @endif
                             </td>
                             <td><span class="ev-pill" style="background:{{ $bg }}; color:{{ $color }}">{{ $label }}</span></td>
@@ -118,7 +118,7 @@
                                     @if($encoded > 0)
                                         <a href="{{ route('evaluations.summary', $activity) }}" class="ev-act">View summary</a>
                                     @else
-                                        <span style="color:#cbd5e1; font-size:0.88rem">Awaiting encoding</span>
+                                        <span style="color:#52665d; font-size:0.88rem">Awaiting encoding</span>
                                     @endif
                                 @elseif(in_array($state, ['encoding', 'correction']))
                                     <a href="{{ route('evaluations.encode', $activity) }}" class="ev-act">Continue</a>

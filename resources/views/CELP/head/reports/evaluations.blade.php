@@ -53,12 +53,12 @@
     <style>
         .ef-summary { display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:13px; margin-bottom:18px; }
         .ef-metric { padding:18px 20px; border:1px solid #e5ebe8; border-radius:14px; background:#fff; }
-        .ef-metric-label { color:#71817c; font-size:.78rem; font-weight:700; }
+        .ef-metric-label { color:#52665d; font-size:.78rem; font-weight:700; }
         .ef-metric-value { margin-top:7px; color:#173e34; font-size:1.75rem; font-weight:800; line-height:1.1; }
-        .ef-metric-note { margin-top:4px; color:#94a3b8; font-size:.78rem; }
+        .ef-metric-note { margin-top:4px; color:#5b7067; font-size:.78rem; }
         .ef-panel { margin-bottom:18px; padding:22px; border:1px solid #e5ebe8; border-radius:14px; background:#fff; }
         .ef-panel h2 { margin:0; color:#173e34; font-size:1rem; }
-        .ef-panel-intro { margin:5px 0 16px; color:#71817c; font-size:.83rem; }
+        .ef-panel-intro { margin:5px 0 16px; color:#52665d; font-size:.83rem; }
         .ef-criterion { display:grid; grid-template-columns:minmax(150px,260px) 1fr 54px; gap:13px; align-items:center; padding:8px 0; }
         .ef-criterion-name { color:#334b42; font-size:.84rem; }
         .ef-track { height:12px; overflow:hidden; border-radius:99px; background:#edf2ef; }
@@ -67,7 +67,7 @@
         .ef-feedback-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; margin-bottom:18px; }
         .ef-feedback-card { min-width:0; padding:20px; border:1px solid #e5ebe8; border-radius:14px; background:#fff; }
         .ef-feedback-card h2 { margin:0; color:#173e34; font-size:.98rem; }
-        .ef-feedback-card > p { margin:5px 0 14px; color:#71817c; font-size:.82rem; }
+        .ef-feedback-card > p { margin:5px 0 14px; color:#52665d; font-size:.82rem; }
         .ef-quote { margin-top:10px; padding:11px 13px; border-left:3px solid #acd9c2; border-radius:0 9px 9px 0; background:#f7faf8; color:#40564c; font-size:.86rem; line-height:1.55; white-space:pre-line; overflow-wrap:anywhere; }
         .ef-quote-meta { margin-top:5px; color:#899790; font-size:.75rem; }
         .ef-empty { padding:25px 10px; color:#899790; font-size:.87rem; text-align:center; }

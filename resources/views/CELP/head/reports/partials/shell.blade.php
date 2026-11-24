@@ -7,7 +7,7 @@
     .rp-bar { display:flex; align-items:flex-end; gap:12px; flex-wrap:wrap; padding:16px 18px; background:#fff;
               border-radius:14px; box-shadow:0 6px 18px rgba(11,42,42,0.06); margin-bottom:18px; }
     .rp-field { display:flex; flex:1 1 150px; min-width:0; max-width:100%; flex-direction:column; gap:5px; }
-    .rp-field label { font-size:0.74rem; font-weight:700; color:#94a3b8; text-transform:uppercase; letter-spacing:0.04em; }
+    .rp-field label { font-size:0.74rem; font-weight:700; color:#5b7067; text-transform:uppercase; letter-spacing:0.04em; }
     .rp-field select, .rp-field input { border:1px solid #e2e8f0; border-radius:10px; padding:8px 11px; font:inherit;
                                         font-size:0.88rem; color:#0f172a; background:#fff; min-width:0; width:100%; }
     .rp-actions { margin-left:auto; display:flex; flex-wrap:wrap; gap:8px; align-items:center; }
@@ -19,13 +19,13 @@
 
     .rp-table { width:100%; border-collapse:collapse; font-size:0.88rem; }
     .rp-table th { text-align:left; padding:10px 12px; font-size:0.74rem; text-transform:uppercase; letter-spacing:0.04em;
-                   color:#94a3b8; font-weight:700; border-bottom:1px solid #e1e0d9; white-space:nowrap; }
+                   color:#5b7067; font-weight:700; border-bottom:1px solid #e1e0d9; white-space:nowrap; }
     .rp-table td { padding:11px 12px; border-bottom:1px solid #f1f5f9; color:#0f172a; vertical-align:top; }
     .rp-table tr:last-child td { border-bottom:none; }
     .rp-num { font-variant-numeric:tabular-nums; }
-    .rp-muted { color:#94a3b8; }
+    .rp-muted { color:#5b7067; }
     .rp-group-head { background:#f8fafc; font-weight:700; color:#0f172a; padding:10px 12px; border-bottom:1px solid #e2e8f0; }
-    .rp-empty { padding:48px; text-align:center; color:#64748b; }
+    .rp-empty { padding:48px; text-align:center; color:#52665d; }
     .rp-sign { display:none; }
     .rp-print-head { display:none; }
 

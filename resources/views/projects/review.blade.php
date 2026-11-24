@@ -33,7 +33,7 @@
             </div>
             <div style="flex:1; min-width:min(180px,100%)">
                 <h3 style="margin:0">{{ $queueTitles[$queueKey] ?? 'Pending project submissions' }}</h3>
-                <div style="color:#64748b; margin-top:4px">{{ $queueBlurbs[$queueKey] ?? '' }}</div>
+                <div style="color:#52665d; margin-top:4px">{{ $queueBlurbs[$queueKey] ?? '' }}</div>
             </div>
             <div style="margin-left:auto; background:#f1f5f9; color:#334155; font-weight:700; padding:8px 16px; border-radius:999px; font-size:0.9rem">
                 {{ $projects->count() }} {{ \Illuminate\Support\Str::plural('submission', $projects->count()) }}
@@ -42,7 +42,7 @@
     </div>
 
     @if($projects->isEmpty())
-        <div class="card" style="padding:40px; text-align:center; color:#64748b">
+        <div class="card" style="padding:40px; text-align:center; color:#52665d">
             <div style="font-size:2rem; margin-bottom:10px">📭</div>
             Nothing is waiting in this queue right now.
         </div>
@@ -60,7 +60,7 @@
                         @if($p->description)
                             <div style="color:#475569; margin-top:8px; max-width:640px; overflow:hidden; text-overflow:ellipsis; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical;">{{ $p->description }}</div>
                         @endif
-                        <div style="font-size:0.88rem; color:#64748b; margin-top:10px; display:flex; gap:14px; flex-wrap:wrap">
+                        <div style="font-size:0.88rem; color:#52665d; margin-top:10px; display:flex; gap:14px; flex-wrap:wrap">
                             <span style="display:inline-flex; align-items:center; gap:8px">
                                 <x-organization-avatar :organization="$p->creator" :size="28" />
                                 {{ $p->creator->organization_name ?? $p->creator->name ?? '—' }}

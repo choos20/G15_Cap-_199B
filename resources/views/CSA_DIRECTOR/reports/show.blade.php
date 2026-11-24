@@ -22,7 +22,7 @@
         .csr-table td { padding:12px 14px; border-top:1px solid #edf1ef; color:#344b43; font-size:0.83rem; line-height:1.45; vertical-align:top; }
         .csr-table tr:nth-child(even) td { background:#fcfdfc; }
         .csr-count { color:#64756e; font-size:0.83rem; }
-        .csr-empty { padding:38px 20px; color:#71817c; text-align:center; }
+        .csr-empty { padding:38px 20px; color:#52665d; text-align:center; }
         .csr-print-heading { display:none; }
         .csr-filter > div { min-width:0; }
         @media(max-width:1200px) { .csr-filter { grid-template-columns:repeat(2,minmax(0,1fr)); } }

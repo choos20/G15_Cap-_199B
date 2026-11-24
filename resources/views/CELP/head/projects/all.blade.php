@@ -29,23 +29,23 @@
                    border:1px solid #e2e8f0; color:#334155; text-decoration:none; font-size:0.86rem; font-weight:700; }
         .ap-chip:hover { border-color:#cbd5e1; background:#f8fafc; }
         .ap-chip.is-on { background:#0b6a4a; border-color:#0b6a4a; color:#fff; }
-        .ap-chip-n { color:#94a3b8; font-variant-numeric:tabular-nums; }
+        .ap-chip-n { color:#5b7067; font-variant-numeric:tabular-nums; }
         .ap-chip.is-on .ap-chip-n { color:rgba(255,255,255,0.75); }
         .ap-row { display:flex; align-items:center; gap:18px; padding:18px 22px; border-bottom:1px solid #f1f5f9; flex-wrap:wrap; }
         .ap-row:last-child { border-bottom:none; }
         .ap-row:hover { background:#f8fafc; }
         .ap-title { font-weight:700; font-size:1.02rem; color:#0f172a; }
-        .ap-meta { color:#64748b; font-size:0.86rem; margin-top:5px; }
+        .ap-meta { color:#52665d; font-size:0.86rem; margin-top:5px; }
         .ap-pill { display:inline-flex; padding:5px 12px; border-radius:999px; font-size:0.78rem; font-weight:700; white-space:nowrap; }
         .ap-open { flex-shrink:0; background:#0b6a4a; color:#fff; padding:9px 16px; border-radius:10px; text-decoration:none; font-weight:700; font-size:0.86rem; }
         .ap-open:hover { background:#0f8a61; }
-        .ap-empty { padding:48px; text-align:center; color:#64748b; }
+        .ap-empty { padding:48px; text-align:center; color:#52665d; }
         .ap-note { margin-top:8px; padding:10px 14px; border-radius:10px; background:#fef2f2; border:1px solid #fecaca; color:#b91c1c; font-size:0.84rem; }
     </style>
 
     <div class="ap-toolbar">
         <form method="GET" action="{{ route('projects.all') }}" class="ap-search">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="7" stroke="#94a3b8" stroke-width="2"/><path d="M20 20l-3.5-3.5" stroke="#94a3b8" stroke-width="2" stroke-linecap="round"/></svg>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="7" stroke="#5b7067" stroke-width="2"/><path d="M20 20l-3.5-3.5" stroke="#5b7067" stroke-width="2" stroke-linecap="round"/></svg>
             <input type="search" name="q" value="{{ $term }}" placeholder="Search title or organization..." aria-label="Search projects">
             @if($activeStatus)
                 <input type="hidden" name="status" value="{{ $activeStatus }}">

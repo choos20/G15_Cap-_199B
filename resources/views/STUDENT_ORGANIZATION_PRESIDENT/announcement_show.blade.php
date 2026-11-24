@@ -10,7 +10,7 @@
         .ann-badge { display:inline-flex; align-items:center; padding:6px 12px; border-radius:999px; font-size:0.85rem; font-weight:700; }
         .ann-badge-published { background:#dcfce7; color:#166534; }
         .ann-badge-draft { background:#f1f5f9; color:#475569; }
-        .ann-meta { display:flex; flex-wrap:wrap; gap:10px; color:#64748b; font-size:0.92rem; margin-top:10px; }
+        .ann-meta { display:flex; flex-wrap:wrap; gap:10px; color:#52665d; font-size:0.92rem; margin-top:10px; }
         .ann-meta span { display:inline-flex; align-items:center; gap:6px; }
         .ann-section-title { font-size:1.05rem; font-weight:700; color:#0f172a; margin:0 0 14px; }
         .ann-image-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(180px, 1fr)); gap:16px; }
@@ -23,7 +23,7 @@
         .ann-file-card:hover { box-shadow:0 10px 24px rgba(15,23,42,0.08); border-color:#c7d2fe; }
         .ann-file-icon { width:44px; height:44px; border-radius:12px; background:#eef2ff; color:#4338ca; display:flex; align-items:center; justify-content:center; font-size:1.2rem; flex-shrink:0; }
         .ann-file-info strong { display:block; color:#0f172a; }
-        .ann-file-info span { font-size:0.85rem; color:#64748b; }
+        .ann-file-info span { font-size:0.85rem; color:#52665d; }
         .ann-lightbox { display:none; position:fixed; inset:0; background:rgba(15,23,42,0.85); z-index:1000; align-items:center; justify-content:center; padding:40px; }
         .ann-lightbox.active { display:flex; }
         .ann-lightbox img { max-width:100%; max-height:100%; border-radius:12px; box-shadow:0 30px 60px rgba(0,0,0,0.4); }
@@ -71,7 +71,7 @@
                     </button>
                 </form>
                 @if($announcement->category === 'Volunteer recruitment')
-                    <span style="align-self:center; color:#64748b; font-size:0.85rem;">Recruitment retained for this activity</span>
+                    <span style="align-self:center; color:#52665d; font-size:0.85rem;">Recruitment retained for this activity</span>
                 @else
                 <form action="{{ route('student_org.announcements.destroy', $announcement) }}" method="POST" data-confirm
                       data-confirm-title="Remove announcement?"
@@ -132,7 +132,7 @@
     @endphp
 
     @if($announcement->attachments->isEmpty())
-        <div class="card" style="padding:24px; color:#64748b;">No files were attached to this announcement.</div>
+        <div class="card" style="padding:24px; color:#52665d;">No files were attached to this announcement.</div>
     @else
         @if($imageAttachments->isNotEmpty())
             <div class="card" style="padding:24px; margin-bottom:20px">

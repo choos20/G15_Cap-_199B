@@ -5,15 +5,15 @@
 
 @section('content')
     <style>
-        .su-crumbs { font-size:0.85rem; color:#94a3b8; margin-bottom:14px; }
+        .su-crumbs { font-size:0.85rem; color:#5b7067; margin-bottom:14px; }
         .su-crumbs a { color:#0b6a4a; text-decoration:none; font-weight:600; }
         .su-crumbs a:hover { text-decoration:underline; }
 
         .su-tiles { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:16px; }
         .su-tile { background:#fff; border:1px solid #e5e7eb; border-radius:16px; padding:22px; }
-        .su-tile h4 { margin:0 0 10px; font-size:0.87rem; color:#64748b; font-weight:700; }
+        .su-tile h4 { margin:0 0 10px; font-size:0.87rem; color:#52665d; font-weight:700; }
         .su-big { font-size:2.2rem; font-weight:800; color:#0f172a; line-height:1; }
-        .su-sub { font-size:0.85rem; color:#94a3b8; margin-top:5px; }
+        .su-sub { font-size:0.85rem; color:#5b7067; margin-top:5px; }
 
         .su-src { display:flex; align-items:center; gap:9px; padding:4px 0; font-size:0.88rem; color:#475569; }
         .su-src i { width:11px; height:11px; border-radius:3px; display:inline-block; flex-shrink:0; }
@@ -21,7 +21,7 @@
 
         .su-card { background:#fff; border:1px solid #e5e7eb; border-radius:16px; padding:24px; margin-top:18px; }
         .su-card h3 { margin:0 0 4px; font-size:1.05rem; color:#0f172a; }
-        .su-card .hint { font-size:0.85rem; color:#94a3b8; margin-bottom:18px; }
+        .su-card .hint { font-size:0.85rem; color:#5b7067; margin-bottom:18px; }
 
         .su-row { display:grid; grid-template-columns:minmax(140px,240px) 1fr 46px; gap:14px; align-items:center; padding:7px 0; }
         .su-row .nm { font-size:0.9rem; color:#334155; }
@@ -29,7 +29,7 @@
         .su-track i { display:block; height:100%; background:#0f7a52; border-radius:4px; }
         .su-val { text-align:right; font-weight:700; color:#0f172a; font-variant-numeric:tabular-nums; font-size:0.9rem; }
         .su-axis { display:flex; justify-content:space-between; margin-top:8px; padding-left:calc(min(240px,25%) + 14px);
-                   padding-right:60px; font-size:0.78rem; color:#cbd5e1; }
+                   padding-right:60px; font-size:0.78rem; color:#52665d; }
 
         .su-two { display:grid; grid-template-columns:1fr 1fr; gap:18px; margin-top:18px; }
         @media (max-width: 860px) { .su-two { grid-template-columns:1fr; } }
@@ -128,7 +128,7 @@
                 average {{ isset($overallByType[$type]) ? number_format($overallByType[$type], 2).' / 5' : 'not available' }}
             </div>
             @if($typeResponses->isEmpty())
-                <div style="padding:24px 0; color:#94a3b8">No {{ strtolower($label) }} forms have been encoded yet.</div>
+                <div style="padding:24px 0; color:#5b7067">No {{ strtolower($label) }} forms have been encoded yet.</div>
             @else
                 @foreach($typeCriteria as $criterion)
                     @php $avg = $averages[$type][$criterion->id] ?? null; @endphp
@@ -136,7 +136,7 @@
                         <div class="nm">
                             {{ $criterion->short_label }}
                             @unless($criterion->is_active)
-                                <span style="font-size:0.76rem; color:#94a3b8">(legacy)</span>
+                                <span style="font-size:0.76rem; color:#5b7067">(legacy)</span>
                             @endunless
                         </div>
                         <div class="su-track"><i style="width:{{ $avg ? ($avg / 5 * 100) : 0 }}%"></i></div>
@@ -156,7 +156,7 @@
                 @php $answers = $question->answers->filter(fn ($answer) => filled($answer->answer)); @endphp
                 <div style="padding:14px 0; border-top:1px solid #f1f5f9">
                     <strong style="color:#334155">{{ $question->question }}</strong>
-                    <span style="color:#94a3b8; font-size:.8rem"> · {{ $respondentLabels[$question->respondent_type] ?? ucfirst($question->respondent_type) }} · {{ $answers->count() }} answers</span>
+                    <span style="color:#5b7067; font-size:.8rem"> · {{ $respondentLabels[$question->respondent_type] ?? ucfirst($question->respondent_type) }} · {{ $answers->count() }} answers</span>
                     @if($question->question_type === 'rating')
                         @php $average = $answers->avg(fn ($answer) => (float) $answer->answer); @endphp
                         <div style="margin-top:7px; color:#0f172a; font-weight:700">{{ $average !== null ? number_format($average, 2).' / 5 average' : 'No ratings' }}</div>
@@ -170,7 +170,7 @@
                         @forelse($answers as $answer)
                             <div class="su-quote" style="margin-top:8px">{{ $answer->answer }}</div>
                         @empty
-                            <div style="margin-top:7px; color:#94a3b8">No written answers.</div>
+                            <div style="margin-top:7px; color:#5b7067">No written answers.</div>
                         @endforelse
                     @endif
                 </div>
@@ -187,7 +187,7 @@
                     @forelse($volunteerInterestCounts[$type] ?? [] as $answer => $count)
                         <div class="su-src">{{ ucfirst($answer) }} <b>{{ $count }}</b></div>
                     @empty
-                        <div style="margin-top:7px; color:#94a3b8; font-size:.88rem">No answers recorded.</div>
+                        <div style="margin-top:7px; color:#5b7067; font-size:.88rem">No answers recorded.</div>
                     @endforelse
                 </div>
             @endforeach
@@ -200,7 +200,7 @@
         @forelse($sourceCounts as $source => $count)
             <div class="su-src">{{ $heardAboutLabels[$source] ?? ucfirst(str_replace('_', ' ', $source)) }} <b>{{ $count }}</b></div>
         @empty
-            <div style="color:#94a3b8; font-size:.9rem">No responses recorded.</div>
+            <div style="color:#5b7067; font-size:.9rem">No responses recorded.</div>
         @endforelse
     </div>
 
@@ -211,7 +211,7 @@
             @forelse($suggestions->take(3) as $text)
                 <div class="su-quote">{{ $text }}</div>
             @empty
-                <div style="color:#94a3b8; font-size:0.9rem">No suggestions were recorded.</div>
+                <div style="color:#5b7067; font-size:0.9rem">No suggestions were recorded.</div>
             @endforelse
             @if($suggestions->count() > 3)
                 <div id="more-suggestions" style="display:none">
@@ -229,7 +229,7 @@
             @forelse($observations->take(3) as $text)
                 <div class="su-quote">{{ $text }}</div>
             @empty
-                <div style="color:#94a3b8; font-size:0.9rem">No observations were recorded.</div>
+                <div style="color:#5b7067; font-size:0.9rem">No observations were recorded.</div>
             @endforelse
             @if($observations->count() > 3)
                 <div id="more-observations" style="display:none">
@@ -262,7 +262,7 @@
                     style="padding:12px 20px; border-radius:12px; background:#0b6a4a; color:#fff; border:none; font-weight:700; cursor:pointer; font-size:0.92rem">
                 Submit this batch
             </button>
-            <span style="margin-left:12px; color:#64748b; font-size:0.87rem">You can reopen the batch later if a correction is needed.</span>
+            <span style="margin-left:12px; color:#52665d; font-size:0.87rem">You can reopen the batch later if a correction is needed.</span>
         </form>
     @endif
 

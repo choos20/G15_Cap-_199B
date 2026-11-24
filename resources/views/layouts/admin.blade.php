@@ -7,10 +7,10 @@
     <link rel="icon" type="image/png" href="{{ asset('images/Logo_nobg.png') }}">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        :root{--sidebar:#0b2926;--sidebar-deep:#08211f;--accent:#13b886;--muted:#6b7280;--card:#ffffff;--text:#0b2a2a}
+        :root{--sidebar:#0b2926;--sidebar-deep:#08211f;--accent:#13b886;--muted:#52665d;--text-secondary:#52665d;--text-muted:#5b7067;--card:#ffffff;--text:#16352d}
         *{box-sizing:border-box}
         html{min-width:0; overflow-x:hidden}
-        body{font-family:Inter,system-ui,Segoe UI,Roboto,Arial; margin:0; background:#f6f7fb; color:var(--text); font-size:15px; min-width:0; overflow-x:hidden}
+        body{font-family:Inter,system-ui,Segoe UI,Roboto,Arial; margin:0; background:#f6f7fb; color:var(--text); font-size:16px; line-height:1.45; min-width:0; overflow-x:hidden}
         body.nav-open{overflow:hidden}
         .app-shell{min-height:100vh}
         .sidebar{position:fixed; inset:0 auto 0 0; z-index:100; width:260px; height:auto; overflow:hidden; background:radial-gradient(ellipse at 15% 0%,#12463d 0%,transparent 42%),linear-gradient(180deg,var(--sidebar) 0%,var(--sidebar-deep) 100%); color:#e6f7f2; padding:22px 16px 16px; display:flex; flex-direction:column; border-right:1px solid rgba(255,255,255,0.06);}
@@ -56,10 +56,18 @@
         .profile-avatar-action.is-remove{border-color:#fecaca; background:#fff; color:#b91c1c}
         .profile-avatar-error{margin-top:8px; color:#b91c1c; font-size:.75rem; line-height:1.4}
         .main{min-width:0; min-height:100vh; margin-left:260px; padding:28px}
-        .content{min-width:0; max-width:100%; overflow-wrap:anywhere}
+        .content{min-width:0; max-width:100%; color:var(--text); overflow-wrap:anywhere}
         .content :where(input,select,textarea){min-width:0; max-width:100%}
         .content fieldset{min-inline-size:0}
         .content :where(img,video,canvas,iframe){max-width:100%}
+        .content :where(p,li,dd,dt,small,time,figcaption){line-height:1.5}
+        .content :where(input,select,textarea)::placeholder{color:var(--text-secondary);opacity:1}
+        .content :where(a,button,input,select,textarea,summary):focus-visible{outline:3px solid rgba(4,120,87,.34);outline-offset:3px}
+        @media (prefers-contrast: more){
+            body{color:#0f2b23}
+            .content :where(p,li,dd,dt,small,time,figcaption){color:#304b40 !important}
+            .content :where(a,button,input,select,textarea,summary):focus-visible{outline-color:#047857;outline-width:4px}
+        }
         .topbar{display:flex; align-items:center; justify-content:space-between; margin-bottom:18px; gap:14px; flex-wrap:nowrap}
         .topbar .title-group{min-width:0; max-width:none; flex:1 1 auto; flex-wrap:nowrap; overflow:hidden; overflow-wrap:normal}
         .topbar .title-group > *{min-width:0}
@@ -95,8 +103,8 @@
         .search-dropdown .group-item{padding:12px 16px; display:flex; flex-direction:column; gap:4px; text-decoration:none; color:#0f172a; border-top:1px solid #f1f5f9}
         .search-dropdown .group-item:hover, .search-dropdown .group-item.active{background:#f8fafc}
         .search-dropdown .item-title{font-weight:700}
-        .search-dropdown .item-subtitle{font-size:0.9rem; color:#64748b}
-        .search-empty{padding:18px 16px; color:#64748b; font-size:0.95rem}
+        .search-dropdown .item-subtitle{font-size:0.9rem; color:#52665d}
+        .search-empty{padding:18px 16px; color:#52665d; font-size:0.95rem}
         .search-hint{font-size:0.82rem; color:#475569; opacity:0.85; margin-top:4px}
         .notif-wrapper{position:relative}
         #notif-dropdown{right:0; left:auto; width:340px}
@@ -236,7 +244,7 @@
                             <div style="margin-top:8px; color:#08734e; font-size:.78rem">{{ session('status') }}</div>
                         @endif
                         @if(auth()->user()->must_change_password)
-                            <p style="margin:8px 0 0; color:#64748b; font-size:.78rem; line-height:1.45">Change your temporary password before updating your image.</p>
+                            <p style="margin:8px 0 0; color:#52665d; font-size:.78rem; line-height:1.45">Change your temporary password before updating your image.</p>
                         @else
                             <form method="POST" action="{{ route('account.profile-photo.update') }}" enctype="multipart/form-data">
                                 @csrf
@@ -258,7 +266,7 @@
                                     <button class="profile-avatar-action is-remove" type="submit">Remove photo</button>
                                 </form>
                             @endif
-                            <p style="margin:8px 0 0; color:#64748b; font-size:.73rem; line-height:1.4">JPG, PNG, or WebP; maximum 2 MB. Square images work best.</p>
+                            <p style="margin:8px 0 0; color:#52665d; font-size:.73rem; line-height:1.4">JPG, PNG, or WebP; maximum 2 MB. Square images work best.</p>
                         @endif
                     </div>
                 </details>

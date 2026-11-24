@@ -10,7 +10,7 @@
 
     <style>
         .av-fact { padding:16px; border-radius:14px; background:#f8fafc; border:1px solid #e2e8f0; }
-        .av-fact-label { font-size:0.78rem; color:#94a3b8; font-weight:700; text-transform:uppercase; letter-spacing:0.04em; }
+        .av-fact-label { font-size:0.78rem; color:#5b7067; font-weight:700; text-transform:uppercase; letter-spacing:0.04em; }
         .av-fact-value { margin-top:6px; font-weight:600; color:#0f172a; }
         .av-tag { font-size:0.76rem; font-weight:700; padding:4px 11px; border-radius:999px; white-space:nowrap; }
         .av-notice { margin-top:26px; padding:14px 18px; border-radius:14px; background:#f8fafc;
@@ -55,15 +55,15 @@
                    style="display:inline-flex; align-items:center; gap:9px; color:#0b6a4a; font-weight:600; text-decoration:none">
                     <x-organization-avatar :organization="$announcement->creator" :size="30" />
                     {{ $announcement->creator->organization_name ?? $announcement->creator->name }}
-                    <span style="font-weight:400; color:#94a3b8; font-size:0.86rem">· view profile</span>
+                    <span style="font-weight:400; color:#5b7067; font-size:0.86rem">· view profile</span>
                 </a>
             @else
-                <span style="color:#64748b">Unknown organization</span>
+                <span style="color:#52665d">Unknown organization</span>
             @endif
         </div>
 
         @if($announcement->project)
-            <div style="color:#64748b; font-size:0.88rem; margin-top:4px">
+            <div style="color:#52665d; font-size:0.88rem; margin-top:4px">
                 Under project: <strong style="color:#334155">{{ $announcement->project->title }}</strong>
                 &middot; {{ \App\Models\Project::statusLabel($announcement->project->status) }}
             </div>

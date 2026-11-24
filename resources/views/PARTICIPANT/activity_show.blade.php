@@ -52,8 +52,8 @@
         .sv-look-btn:hover { background:rgba(15,23,42,0.85); }
         .sv-look-left { left:12px; }
         .sv-look-right { right:12px; }
-        .sv-caption { color:#cbd5e1; font-size:0.82rem; margin-top:10px; }
-        .sv-modal-note { color:#94a3b8; font-size:0.82rem; margin-top:6px; }
+        .sv-caption { color:#52665d; font-size:0.82rem; margin-top:10px; }
+        .sv-modal-note { color:#5b7067; font-size:0.82rem; margin-top:6px; }
         .sv-modal-note a { color:#93c5fd; }
     </style>
 
@@ -94,10 +94,10 @@
                            style="display:inline-flex; align-items:center; gap:9px; color:#0b6a4a; font-weight:600; text-decoration:none">
                             <x-organization-avatar :organization="$announcement->creator" :size="30" />
                             {{ $announcement->creator->organization_name ?? $announcement->creator->name }}
-                            <span style="font-weight:400; color:#94a3b8; font-size:0.86rem">· view profile</span>
+                            <span style="font-weight:400; color:#5b7067; font-size:0.86rem">· view profile</span>
                         </a>
                     @else
-                        <span style="color:#64748b">Unknown organization</span>
+                        <span style="color:#52665d">Unknown organization</span>
                     @endif
                 </div>
             </div>
@@ -116,19 +116,19 @@
         @if($isRecruitment)
             <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:14px; margin-top:20px">
                 <div style="padding:16px; border-radius:14px; background:#f8fafc; border:1px solid #e2e8f0">
-                    <div style="font-size:0.8rem; color:#94a3b8; font-weight:700; text-transform:uppercase; letter-spacing:0.04em">Schedule</div>
+                    <div style="font-size:0.8rem; color:#5b7067; font-weight:700; text-transform:uppercase; letter-spacing:0.04em">Schedule</div>
                     <div style="margin-top:6px; font-weight:600; color:#0f172a">{{ $announcement->event_date ? $announcement->event_date->format('M j, Y g:i A') : 'To be announced' }}</div>
                 </div>
                 <div style="padding:16px; border-radius:14px; background:#f8fafc; border:1px solid #e2e8f0">
-                    <div style="font-size:0.8rem; color:#94a3b8; font-weight:700; text-transform:uppercase; letter-spacing:0.04em">Location</div>
+                    <div style="font-size:0.8rem; color:#5b7067; font-weight:700; text-transform:uppercase; letter-spacing:0.04em">Location</div>
                     <div style="margin-top:6px; font-weight:600; color:#0f172a">{{ $announcement->event_location ?? 'To be announced' }}</div>
                 </div>
                 <div style="padding:16px; border-radius:14px; background:#f8fafc; border:1px solid #e2e8f0">
-                    <div style="font-size:0.8rem; color:#94a3b8; font-weight:700; text-transform:uppercase; letter-spacing:0.04em">Volunteer slots</div>
+                    <div style="font-size:0.8rem; color:#5b7067; font-weight:700; text-transform:uppercase; letter-spacing:0.04em">Volunteer slots</div>
                     <div style="margin-top:6px; font-weight:600; color:#0f172a">{{ $remaining }} of {{ $announcement->slots_needed }} remaining</div>
                 </div>
                 <div style="padding:16px; border-radius:14px; background:#f8fafc; border:1px solid #e2e8f0">
-                    <div style="font-size:0.8rem; color:#94a3b8; font-weight:700; text-transform:uppercase; letter-spacing:0.04em">Application deadline</div>
+                    <div style="font-size:0.8rem; color:#5b7067; font-weight:700; text-transform:uppercase; letter-spacing:0.04em">Application deadline</div>
                     <div style="margin-top:6px; font-weight:600; color:#0f172a">{{ $announcement->application_deadline ? $announcement->application_deadline->timezone('Asia/Manila')->format('M j, Y g:i A') : 'Open' }}</div>
                 </div>
             </div>
@@ -185,18 +185,18 @@
                     Your application was not approved{{ $myApplication->decision_notes ? ' — '.$myApplication->decision_notes : '' }}.
                 </div>
             @elseif($deadlinePassed)
-                <div style="color:#64748b">The application deadline for this activity has passed.</div>
+                <div style="color:#52665d">The application deadline for this activity has passed.</div>
             @elseif($activityStarted)
-                <div style="color:#64748b">This activity has already started. Applications are closed.</div>
+                <div style="color:#52665d">This activity has already started. Applications are closed.</div>
             @elseif($full)
-                <div style="color:#64748b">This activity has reached its volunteer capacity.</div>
+                <div style="color:#52665d">This activity has reached its volunteer capacity.</div>
             @else
                 <form method="post" action="{{ route('participant.activities.apply', $announcement) }}" enctype="multipart/form-data">
                     @csrf
                     <label style="display:block; font-weight:700; margin-bottom:8px; color:#0f172a">Supporting documents</label>
-                    <div style="color:#64748b; font-size:0.9rem; margin-bottom:10px">Upload 1–3 files the organizer needs to review your application — e.g. a parental consent form or ID. PDF, DOC, or DOCX, max 5MB each.</div>
+                    <div style="color:#52665d; font-size:0.9rem; margin-bottom:10px">Upload 1–3 files the organizer needs to review your application — e.g. a parental consent form or ID. PDF, DOC, or DOCX, max 5MB each.</div>
                     <input id="application-documents" type="file" name="documents[]" multiple accept=".pdf,.doc,.docx" required style="width:100%; margin-bottom:8px;">
-                    <div id="application-documents-count" style="color:#64748b; font-size:0.85rem; margin-bottom:8px" aria-live="polite">0 of 3 documents selected</div>
+                    <div id="application-documents-count" style="color:#52665d; font-size:0.85rem; margin-bottom:8px" aria-live="polite">0 of 3 documents selected</div>
                     <div id="application-documents-error" role="alert" style="display:none; color:#b91c1c; font-size:0.9rem; margin-bottom:10px"></div>
                     <ul id="application-documents-list" style="display:grid; gap:8px; list-style:none; margin:0 0 14px; padding:0"></ul>
                     @error('documents')<div style="color:#b91c1c; font-size:0.9rem; margin-bottom:14px">{{ $message }}</div>@enderror
@@ -283,7 +283,7 @@
                 </script>
             @endif
             @else
-                <div style="margin-top:26px; border-top:1px solid #e5e7eb; padding-top:22px; color:#64748b">
+                <div style="margin-top:26px; border-top:1px solid #e5e7eb; padding-top:22px; color:#52665d">
                     This announcement is for information only; no volunteer application is needed.
                 </div>
             @endif

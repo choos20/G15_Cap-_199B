@@ -34,14 +34,14 @@
         <div style="display:flex; justify-content:space-between; align-items:center; gap:16px; flex-wrap:wrap">
             <div>
                 <h3 style="margin:0">{{ $announcement->title }}</h3>
-                <div style="color:#64748b; margin-top:6px">{{ $announcement->project->title ?? '—' }}</div>
+                <div style="color:#52665d; margin-top:6px">{{ $announcement->project->title ?? '—' }}</div>
             </div>
             <span style="font-size:0.9rem; font-weight:700; padding:8px 16px; border-radius:999px; background:{{ $remaining > 0 ? '#ecfdf5' : '#fef2f2' }}; color:{{ $remaining > 0 ? '#065f46' : '#b91c1c' }}">{{ $remaining }} of {{ $announcement->slots_needed }} slots remaining</span>
         </div>
     </div>
 
     @if($applications->isEmpty())
-        <div class="card" style="padding:40px; text-align:center; color:#64748b">
+        <div class="card" style="padding:40px; text-align:center; color:#52665d">
             No applications yet.
         </div>
     @else
@@ -55,7 +55,7 @@
                                 <div style="font-weight:700; color:#0f172a">{{ $application->applicant->name ?? 'Unknown' }}</div>
                                 <span style="font-size:0.78rem; font-weight:700; padding:4px 10px; border-radius:999px; background:{{ $bg }}; color:{{ $color }}">{{ ucfirst($application->status) }}</span>
                             </div>
-                            <div style="font-size:0.85rem; color:#64748b; margin-top:4px">
+                            <div style="font-size:0.85rem; color:#52665d; margin-top:4px">
                                 {{ $application->applicant->email ?? '' }} · Applied {{ $application->created_at->diffForHumans() }}
                                 @if($application->decision_notes)
                                     · {{ $application->decision_notes }}
@@ -83,7 +83,7 @@
                     </div>
 
                     <div style="margin-top:14px; padding-top:14px; border-top:1px solid #f1f5f9;">
-                        <div style="font-size:0.78rem; font-weight:700; color:#94a3b8; text-transform:uppercase; letter-spacing:0.04em; margin-bottom:10px;">Supporting documents</div>
+                        <div style="font-size:0.78rem; font-weight:700; color:#5b7067; text-transform:uppercase; letter-spacing:0.04em; margin-bottom:10px;">Supporting documents</div>
                         @if($application->attachments->isEmpty())
                             <div style="color:#b91c1c; font-size:0.88rem;">⚠️ No documents submitted.</div>
                         @else

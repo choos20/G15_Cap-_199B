@@ -11,7 +11,7 @@
     @endif
 
     @if($announcements->isEmpty())
-        <div class="card" style="padding:40px; text-align:center; color:#64748b">
+        <div class="card" style="padding:40px; text-align:center; color:#52665d">
             <div style="font-size:2rem; margin-bottom:10px">📢</div>
             You haven't posted a volunteer recruitment announcement yet.
             <div style="margin-top:14px"><a href="{{ route('student_org.announcements') }}" style="color:#2563eb; text-decoration:none; font-weight:700;">Create an announcement</a></div>
@@ -23,7 +23,7 @@
                 <div class="card" style="display:flex; justify-content:space-between; align-items:center; gap:16px; padding:20px 22px; flex-wrap:wrap">
                     <div>
                         <div style="font-weight:700; color:#0f172a; font-size:1.02rem">{{ $announcement->title }}</div>
-                        <div style="font-size:0.88rem; color:#64748b; margin-top:6px">
+                        <div style="font-size:0.88rem; color:#52665d; margin-top:6px">
                             {{ $announcement->project->title ?? '—' }}
                             · {{ $remaining }} of {{ $announcement->slots_needed }} slots remaining
                         </div>

@@ -35,7 +35,7 @@
         }
         .ann-attachment-icon { width:42px; height:42px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:1.15rem; color:#1e3a8a; flex-shrink:0; background:#eff6ff; }
         .ann-attachment-info strong { display:block; font-size:0.95rem; color:#0f172a; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-        .ann-attachment-info span { display:block; color:#64748b; margin-top:2px; font-size:0.86rem; }
+        .ann-attachment-info span { display:block; color:#52665d; margin-top:2px; font-size:0.86rem; }
         .ann-attachment-remove { border:1px solid #cbd5e1; background:#ffffff; color:#0f172a; border-radius:12px; padding:8px 14px; cursor:pointer; font-weight:600; font-size:0.9rem; }
         .ann-attachment-remove:hover { background:#f8fafc; }
     </style>
@@ -49,7 +49,7 @@
 
     <div class="card" style="padding:24px;">
         <h3 style="margin-top:0; margin-bottom:6px">Create announcement</h3>
-        <p style="margin:0 0 18px; color:#64748b">Published notices appear on every student organization's Announcements page.</p>
+        <p style="margin:0 0 18px; color:#52665d">Published notices appear on every student organization's Announcements page.</p>
         <form action="{{ route('celp.secretary.announcements.store') }}" method="POST" enctype="multipart/form-data">
             @csrf
             <div style="display:grid; gap:18px;">
@@ -109,7 +109,7 @@
     <div class="card" style="margin-top:24px;">
         <h3 style="margin-top:0; margin-bottom:18px">Your announcements</h3>
         @if($announcements->isEmpty())
-            <div style="color:#64748b">No announcements created yet.</div>
+            <div style="color:#52665d">No announcements created yet.</div>
         @else
             <div style="display:grid; gap:14px;">
                 @foreach($announcements as $announcement)
@@ -119,7 +119,7 @@
                                 <div style="font-size:1rem; font-weight:700; color:#0f172a;">{{ $announcement->title }}</div>
                                 <span style="font-size:0.78rem; font-weight:700; padding:4px 10px; border-radius:999px; background:{{ $announcement->status === 'published' ? '#dcfce7' : '#f1f5f9' }}; color:{{ $announcement->status === 'published' ? '#166534' : '#475569' }}">{{ ucfirst($announcement->status) }}</span>
                             </div>
-                            <div style="font-size:0.9rem; color:#64748b; margin-top:6px;">{{ $announcement->category }} · {{ $announcement->created_at->diffForHumans() }}</div>
+                            <div style="font-size:0.9rem; color:#52665d; margin-top:6px;">{{ $announcement->category }} · {{ $announcement->created_at->diffForHumans() }}</div>
                         </a>
                         <div style="display:flex; gap:10px; align-items:center;">
                             <span style="font-size:0.85rem; color:#475569;">{{ $announcement->attachments->count() }} files</span>

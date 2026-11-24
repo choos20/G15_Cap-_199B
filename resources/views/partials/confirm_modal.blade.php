@@ -55,10 +55,10 @@
     .cfm-icon.is-success { background:#ecfdf5; color:#047857; box-shadow:inset 0 0 0 1px #a7f3d0; }
     .cfm-title { margin:0; font-size:1.18rem; font-weight:750; letter-spacing:-.02em;
                  color:#0f172a; line-height:1.35; }
-    .cfm-body { margin:0; color:#64748b; font-size:.95rem; line-height:1.65; }
+    .cfm-body { margin:0; color:#52665d; font-size:.95rem; line-height:1.65; }
     .cfm-body strong { color:#0f172a; font-weight:700; }
     .cfm-note { margin:10px 0 0; padding:10px 12px; border-radius:10px;
-                background:#f8fafc; color:#64748b; font-size:.9rem; line-height:1.55; }
+                background:#f8fafc; color:#52665d; font-size:.9rem; line-height:1.55; }
     .cfm-actions { display:flex; flex-wrap:wrap; justify-content:flex-end; gap:10px; margin-top:24px;
                    padding-top:18px; border-top:1px solid #f1f5f9; }
     .cfm-cancel, .cfm-ok { min-height:44px; padding:10px 18px; border-radius:10px;
@@ -66,7 +66,7 @@
                            transition:background-color .15s ease, border-color .15s ease,
                                       box-shadow .15s ease, transform .15s ease; }
     .cfm-cancel { background:#fff; color:#334155; border:1px solid #cbd5e1; }
-    .cfm-cancel:hover { background:#f8fafc; border-color:#94a3b8; }
+    .cfm-cancel:hover { background:#f8fafc; border-color:#5b7067; }
     .cfm-ok { background:#c2410c; color:#fff; border:1px solid #c2410c; }
     .cfm-ok:hover { background:#9a3412; border-color:#9a3412; }
     .cfm-ok.is-warning { background:#b45309; border-color:#b45309; }

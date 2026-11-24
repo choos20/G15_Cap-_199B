@@ -8,7 +8,7 @@
         .en-grid { display:grid; grid-template-columns:minmax(0,1fr) 300px; gap:20px; align-items:start; }
         @media (max-width: 980px) { .en-grid { grid-template-columns:1fr; } }
 
-        .en-crumbs { font-size:0.85rem; color:#94a3b8; margin-bottom:14px; }
+        .en-crumbs { font-size:0.85rem; color:#5b7067; margin-bottom:14px; }
         .en-crumbs a { color:#0b6a4a; text-decoration:none; font-weight:600; }
         .en-crumbs a:hover { text-decoration:underline; }
 
@@ -19,8 +19,8 @@
         .en-card + .en-card { margin-top:18px; }
         .en-card-head { display:flex; align-items:baseline; gap:12px; flex-wrap:wrap; margin-bottom:4px; }
         .en-card-head h3 { margin:0; font-size:1.05rem; color:#0f172a; }
-        .en-scale { font-size:0.82rem; color:#94a3b8; }
-        .en-formno { margin-left:auto; font-size:0.82rem; color:#94a3b8; font-weight:600; }
+        .en-scale { font-size:0.82rem; color:#5b7067; }
+        .en-formno { margin-left:auto; font-size:0.82rem; color:#5b7067; font-weight:600; }
 
         .en-crit { display:flex; align-items:center; gap:16px; padding:14px 0; border-bottom:1px solid #f1f5f9; }
         .en-crit:last-of-type { border-bottom:none; }
@@ -47,7 +47,7 @@
         .en-chip input:focus-visible + span { outline:2px solid #0b6a4a; outline-offset:2px; }
 
         .en-label { display:block; font-weight:700; color:#0f172a; margin-bottom:6px; font-size:0.92rem; }
-        .en-label span { font-weight:400; color:#94a3b8; }
+        .en-label span { font-weight:400; color:#5b7067; }
         .en-text { width:100%; padding:12px 14px; border:1px solid #e2e8f0; border-radius:12px;
                    font-family:inherit; font-size:0.92rem; resize:vertical; min-height:92px; }
 
@@ -55,7 +55,7 @@
         .en-panel { background:#fff; border:1px solid #e5e7eb; border-radius:16px; padding:20px; }
         .en-panel h4 { margin:0 0 12px; font-size:0.88rem; color:#0f172a; }
         .en-big { font-size:2.2rem; font-weight:800; color:#0f172a; line-height:1; }
-        .en-sub { font-size:0.85rem; color:#64748b; margin-top:4px; }
+        .en-sub { font-size:0.85rem; color:#52665d; margin-top:4px; }
         .en-bar { height:6px; border-radius:999px; background:#f1f5f9; overflow:hidden; margin-top:12px; }
         .en-bar i { display:block; height:100%; background:#0b6a4a; border-radius:999px; }
         .en-avgrow { display:flex; justify-content:space-between; gap:12px; padding:6px 0; font-size:0.85rem; color:#475569; }
@@ -67,8 +67,8 @@
         .en-btn-primary:hover { background:#095a3e; }
         .en-btn-ghost { background:#fff; color:#334155; border-color:#e2e8f0; }
         .en-btn-ghost:hover { background:#f8fafc; }
-        .en-btn-quiet { background:none; color:#94a3b8; border:none; font-size:0.86rem; padding:6px; }
-        .en-btn-quiet:hover { color:#64748b; text-decoration:underline; }
+        .en-btn-quiet { background:none; color:#5b7067; border:none; font-size:0.86rem; padding:6px; }
+        .en-btn-quiet:hover { color:#52665d; text-decoration:underline; }
 
         .en-target { display:flex; gap:8px; margin-top:12px; }
         .en-target input { flex:1; min-width:0; padding:9px 11px; border:1px solid #e2e8f0; border-radius:10px; font-size:0.88rem; }
@@ -144,11 +144,11 @@
                     @endforeach
                 </select>
             </div>
-            <div style="color:#64748b; font-size:.85rem">
+            <div style="color:#52665d; font-size:.85rem">
                 Beneficiary forms and Student Volunteer / Implementer forms use separate rating questions and summaries.
             </div>
         </form>
-        <div style="display:flex; gap:16px; flex-wrap:wrap; margin-top:12px; color:#64748b; font-size:.84rem">
+        <div style="display:flex; gap:16px; flex-wrap:wrap; margin-top:12px; color:#52665d; font-size:.84rem">
             <span>Beneficiary forms: <b style="color:#0f172a">{{ $responseCounts['beneficiary'] ?? 0 }}</b></span>
             <span>Volunteer / implementer forms: <b style="color:#0f172a">{{ $responseCounts['implementer'] ?? 0 }}</b></span>
         </div>
@@ -169,7 +169,7 @@
                     <b>{{ $question->question }}</b> · {{ \App\Models\EvaluationCustomQuestion::TYPES[$question->question_type] }}
                     @if($question->is_required) <span style="color:#b91c1c">Required</span> @endif
                     @if($question->question_type === 'multiple_choice' && $question->options)
-                        <small style="display:block; color:#94a3b8; margin-top:3px">{{ implode(' · ', $question->options) }}</small>
+                        <small style="display:block; color:#5b7067; margin-top:3px">{{ implode(' · ', $question->options) }}</small>
                     @endif
                 </span>
                 @unless($questionsLocked)
@@ -222,7 +222,7 @@
                 </form>
             @endunless
         @empty
-            <p style="color:#94a3b8; font-size:.87rem">No additional questions for this respondent group.</p>
+            <p style="color:#5b7067; font-size:.87rem">No additional questions for this respondent group.</p>
         @endforelse
         @unless($questionsLocked)
             <form method="POST" action="{{ route('evaluations.questions.store', $announcement) }}" style="margin-top:16px">
@@ -286,7 +286,7 @@
                     <div style="display:flex; align-items:flex-start; gap:12px; flex-wrap:wrap">
                         <div>
                             <div style="font-weight:800; color:#0f172a; font-size:1.05rem">{{ $announcement->title }}</div>
-                            <div style="font-size:0.87rem; color:#64748b; margin-top:4px">
+                            <div style="font-size:0.87rem; color:#52665d; margin-top:4px">
                                 {{ $announcement->event_location ?? 'Location not recorded' }}
                                 &middot; {{ $announcement->event_date->format('j F Y') }}
                                 @if($announcement->creator)

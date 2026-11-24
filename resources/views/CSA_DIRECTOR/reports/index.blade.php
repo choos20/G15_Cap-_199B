@@ -17,7 +17,7 @@
         .csr-card-icon { display:flex; align-items:center; justify-content:center; width:40px; height:40px; flex:0 0 40px; border-radius:12px; background:#edf7f1; color:#08734e; }
         .csr-card-icon svg { width:21px; height:21px; }
         .csr-card h3 { margin:1px 0 5px; color:#173e34; font-size:0.92rem; }
-        .csr-card p { margin:0; color:#71817c; font-size:0.81rem; line-height:1.5; }
+        .csr-card p { margin:0; color:#52665d; font-size:0.81rem; line-height:1.5; }
         .csr-scope-note { padding:13px 16px; border:1px solid #dcebe2; border-radius:11px; background:#f5faf7; color:#52645e; font-size:0.83rem; line-height:1.5; }
         .csr-filter > div { min-width:0; }
         @media(max-width:1200px) { .csr-filter { grid-template-columns:repeat(2,minmax(0,1fr)); } }

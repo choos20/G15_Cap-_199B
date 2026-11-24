@@ -29,7 +29,7 @@
 
     <style>
         .ua-table { width:100%; border-collapse:collapse; }
-        .ua-table th { text-align:left; padding:12px 16px; font-size:0.8rem; text-transform:uppercase; letter-spacing:0.04em; color:#94a3b8; font-weight:700; border-bottom:1px solid #e5e7eb; }
+        .ua-table th { text-align:left; padding:12px 16px; font-size:0.8rem; text-transform:uppercase; letter-spacing:0.04em; color:#5b7067; font-weight:700; border-bottom:1px solid #e5e7eb; }
         .ua-table td { padding:14px 16px; border-bottom:1px solid #f1f5f9; vertical-align:middle; }
         .ua-table tr:last-child td { border-bottom:none; }
         .ua-table tr:hover td { background:#f8fafc; }
@@ -76,7 +76,7 @@
         .ua-modal { background:#fff; border-radius:20px; padding:28px; max-width:420px; width:100%; max-height:calc(100dvh - 40px); overflow-y:auto; box-shadow:0 30px 60px rgba(15,23,42,0.25); }
         .ua-modal-icon { width:44px; height:44px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.2rem; margin-bottom:16px; }
         .ua-modal-title { margin:0 0 8px; font-size:1.15rem; font-weight:700; color:#0f172a; line-height:1.4; }
-        .ua-modal-desc { margin:0; color:#64748b; font-size:0.92rem; line-height:1.6; }
+        .ua-modal-desc { margin:0; color:#52665d; font-size:0.92rem; line-height:1.6; }
         .ua-modal-warning { display:flex; align-items:center; gap:8px; margin-top:14px; padding:10px 14px; border-radius:10px; background:#fffbeb; color:#92400e; font-size:0.85rem; font-weight:600; }
         .ua-modal-actions { display:flex; flex-wrap:wrap; justify-content:flex-end; gap:10px; margin-top:22px; }
         .ua-modal-cancel { padding:11px 20px; border-radius:10px; background:#fff; color:#0f172a; border:1px solid #d1d5db; font-weight:700; cursor:pointer; }
@@ -100,19 +100,19 @@
         .uf-panel.active { display:block; }
         .uf-panel-head { display:flex; align-items:center; justify-content:space-between; gap:12px;
                          padding:8px 10px 10px; border-bottom:1px solid #f1f5f9; margin-bottom:6px; }
-        .uf-panel-title { font-size:0.78rem; font-weight:700; color:#94a3b8; text-transform:uppercase; letter-spacing:0.04em; }
+        .uf-panel-title { font-size:0.78rem; font-weight:700; color:#5b7067; text-transform:uppercase; letter-spacing:0.04em; }
         .uf-clear { background:none; border:none; padding:0; color:#2563eb; font:inherit; font-size:0.82rem; font-weight:700; cursor:pointer; }
         .uf-clear:hover { text-decoration:underline; }
-        .uf-clear[disabled] { color:#cbd5e1; cursor:default; text-decoration:none; }
+        .uf-clear[disabled] { color:#52665d; cursor:default; text-decoration:none; }
         .uf-opt { display:flex; align-items:center; gap:10px; padding:9px 10px; border-radius:10px; cursor:pointer; }
         .uf-opt:hover { background:#f8fafc; }
         .uf-opt input { width:16px; height:16px; accent-color:#0b6a4a; cursor:pointer; flex-shrink:0; margin:0; }
-        .uf-opt-count { margin-left:auto; color:#94a3b8; font-size:0.82rem; font-variant-numeric:tabular-nums; }
+        .uf-opt-count { margin-left:auto; color:#5b7067; font-size:0.82rem; font-variant-numeric:tabular-nums; }
         .uf-subfilter { margin:8px -8px -8px; padding:10px 8px 4px; border-top:1px solid #f1f5f9; }
         .uf-subfilter[hidden] { display:none; }
-        .uf-subfilter-title { padding:4px 10px 6px; color:#94a3b8; font-size:0.72rem; font-weight:800; letter-spacing:0.05em; text-transform:uppercase; }
+        .uf-subfilter-title { padding:4px 10px 6px; color:#5b7067; font-size:0.72rem; font-weight:800; letter-spacing:0.05em; text-transform:uppercase; }
         .uf-subfilter .uf-opt { padding-left:18px; }
-        .ua-no-match td { padding:34px; text-align:center; color:#64748b; }
+        .ua-no-match td { padding:34px; text-align:center; color:#52665d; }
         .ua-no-match[hidden] { display:none; }
         @media(max-width:640px) {
             .uf-wrap { position:static; }
@@ -137,7 +137,7 @@
                 overflow-wrap:normal; word-break:normal; font-size:0.88rem; line-height:1.45;
             }
             .ua-table tr.ua-row td::before {
-                content:attr(data-label); margin-bottom:5px; color:#94a3b8; font-size:0.67rem;
+                content:attr(data-label); margin-bottom:5px; color:#5b7067; font-size:0.67rem;
                 font-weight:800; letter-spacing:0.06em; text-transform:uppercase;
             }
             .ua-table tr.ua-row td:first-child { grid-column:1 / -1; }
@@ -246,7 +246,7 @@
 
     <div class="card ua-table-wrap" style="padding:0; overflow:auto">
         @if($users->isEmpty())
-            <div style="padding:40px; text-align:center; color:#64748b">
+            <div style="padding:40px; text-align:center; color:#52665d">
                 <div style="font-size:2rem; margin-bottom:10px">👤</div>
                 No accounts yet.
             </div>
@@ -289,7 +289,7 @@
                             <td data-label="Organization" class="ua-organization" style="color:#475569">
                                 @if($u->role === 'participant')
                                     {{ $u->affiliation ?: 'College / department not specified' }}
-                                    <div style="font-size:.8rem;color:#94a3b8;margin-top:3px">{{ $u->program ?: ($u->participant_type === 'employee' ? 'Program not applicable' : 'Program not specified') }}</div>
+                                    <div style="font-size:.8rem;color:#5b7067;margin-top:3px">{{ $u->program ?: ($u->participant_type === 'employee' ? 'Program not applicable' : 'Program not specified') }}</div>
                                 @else
                                     {{ $u->organization_name ?? '—' }}
                                 @endif

@@ -71,7 +71,7 @@
             <x-back-button href="{{ route('participant.scanner') }}">Scan another code</x-back-button>
             <div style="display:flex;align-items:center;gap:14px;margin-bottom:18px">
                 <x-organization-avatar :organization="$session->project->creator" :size="48" />
-                <div><small style="color:#047857;font-weight:700">QR CODE DETECTED</small><h3 style="margin:5px 0">{{ $session->project->title }}</h3><span style="color:#64748b">{{ $session->project->creator?->organization_name ?: $session->project->creator?->name }}</span></div>
+                <div><small style="color:#047857;font-weight:700">QR CODE DETECTED</small><h3 style="margin:5px 0">{{ $session->project->title }}</h3><span style="color:#52665d">{{ $session->project->creator?->organization_name ?: $session->project->creator?->name }}</span></div>
             </div>
             <p class="scan-hint">Confirm your attendance below. Allow location access so we can verify that you are at the activity venue.</p>
             @if($attendanceRecord && in_array($attendanceRecord->attendance_source, \App\Models\AttendanceRecord::CSV_SOURCES, true))

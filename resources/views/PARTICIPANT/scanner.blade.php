@@ -19,7 +19,7 @@
         .qs-step { display:flex; align-items:flex-start; gap:13px; }
         .qs-step-number { display:flex; align-items:center; justify-content:center; width:32px; height:32px; flex:0 0 32px; border-radius:11px; background:#ecfdf5; color:#08734e; font-weight:800; }
         .qs-step strong { display:block; color:#0f172a; font-size:0.94rem; }
-        .qs-step p, .qs-guide-copy { margin:5px 0 0; color:#64748b; font-size:0.9rem; line-height:1.55; }
+        .qs-step p, .qs-guide-copy { margin:5px 0 0; color:#52665d; font-size:0.9rem; line-height:1.55; }
         .qs-help { padding:20px 22px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:14px; }
         .qs-help h4 { margin:0; color:#0f172a; font-size:0.98rem; }
         .qs-help ul { margin:12px 0 0; padding-left:19px; color:#475569; font-size:0.88rem; line-height:1.65; }
@@ -34,13 +34,13 @@
             position:absolute; inset:12%; border:3px solid rgba(255,255,255,0.7); border-radius:20px;
             box-shadow:0 0 0 999px rgba(15,23,42,0.35); pointer-events:none;
         }
-        .qs-idle { display:flex; align-items:center; justify-content:center; height:100%; color:#94a3b8; text-align:center; padding:24px; }
+        .qs-idle { display:flex; align-items:center; justify-content:center; height:100%; color:#5b7067; text-align:center; padding:24px; }
         .qs-status { margin-top:16px; padding:14px 16px; border-radius:14px; background:#f8fafc; border:1px solid #e2e8f0; color:#334155; font-size:0.92rem; }
         .qs-status.error { background:#fef2f2; border-color:#fecaca; color:#991b1b; }
         .qs-status.success { background:#ecfdf4; border-color:#d1fae5; color:#164e2f; }
         .qs-btn { margin-top:16px; padding:13px 22px; border-radius:12px; background:#0b6a4a; color:#fff; border:none; font-weight:700; cursor:pointer; }
         .qs-btn:disabled { opacity:0.6; cursor:progress; }
-        .qs-divider { display:flex; align-items:center; gap:12px; margin:26px 0; color:#94a3b8; font-size:0.85rem; }
+        .qs-divider { display:flex; align-items:center; gap:12px; margin:26px 0; color:#5b7067; font-size:0.85rem; }
         .qs-divider::before, .qs-divider::after { content:''; flex:1; height:1px; background:#e2e8f0; }
         .qs-fallback input { width:100%; padding:13px 14px; border:1px solid #d1d5db; border-radius:12px; font:inherit; }
         .qs-fallback button { margin-top:10px; padding:12px 20px; border-radius:12px; background:#f8fafc; color:#0f172a; border:1px solid #cbd5e1; font-weight:700; cursor:pointer; }
@@ -77,7 +77,7 @@
     <div class="qs-layout">
         <section class="card qs-card" aria-labelledby="qs-scanner-title">
             <h3 id="qs-scanner-title" style="margin-top:0">Scan a session QR code</h3>
-            <p style="color:#64748b; margin-bottom:18px">Point your camera at the QR code the organizer is displaying. Once it opens the attendance page, choose <strong>Check in</strong> when you arrive or <strong>Check out</strong> when you leave.</p>
+            <p style="color:#52665d; margin-bottom:18px">Point your camera at the QR code the organizer is displaying. Once it opens the attendance page, choose <strong>Check in</strong> when you arrive or <strong>Check out</strong> when you leave.</p>
 
             <div class="qs-video-frame" id="qs-frame">
                 <div class="qs-idle" id="qs-idle">Your camera is off. Allow camera access when prompted to scan the QR code.</div>
@@ -96,7 +96,7 @@
                 <button type="button" class="qs-btn" id="qs-start">Start Scanning</button>
                 <button type="button" class="qs-btn qs-secondary" id="qs-stop" style="display:none">Stop</button><button type="button" class="qs-btn" id="qs-switch" style="display:none; background:#f8fafc; color:#0f172a; border:1px solid #cbd5e1;">Switch camera</button>
             </div>
-            <div class="qs-status" id="qs-status" role="status" aria-live="polite">Start scanning when ready. Your browser will ask for camera access.</div><div id="qs-camera-list" style="margin-top:10px; font-size:0.85rem; color:#94a3b8;"></div>
+            <div class="qs-status" id="qs-status" role="status" aria-live="polite">Start scanning when ready. Your browser will ask for camera access.</div><div id="qs-camera-list" style="margin-top:10px; font-size:0.85rem; color:#5b7067;"></div>
 
             <div class="qs-divider">or paste the link / code instead</div>
 

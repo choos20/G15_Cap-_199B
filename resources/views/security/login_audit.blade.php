@@ -12,10 +12,10 @@
         .la-mark svg { width:25px; height:25px; }
         .la-stats { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; margin-bottom:16px; }
         .la-stat { padding:16px 18px; border:1px solid #e5e7eb; border-radius:15px; background:#fff; box-shadow:0 6px 18px rgba(15,23,42,.04); }
-        .la-stat-label { color:#64748b; font-size:.76rem; font-weight:800; letter-spacing:.04em; text-transform:uppercase; }
+        .la-stat-label { color:#52665d; font-size:.76rem; font-weight:800; letter-spacing:.04em; text-transform:uppercase; }
         .la-stat-value { margin-top:8px; color:#0f172a; font-size:1.35rem; font-weight:800; }
         .la-filter { display:grid; grid-template-columns:minmax(180px,1.5fr) repeat(4,minmax(120px,1fr)) auto; align-items:end; gap:10px; padding:15px; margin-bottom:16px; border:1px solid #e5e7eb; border-radius:16px; background:#fff; box-shadow:0 6px 18px rgba(15,23,42,.04); }
-        .la-field label { display:block; margin:0 0 6px; color:#64748b; font-size:.72rem; font-weight:800; letter-spacing:.04em; text-transform:uppercase; }
+        .la-field label { display:block; margin:0 0 6px; color:#52665d; font-size:.72rem; font-weight:800; letter-spacing:.04em; text-transform:uppercase; }
         .la-field input,.la-field select { width:100%; min-height:40px; padding:9px 10px; border:1px solid #dbe3ea; border-radius:9px; background:#fff; color:#0f172a; font:inherit; font-size:.84rem; outline:none; }
         .la-field input:focus,.la-field select:focus { border-color:#60a5fa; box-shadow:0 0 0 3px rgba(59,130,246,.12); }
         .la-filter button { min-height:40px; padding:9px 14px; border:1px solid #2563eb; border-radius:9px; background:#2563eb; color:#fff; font:inherit; font-size:.84rem; font-weight:800; cursor:pointer; }
@@ -24,17 +24,17 @@
         .la-table-panel { overflow:hidden; padding:0; border:1px solid #e5e7eb; border-radius:16px; background:#fff; box-shadow:0 6px 18px rgba(15,23,42,.04); }
         .la-table-wrap { overflow-x:auto; }
         .la-table { width:100%; border-collapse:collapse; }
-        .la-table th { padding:12px 16px; color:#64748b; background:#f8fafc; border-bottom:1px solid #eef2f7; text-align:left; font-size:.7rem; letter-spacing:.04em; text-transform:uppercase; }
+        .la-table th { padding:12px 16px; color:#52665d; background:#f8fafc; border-bottom:1px solid #eef2f7; text-align:left; font-size:.7rem; letter-spacing:.04em; text-transform:uppercase; }
         .la-table td { padding:14px 16px; color:#334155; border-bottom:1px solid #f1f5f9; vertical-align:top; font-size:.81rem; }
         .la-table tbody tr:last-child td { border-bottom:0; }
         .la-table tbody tr:hover { background:#fbfdff; }
         .la-user strong { display:block; color:#0f172a; font-size:.84rem; }
-        .la-user small,.la-sub { display:block; margin-top:4px; color:#94a3b8; font-size:.73rem; }
+        .la-user small,.la-sub { display:block; margin-top:4px; color:#5b7067; font-size:.73rem; }
         .la-role { display:inline-flex; padding:4px 8px; border-radius:999px; background:#eff6ff; color:#1d4ed8; font-size:.7rem; font-weight:800; white-space:nowrap; }
         .la-status { display:inline-flex; align-items:center; gap:5px; padding:5px 8px; border-radius:999px; font-size:.7rem; font-weight:800; white-space:nowrap; }
         .la-status-dot { width:6px; height:6px; border-radius:50%; background:currentColor; }
         .la-flag { display:block; margin-top:6px; color:#b91c1c; font-size:.7rem; font-weight:800; }
-        .la-empty { padding:48px 22px; color:#64748b; text-align:center; }
+        .la-empty { padding:48px 22px; color:#52665d; text-align:center; }
         .la-empty strong { display:block; margin-bottom:5px; color:#334155; }
         .la-pagination { padding:16px; border-top:1px solid #eef2f7; }
         @media (max-width:1100px) { .la-filter { grid-template-columns:repeat(3,minmax(0,1fr)); } .la-filter .la-search-field { grid-column:span 2; } }
@@ -47,7 +47,7 @@
             .la-table tr { padding:13px 16px; border-bottom:1px solid #eef2f7; }
             .la-table tbody tr:last-child { border-bottom:0; }
             .la-table td { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; padding:7px 0; border:0; text-align:right; }
-            .la-table td::before { flex:0 0 34%; color:#94a3b8; content:attr(data-label); font-size:.69rem; font-weight:800; letter-spacing:.04em; text-align:left; text-transform:uppercase; }
+            .la-table td::before { flex:0 0 34%; color:#5b7067; content:attr(data-label); font-size:.69rem; font-weight:800; letter-spacing:.04em; text-align:left; text-transform:uppercase; }
             .la-table td > * { max-width:66%; }
         }
     </style>

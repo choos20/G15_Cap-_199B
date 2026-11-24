@@ -65,7 +65,7 @@
         }
         .field-helper {
             margin-top:8px;
-            color:#64748b;
+            color:#52665d;
             font-size:0.9rem;
         }
         .dropzone {
@@ -163,7 +163,7 @@
         }
         .attachment-info span {
             display:block;
-            color:#64748b;
+            color:#52665d;
             margin-top:4px;
             font-size:0.92rem;
         }
