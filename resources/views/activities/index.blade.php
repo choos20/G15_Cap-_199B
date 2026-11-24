@@ -17,7 +17,7 @@
             default => 'All activity dates',
         };
     @endphp
-    <link rel="stylesheet" href="{{ asset('css/activity-directory-filters.css') }}?v={{ filemtime(public_path('css/activity-directory-filters.css')) }}">
+    <link rel="stylesheet" href="{{ asset('css/activity-directory-filters.css') }}?v={{ substr(md5_file(public_path('css/activity-directory-filters.css')), 0, 12) }}">
 
     <form method="GET" action="{{ route('activities.index') }}" class="ad-filter-card" aria-labelledby="ad-filter-heading" data-activity-filters>
         <div class="ad-filter-heading">
