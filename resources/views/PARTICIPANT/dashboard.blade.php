@@ -102,7 +102,19 @@
                 @else
                     <ul class="ph-updates">
                         @foreach($dashboardNotifications as $notification)
-                            <li><form action="{{ route('notifications.read', $notification->id) }}" method="POST">@csrf<button class="ph-update" type="submit"><span class="ph-update-icon"><x-ui-icon name="bell" :size="18" /></span><span class="ph-update-copy"><strong>{{ $notification->data['title'] ?? 'Notification' }}</strong><small>{{ $notification->created_at->diffForHumans() }}</small></span>@if(!$notification->read_at)<span class="ph-unread-dot"><span class="ph-sr-only">Unread</span></span>@endif</button></form></li>
+                            @php
+                                $notificationSource = $notificationSources[(string) $notification->id] ?? [
+                                    'label' => 'ProjectLink',
+                                    'detail' => null,
+                                    'initials' => 'PL',
+                                    'avatar_url' => null,
+                                    'avatar_type' => 'fallback',
+                                    'fallback' => true,
+                                ];
+                                $notificationTitle = $notification->data['title'] ?? 'Notification';
+                                $notificationUnread = $notification->read_at === null;
+                            @endphp
+                            <li><form action="{{ route('notifications.read', $notification->id) }}" method="POST">@csrf<button class="ph-update" type="submit" aria-label="{{ $notificationUnread ? 'Open unread notification: ' : 'Open notification: ' }}{{ $notificationTitle }}"><x-notification-avatar :source="$notificationSource" :size="32" /><span class="ph-update-copy"><strong>{{ $notificationTitle }}</strong><small>{{ $notification->created_at->diffForHumans() }}</small></span>@if($notificationUnread)<span class="ph-unread-dot"><span class="ph-sr-only">Unread</span></span>@endif</button></form></li>
                         @endforeach
                     </ul>
                 @endif

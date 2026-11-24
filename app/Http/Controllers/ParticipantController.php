@@ -8,6 +8,7 @@ use App\Models\VolunteerApplication;
 use App\Models\VolunteerApplicationAttachment;
 use App\Models\User;
 use App\Notifications\ProjectStatusChanged;
+use App\Support\NotificationSourceResolver;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -181,6 +182,8 @@ class ParticipantController extends Controller
             return $month;
         });
 
+        $dashboardNotifications = $user->notifications()->latest()->take(3)->get();
+
         return view('PARTICIPANT.dashboard', [
             'pendingCount' => $pendingCount,
             'approvedCount' => $approvedCount,
@@ -196,7 +199,8 @@ class ParticipantController extends Controller
             'ongoingActivityCount' => 0,
             'involvementTotal' => $participationMonths->sum('count') + $upcomingCount,
             'timelineActivities' => collect(),
-            'dashboardNotifications' => $user->notifications()->latest()->take(3)->get(),
+            'dashboardNotifications' => $dashboardNotifications,
+            'notificationSources' => NotificationSourceResolver::for($dashboardNotifications),
         ]);
     }
 

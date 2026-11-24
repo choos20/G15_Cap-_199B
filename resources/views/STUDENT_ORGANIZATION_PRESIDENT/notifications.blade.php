@@ -29,10 +29,20 @@
                             'returned_by_csa' => 'Returned by CSA',
                             default => ucfirst(str_replace('_', ' ', $project->status)),
                         };
+                        $notificationSource = [
+                            'label' => $statusText,
+                            'detail' => 'ProjectLink review',
+                            'initials' => 'PL',
+                            'avatar_url' => null,
+                            'avatar_type' => 'fallback',
+                            'fallback' => true,
+                        ];
                     @endphp
                     <div style="padding:20px; border-radius:24px; border:1px solid #e5e7eb; background:#ffffff; box-shadow:0 12px 30px rgba(15,23,42,0.06);">
                         <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:12px;">
-                            <div>
+                            <div style="display:flex; align-items:flex-start; gap:12px; min-width:0;">
+                                <x-notification-avatar :source="$notificationSource" :size="44" />
+                                <div style="min-width:0;">
                                 <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
                                     <div style="width:12px; height:12px; border-radius:999px; background:#dc2626;"></div>
                                     <div style="font-size:0.95rem; font-weight:700; color:#0f172a">{{ $project->title }}</div>
@@ -42,6 +52,7 @@
                                     <div style="margin-bottom:12px; padding:16px; border-radius:18px; background:#f8fafc; border:1px solid #e2e8f0; color:#334155; white-space:pre-line">{{ $project->review_comments }}</div>
                                 @endif
                                 <div style="display:inline-flex; align-items:center; gap:8px; padding:8px 12px; border-radius:999px; background:{{ $statusColor }}; color:#0f172a; font-weight:700; font-size:0.92rem">Returned proposal</div>
+                                </div>
                             </div>
                             <div style="text-align:right; min-width:120px">
                                 <div style="font-size:0.85rem; color:#52665d;">Current status</div>
