@@ -108,7 +108,9 @@
                                     </tr></thead>
                                     <tbody>
                                         @foreach($entries as $entry)
-                                            @php($available = $entry->is_active && ($kind === 'departments' || $entry->department_active))
+                                            @php
+                                                $available = $entry->is_active && ($kind === 'departments' || $entry->department_active);
+                                            @endphp
                                             <tr data-catalog-row data-kind="{{ $kind }}" data-id="{{ $entry->id }}">
                                                 <td><span class="ac-code">{{ $entry->code }}</span></td>
                                                 <td class="ac-entry-name">{{ $entry->name }}</td>

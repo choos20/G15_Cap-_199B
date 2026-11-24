@@ -42,7 +42,9 @@
                     <span class="ph-tag">{{ $nextEnrolled ? 'Enrolled' : 'Discover something new' }}</span>
                 </div>
                 @if($nextEnrolled && $nextEnrolled->announcement)
-                    @php($nextActivity = $nextEnrolled->announcement)
+                    @php
+                        $nextActivity = $nextEnrolled->announcement;
+                    @endphp
                     <div class="ph-next-body">
                         <div class="ph-date-tile" aria-label="{{ $nextActivity->event_date?->format('F j, Y') }}">
                             <span>{{ $nextActivity->event_date?->format('M') }}</span><strong>{{ $nextActivity->event_date?->format('d') }}</strong><span>{{ $nextActivity->event_date?->format('D') }}</span>
@@ -78,7 +80,9 @@
                     <span><strong>{{ $organizationsSupported }}</strong> {{ \Illuminate\Support\Str::plural('organization', $organizationsSupported) }} supported</span>
                 </div>
                 @if($totalAttendedActivities > 0)
-                    @php($chartMax = max(1, (int) $participationMonths->max('count')))
+                    @php
+                        $chartMax = max(1, (int) $participationMonths->max('count'));
+                    @endphp
                     <div class="ph-chart" role="img" aria-labelledby="ph-participation-title" aria-describedby="ph-chart-summary">
                         <p class="ph-sr-only" id="ph-chart-summary">{{ $totalAttendedActivities }} {{ \Illuminate\Support\Str::plural('activity', $totalAttendedActivities) }} attended over the last six months. @foreach($participationMonths as $month){{ $month['label'] }}: {{ $month['count'] }}{{ $loop->last ? '.' : '; ' }}@endforeach</p>
                         <div class="ph-chart-plot" aria-hidden="true">
