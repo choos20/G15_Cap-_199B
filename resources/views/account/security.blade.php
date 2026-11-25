@@ -236,7 +236,7 @@
                                 <p class="sec-form-help">For your protection, enter your current password and either the current six-digit authenticator code or an unused recovery code.</p>
                                 <div class="sec-form-field">
                                     <label for="mfa-disable-password">Current password</label>
-                                    <input id="mfa-disable-password" type="password" name="mfa_current_password" autocomplete="current-password" required>
+                                     <input id="mfa-disable-password" type="password" name="mfa_current_password" autocomplete="current-password" maxlength="{{ \App\Support\PasswordPolicy::MAX_LENGTH }}" required>
                                     @error('mfa_current_password')<div class="sec-form-error">{{ $message }}</div>@enderror
                                 </div>
                                 <div class="sec-form-field">
@@ -272,17 +272,18 @@
                     @csrf
                     <div class="sec-form-field">
                         <label for="security-current-password">Current password</label>
-                        <input id="security-current-password" type="password" name="current_password" autocomplete="current-password" required>
+                        <input id="security-current-password" type="password" name="current_password" autocomplete="current-password" maxlength="{{ \App\Support\PasswordPolicy::MAX_LENGTH }}" required>
                         @error('current_password')<div class="sec-form-error">{{ $message }}</div>@enderror
                     </div>
                     <div class="sec-form-field">
                         <label for="security-new-password">New password</label>
-                        <input id="security-new-password" type="password" name="password" autocomplete="new-password" required>
+                        <input id="security-new-password" type="password" name="password" autocomplete="new-password" minlength="{{ \App\Support\PasswordPolicy::MIN_LENGTH }}" maxlength="{{ \App\Support\PasswordPolicy::MAX_LENGTH }}" data-password-policy-input required>
                         @error('password')<div class="sec-form-error">{{ $message }}</div>@enderror
+                        <x-password-policy />
                     </div>
                     <div class="sec-form-field">
                         <label for="security-password-confirmation">Confirm new password</label>
-                        <input id="security-password-confirmation" type="password" name="password_confirmation" autocomplete="new-password" required>
+                        <input id="security-password-confirmation" type="password" name="password_confirmation" autocomplete="new-password" minlength="{{ \App\Support\PasswordPolicy::MIN_LENGTH }}" maxlength="{{ \App\Support\PasswordPolicy::MAX_LENGTH }}" data-password-confirmation required>
                     </div>
                     <button class="sec-btn sec-btn-primary" type="submit">Update password</button>
                 </form>
@@ -429,7 +430,7 @@
                     @csrf
                     <input type="hidden" name="decision" value="secure">
                     <label for="sec-review-current-password">Current password</label>
-                    <input id="sec-review-current-password" type="password" name="current_password" autocomplete="current-password" required>
+                 <input id="sec-review-current-password" type="password" name="current_password" autocomplete="current-password" maxlength="{{ \App\Support\PasswordPolicy::MAX_LENGTH }}" required>
                     <div class="sec-review-secure-actions">
                         <button class="sec-review-secure-submit" type="submit">Secure my account</button>
                         <button class="sec-review-cancel" id="sec-review-cancel" type="button">Cancel</button>

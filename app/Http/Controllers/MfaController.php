@@ -8,6 +8,7 @@ use App\Services\MfaService;
 use App\Services\AuthenticationProtection;
 use App\Services\LoginActivityRecorder;
 use App\Services\TotpService;
+use App\Support\PasswordPolicy;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -102,7 +103,7 @@ class MfaController extends Controller
         }
 
         $request->validate([
-            'mfa_current_password' => ['required', 'string'],
+            'mfa_current_password' => ['required', 'string', 'max:'.PasswordPolicy::MAX_LENGTH],
             'mfa_code' => ['required', 'string', 'max:32'],
         ]);
 

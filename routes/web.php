@@ -33,6 +33,7 @@ use App\Models\User;
 use App\Services\LoginActivityRecorder;
 use App\Services\MfaService;
 use App\Support\AcademicCatalog;
+use App\Support\PasswordPolicy;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -284,7 +285,7 @@ Route::get('/login', function () {
 Route::post('/login', function (Request $request) {
     $request->validate([
         'user' => 'required|string',
-        'password' => 'required|string',
+        'password' => ['required', 'string', 'max:'.PasswordPolicy::MAX_LENGTH],
     ], [
         'user.required' => 'Enter your username or email.',
         'password.required' => 'Enter your password.',
@@ -859,10 +860,8 @@ Route::get('/password/reset', function () {
 
 Route::post('/password/reset', function (Request $request) {
     $request->validate([
-        'password' => ['required', 'string', 'min:8', 'confirmed'],
-    ], [
-        'password.confirmed' => 'Password confirmation does not match.',
-    ]);
+        'password' => PasswordPolicy::rules(),
+    ], PasswordPolicy::messages());
 
     $userId = session('reset_user_id');
     if (! $userId) {
@@ -1379,9 +1378,9 @@ Route::middleware('auth')->group(function () {
 
     Route::post('/account/password', function (Request $request) {
         $request->validate([
-            'current_password' => 'required|string',
-            'password' => ['required', 'string', 'min:8', 'confirmed'],
-        ]);
+            'current_password' => ['required', 'string', 'max:'.PasswordPolicy::MAX_LENGTH],
+            'password' => PasswordPolicy::rules(),
+        ], PasswordPolicy::messages());
 
         $user = $request->user();
         if (! Hash::check($request->current_password, $user->password)) {

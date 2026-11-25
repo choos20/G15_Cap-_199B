@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\LoginActivity;
 use App\Services\LoginActivityAccess;
 use App\Services\MfaService;
+use App\Support\PasswordPolicy;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -61,7 +62,7 @@ class LoginActivityController extends Controller
 
         $validated = $request->validate([
             'decision' => ['required', Rule::in(['recognized', 'secure'])],
-            'current_password' => ['nullable', 'string', 'max:255'],
+            'current_password' => ['nullable', 'string', 'max:'.PasswordPolicy::MAX_LENGTH],
         ]);
 
         if ($validated['decision'] === 'recognized') {

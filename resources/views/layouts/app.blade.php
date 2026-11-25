@@ -8,6 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ asset('css/password-policy.css') }}?v={{ substr(md5_file(public_path('css/password-policy.css')), 0, 12) }}">
 
     <style>
         :root {
@@ -366,6 +367,7 @@
         @yield('content')
     </div>
 
+    <script src="{{ asset('js/password-policy.js') }}?v={{ substr(md5_file(public_path('js/password-policy.js')), 0, 12) }}"></script>
     @stack('scripts')
     @auth @include('partials.session-timeout') @endauth
 </body>

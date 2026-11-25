@@ -169,6 +169,7 @@
                     type="password"
                     id="password"
                     name="password"
+                    maxlength="{{ \App\Support\PasswordPolicy::MAX_LENGTH }}"
                     class="{{ $errors->has('password') ? 'is-invalid' : '' }}"
                     aria-invalid="{{ $errors->has('password') ? 'true' : 'false' }}"
                     @if($errors->has('password')) aria-describedby="password-error" @endif

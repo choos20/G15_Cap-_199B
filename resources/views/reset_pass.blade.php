@@ -47,10 +47,29 @@
             @csrf
 
             <label for="password">New Password</label>
-            <input type="password" id="password" name="password" required>
+            <input
+                type="password"
+                id="password"
+                name="password"
+                minlength="{{ \App\Support\PasswordPolicy::MIN_LENGTH }}"
+                maxlength="{{ \App\Support\PasswordPolicy::MAX_LENGTH }}"
+                autocomplete="new-password"
+                data-password-policy-input
+                required
+            >
+            <x-password-policy />
 
             <label for="password_confirmation">Confirm Password</label>
-            <input type="password" id="password_confirmation" name="password_confirmation" required>
+            <input
+                type="password"
+                id="password_confirmation"
+                name="password_confirmation"
+                minlength="{{ \App\Support\PasswordPolicy::MIN_LENGTH }}"
+                maxlength="{{ \App\Support\PasswordPolicy::MAX_LENGTH }}"
+                autocomplete="new-password"
+                data-password-confirmation
+                required
+            >
 
             <button type="submit">Reset Password</button>
 
