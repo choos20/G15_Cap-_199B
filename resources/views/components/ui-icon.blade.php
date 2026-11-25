@@ -10,7 +10,10 @@
         @case('qr') <path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5"/><rect x="8" y="8" width="8" height="8" rx="1"/><path d="M12 8v8m-4-4h8"/> @break
         @case('clipboard') <rect x="5" y="5" width="14" height="16" rx="2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12h6m-6 4h4"/> @break
         @case('arrow-right') <path d="M4 12h16m-6-6 6 6-6 6"/> @break
+        @case('arrow-left') <path d="M20 12H4m6-6-6 6 6 6"/> @break
         @case('chevron-right') <path d="m9 5 7 7-7 7"/> @break
+        @case('mail') <rect x="3" y="5" width="18" height="14" rx="2"/><path d="m4 7 8 6 8-6"/> @break
+        @case('send') <path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/> @break
         @case('location') <path d="M20 10c0 6-8 11-8 11S4 16 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/> @break
         @case('chart') <path d="M4 4v16h16M8 15v-4m5 4V7m5 8v-6"/> @break
         @case('bell') <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21a2 2 0 0 0 4 0"/> @break
