@@ -124,7 +124,7 @@
     <div class="sec-stats">
         <div class="sec-stat">
             <div class="sec-stat-label">MFA protection</div>
-            <div class="sec-stat-value" style="color:{{ $mfaEnabled ? '#047857' : '#52665d' }}; font-size:1.1rem;">{{ $mfaEnabled ? 'Enabled' : ($mfaRequired ? 'Setup required' : 'Not enabled') }}</div>
+            <div class="sec-stat-value" style="color:{{ $mfaEnabled ? '#047857' : '#b91c1c' }}; font-size:1.1rem;">{{ $mfaEnabled ? 'Enabled' : ($mfaRequired ? 'Setup required' : 'Not enabled') }}</div>
             <div class="sec-stat-note">{{ $mfaRequired ? 'Required for this role' : 'Optional for your account' }}</div>
         </div>
         <div class="sec-stat">
