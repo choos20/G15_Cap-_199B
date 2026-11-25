@@ -56,15 +56,7 @@
 
 @section('content')
     <div class="page-card forgot-password-card">
-        <a
-            class="auth-back-button"
-            href="{{ route('login') }}"
-            data-tooltip="Back to Login"
-            title="Back to Login"
-            aria-label="Back to Login"
-        >
-            <x-ui-icon name="arrow-left" :size="22" />
-        </a>
+        <x-back-button href="{{ route('login') }}">Back to Login</x-back-button>
 
         <div class="section-title forgot-password-title">Forgot Password</div>
         <div class="section-subtitle">Enter your account email to receive a one-time OTP.</div>

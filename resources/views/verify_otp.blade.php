@@ -18,15 +18,7 @@
 
 @section('content')
     <div class="page-card verify-otp-card">
-        <a
-            class="auth-back-button"
-            href="{{ route('password.request') }}"
-            data-tooltip="Back to password reset"
-            title="Back to password reset"
-            aria-label="Back to password reset"
-        >
-            <x-ui-icon name="arrow-left" :size="22" />
-        </a>
+        <x-back-button href="{{ route('password.request') }}">Back to password reset</x-back-button>
         <div class="section-title">Verify OTP</div>
         <div class="section-subtitle">Enter the 6-digit code sent to your email.</div>
 

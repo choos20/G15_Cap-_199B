@@ -18,15 +18,7 @@
 
 @section('content')
     <div class="page-card reset-password-card">
-        <a
-            class="auth-back-button"
-            href="{{ route('login') }}"
-            data-tooltip="Back to Login"
-            title="Back to Login"
-            aria-label="Back to Login"
-        >
-            <x-ui-icon name="arrow-left" :size="22" />
-        </a>
+        <x-back-button href="{{ route('login') }}">Back to Login</x-back-button>
         <div class="section-title">Reset Password</div>
 
         @if(session('status'))

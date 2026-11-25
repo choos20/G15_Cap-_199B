@@ -10,10 +10,7 @@
             Protect your {{ role_label($user->role) }} account with an extra sign-in step.
         </div>
 
-        <a class="mfa-back-link" href="{{ route('account.security') }}">
-            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m15 18-6-6 6-6" /></svg>
-            Back to account security
-        </a>
+        <x-back-button href="{{ route('account.security') }}">Back to account security</x-back-button>
 
         @if($errors->any())
             <div class="alert-error">

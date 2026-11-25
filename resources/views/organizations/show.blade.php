@@ -59,11 +59,6 @@
         .op-foot a { color:#0b6a4a; font-weight:700; text-decoration:none; }
         .op-foot a:hover { text-decoration:underline; }
         .op-empty { padding:36px; text-align:center; color:#5b7067; }
-        .op-back-link { display:inline-flex; align-items:center; margin-bottom:16px; padding:9px 14px; border:1px solid #bfdbfe;
-                        border-radius:9px; background:#eff6ff; color:#1d4ed8; font-weight:700; text-decoration:none;
-                        transition:background-color 160ms ease,border-color 160ms ease; }
-        .op-back-link:hover { border-color:#93c5fd; background:#dbeafe; }
-        .op-back-link:focus-visible { outline:3px solid rgba(37,99,235,0.35); outline-offset:2px; }
     </style>
 
     <x-back-button href="{{ route('organizations.index') }}">Back to all organizations</x-back-button>
