@@ -2,9 +2,31 @@
 
 @section('title', 'Verify OTP')
 
+@push('styles')
+    <style>
+        .verify-otp-card {
+            padding: 28px 40px 26px;
+        }
+
+        @media (max-width: 480px) {
+            .verify-otp-card {
+                padding: 24px 22px 22px;
+            }
+        }
+    </style>
+@endpush
+
 @section('content')
-    <div class="page-card">
-        <x-back-button href="{{ route('password.request') }}">Back to password reset</x-back-button>
+    <div class="page-card verify-otp-card">
+        <a
+            class="auth-back-button"
+            href="{{ route('password.request') }}"
+            data-tooltip="Back to password reset"
+            title="Back to password reset"
+            aria-label="Back to password reset"
+        >
+            <x-ui-icon name="arrow-left" :size="22" />
+        </a>
         <div class="section-title">Verify OTP</div>
         <div class="section-subtitle">Enter the 6-digit code sent to your email.</div>
 
@@ -85,7 +107,7 @@
             }
 
             render();
-        })();ve
+        })();
         
     </script>
 @endpush

@@ -104,6 +104,60 @@
             transform: translateY(-2px);
         }
 
+        .auth-back-button {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 44px;
+            height: 44px;
+            margin: 0 0 18px;
+            border: 1px solid rgba(209, 250, 229, 0.9);
+            border-radius: 50%;
+            background: #dff7ea;
+            color: #10331e;
+            text-decoration: none;
+            box-shadow: 0 7px 18px rgba(8, 48, 27, 0.12);
+            transition: transform 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
+        }
+
+        .auth-back-button:hover {
+            transform: translateY(-2px);
+            background: #c8f1db;
+            box-shadow: 0 10px 22px rgba(8, 48, 27, 0.18);
+        }
+
+        .auth-back-button:focus-visible {
+            outline: 3px solid rgba(217, 250, 227, 0.9);
+            outline-offset: 3px;
+        }
+
+        .auth-back-button::after {
+            position: absolute;
+            top: calc(100% + 8px);
+            left: 0;
+            z-index: 3;
+            padding: 6px 9px;
+            border-radius: 7px;
+            background: rgba(8, 32, 19, 0.92);
+            color: #fff;
+            content: attr(data-tooltip);
+            font-size: 0.72rem;
+            font-weight: 600;
+            line-height: 1;
+            opacity: 0;
+            pointer-events: none;
+            transform: translateY(-3px);
+            white-space: nowrap;
+            transition: opacity 0.16s ease, transform 0.16s ease;
+        }
+
+        .auth-back-button:hover::after,
+        .auth-back-button:focus-visible::after {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
         .brand {
             display: flex;
             flex-direction: column;

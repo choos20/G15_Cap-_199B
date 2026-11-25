@@ -8,60 +8,6 @@
             padding: 28px 40px 26px;
         }
 
-        .forgot-password-back {
-            position: relative;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 44px;
-            height: 44px;
-            margin: 0 0 18px;
-            border: 1px solid rgba(209, 250, 229, 0.9);
-            border-radius: 50%;
-            background: #dff7ea;
-            color: #10331e;
-            text-decoration: none;
-            box-shadow: 0 7px 18px rgba(8, 48, 27, 0.12);
-            transition: transform 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
-        }
-
-        .forgot-password-back:hover {
-            transform: translateY(-2px);
-            background: #c8f1db;
-            box-shadow: 0 10px 22px rgba(8, 48, 27, 0.18);
-        }
-
-        .forgot-password-back:focus-visible {
-            outline: 3px solid rgba(217, 250, 227, 0.9);
-            outline-offset: 3px;
-        }
-
-        .forgot-password-back::after {
-            position: absolute;
-            top: calc(100% + 8px);
-            left: 0;
-            z-index: 3;
-            padding: 6px 9px;
-            border-radius: 7px;
-            background: rgba(8, 32, 19, 0.92);
-            color: #fff;
-            content: attr(data-tooltip);
-            font-size: 0.72rem;
-            font-weight: 600;
-            line-height: 1;
-            opacity: 0;
-            pointer-events: none;
-            transform: translateY(-3px);
-            white-space: nowrap;
-            transition: opacity 0.16s ease, transform 0.16s ease;
-        }
-
-        .forgot-password-back:hover::after,
-        .forgot-password-back:focus-visible::after {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
         .forgot-password-title {
             margin-bottom: 6px;
         }
@@ -104,9 +50,6 @@
                 padding: 24px 22px 22px;
             }
 
-            .forgot-password-back {
-                margin-bottom: 16px;
-            }
         }
     </style>
 @endpush
@@ -114,7 +57,7 @@
 @section('content')
     <div class="page-card forgot-password-card">
         <a
-            class="forgot-password-back"
+            class="auth-back-button"
             href="{{ route('login') }}"
             data-tooltip="Back to Login"
             title="Back to Login"
