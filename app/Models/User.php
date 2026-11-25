@@ -267,9 +267,15 @@ class User extends Authenticatable
             return null;
         }
 
-        return preg_match('#^https?://#i', $this->org_logo)
-            ? $this->org_logo
-            : Storage::disk('public')->url($this->org_logo);
+        if (preg_match('#^https?://#i', $this->org_logo)) {
+            return $this->org_logo;
+        }
+
+        $disk = Storage::disk('public');
+
+        return $disk->exists($this->org_logo)
+            ? $disk->url($this->org_logo)
+            : null;
     }
 
     public static function imageDatabaseValue(string $bytes): mixed

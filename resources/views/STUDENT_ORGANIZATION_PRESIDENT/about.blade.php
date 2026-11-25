@@ -306,7 +306,7 @@
 
                     @if($org->role === 'student_org')
                         <div class="ab-officer">
-                            <x-profile-avatar :name="$org->name" :photo-url="$org->profilePhotoUrl()" :size="42" />
+                            <x-organization-avatar :organization="$org" :size="42" />
                             <div style="flex:1; min-width:0">
                                 <div class="ab-of-name">{{ $org->name }}</div>
                                 <div class="ab-of-pos">President · listed automatically from your account</div>

@@ -149,7 +149,7 @@
             <div class="op-officers">
                 @if($org->role === 'student_org')
                     <div class="op-officer">
-                        <x-profile-avatar :name="$org->name" :photo-url="$org->profilePhotoUrl()" :size="54" />
+                        <x-organization-avatar :organization="$org" :size="54" />
                         <div class="op-of-name">{{ $org->name }}</div>
                         <div class="op-of-pos">President</div>
                     </div>

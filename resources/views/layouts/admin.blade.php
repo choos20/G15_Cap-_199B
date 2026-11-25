@@ -239,7 +239,11 @@
             <div class="profile-avatar-menu">
                 <details class="profile-avatar-control">
                     <summary class="profile-avatar-summary" aria-label="Change profile image" title="Change profile image">
-                        <x-profile-avatar :name="auth()->user()->name" :photo-url="auth()->user()->profilePhotoUrl()" :size="36" />
+                        @if(in_array(auth()->user()->role, ['student_org', 'college_department'], true))
+                            <x-organization-avatar :organization="auth()->user()" :size="36" />
+                        @else
+                            <x-profile-avatar :name="auth()->user()->name" :photo-url="auth()->user()->profilePhotoUrl()" :size="36" />
+                        @endif
                     </summary>
                     <div class="profile-avatar-dropdown">
                         @if(session('status'))
