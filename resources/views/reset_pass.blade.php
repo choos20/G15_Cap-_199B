@@ -2,9 +2,31 @@
 
 @section('title', 'Reset Password')
 
+@push('styles')
+    <style>
+        .reset-password-card {
+            padding: 28px 40px 26px;
+        }
+
+        @media (max-width: 480px) {
+            .reset-password-card {
+                padding: 24px 22px 22px;
+            }
+        }
+    </style>
+@endpush
+
 @section('content')
-    <div class="page-card">
-        <x-back-button href="{{ route('login') }}">Back to login</x-back-button>
+    <div class="page-card reset-password-card">
+        <a
+            class="auth-back-button"
+            href="{{ route('login') }}"
+            data-tooltip="Back to Login"
+            title="Back to Login"
+            aria-label="Back to Login"
+        >
+            <x-ui-icon name="arrow-left" :size="22" />
+        </a>
         <div class="section-title">Reset Password</div>
 
         @if(session('status'))
@@ -31,7 +53,6 @@
             <input type="password" id="password_confirmation" name="password_confirmation" required>
 
             <button type="submit">Reset Password</button>
-    
 
         </form>
     </div>
