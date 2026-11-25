@@ -59,29 +59,40 @@
         .sec-danger-details summary { color:#b91c1c; cursor:pointer; font-size:.78rem; font-weight:800; }
         .sec-danger-details[open] summary { margin-bottom:12px; }
         .sec-danger-details .sec-inline-form { margin-top:0; padding-top:0; border-top:0; }
-        .sec-activity-cell { display:flex; align-items:flex-start; gap:10px; min-width:0; }
+        .sec-activity-cell { display:flex; align-items:center; gap:10px; min-width:0; }
         .sec-activity-icon { display:inline-flex; align-items:center; justify-content:center; flex:0 0 34px; width:34px; height:34px; border:1px solid #d1fae5; border-radius:10px; background:#ecfdf5; color:#087c5b; }
         .sec-activity-icon svg { width:17px; height:17px; }
         .sec-activity-copy { flex:1 1 auto; min-width:0; }
-        .sec-table-wrap { overflow-x:auto; }
-        .sec-table { width:100%; border-collapse:collapse; }
+        .sec-table-wrap { overflow-x:auto; -webkit-overflow-scrolling:touch; overscroll-behavior-x:contain; }
+        .sec-table { width:100%; min-width:1080px; border-collapse:collapse; table-layout:fixed; }
         .sec-table th { padding:12px 20px; color:#000; background:#f8fafc; border-bottom:1px solid #eef2f7; text-align:left; font-size:.72rem; text-transform:uppercase; letter-spacing:.045em; }
-        .sec-table td { padding:15px 20px; color:#334155; border-bottom:1px solid #f1f5f9; vertical-align:top; font-size:.84rem; }
+        .sec-table td { height:72px; padding:14px 20px; color:#334155; border-bottom:1px solid #f1f5f9; vertical-align:middle; font-size:.84rem; }
+        .sec-table .sec-col-date { width:22%; }
+        .sec-table .sec-col-location { width:22%; }
+        .sec-table .sec-col-device { width:22%; }
+        .sec-table .sec-col-status { width:17%; text-align:center; }
+        .sec-table .sec-col-action { width:17%; text-align:center; }
+        .sec-table .sec-status-cell,
+        .sec-table .sec-action-cell { text-align:center; vertical-align:middle; }
+        .sec-table .sec-status-cell > *,
+        .sec-table .sec-action-cell > * { margin-left:auto; margin-right:auto; }
         .sec-table tbody tr:last-child td { border-bottom:0; }
         .sec-table tbody tr:hover { background:#fbfefc; }
         .sec-when strong { display:block; color:#0f172a; font-size:.84rem; }
         .sec-when small,.sec-muted { display:block; margin-top:4px; color:#5b7067; font-size:.76rem; }
         .sec-device { color:#334155; line-height:1.45; }
         .sec-device small { display:block; margin-top:3px; color:#5b7067; }
-        .sec-pill { display:inline-flex; align-items:center; gap:5px; padding:5px 9px; border-radius:999px; font-size:.72rem; font-weight:800; white-space:nowrap; }
+        .sec-pill { display:inline-flex; align-items:center; justify-content:center; gap:6px; width:145px; height:36px; box-sizing:border-box; padding:0 10px; border-radius:999px; font-size:.72rem; font-weight:800; white-space:nowrap; }
         .sec-dot { width:6px; height:6px; border-radius:50%; background:currentColor; }
         .sec-mfa { display:inline-flex; margin-top:6px; padding:3px 7px; border-radius:6px; background:#eff6ff; color:#2563eb; font-size:.68rem; font-weight:700; }
-        .sec-review-action { display:inline-flex; align-items:center; gap:5px; margin-top:7px; padding:6px 9px; border:1px solid #fecaca; border-radius:8px; background:#fff; color:#b91c1c; font:inherit; font-size:.72rem; font-weight:800; cursor:pointer; transition:background .16s ease, border-color .16s ease, transform .16s ease; }
+        .sec-review-action { display:inline-flex; align-items:center; justify-content:center; gap:8px; width:160px; height:36px; box-sizing:border-box; padding:0 10px; border:1px solid #fecaca; border-radius:8px; background:#fff; color:#b91c1c; font:inherit; font-size:.72rem; font-weight:800; white-space:nowrap; cursor:pointer; transition:background .16s ease, border-color .16s ease, transform .16s ease; }
         .sec-review-action:hover { background:#fef2f2; border-color:#fca5a5; transform:translateY(-1px); }
         .sec-review-action:focus-visible { outline:3px solid rgba(248,113,113,.28); outline-offset:2px; }
-        .sec-review-state { display:block; margin-top:7px; font-size:.72rem; font-weight:800; }
+        .sec-review-action svg { width:16px; height:16px; flex:0 0 16px; }
+        .sec-review-state { display:inline-flex; align-items:center; justify-content:center; width:160px; min-height:36px; box-sizing:border-box; padding:0 8px; font-size:.72rem; font-weight:800; line-height:1.2; text-align:center; }
         .sec-review-state.is-recognized { color:#047857; }
         .sec-review-state.is-secured { color:#b91c1c; }
+        .sec-action-empty { display:inline-flex; align-items:center; justify-content:center; width:160px; height:36px; box-sizing:border-box; color:#94a3b8; font-size:1.05rem; line-height:1; }
         body.sec-review-open { overflow:hidden; }
         .sec-review-modal[hidden] { display:none; }
         .sec-review-modal { position:fixed; inset:0; z-index:100; display:grid; place-items:center; padding:20px; }
@@ -127,14 +138,8 @@
             .sec-stats { grid-template-columns:1fr; }
             .sec-settings-grid { grid-template-columns:1fr; }
             .sec-setting-summary { flex-direction:column; }
-            .sec-table thead { display:none; }
-            .sec-table,.sec-table tbody,.sec-table tr,.sec-table td { display:block; width:100%; }
-            .sec-table tr { padding:14px 16px; border-bottom:1px solid #eef2f7; }
-            .sec-table tbody tr:last-child { border-bottom:0; }
-            .sec-table td { display:flex; align-items:flex-start; justify-content:space-between; gap:14px; padding:7px 0; border:0; text-align:right; }
-            .sec-table td::before { flex:0 0 38%; color:#000; content:attr(data-label); font-size:.71rem; font-weight:800; letter-spacing:.04em; text-align:left; text-transform:uppercase; }
-            .sec-table td > * { max-width:62%; }
-            .sec-table .sec-when small,.sec-device small { margin-top:3px; }
+            .sec-table { min-width:1080px; }
+            .sec-table th,.sec-table td { padding-left:12px; padding-right:12px; }
             .sec-review-modal { padding:12px; }
             .sec-review-dialog { max-height:calc(100vh - 24px); padding:18px; }
             .sec-review-detail { flex-direction:column; gap:3px; }
@@ -308,7 +313,13 @@
             <div class="sec-table-wrap">
                 <table class="sec-table">
                     <thead>
-                        <tr><th>Date &amp; time</th><th>Approx. location</th><th>Device</th><th>Status</th></tr>
+                        <tr>
+                            <th class="sec-col-date">Date &amp; time</th>
+                            <th class="sec-col-location">Approx. location</th>
+                            <th class="sec-col-device">Device</th>
+                            <th class="sec-col-status">Status</th>
+                            <th class="sec-col-action">Action</th>
+                        </tr>
                     </thead>
                     <tbody>
                         @foreach($activities as $activity)
@@ -341,8 +352,10 @@
                                         </span>
                                     </div>
                                 </td>
-                                <td data-label="Status">
+                                <td data-label="Status" class="sec-status-cell">
                                     <span class="sec-pill" style="background:{{ $statusBg }}; color:{{ $statusFg }}"><span class="sec-dot"></span>{{ $activity->statusLabel() }}</span>
+                                </td>
+                                <td data-label="Action" class="sec-action-cell">
                                     @if($activity->is_suspicious && ! $activity->review_status)
                                         <button
                                             class="sec-review-action"
@@ -355,13 +368,15 @@
                                             data-review-status="{{ $activity->statusLabel() }}"
                                             data-review-reason="{{ $activity->suspicious_reason ?: $activity->failure_reason ?: 'This sign-in requires your attention.' }}"
                                         >
-                                            <x-ui-icon name="user-lock" :size="14" />
+                                            <x-ui-icon name="user-lock" :size="16" />
                                             <span>Review Activity</span>
                                         </button>
                                     @elseif($activity->review_status === 'recognized')
                                         <span class="sec-review-state is-recognized">Reviewed and recognized</span>
                                     @elseif($activity->review_status === 'secured')
                                         <span class="sec-review-state is-secured">Account secured</span>
+                                    @else
+                                        <span class="sec-action-empty" aria-label="No action required">&mdash;</span>
                                     @endif
                                 </td>
                             </tr>
