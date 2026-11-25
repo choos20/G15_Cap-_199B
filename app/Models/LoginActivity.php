@@ -28,6 +28,9 @@ class LoginActivity extends \Illuminate\Database\Eloquent\Model
         'is_suspicious',
         'failure_reason',
         'suspicious_reason',
+        'review_status',
+        'reviewed_at',
+        'reviewed_by',
     ];
 
     protected $casts = [
@@ -36,11 +39,17 @@ class LoginActivity extends \Illuminate\Database\Eloquent\Model
         'ip_address' => 'encrypted',
         'mfa_used' => 'boolean',
         'is_suspicious' => 'boolean',
+        'reviewed_at' => 'datetime',
     ];
 
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function reviewer(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'reviewed_by');
     }
 
     public function statusLabel(): string

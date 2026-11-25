@@ -1364,6 +1364,9 @@ Route::middleware('auth')->group(function () {
         ->name('account.security');
     Route::get('/account/security/login-activity', [LoginActivityController::class, 'personal'])
         ->name('account.login_activity');
+    Route::post('/account/security/login-activity/{activity}/review', [LoginActivityController::class, 'review'])
+        ->middleware('throttle:6,1')
+        ->name('account.login_activity.review');
     Route::post('/account/security/mfa/disable', [MfaController::class, 'disable'])
         ->middleware('throttle:6,1')
         ->name('account.mfa.disable');

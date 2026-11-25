@@ -6,6 +6,10 @@ use App\Models\LoginActivity;
 use App\Services\LoginActivityAccess;
 use App\Services\MfaService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 class LoginActivityController extends Controller
@@ -31,7 +35,10 @@ class LoginActivityController extends Controller
             LoginActivity::STATUS_FAILED_PASSWORD,
             LoginActivity::STATUS_FAILED_MFA,
         ])->count();
-        $suspiciousCount = (clone $recent)->where('is_suspicious', true)->count();
+        $suspiciousCount = (clone $recent)
+            ->where('is_suspicious', true)
+            ->whereNull('review_status')
+            ->count();
 
         return view('account.security', [
             'activities' => $activities,
@@ -44,6 +51,67 @@ class LoginActivityController extends Controller
             'mfaEnabled' => MfaService::isEnabled($user),
             'mfaRecoveryCodesRemaining' => MfaService::remainingRecoveryCodes($user),
         ]);
+    }
+
+    public function review(Request $request, LoginActivity $activity)
+    {
+        $user = $request->user();
+
+        abort_unless((int) $activity->user_id === (int) $user->id, 403);
+
+        $validated = $request->validate([
+            'decision' => ['required', Rule::in(['recognized', 'secure'])],
+            'current_password' => ['nullable', 'string', 'max:255'],
+        ]);
+
+        if ($validated['decision'] === 'recognized') {
+            $activity->forceFill([
+                'review_status' => 'recognized',
+                'reviewed_at' => now(),
+                'reviewed_by' => $user->id,
+            ])->save();
+
+            return redirect()->route('account.security')->with(
+                'status',
+                'Activity marked as recognized. Your security settings were not changed.'
+            );
+        }
+
+        if (! filled($validated['current_password'] ?? null)) {
+            return back()->withErrors([
+                'security_review' => 'Enter your current password to secure the account.',
+            ]);
+        }
+
+        if (! Hash::check((string) $validated['current_password'], (string) $user->password)) {
+            return back()->withErrors([
+                'security_review' => 'Current password is incorrect. No security changes were made.',
+            ]);
+        }
+
+        if (config('session.driver') !== 'database') {
+            return back()->withErrors([
+                'security_review' => 'Secure-session controls are unavailable. Please contact an administrator.',
+            ]);
+        }
+
+        Auth::logoutOtherDevices($validated['current_password']);
+
+        DB::table(config('session.table', 'sessions'))
+            ->where('user_id', $user->id)
+            ->where('id', '<>', $request->session()->getId())
+            ->delete();
+
+        $activity->forceFill([
+            'review_status' => 'secured',
+            'reviewed_at' => now(),
+            'reviewed_by' => $user->id,
+        ])->save();
+
+        return redirect()->route('account.security')->with(
+            'status',
+            'Your account was secured. Other active sessions were signed out. Consider changing your password and verifying MFA.'
+        );
     }
 
     public function audit(Request $request): View

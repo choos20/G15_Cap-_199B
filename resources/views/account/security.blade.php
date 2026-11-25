@@ -76,6 +76,48 @@
         .sec-pill { display:inline-flex; align-items:center; gap:5px; padding:5px 9px; border-radius:999px; font-size:.72rem; font-weight:800; white-space:nowrap; }
         .sec-dot { width:6px; height:6px; border-radius:50%; background:currentColor; }
         .sec-mfa { display:inline-flex; margin-top:6px; padding:3px 7px; border-radius:6px; background:#eff6ff; color:#2563eb; font-size:.68rem; font-weight:700; }
+        .sec-review-action { display:inline-flex; align-items:center; gap:5px; margin-top:7px; padding:6px 9px; border:1px solid #fecaca; border-radius:8px; background:#fff; color:#b91c1c; font:inherit; font-size:.72rem; font-weight:800; cursor:pointer; transition:background .16s ease, border-color .16s ease, transform .16s ease; }
+        .sec-review-action:hover { background:#fef2f2; border-color:#fca5a5; transform:translateY(-1px); }
+        .sec-review-action:focus-visible { outline:3px solid rgba(248,113,113,.28); outline-offset:2px; }
+        .sec-review-state { display:block; margin-top:7px; font-size:.72rem; font-weight:800; }
+        .sec-review-state.is-recognized { color:#047857; }
+        .sec-review-state.is-secured { color:#b91c1c; }
+        body.sec-review-open { overflow:hidden; }
+        .sec-review-modal[hidden] { display:none; }
+        .sec-review-modal { position:fixed; inset:0; z-index:100; display:grid; place-items:center; padding:20px; }
+        .sec-review-backdrop { position:absolute; inset:0; background:rgba(15,23,42,.48); backdrop-filter:blur(3px); }
+        .sec-review-dialog { position:relative; z-index:1; width:min(100%,560px); max-height:calc(100vh - 40px); overflow:auto; padding:22px; border:1px solid #dbe4e9; border-radius:18px; background:#fff; box-shadow:0 24px 70px rgba(15,23,42,.28); }
+        .sec-review-close { position:absolute; top:13px; right:13px; display:inline-flex; align-items:center; justify-content:center; width:34px; height:34px; border:0; border-radius:9px; background:#f8fafc; color:#52665d; font-size:1.25rem; cursor:pointer; }
+        .sec-review-close:hover { background:#f1f5f9; color:#0f172a; }
+        .sec-review-close:focus-visible { outline:3px solid rgba(16,185,129,.28); outline-offset:2px; }
+        .sec-review-heading { display:flex; align-items:flex-start; gap:11px; padding-right:34px; }
+        .sec-review-heading-icon { display:inline-flex; align-items:center; justify-content:center; flex:0 0 38px; width:38px; height:38px; border-radius:11px; background:#fff7ed; color:#b45309; }
+        .sec-review-heading h3 { margin:0; color:#0f172a; font-size:1.05rem; }
+        .sec-review-heading p { margin:3px 0 0; color:#64748b; font-size:.76rem; }
+        .sec-review-intro { margin:18px 0 13px; color:#334155; font-size:.84rem; line-height:1.55; }
+        .sec-review-details { display:grid; gap:0; padding:2px 13px; border-radius:12px; background:#f8fafc; }
+        .sec-review-detail { display:flex; align-items:flex-start; justify-content:space-between; gap:16px; padding:11px 0; border-bottom:1px solid #e5e7eb; }
+        .sec-review-detail:last-child { border-bottom:0; }
+        .sec-review-detail span { color:#64748b; font-size:.73rem; }
+        .sec-review-detail strong { max-width:64%; color:#0f172a; font-size:.78rem; text-align:right; }
+        .sec-review-question { margin:18px 0 9px; color:#0f172a; font-size:.84rem; font-weight:800; }
+        .sec-review-actions { display:grid; gap:9px; }
+        .sec-review-actions form { margin:0; }
+        .sec-review-actions button { width:100%; min-height:40px; padding:9px 13px; border-radius:10px; font:inherit; font-size:.8rem; font-weight:800; cursor:pointer; transition:background .16s ease, border-color .16s ease, transform .16s ease; }
+        .sec-review-actions button:hover { transform:translateY(-1px); }
+        .sec-review-recognized { border:1px solid #16a34a; background:#16a34a; color:#fff; }
+        .sec-review-recognized:hover { background:#15803d; }
+        .sec-review-secure-trigger { border:1px solid #fca5a5; background:#fff; color:#b91c1c; }
+        .sec-review-secure-trigger:hover { background:#fef2f2; }
+        .sec-review-secure-panel { margin-top:14px; padding-top:14px; border-top:1px solid #fee2e2; }
+        .sec-review-secure-panel[hidden] { display:none; }
+        .sec-review-secure-panel p { margin:0 0 12px; color:#7f1d1d; font-size:.78rem; line-height:1.5; }
+        .sec-review-secure-panel label { display:block; margin-bottom:6px; color:#334155; font-size:.78rem; font-weight:700; }
+        .sec-review-secure-panel input { width:100%; padding:10px 11px; border:1px solid #dbe4e9; border-radius:9px; background:#fff; color:#0f172a; font:inherit; }
+        .sec-review-secure-panel input:focus { border-color:#f87171; outline:0; box-shadow:0 0 0 4px rgba(248,113,113,.12); }
+        .sec-review-secure-actions { display:flex; gap:9px; margin-top:12px; }
+        .sec-review-secure-actions .sec-review-secure-submit { border:1px solid #dc2626; background:#dc2626; color:#fff; }
+        .sec-review-secure-actions .sec-review-cancel { border:1px solid #cbd5e1; background:#fff; color:#334155; }
         .sec-empty { padding:46px 22px; color:#52665d; text-align:center; }
         .sec-empty strong { display:block; margin-bottom:5px; color:#334155; }
         .sec-pagination { padding:16px 20px; border-top:1px solid #eef2f7; }
@@ -93,12 +135,21 @@
             .sec-table td::before { flex:0 0 38%; color:#000; content:attr(data-label); font-size:.71rem; font-weight:800; letter-spacing:.04em; text-align:left; text-transform:uppercase; }
             .sec-table td > * { max-width:62%; }
             .sec-table .sec-when small,.sec-device small { margin-top:3px; }
+            .sec-review-modal { padding:12px; }
+            .sec-review-dialog { max-height:calc(100vh - 24px); padding:18px; }
+            .sec-review-detail { flex-direction:column; gap:3px; }
+            .sec-review-detail strong { max-width:100%; text-align:left; }
         }
     </style>
 
     @if(session('status'))
         <div style="margin-bottom:14px; padding:12px 15px; border:1px solid #bbf7d0; border-radius:12px; background:#f0fdf4; color:#166534; font-size:.88rem;">
             {{ session('status') }}
+        </div>
+    @endif
+    @if($errors->has('security_review'))
+        <div style="margin-bottom:14px; padding:12px 15px; border:1px solid #fecaca; border-radius:12px; background:#fef2f2; color:#991b1b; font-size:.88rem;">
+            {{ $errors->first('security_review') }}
         </div>
     @endif
 
@@ -292,7 +343,26 @@
                                 </td>
                                 <td data-label="Status">
                                     <span class="sec-pill" style="background:{{ $statusBg }}; color:{{ $statusFg }}"><span class="sec-dot"></span>{{ $activity->statusLabel() }}</span>
-                                    @if($activity->is_suspicious)<span class="sec-muted" style="color:#b91c1c;">Review recommended</span>@endif
+                                    @if($activity->is_suspicious && ! $activity->review_status)
+                                        <button
+                                            class="sec-review-action"
+                                            type="button"
+                                            data-review-button
+                                            data-review-url="{{ route('account.login_activity.review', $activity) }}"
+                                            data-review-date="{{ $activity->created_at->copy()->timezone($displayTimezone)->format('M j, Y g:i A').' '.$displayTimezoneLabel }}"
+                                            data-review-location="{{ $activity->location_label ?: 'Unavailable' }}"
+                                            data-review-device="{{ $activity->deviceLabel() }}"
+                                            data-review-status="{{ $activity->statusLabel() }}"
+                                            data-review-reason="{{ $activity->suspicious_reason ?: $activity->failure_reason ?: 'This sign-in requires your attention.' }}"
+                                        >
+                                            <x-ui-icon name="user-lock" :size="14" />
+                                            <span>Review Activity</span>
+                                        </button>
+                                    @elseif($activity->review_status === 'recognized')
+                                        <span class="sec-review-state is-recognized">Reviewed and recognized</span>
+                                    @elseif($activity->review_status === 'secured')
+                                        <span class="sec-review-state is-secured">Account secured</span>
+                                    @endif
                                 </td>
                             </tr>
                         @endforeach
@@ -304,6 +374,56 @@
             @endif
         @endif
     </section>
+
+    <div class="sec-review-modal" id="sec-review-modal" hidden aria-hidden="true">
+        <div class="sec-review-backdrop" data-review-close></div>
+        <section class="sec-review-dialog" role="dialog" aria-modal="true" aria-labelledby="sec-review-title" aria-describedby="sec-review-intro">
+            <button class="sec-review-close" type="button" data-review-close aria-label="Close activity review">&times;</button>
+
+            <div class="sec-review-heading">
+                <span class="sec-review-heading-icon" aria-hidden="true"><x-ui-icon name="user-lock" :size="20" /></span>
+                <div>
+                    <h3 id="sec-review-title">Review sign-in activity</h3>
+                    <p>ProjectLink Account Security</p>
+                </div>
+            </div>
+
+            <p class="sec-review-intro" id="sec-review-intro">We detected an unsuccessful verification attempt on your account. Do you recognize this activity?</p>
+
+            <div class="sec-review-details">
+                <div class="sec-review-detail"><span>Date and time</span><strong id="sec-review-date"></strong></div>
+                <div class="sec-review-detail"><span>Approximate location</span><strong id="sec-review-location"></strong></div>
+                <div class="sec-review-detail"><span>Device and browser</span><strong id="sec-review-device"></strong></div>
+                <div class="sec-review-detail"><span>Activity status</span><strong id="sec-review-status"></strong></div>
+                <div class="sec-review-detail"><span>Security reason</span><strong id="sec-review-reason"></strong></div>
+            </div>
+
+            <p class="sec-review-question">Was this you?</p>
+            <div class="sec-review-actions" id="sec-review-choice-actions">
+                <form id="sec-review-recognized-form" method="POST" action="#">
+                    @csrf
+                    <input type="hidden" name="decision" value="recognized">
+                    <button class="sec-review-recognized" type="submit"><x-ui-icon name="check-circle" :size="15" /> Yes, this was me</button>
+                </form>
+                <button class="sec-review-secure-trigger" id="sec-review-secure-trigger" type="button"><x-ui-icon name="user-lock" :size="15" /> No, secure my account</button>
+            </div>
+
+            <div class="sec-review-secure-panel" id="sec-review-secure-panel" hidden>
+                <p>We will sign out other active sessions and keep this session open. Confirm your current password to continue.</p>
+                <form id="sec-review-secure-form" method="POST" action="#">
+                    @csrf
+                    <input type="hidden" name="decision" value="secure">
+                    <label for="sec-review-current-password">Current password</label>
+                    <input id="sec-review-current-password" type="password" name="current_password" autocomplete="current-password" required>
+                    <div class="sec-review-secure-actions">
+                        <button class="sec-review-secure-submit" type="submit">Secure my account</button>
+                        <button class="sec-review-cancel" id="sec-review-cancel" type="button">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </section>
+    </div>
+
     <script>
         document.querySelectorAll('#mfa input[type="password"], #password input[type="password"]').forEach((input) => {
             const wrapper = document.createElement('div');
@@ -335,5 +455,66 @@
             wrapper.appendChild(button);
             syncVisibility();
         });
+    </script>
+    <script>
+        (() => {
+            const modal = document.getElementById('sec-review-modal');
+            const recognizedForm = document.getElementById('sec-review-recognized-form');
+            const secureForm = document.getElementById('sec-review-secure-form');
+            const choiceActions = document.getElementById('sec-review-choice-actions');
+            const securePanel = document.getElementById('sec-review-secure-panel');
+            const secureTrigger = document.getElementById('sec-review-secure-trigger');
+            const cancelSecure = document.getElementById('sec-review-cancel');
+            const currentPassword = document.getElementById('sec-review-current-password');
+            if (!modal || !recognizedForm || !secureForm) return;
+
+            let previouslyFocused = null;
+
+            const closeModal = () => {
+                modal.hidden = true;
+                modal.setAttribute('aria-hidden', 'true');
+                document.body.classList.remove('sec-review-open');
+                securePanel.hidden = true;
+                choiceActions.hidden = false;
+                currentPassword.value = '';
+                previouslyFocused?.focus();
+            };
+
+            document.querySelectorAll('[data-review-button]').forEach((button) => {
+                button.addEventListener('click', () => {
+                    previouslyFocused = button;
+                    recognizedForm.action = button.dataset.reviewUrl;
+                    secureForm.action = button.dataset.reviewUrl;
+                    document.getElementById('sec-review-date').textContent = button.dataset.reviewDate;
+                    document.getElementById('sec-review-location').textContent = button.dataset.reviewLocation;
+                    document.getElementById('sec-review-device').textContent = button.dataset.reviewDevice;
+                    document.getElementById('sec-review-status').textContent = button.dataset.reviewStatus;
+                    document.getElementById('sec-review-reason').textContent = button.dataset.reviewReason;
+                    modal.hidden = false;
+                    modal.setAttribute('aria-hidden', 'false');
+                    document.body.classList.add('sec-review-open');
+                    securePanel.hidden = true;
+                    choiceActions.hidden = false;
+                    currentPassword.value = '';
+                    modal.querySelector('.sec-review-close').focus();
+                });
+            });
+
+            document.querySelectorAll('[data-review-close]').forEach((element) => element.addEventListener('click', closeModal));
+            secureTrigger.addEventListener('click', () => {
+                choiceActions.hidden = true;
+                securePanel.hidden = false;
+                currentPassword.focus();
+            });
+            cancelSecure.addEventListener('click', () => {
+                securePanel.hidden = true;
+                choiceActions.hidden = false;
+                currentPassword.value = '';
+                secureTrigger.focus();
+            });
+            document.addEventListener('keydown', (event) => {
+                if (event.key === 'Escape' && !modal.hidden) closeModal();
+            });
+        })();
     </script>
 @endsection

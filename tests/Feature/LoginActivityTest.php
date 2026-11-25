@@ -6,6 +6,7 @@ use App\Models\LoginActivity;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Schema;
@@ -47,6 +48,9 @@ class LoginActivityTest extends TestCase
             $table->boolean('is_suspicious')->default(false);
             $table->string('failure_reason')->nullable();
             $table->string('suspicious_reason')->nullable();
+            $table->string('review_status')->nullable();
+            $table->timestamp('reviewed_at')->nullable();
+            $table->unsignedBigInteger('reviewed_by')->nullable();
             $table->timestamps();
         });
 
@@ -59,6 +63,15 @@ class LoginActivityTest extends TestCase
             $table->timestamp('read_at')->nullable();
             $table->timestamps();
             $table->index(['notifiable_type', 'notifiable_id']);
+        });
+
+        Schema::create('sessions', function (Blueprint $table) {
+            $table->string('id')->primary();
+            $table->unsignedBigInteger('user_id')->nullable()->index();
+            $table->string('ip_address', 45)->nullable();
+            $table->text('user_agent')->nullable();
+            $table->longText('payload');
+            $table->integer('last_activity')->index();
         });
     }
 
@@ -237,5 +250,97 @@ class LoginActivityTest extends TestCase
             ->assertOk()
             ->assertSee('Nov 18, 2026')
             ->assertSee('7:11 AM PHT');
+    }
+
+    public function test_a_user_can_mark_their_suspicious_activity_as_recognized(): void
+    {
+        $user = User::factory()->create(['role' => 'participant']);
+        $activity = LoginActivity::create([
+            'user_id' => $user->id,
+            'user_name' => $user->name,
+            'user_email' => $user->email,
+            'user_role' => $user->role,
+            'status' => LoginActivity::STATUS_FAILED_PASSWORD,
+            'is_suspicious' => true,
+            'suspicious_reason' => 'Repeated failed password attempts',
+        ]);
+
+        $this->actingAs($user)
+            ->post(route('account.login_activity.review', $activity), [
+                'decision' => 'recognized',
+            ])
+            ->assertRedirect(route('account.security'))
+            ->assertSessionHas('status', 'Activity marked as recognized. Your security settings were not changed.');
+
+        $this->assertDatabaseHas('login_activities', [
+            'id' => $activity->id,
+            'review_status' => 'recognized',
+            'reviewed_by' => $user->id,
+        ]);
+    }
+
+    public function test_a_user_cannot_review_another_users_activity(): void
+    {
+        $user = User::factory()->create(['role' => 'participant']);
+        $other = User::factory()->create(['role' => 'participant']);
+        $activity = LoginActivity::create([
+            'user_id' => $other->id,
+            'user_name' => $other->name,
+            'user_email' => $other->email,
+            'user_role' => $other->role,
+            'status' => LoginActivity::STATUS_FAILED_MFA,
+            'is_suspicious' => true,
+        ]);
+
+        $this->actingAs($user)
+            ->post(route('account.login_activity.review', $activity), [
+                'decision' => 'recognized',
+            ])
+            ->assertForbidden();
+
+        $this->assertDatabaseMissing('login_activities', [
+            'id' => $activity->id,
+            'review_status' => 'recognized',
+        ]);
+    }
+
+    public function test_secure_account_review_removes_other_database_sessions(): void
+    {
+        config(['session.driver' => 'database']);
+
+        $user = User::factory()->create([
+            'role' => 'participant',
+            'password' => Hash::make('correct-password'),
+        ]);
+        $activity = LoginActivity::create([
+            'user_id' => $user->id,
+            'user_name' => $user->name,
+            'user_email' => $user->email,
+            'user_role' => $user->role,
+            'status' => LoginActivity::STATUS_FAILED_PASSWORD,
+            'is_suspicious' => true,
+        ]);
+
+        DB::table('sessions')->insert([
+            'id' => 'other-session',
+            'user_id' => $user->id,
+            'payload' => '',
+            'last_activity' => now()->timestamp,
+        ]);
+
+        $this->actingAs($user)
+            ->post(route('account.login_activity.review', $activity), [
+                'decision' => 'secure',
+                'current_password' => 'correct-password',
+            ])
+            ->assertRedirect(route('account.security'))
+            ->assertSessionHas('status', 'Your account was secured. Other active sessions were signed out. Consider changing your password and verifying MFA.');
+
+        $this->assertDatabaseMissing('sessions', ['id' => 'other-session']);
+        $this->assertDatabaseHas('login_activities', [
+            'id' => $activity->id,
+            'review_status' => 'secured',
+            'reviewed_by' => $user->id,
+        ]);
     }
 }
