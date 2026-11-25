@@ -20,7 +20,7 @@
         .ann-create-title { margin:0; color:#173b30; font-size:1.24rem; font-weight:800; letter-spacing:-.02em; }
         .ann-create-intro { margin:4px 0 0; color:#647a71; font-size:.87rem; line-height:1.45; }
         .ann-create-body { padding:20px 22px 22px; }
-        .ann-composer { display:grid; grid-template-columns:minmax(0,1.18fr) minmax(300px,.82fr); gap:18px; align-items:start; }
+        .ann-composer { display:grid; grid-template-columns:minmax(0,1.22fr) minmax(290px,.78fr); gap:18px; align-items:start; }
         .ann-composer-form, .ann-create-body > *, .ann-create-field { min-width:0; }
         .ann-panel { min-width:0; padding:17px; border:1px solid #e2ebe6; border-radius:16px; background:#fff; }
         .ann-panel + .ann-panel { margin-top:15px; }
@@ -54,9 +54,14 @@
         .ann-existing-notice { color:#8a5a00; }
         .ann-event-panel { background:#fbfdfc; }
         .ann-event-panel .ann-form-label { margin-bottom:7px; }
+        .ann-event-layout { display:grid; grid-template-columns:minmax(0,1.12fr) minmax(220px,.88fr); gap:16px; align-items:start; }
+        .ann-event-fields { min-width:0; }
         .ann-event-field { margin-top:13px; }
         .ann-location-heading { display:flex; align-items:center; justify-content:space-between; gap:10px; }
         .ann-location-heading .ann-form-label { margin-bottom:0; }
+        .ann-map-column { min-width:0; padding:12px; border:1px solid #dcebe3; border-radius:13px; background:#f7fcf9; }
+        .ann-map-heading { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:9px; color:#173b30; font-size:.8rem; font-weight:800; }
+        .ann-map-heading span { color:#71827b; font-size:.7rem; font-weight:600; }
         .ann-map-search-wrap { position:relative; }
         .ann-map-search-results {
             display:none; position:absolute; top:calc(100% + 6px); left:0; right:0; z-index:2000;
@@ -66,7 +71,7 @@
         .ann-map-search-item { padding:10px 12px; cursor:pointer; border-bottom:1px solid #f1f5f9; font-size:.8rem; color:#334155; }
         .ann-map-search-item:last-child { border-bottom:none; }
         .ann-map-search-item:hover { background:#eff6ff; }
-        #ann-location-map { width:100%; height:235px; min-width:0; border-radius:13px; margin:9px 0 0; border:1px solid #d1d5db; overflow:hidden; }
+        #ann-location-map { width:100%; aspect-ratio:1 / 1; height:auto; min-height:0; max-height:380px; min-width:0; border-radius:13px; margin:0 auto; border:1px solid #d1d5db; overflow:hidden; }
         .ann-locate-btn { margin-top:8px; display:inline-flex; align-items:center; gap:7px; background:#f8fafc; color:#0f172a; border:1px solid #cbd5e1; border-radius:10px; padding:8px 11px; font-weight:700; font-size:.78rem; cursor:pointer; }
         .ann-locate-btn:hover { background:#eff6ff; border-color:#93c5fd; }
         .plink-pin svg { filter:drop-shadow(0 5px 8px rgba(15,23,42,0.4)); }
@@ -107,8 +112,9 @@
         .ann-create-actions { position:sticky; bottom:12px; z-index:5; display:flex; justify-content:flex-end; gap:9px; flex-wrap:wrap; padding:10px; border:1px solid #dfeae4; border-radius:12px; background:rgba(255,255,255,.94); box-shadow:0 7px 20px rgba(15,55,43,.08); backdrop-filter:blur(8px); }
         .ann-create-actions button { padding:10px 16px !important; border-radius:9px !important; font-size:.84rem; transition:transform .15s ease,box-shadow .15s ease; }
         .ann-create-actions button:hover { transform:translateY(-1px); box-shadow:0 6px 16px rgba(15,55,43,.12); }
-        @media(max-width:1100px) { .ann-composer { grid-template-columns:minmax(0,1fr); } .ann-preview-panel { position:static; } }
-        @media(max-width:640px) { .ann-create-head { padding:18px; } .ann-create-body { padding:16px; } .ann-category-grid, .ann-form-grid, .ann-recruitment-grid { grid-template-columns:minmax(0,1fr); } .ann-field-span { grid-column:auto; } .ann-panel { padding:14px; } #ann-location-map { height:210px; } .ann-create-actions { justify-content:stretch; } .ann-create-actions button { flex:1; } }
+        @media(max-width:900px) { .ann-composer { grid-template-columns:minmax(0,1fr); } .ann-preview-panel { position:static; } }
+        @media(max-width:760px) { .ann-event-layout { grid-template-columns:minmax(0,1fr); } .ann-map-column { max-width:380px; margin:0 auto; width:100%; } }
+        @media(max-width:640px) { .ann-create-head { padding:18px; } .ann-create-body { padding:16px; } .ann-category-grid, .ann-form-grid, .ann-recruitment-grid { grid-template-columns:minmax(0,1fr); } .ann-field-span { grid-column:auto; } .ann-panel { padding:14px; } .ann-create-actions { justify-content:stretch; } .ann-create-actions button { flex:1; } }
     </style>
 
     @if(session('status'))
@@ -218,6 +224,8 @@
                         <span class="ann-panel-icon" aria-hidden="true"><svg width="17" height="17" viewBox="0 0 24 24" fill="none"><rect x="4" y="5.5" width="16" height="14" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="M8 3.5v4M16 3.5v4M4 10h16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></span>
                         <div><h4 class="ann-panel-title" id="announcement-event-heading">Event information</h4><p class="ann-panel-copy">Help volunteers know when and where to join.</p></div>
                     </div>
+                    <div class="ann-event-layout">
+                        <div class="ann-event-fields">
                 <div data-category-fields="recruitment" class="ann-recruitment-grid">
                     <div>
                         <label class="ann-form-label" for="announcement-slots-needed">Volunteers needed <span style="color:#b91c1c">*</span></label>
@@ -246,13 +254,19 @@
                         <div id="ann-map-search-results" class="ann-map-search-results"></div>
                     </div>
                     <input type="text" id="event_location" name="event_location" value="{{ old('event_location') }}" placeholder="e.g. Barangay Poblacion Gymnasium" style="margin-top:8px;" />
-                    <div id="ann-location-map"></div>
-                    <button type="button" id="ann-use-my-location" class="ann-locate-btn">Use my current location</button>
-                    <input type="hidden" id="latitude" name="latitude" value="{{ old('latitude') }}">
-                    <input type="hidden" id="longitude" name="longitude" value="{{ old('longitude') }}">
-                    <div class="ann-create-help">Click the map or choose a search result to pin the exact activity location.</div>
                     @error('event_location')<div style="color:#b91c1c; font-size:0.92rem; margin-top:6px">{{ $message }}</div>@enderror
                 </div>
+
+                        </div>
+                        <div class="ann-map-column">
+                            <div class="ann-map-heading"><span style="color:#173b30; font-size:.8rem; font-weight:800">Pin activity location</span><span>Optional</span></div>
+                            <div id="ann-location-map"></div>
+                            <button type="button" id="ann-use-my-location" class="ann-locate-btn">Use my current location</button>
+                            <input type="hidden" id="latitude" name="latitude" value="{{ old('latitude') }}">
+                            <input type="hidden" id="longitude" name="longitude" value="{{ old('longitude') }}">
+                            <div class="ann-create-help">Click the map or choose a search result to pin the exact activity location.</div>
+                        </div>
+                    </div>
 
                 </section>
 
