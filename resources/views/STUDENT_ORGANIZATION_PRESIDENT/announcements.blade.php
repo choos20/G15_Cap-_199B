@@ -14,70 +14,101 @@
     <style>
         [data-category-fields][hidden] { display:none !important; }
         .ann-create-card { overflow:hidden; padding:0 !important; border:1px solid #e3ece8; border-radius:20px; box-shadow:0 12px 35px rgba(15,55,43,.07); }
-        .ann-create-head { display:flex; align-items:flex-start; gap:15px; padding:24px 28px; background:linear-gradient(120deg,#f0faf6,#f8fbfa 68%,#eef7f3); border-bottom:1px solid #e3ece8; }
-        .ann-create-icon { display:grid; place-items:center; flex:0 0 46px; height:46px; border-radius:15px; background:#d9f3e8; color:#08734e; }
-        .ann-create-eyebrow { margin:1px 0 5px; color:#08734e; font-size:.72rem; font-weight:800; letter-spacing:.1em; text-transform:uppercase; }
-        .ann-create-title { margin:0; color:#173b30; font-size:1.28rem; font-weight:800; letter-spacing:-.02em; }
-        .ann-create-intro { margin:5px 0 0; color:#647a71; font-size:.9rem; line-height:1.5; }
-        .ann-create-body { display:grid; grid-template-columns:minmax(0,1fr); gap:22px; padding:26px 28px 28px; }
-        .ann-create-body > *, .ann-create-field { min-width:0; }
-        .ann-recruitment-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:18px; }
-        .ann-category-label, .ann-form-label { display:block; margin-bottom:9px; color:#203b32; font-size:.89rem; font-weight:750; }
-        .ann-category-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
-        .ann-category-card { position:relative; display:flex; align-items:flex-start; gap:12px; min-height:104px; padding:16px; border:1px solid #dfe9e4; border-radius:15px; background:#fff; cursor:pointer; transition:border-color .18s ease,background .18s ease,box-shadow .18s ease; }
+        .ann-create-head { display:flex; align-items:flex-start; gap:15px; padding:20px 24px; background:linear-gradient(120deg,#f0faf6,#f8fbfa 68%,#eef7f3); border-bottom:1px solid #e3ece8; }
+        .ann-create-icon { display:grid; place-items:center; flex:0 0 44px; height:44px; border-radius:14px; background:#d9f3e8; color:#08734e; }
+        .ann-create-eyebrow { margin:1px 0 4px; color:#08734e; font-size:.7rem; font-weight:800; letter-spacing:.1em; text-transform:uppercase; }
+        .ann-create-title { margin:0; color:#173b30; font-size:1.24rem; font-weight:800; letter-spacing:-.02em; }
+        .ann-create-intro { margin:4px 0 0; color:#647a71; font-size:.87rem; line-height:1.45; }
+        .ann-create-body { padding:20px 22px 22px; }
+        .ann-composer { display:grid; grid-template-columns:minmax(0,1.18fr) minmax(300px,.82fr); gap:18px; align-items:start; }
+        .ann-composer-form, .ann-create-body > *, .ann-create-field { min-width:0; }
+        .ann-panel { min-width:0; padding:17px; border:1px solid #e2ebe6; border-radius:16px; background:#fff; }
+        .ann-panel + .ann-panel { margin-top:15px; }
+        .ann-panel-heading { display:flex; align-items:center; gap:10px; margin-bottom:15px; }
+        .ann-panel-icon { display:grid; place-items:center; flex:0 0 31px; width:31px; height:31px; border-radius:10px; background:#eaf8f1; color:#08734e; }
+        .ann-panel-title { margin:0; color:#173b30; font-size:1rem; font-weight:800; }
+        .ann-panel-copy { margin:2px 0 0; color:#71827b; font-size:.78rem; line-height:1.35; }
+        .ann-category-section { margin:0 0 15px; padding:15px; border:1px solid #e2ebe6; border-radius:16px; }
+        .ann-category-label, .ann-form-label { display:block; margin-bottom:8px; color:#203b32; font-size:.86rem; font-weight:750; }
+        .ann-category-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
+        .ann-category-card { position:relative; display:flex; align-items:flex-start; gap:10px; min-height:84px; padding:13px; border:1px solid #dfe9e4; border-radius:13px; background:#fff; cursor:pointer; transition:border-color .18s ease,background .18s ease,box-shadow .18s ease; }
         .ann-category-card:hover { border-color:#8dcab0; background:#fbfefc; }
         .ann-category-card:has(.ann-category-radio:checked) { border-color:#15946a; background:#f0faf5; box-shadow:0 0 0 3px rgba(21,148,106,.1); }
-        .ann-category-radio { flex:0 0 auto; width:17px; height:17px; margin:2px 0 0; accent-color:#0b7656; }
-        .ann-category-name { display:block; color:#183b30; font-size:.92rem; font-weight:800; }
-        .ann-category-desc { display:block; margin-top:5px; color:#697d75; font-size:.82rem; line-height:1.5; }
-        .ann-create-field input:not([type=hidden]), .ann-create-field select, .ann-create-field textarea { box-sizing:border-box; width:100%; padding:12px 14px; border:1px solid #d6e1dc; border-radius:11px; background:#fff; color:#173b30; font:inherit; transition:border-color .18s ease,box-shadow .18s ease; }
-        .ann-create-field input:focus, .ann-create-field select:focus, .ann-create-field textarea:focus { outline:none; border-color:#16845e; box-shadow:0 0 0 3px rgba(22,132,94,.12); }
-        .ann-create-field textarea { resize:vertical; }
-        .ann-create-help { margin-top:6px; color:#71827b; font-size:.82rem; line-height:1.45; }
-        .ann-category-hint { display:flex; gap:10px; align-items:flex-start; padding:12px 14px; border-radius:11px; background:#f1f8f5; color:#49685b; font-size:.84rem; line-height:1.5; }
+        .ann-category-card:focus-within { outline:3px solid rgba(21,148,106,.14); outline-offset:1px; }
+        .ann-category-radio { flex:0 0 auto; width:16px; height:16px; margin:2px 0 0; accent-color:#0b7656; }
+        .ann-category-mark { display:grid; place-items:center; flex:0 0 28px; width:28px; height:28px; border-radius:9px; background:#eaf8f1; color:#08734e; }
+        .ann-category-name { display:block; color:#183b30; font-size:.88rem; font-weight:800; }
+        .ann-category-desc { display:block; margin-top:4px; color:#697d75; font-size:.76rem; line-height:1.4; }
+        .ann-form-grid, .ann-recruitment-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:13px; }
+        .ann-field-span { grid-column:1 / -1; }
+        .ann-create-field input:not([type=hidden]), .ann-create-field select, .ann-create-field textarea,
+        .ann-panel input:not([type=hidden]), .ann-panel select, .ann-panel textarea { box-sizing:border-box; width:100%; padding:10px 12px; border:1px solid #d6e1dc; border-radius:10px; background:#fff; color:#173b30; font:inherit; font-size:.88rem; transition:border-color .18s ease,box-shadow .18s ease; }
+        .ann-create-field input:focus, .ann-create-field select:focus, .ann-create-field textarea:focus,
+        .ann-panel input:focus, .ann-panel select:focus, .ann-panel textarea:focus { outline:none; border-color:#16845e; box-shadow:0 0 0 3px rgba(22,132,94,.12); }
+        .ann-create-field textarea { min-height:112px; resize:vertical; }
+        .ann-create-help { margin-top:5px; color:#71827b; font-size:.76rem; line-height:1.4; }
+        .ann-description-meta { display:flex; justify-content:space-between; gap:12px; margin-top:5px; color:#71827b; font-size:.75rem; }
+        #announcement-description-count { color:#08734e; font-weight:750; white-space:nowrap; }
+        .ann-category-hint { display:flex; gap:9px; align-items:flex-start; margin-bottom:15px; padding:10px 12px; border-radius:10px; background:#f1f8f5; color:#49685b; font-size:.79rem; line-height:1.4; }
         .ann-category-hint svg { flex:0 0 auto; margin-top:1px; color:#13835c; }
-        .ann-form-divider { height:1px; background:#e9efec; }
-        .ann-create-actions { display:flex; justify-content:flex-end; gap:10px; flex-wrap:wrap; padding-top:2px; }
-        .ann-create-actions button { padding:12px 19px !important; border-radius:10px !important; font-size:.9rem; transition:transform .15s ease,box-shadow .15s ease; }
-        .ann-create-actions button:hover { transform:translateY(-1px); box-shadow:0 6px 16px rgba(15,55,43,.12); }
-        @media(max-width:640px) { .ann-create-head { padding:20px; } .ann-create-body { padding:20px; } .ann-category-grid, .ann-recruitment-grid { grid-template-columns:minmax(0,1fr); } }
+        .ann-existing-notice { color:#8a5a00; }
+        .ann-event-panel { background:#fbfdfc; }
+        .ann-event-panel .ann-form-label { margin-bottom:7px; }
+        .ann-event-field { margin-top:13px; }
+        .ann-location-heading { display:flex; align-items:center; justify-content:space-between; gap:10px; }
+        .ann-location-heading .ann-form-label { margin-bottom:0; }
         .ann-map-search-wrap { position:relative; }
         .ann-map-search-results {
             display:none; position:absolute; top:calc(100% + 6px); left:0; right:0; z-index:2000;
-            background:#fff; border:1px solid #e5e7eb; border-radius:14px;
-            box-shadow:0 18px 40px rgba(15,23,42,0.16); max-height:260px; overflow:auto;
+            background:#fff; border:1px solid #e5e7eb; border-radius:12px;
+            box-shadow:0 18px 40px rgba(15,23,42,0.16); max-height:220px; overflow:auto;
         }
-        .ann-map-search-item { padding:11px 14px; cursor:pointer; border-bottom:1px solid #f1f5f9; font-size:0.9rem; color:#334155; }
+        .ann-map-search-item { padding:10px 12px; cursor:pointer; border-bottom:1px solid #f1f5f9; font-size:.8rem; color:#334155; }
         .ann-map-search-item:last-child { border-bottom:none; }
         .ann-map-search-item:hover { background:#eff6ff; }
-        #ann-location-map {
-            width:100%;
-            min-width:0;
-            aspect-ratio: 4 / 3;
-            max-height:480px;
-            min-height:320px;
-            max-width:640px;
-            border-radius:16px;
-            margin:12px auto 0;
-            border:1px solid #d1d5db;
-        }
-        .ann-locate-btn {
-            margin-top:10px; display:inline-flex; align-items:center; gap:8px;
-            background:#f8fafc; color:#0f172a; border:1px solid #cbd5e1; border-radius:12px;
-            padding:9px 14px; font-weight:700; font-size:0.85rem; cursor:pointer;
-        }
+        #ann-location-map { width:100%; height:235px; min-width:0; border-radius:13px; margin:9px 0 0; border:1px solid #d1d5db; overflow:hidden; }
+        .ann-locate-btn { margin-top:8px; display:inline-flex; align-items:center; gap:7px; background:#f8fafc; color:#0f172a; border:1px solid #cbd5e1; border-radius:10px; padding:8px 11px; font-weight:700; font-size:.78rem; cursor:pointer; }
         .ann-locate-btn:hover { background:#eff6ff; border-color:#93c5fd; }
         .plink-pin svg { filter:drop-shadow(0 5px 8px rgba(15,23,42,0.4)); }
-        .leaflet-control-layers { border-radius:12px !important; overflow:hidden; box-shadow:0 10px 25px rgba(15,23,42,0.15) !important; border:none !important; }
-        .leaflet-bar { border-radius:10px !important; overflow:hidden; border:none !important; box-shadow:0 6px 16px rgba(15,23,42,0.15) !important; }
+        .leaflet-control-layers { border-radius:10px !important; overflow:hidden; box-shadow:0 10px 25px rgba(15,23,42,0.15) !important; border:none !important; }
+        .leaflet-bar { border-radius:8px !important; overflow:hidden; border:none !important; box-shadow:0 6px 16px rgba(15,23,42,0.15) !important; }
         .leaflet-control-scale-line { border-radius:0 0 6px 6px !important; background:rgba(255,255,255,0.85) !important; }
-        .leaflet-control-attribution { padding:2px 5px !important; font-size:10px !important; line-height:1.3 !important; }
-        .ann-upload-list { display:grid; gap:8px; margin-top:12px; }
-        .ann-upload-file { display:flex; align-items:center; gap:12px; padding:11px 13px; border:1px solid #e2e8f0; border-radius:10px; background:#f8fafc; }
-        .ann-upload-file-name { flex:1; min-width:0; overflow-wrap:anywhere; color:#0f172a; font-size:.9rem; font-weight:600; }
-        .ann-upload-file-size { display:block; margin-top:3px; color:#52665d; font-size:.78rem; font-weight:400; }
-        .ann-upload-action { border:0; background:none; color:#0b6a4a; font:inherit; font-size:.84rem; font-weight:700; text-decoration:underline; cursor:pointer; }
+        .leaflet-control-attribution { padding:2px 5px !important; font-size:9px !important; line-height:1.2 !important; }
+        .ann-upload-dropzone { display:flex; align-items:center; justify-content:center; gap:10px; min-height:88px; padding:13px; border:1px dashed #8dcab0; border-radius:12px; background:#f5fcf8; color:#08734e; text-align:center; cursor:pointer; transition:background .18s ease,border-color .18s ease; }
+        .ann-upload-dropzone:hover, .ann-upload-dropzone.is-dragging { border-color:#15946a; background:#eaf8f1; }
+        .ann-upload-dropzone strong { display:block; color:#173b30; font-size:.81rem; }
+        .ann-upload-dropzone small { display:block; margin-top:3px; color:#71827b; font-size:.72rem; }
+        .ann-upload-icon { display:grid; place-items:center; flex:0 0 31px; width:31px; height:31px; border-radius:10px; background:#d9f3e8; color:#08734e; }
+        .ann-upload-list { display:grid; gap:7px; margin-top:10px; }
+        .ann-upload-file { display:flex; align-items:center; gap:10px; padding:9px 10px; border:1px solid #e2e8f0; border-radius:9px; background:#f8fafc; }
+        .ann-upload-file-name { flex:1; min-width:0; overflow-wrap:anywhere; color:#0f172a; font-size:.8rem; font-weight:600; }
+        .ann-upload-file-size { display:block; margin-top:2px; color:#52665d; font-size:.7rem; font-weight:400; }
+        .ann-upload-action { border:0; background:none; color:#0b6a4a; font:inherit; font-size:.75rem; font-weight:700; text-decoration:underline; cursor:pointer; }
         .ann-upload-remove { color:#b91c1c; }
+        .ann-preview-panel { position:sticky; top:16px; min-width:0; padding:14px; border:1px solid #dbe9e2; border-radius:16px; background:#f7fbf9; box-shadow:0 10px 25px rgba(15,55,43,.06); }
+        .ann-preview-head { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:10px; }
+        .ann-preview-kicker { color:#08734e; font-size:.7rem; font-weight:800; letter-spacing:.08em; text-transform:uppercase; }
+        .ann-preview-status { padding:4px 8px; border-radius:999px; background:#fff7e6; color:#946200; font-size:.68rem; font-weight:800; }
+        .ann-preview-card { overflow:hidden; border:1px solid #e0e9e4; border-radius:13px; background:#fff; box-shadow:0 5px 15px rgba(15,55,43,.06); }
+        .ann-preview-card-body { padding:14px; }
+        .ann-preview-badge { display:inline-flex; align-items:center; gap:5px; padding:4px 8px; border-radius:999px; background:#e4f6ec; color:#08734e; font-size:.68rem; font-weight:800; }
+        .ann-preview-title { margin:11px 0 0; color:#173b30; font-size:1.03rem; line-height:1.25; }
+        .ann-preview-meta { display:flex; flex-wrap:wrap; gap:7px 12px; margin-top:8px; color:#71827b; font-size:.72rem; }
+        .ann-preview-description { margin:12px 0 0; color:#334155; font-size:.8rem; line-height:1.5; white-space:pre-line; }
+        .ann-preview-media { display:none; width:100%; height:115px; object-fit:cover; background:linear-gradient(135deg,#d9f3e8,#eef8f3); }
+        .ann-preview-media.is-visible { display:block; }
+        .ann-preview-facts { display:grid; gap:7px; margin-top:13px; padding-top:12px; border-top:1px solid #edf2ef; }
+        .ann-preview-fact { display:flex; align-items:flex-start; gap:7px; color:#52665d; font-size:.74rem; line-height:1.35; }
+        .ann-preview-fact svg { flex:0 0 auto; margin-top:1px; color:#0b7656; }
+        .ann-preview-files { display:grid; gap:6px; margin-top:12px; padding-top:12px; border-top:1px solid #edf2ef; }
+        .ann-preview-file { overflow:hidden; color:#2563eb; font-size:.73rem; text-overflow:ellipsis; white-space:nowrap; }
+        .ann-preview-placeholder { margin-top:12px; padding:10px; border-radius:9px; background:#f7faf8; color:#71827b; font-size:.74rem; line-height:1.4; }
+        .ann-form-divider { height:1px; margin:16px 0 13px; background:#e9efec; }
+        .ann-create-actions { position:sticky; bottom:12px; z-index:5; display:flex; justify-content:flex-end; gap:9px; flex-wrap:wrap; padding:10px; border:1px solid #dfeae4; border-radius:12px; background:rgba(255,255,255,.94); box-shadow:0 7px 20px rgba(15,55,43,.08); backdrop-filter:blur(8px); }
+        .ann-create-actions button { padding:10px 16px !important; border-radius:9px !important; font-size:.84rem; transition:transform .15s ease,box-shadow .15s ease; }
+        .ann-create-actions button:hover { transform:translateY(-1px); box-shadow:0 6px 16px rgba(15,55,43,.12); }
+        @media(max-width:1100px) { .ann-composer { grid-template-columns:minmax(0,1fr); } .ann-preview-panel { position:static; } }
+        @media(max-width:640px) { .ann-create-head { padding:18px; } .ann-create-body { padding:16px; } .ann-category-grid, .ann-form-grid, .ann-recruitment-grid { grid-template-columns:minmax(0,1fr); } .ann-field-span { grid-column:auto; } .ann-panel { padding:14px; } #ann-location-map { height:210px; } .ann-create-actions { justify-content:stretch; } .ann-create-actions button { flex:1; } }
     </style>
 
     @if(session('status'))
@@ -102,7 +133,7 @@
             <div>
                 <div class="ann-create-eyebrow">Organization updates</div>
                 <h3 class="ann-create-title">Create an announcement</h3>
-                <p class="ann-create-intro">Choose the kind of message you want to share. You can save it as a draft before publishing.</p>
+                <p class="ann-create-intro">Share an opportunity, reminder, or update with the community.</p>
             </div>
         </div>
         <form action="{{ route('student_org.announcements.store') }}" method="POST" enctype="multipart/form-data"
@@ -114,21 +145,25 @@
               data-confirm-cancel="Keep editing">
             @csrf
             <div class="ann-create-body">
-                <fieldset style="border:0; margin:0; padding:0">
-                    <legend class="ann-category-label">What are you announcing?</legend>
+                <div class="ann-composer">
+                    <div class="ann-composer-form">
+                <fieldset class="ann-category-section">
+                    <legend class="ann-category-label">Announcement type <span style="color:#b91c1c">*</span></legend>
                     <div class="ann-category-grid">
                         <label class="ann-category-card">
                             <input class="ann-category-radio" type="radio" name="category" value="Volunteer recruitment" required data-confirm-ignore @checked($selectedCategory === 'Volunteer recruitment')>
+                            <span class="ann-category-mark" aria-hidden="true"><svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M8 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm8 1a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5ZM3.5 19a4.5 4.5 0 0 1 9 0v1h-9v-1Zm9.5 1v-.5a4 4 0 0 1 7.4-2.1c.38.64.6 1.38.6 2.1v.5h-8Z" fill="currentColor"/></svg></span>
                             <span>
                                 <span class="ann-category-name">Volunteer recruitment</span>
-                                <span class="ann-category-desc">Invite participants to apply for an approved activity. Includes volunteer capacity and application details.</span>
+                                <span class="ann-category-desc">Invite participants to apply for an approved activity.</span>
                             </span>
                         </label>
                         <label class="ann-category-card">
                             <input class="ann-category-radio" type="radio" name="category" value="General" required data-confirm-ignore @checked($selectedCategory === 'General')>
+                            <span class="ann-category-mark" aria-hidden="true"><svg width="17" height="17" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8.5" stroke="currentColor" stroke-width="2"/><path d="M12 10.5v5m0-8h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span>
                             <span>
                                 <span class="ann-category-name">General announcement</span>
-                                <span class="ann-category-desc">Share news, reminders, or updates. No recruitment form or map is required.</span>
+                                <span class="ann-category-desc">Share news, reminders, or updates with no application required.</span>
                             </span>
                         </label>
                     </div>
@@ -140,7 +175,13 @@
                     <span id="announcement-category-hint"></span>
                 </div>
 
-                <div class="ann-create-field" data-category-fields="linked-activity">
+                <section class="ann-panel" aria-labelledby="announcement-details-heading">
+                    <div class="ann-panel-heading">
+                        <span class="ann-panel-icon" aria-hidden="true"><svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M7 3.75h7l4 4v12.5H7a2 2 0 0 1-2-2v-12.5a2 2 0 0 1 2-2Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M14 4v4h4M8.5 12h7m-7 3.5h5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></span>
+                        <div><h4 class="ann-panel-title" id="announcement-details-heading">Announcement details</h4><p class="ann-panel-copy">Give participants the essential information.</p></div>
+                    </div>
+                    <div class="ann-form-grid">
+                <div class="ann-create-field ann-field-span" data-category-fields="linked-activity">
                     <label class="ann-form-label" for="announcement-project">Link an approved activity <span style="font-weight:500; color:#74857d">(optional for general announcements)</span></label>
                     <select id="announcement-project" name="project_id">
                         <option value="">No linked activity</option>
@@ -165,66 +206,108 @@
                 <div class="ann-create-field">
                     <label class="ann-form-label" for="announcement-description">Description</label>
                     <textarea id="announcement-description" name="description" rows="4" maxlength="300" placeholder="Add the details participants need to know">{{ old('description') }}</textarea>
-                    <div class="ann-create-help">Up to 300 characters.</div>
+                    <div class="ann-description-meta"><span>Keep it clear and participant-friendly.</span><span id="announcement-description-count">0 / 300</span></div>
                     @error('description')<div role="alert" style="color:#b91c1c; font-size:.88rem; margin-top:6px">{{ $message }}</div>@enderror
                 </div>
 
+                    </div>
+                </section>
+
+                <section class="ann-panel ann-event-panel" data-category-fields="recruitment" aria-labelledby="announcement-event-heading">
+                    <div class="ann-panel-heading">
+                        <span class="ann-panel-icon" aria-hidden="true"><svg width="17" height="17" viewBox="0 0 24 24" fill="none"><rect x="4" y="5.5" width="16" height="14" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="M8 3.5v4M16 3.5v4M4 10h16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></span>
+                        <div><h4 class="ann-panel-title" id="announcement-event-heading">Event information</h4><p class="ann-panel-copy">Help volunteers know when and where to join.</p></div>
+                    </div>
                 <div data-category-fields="recruitment" class="ann-recruitment-grid">
                     <div>
-                        <label for="announcement-slots-needed" style="display:block; font-weight:700; margin-bottom:8px">Volunteers needed <span style="color:#b91c1c">*</span></label>
-                        <input id="announcement-slots-needed" type="number" name="slots_needed" min="1" step="1" value="{{ old('slots_needed') }}" style="width:100%; padding:14px; border:1px solid #d1d5db; border-radius:12px;" />
-                        <div style="color:#52665d; font-size:0.88rem; margin-top:6px">Enter the number of volunteers your activity needs.</div>
+                        <label class="ann-form-label" for="announcement-slots-needed">Volunteers needed <span style="color:#b91c1c">*</span></label>
+                        <input id="announcement-slots-needed" type="number" name="slots_needed" min="1" step="1" value="{{ old('slots_needed') }}" placeholder="e.g. 30" />
+                        <div class="ann-create-help">Number of volunteer slots.</div>
                         @error('slots_needed')<div style="color:#b91c1c; font-size:0.92rem; margin-top:6px">{{ $message }}</div>@enderror
                     </div>
                     <div>
-                        <label for="announcement-application-deadline" style="display:block; font-weight:700; margin-bottom:8px">Application deadline</label>
-                        <input id="announcement-application-deadline" type="datetime-local" name="application_deadline" min="{{ now('Asia/Manila')->format('Y-m-d\TH:i') }}" max="{{ now('Asia/Manila')->addYear()->startOfMinute()->format('Y-m-d\TH:i') }}" value="{{ old('application_deadline') }}" style="width:100%; padding:14px; border:1px solid #d1d5db; border-radius:12px;" />
-                        <div style="color:#52665d; font-size:0.92rem; margin-top:6px">Choose the date and time applications close. Leave blank for no deadline.</div>
+                        <label class="ann-form-label" for="announcement-application-deadline">Application deadline</label>
+                        <input id="announcement-application-deadline" type="datetime-local" name="application_deadline" min="{{ now('Asia/Manila')->format('Y-m-d\TH:i') }}" max="{{ now('Asia/Manila')->addYear()->startOfMinute()->format('Y-m-d\TH:i') }}" value="{{ old('application_deadline') }}" />
+                        <div class="ann-create-help">Leave blank for no deadline.</div>
                         @error('application_deadline')<div style="color:#b91c1c; font-size:0.92rem; margin-top:6px">{{ $message }}</div>@enderror
                     </div>
                 </div>
 
-                <div data-category-fields="recruitment">
-                    <label style="display:block; font-weight:700; margin-bottom:8px">Event date &amp; time <span style="font-weight:400; color:#5b7067">(optional)</span></label>
-                    <input type="datetime-local" name="event_date" min="{{ now('Asia/Manila')->format('Y-m-d\TH:i') }}" value="{{ old('event_date') }}" style="width:100%; padding:14px; border:1px solid #d1d5db; border-radius:12px;" />
+                <div class="ann-event-field" data-category-fields="recruitment">
+                    <label class="ann-form-label" for="announcement-event-date">Event date &amp; time <span style="font-weight:500; color:#74857d">(optional)</span></label>
+                    <input id="announcement-event-date" type="datetime-local" name="event_date" min="{{ now('Asia/Manila')->format('Y-m-d\TH:i') }}" value="{{ old('event_date') }}" />
                     @error('event_date')<div style="color:#b91c1c; font-size:0.92rem; margin-top:6px">{{ $message }}</div>@enderror
                 </div>
 
-                <div data-category-fields="recruitment">
-                    <label style="display:block; font-weight:700; margin-bottom:8px">Event location <span style="font-weight:400; color:#5b7067">(optional)</span></label>
+                <div class="ann-event-field" data-category-fields="recruitment">
+                    <label class="ann-form-label" for="ann-map-search">Event location <span style="font-weight:500; color:#74857d">(optional)</span></label>
                     <div class="ann-map-search-wrap">
-                        <input type="text" id="ann-map-search" name="loc_q_{{ Str::random(8) }}" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search for a venue, building, or address..." style="width:100%; padding:14px; border:1px solid #d1d5db; border-radius:12px;" />
+                        <input type="text" id="ann-map-search" name="loc_q_{{ Str::random(8) }}" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search for a venue, building, or address..." />
                         <div id="ann-map-search-results" class="ann-map-search-results"></div>
                     </div>
-                    <input type="text" id="event_location" name="event_location" value="{{ old('event_location') }}" placeholder="e.g. Barangay Poblacion Gymnasium" style="width:100%; padding:14px; border:1px solid #d1d5db; border-radius:12px; margin-top:10px;" />
+                    <input type="text" id="event_location" name="event_location" value="{{ old('event_location') }}" placeholder="e.g. Barangay Poblacion Gymnasium" style="margin-top:8px;" />
                     <div id="ann-location-map"></div>
                     <button type="button" id="ann-use-my-location" class="ann-locate-btn">Use my current location</button>
                     <input type="hidden" id="latitude" name="latitude" value="{{ old('latitude') }}">
                     <input type="hidden" id="longitude" name="longitude" value="{{ old('longitude') }}">
-                    <div style="color:#52665d; font-size:0.92rem; margin-top:6px">Search or click the map to pin the exact activity location.</div>
+                    <div class="ann-create-help">Click the map or choose a search result to pin the exact activity location.</div>
                     @error('event_location')<div style="color:#b91c1c; font-size:0.92rem; margin-top:6px">{{ $message }}</div>@enderror
                 </div>
 
-                <div>
-                    <label style="display:block; font-weight:700; margin-bottom:8px">Attachments</label>
-                    <input id="announcement-attachments" type="file" name="attachments[]" multiple accept="image/jpeg,image/png,application/pdf" style="width:100%;" />
-                    <div style="margin-top:10px; color:#52665d; font-size:0.95rem;">You may upload up to 5 files. JPG, PNG, PDF only. Max 5MB each.</div>
-                    <div id="announcement-attachment-error" role="alert" style="display:none; margin-top:8px; color:#b91c1c; font-size:.9rem;"></div>
-                    @error('attachments')<div role="alert" style="margin-top:8px; color:#b91c1c; font-size:.9rem">{{ $message }}</div>@enderror
+                </section>
+
+                <section class="ann-panel" aria-labelledby="announcement-attachments-heading">
+                    <div class="ann-panel-heading">
+                        <span class="ann-panel-icon" aria-hidden="true"><svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M8.5 12.5 14 7a3.54 3.54 0 0 1 5 5l-7.5 7.5a5 5 0 0 1-7-7L12 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                        <div><h4 class="ann-panel-title" id="announcement-attachments-heading">Attachments</h4><p class="ann-panel-copy">Add a guide, poster, or supporting document.</p></div>
+                    </div>
+                    <div>
+                    <label class="ann-upload-dropzone" for="announcement-attachments">
+                        <span class="ann-upload-icon" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 16V4m0 0L7.5 8.5M12 4l4.5 4.5M5 14.5v3A2.5 2.5 0 0 0 7.5 20h9a2.5 2.5 0 0 0 2.5-2.5v-3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                        <span><strong>Drag and drop files here, or click to browse</strong><small>JPG, PNG, or PDF. Up to 5 files, 5MB each.</small></span>
+                    </label>
+                    <input id="announcement-attachments" type="file" name="attachments[]" multiple accept="image/jpeg,image/png,application/pdf" hidden />
+                    <div id="announcement-attachment-error" role="alert" style="display:none; margin-top:7px; color:#b91c1c; font-size:.8rem;"></div>
+                    @error('attachments')<div role="alert" style="margin-top:7px; color:#b91c1c; font-size:.8rem">{{ $message }}</div>@enderror
                     @foreach($errors->getMessages() as $field => $messages)
                         @if(str_starts_with($field, 'attachments.'))
                             @foreach($messages as $message)
-                                <div role="alert" style="margin-top:8px; color:#b91c1c; font-size:.9rem">{{ $message }}</div>
+                                <div role="alert" style="margin-top:7px; color:#b91c1c; font-size:.8rem">{{ $message }}</div>
                             @endforeach
                         @endif
                     @endforeach
                     <div id="announcement-attachment-list" class="ann-upload-list" style="display:none"></div>
-                </div>
+                    </div>
+                </section>
 
                 <div class="ann-form-divider"></div>
                 <div class="ann-create-actions">
                     <button type="submit" name="status" value="draft" style="padding:14px 22px; border-radius:12px; background:#f8fafc; color:#0b2a2a; border:1px solid #e2e8f0; font-weight:700;">Save draft</button>
-                    <button type="submit" name="status" value="published" style="padding:14px 22px; border-radius:12px; background:#16a34a; color:#ffffff; border:none; font-weight:700;">Publish</button>
+                    <button type="submit" name="status" value="published" style="padding:14px 22px; border-radius:12px; background:#16a34a; color:#ffffff; border:none; font-weight:700;">Publish announcement</button>
+                </div>
+
+                    </div>
+
+                    <aside class="ann-preview-panel" aria-label="Announcement preview">
+                        <div class="ann-preview-head"><span class="ann-preview-kicker">Live preview</span><span class="ann-preview-status">Draft preview</span></div>
+                        <div class="ann-preview-card">
+                            <img id="announcement-preview-media" class="ann-preview-media" alt="Selected announcement image preview">
+                            <div class="ann-preview-card-body">
+                                <span id="announcement-preview-badge" class="ann-preview-badge">Volunteer recruitment</span>
+                                <h4 id="announcement-preview-title" class="ann-preview-title">Your announcement title</h4>
+                                <div class="ann-preview-meta"><span>ProjectLink organization</span><span id="announcement-preview-project" hidden></span></div>
+                                <p id="announcement-preview-description" class="ann-preview-description">Your announcement description will appear here.</p>
+                                <div id="announcement-preview-facts" class="ann-preview-facts">
+                                    <div class="ann-preview-fact"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M8 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm8 1a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5ZM3.5 19a4.5 4.5 0 0 1 9 0v1h-9v-1Zm9.5 1v-.5a4 4 0 0 1 7.4-2.1c.38.64.6 1.38.6 2.1v.5h-8Z" fill="currentColor"/></svg><span id="announcement-preview-slots">Volunteers needed: Not set</span></div>
+                                    <div class="ann-preview-fact"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><rect x="4" y="5.5" width="16" height="14" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="M8 3.5v4M16 3.5v4M4 10h16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><span id="announcement-preview-deadline">Application deadline: No deadline</span></div>
+                                    <div class="ann-preview-fact"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8.5" stroke="currentColor" stroke-width="1.8"/><path d="M12 7.5V12l3 2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><span id="announcement-preview-event">Event date: To be announced</span></div>
+                                    <div class="ann-preview-fact"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M19 10.5c0 4.5-7 10-7 10s-7-5.5-7-10a7 7 0 1 1 14 0Z" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="10.5" r="2.2" stroke="currentColor" stroke-width="1.8"/></svg><span id="announcement-preview-location">Location: To be announced</span></div>
+                                </div>
+                                <div id="announcement-preview-files" class="ann-preview-files" hidden></div>
+                                <div id="announcement-preview-placeholder" class="ann-preview-placeholder">Your finished announcement will be shown to participants in this format.</div>
+                            </div>
+                        </div>
+                    </aside>
                 </div>
             </div>
         </form>
@@ -337,7 +420,8 @@
             const input = document.getElementById('announcement-attachments');
             const list = document.getElementById('announcement-attachment-list');
             const error = document.getElementById('announcement-attachment-error');
-            if (!input || !list || !error) return;
+            const dropzone = document.querySelector('.ann-upload-dropzone');
+            if (!input || !list || !error || !dropzone) return;
 
             const maxFiles = 5;
             const maxBytes = 5 * 1024 * 1024;
@@ -386,14 +470,14 @@
                         selectedFiles.splice(index, 1);
                         syncInput();
                         render();
+                        input.dispatchEvent(new Event('input', { bubbles: true }));
                     });
                     row.appendChild(remove);
                     list.appendChild(row);
                 });
             };
 
-            input.addEventListener('change', () => {
-                const incoming = Array.from(input.files);
+            const appendFiles = (incoming) => {
                 const duplicate = incoming.some((file) => selectedFiles.some((selected) =>
                     selected.name === file.name
                     && selected.size === file.size
@@ -418,7 +502,118 @@
 
                 syncInput();
                 render();
+            };
+
+            input.addEventListener('change', () => appendFiles(Array.from(input.files)));
+            ['dragenter', 'dragover'].forEach((eventName) => {
+                dropzone.addEventListener(eventName, (event) => {
+                    event.preventDefault();
+                    dropzone.classList.add('is-dragging');
+                });
             });
+            ['dragleave', 'drop'].forEach((eventName) => {
+                dropzone.addEventListener(eventName, (event) => {
+                    event.preventDefault();
+                    dropzone.classList.remove('is-dragging');
+                });
+            });
+            dropzone.addEventListener('drop', (event) => {
+                appendFiles(Array.from(event.dataTransfer?.files || []));
+                input.dispatchEvent(new Event('input', { bubbles: true }));
+            });
+        });
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const categoryInputs = document.querySelectorAll('input[name="category"]');
+            const titleInput = document.getElementById('announcement-title');
+            const descriptionInput = document.getElementById('announcement-description');
+            const descriptionCount = document.getElementById('announcement-description-count');
+            const projectInput = document.getElementById('announcement-project');
+            const slotsInput = document.getElementById('announcement-slots-needed');
+            const deadlineInput = document.getElementById('announcement-application-deadline');
+            const eventInput = document.getElementById('announcement-event-date');
+            const locationInput = document.getElementById('event_location');
+            const attachmentInput = document.getElementById('announcement-attachments');
+            const previewTitle = document.getElementById('announcement-preview-title');
+            const previewBadge = document.getElementById('announcement-preview-badge');
+            const previewProject = document.getElementById('announcement-preview-project');
+            const previewDescription = document.getElementById('announcement-preview-description');
+            const previewFacts = document.getElementById('announcement-preview-facts');
+            const previewSlots = document.getElementById('announcement-preview-slots');
+            const previewDeadline = document.getElementById('announcement-preview-deadline');
+            const previewEvent = document.getElementById('announcement-preview-event');
+            const previewLocation = document.getElementById('announcement-preview-location');
+            const previewFiles = document.getElementById('announcement-preview-files');
+            const previewMedia = document.getElementById('announcement-preview-media');
+            const previewPlaceholder = document.getElementById('announcement-preview-placeholder');
+
+            if (!categoryInputs.length || !titleInput || !descriptionInput || !projectInput || !previewTitle) return;
+
+            let previewMediaUrl = null;
+            const formatDate = (value, label, fallback) => {
+                if (!value) return `${label}: ${fallback}`;
+                const date = new Date(value);
+                if (Number.isNaN(date.getTime())) return `${label}: ${value}`;
+                return `${label}: ${date.toLocaleString([], { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' })}`;
+            };
+
+            const syncPreview = () => {
+                const isRecruitment = document.querySelector('input[name="category"]:checked')?.value === 'Volunteer recruitment';
+                const title = titleInput.value.trim();
+                const description = descriptionInput.value.trim();
+                const selectedProject = projectInput.value
+                    ? projectInput.options[projectInput.selectedIndex].textContent.trim().replace(/\s+/g, ' ')
+                    : '';
+                const files = attachmentInput ? Array.from(attachmentInput.files || []) : [];
+
+                previewBadge.textContent = isRecruitment ? 'Volunteer recruitment' : 'General announcement';
+                previewTitle.textContent = title || 'Your announcement title';
+                previewDescription.textContent = description || 'Your announcement description will appear here.';
+                previewProject.textContent = selectedProject ? `Linked activity: ${selectedProject}` : '';
+                previewProject.hidden = !selectedProject;
+                previewFacts.hidden = !isRecruitment;
+                if (descriptionCount) descriptionCount.textContent = `${descriptionInput.value.length} / 300`;
+
+                if (isRecruitment) {
+                    previewSlots.textContent = `Volunteers needed: ${slotsInput?.value || 'Not set'}`;
+                    previewDeadline.textContent = formatDate(deadlineInput?.value, 'Application deadline', 'No deadline');
+                    previewEvent.textContent = formatDate(eventInput?.value, 'Event date', 'To be announced');
+                    previewLocation.textContent = `Location: ${locationInput?.value.trim() || 'To be announced'}`;
+                }
+
+                previewFiles.replaceChildren();
+                previewFiles.hidden = files.length === 0;
+                files.forEach((file) => {
+                    const item = document.createElement('div');
+                    item.className = 'ann-preview-file';
+                    item.textContent = file.name;
+                    previewFiles.appendChild(item);
+                });
+
+                if (previewMediaUrl) URL.revokeObjectURL(previewMediaUrl);
+                const imageFile = files.find((file) => file.type.startsWith('image/'));
+                if (imageFile) {
+                    previewMediaUrl = URL.createObjectURL(imageFile);
+                    previewMedia.src = previewMediaUrl;
+                    previewMedia.classList.add('is-visible');
+                } else {
+                    previewMediaUrl = null;
+                    previewMedia.removeAttribute('src');
+                    previewMedia.classList.remove('is-visible');
+                }
+
+                previewPlaceholder.hidden = Boolean(title || description || files.length);
+            };
+
+            [titleInput, descriptionInput, projectInput, slotsInput, deadlineInput, eventInput, locationInput, attachmentInput]
+                .filter(Boolean)
+                .forEach((element) => element.addEventListener('input', syncPreview));
+            [projectInput, slotsInput, deadlineInput, eventInput, locationInput, attachmentInput]
+                .filter(Boolean)
+                .forEach((element) => element.addEventListener('change', syncPreview));
+            categoryInputs.forEach((input) => input.addEventListener('change', syncPreview));
+            syncPreview();
         });
     </script>
     <script>
