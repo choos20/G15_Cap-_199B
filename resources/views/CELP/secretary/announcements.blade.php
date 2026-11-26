@@ -152,8 +152,8 @@
             const attachmentError = document.getElementById('ann-attachment-error');
             const selectedFiles = [];
 
-            const iconMap = { pdf: '📄', png: '🖼️', jpg: '🖼️', jpeg: '🖼️' };
-            const getFileIcon = (name) => iconMap[name.split('.').pop().toLowerCase()] || '📎';
+            const pdfIconAsset = @json(asset('images/document-icons/pdf.png'));
+            const getFileExtension = (name) => name.split('.').pop().toLowerCase();
 
             const updateInputFiles = (files) => {
                 const dt = new DataTransfer();
@@ -189,7 +189,18 @@
 
                     const icon = document.createElement('div');
                     icon.className = 'ann-attachment-icon';
-                    icon.textContent = getFileIcon(file.name);
+                    if (getFileExtension(file.name) === 'pdf') {
+                        const iconImage = document.createElement('img');
+                        iconImage.src = pdfIconAsset;
+                        iconImage.alt = 'PDF document';
+                        iconImage.width = 42;
+                        iconImage.height = 42;
+                        iconImage.style.cssText = 'display:block;width:42px;height:42px;object-fit:contain;';
+                        icon.appendChild(iconImage);
+                    } else {
+                        icon.textContent = 'IMG';
+                        icon.setAttribute('aria-label', 'Image attachment');
+                    }
 
                     const info = document.createElement('div');
                     info.className = 'ann-attachment-info';

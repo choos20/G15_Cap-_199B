@@ -31,7 +31,7 @@
                 <div style="display:grid; grid-template-columns:minmax(0,1fr); gap:10px">
                     @foreach($project->attachments as $attachment)
                         <a href="{{ asset('storage/'.$attachment->file_path) }}" target="_blank" rel="noopener" style="display:flex; align-items:center; gap:14px; padding:14px 16px; border-radius:14px; border:1px solid #e5e7eb; background:#ffffff; text-decoration:none; color:inherit">
-                            <div style="width:42px; height:42px; border-radius:12px; background:#eef2ff; color:#4338ca; display:flex; align-items:center; justify-content:center; font-size:1.1rem; flex-shrink:0;">📄</div>
+                            <x-document-type-icon :file-name="$attachment->file_name" :size="48" />
                             <div style="flex:1; min-width:0">
                                 <div style="font-weight:600; color:#0f172a; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">{{ $attachment->file_name }}</div>
                                 <div style="font-size:0.85rem; color:#52665d;">{{ strtoupper(pathinfo($attachment->file_name, PATHINFO_EXTENSION)) }} · {{ number_format($attachment->file_size / 1024 / 1024, 2) }} MB</div>

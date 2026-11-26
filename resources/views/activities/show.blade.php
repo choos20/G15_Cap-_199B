@@ -105,7 +105,7 @@
                     @foreach($announcement->attachments as $attachment)
                         <a href="{{ asset('storage/'.$attachment->file_path) }}" target="_blank" rel="noopener"
                            style="display:flex; align-items:center; gap:14px; padding:12px 16px; border-radius:14px; border:1px solid #e5e7eb; background:#fff; text-decoration:none; color:inherit">
-                            <div style="width:38px; height:38px; border-radius:10px; background:#eef2ff; color:#4338ca; display:flex; align-items:center; justify-content:center;">📄</div>
+                            <x-document-type-icon :file-name="$attachment->original_name" :size="44" />
                             <div style="font-weight:600; color:#0f172a">{{ $attachment->original_name }}</div>
                         </a>
                     @endforeach

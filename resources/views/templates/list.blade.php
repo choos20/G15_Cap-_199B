@@ -86,7 +86,9 @@
                 @endphp
                 <div class="tpl-row">
                     <div style="display:flex; align-items:center; gap:14px; flex:1; min-width:min(260px,100%)">
-                        <div class="tpl-row-icon">{{ $ext === 'PDF' ? '📄' : '📝' }}</div>
+                        <div class="tpl-row-icon" aria-hidden="true">
+                            <x-document-type-icon :file-name="$t->original_name" :size="42" />
+                        </div>
                         <div style="min-width:0">
                             <div style="display:flex; align-items:center; gap:9px; flex-wrap:wrap">
                                 <span style="font-weight:700; color:#0f172a">{{ $t->original_name }}</span>

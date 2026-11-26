@@ -105,11 +105,11 @@
                 <div><div class="tpl-summary-value">{{ $templateCount }}</div><div class="tpl-summary-label">Total templates</div></div>
             </div>
             <div class="tpl-summary-card">
-                <span class="tpl-summary-icon" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M7 3h8l4 4v14H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M14 3v5h5M9 13h6m-6 3h6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></span>
+                <span class="tpl-summary-icon" aria-hidden="true"><x-document-type-icon file-name="summary.pdf" :size="40" /></span>
                 <div><div class="tpl-summary-value">{{ $pdfCount }}</div><div class="tpl-summary-label">PDF files</div></div>
             </div>
             <div class="tpl-summary-card">
-                <span class="tpl-summary-icon" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M7 3h8l4 4v14H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M14 3v5h5M9 13h6m-6 3h6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></span>
+                <span class="tpl-summary-icon" aria-hidden="true"><x-document-type-icon file-name="summary.docx" :size="40" /></span>
                 <div><div class="tpl-summary-value">{{ $wordCount }}</div><div class="tpl-summary-label">Word documents</div></div>
             </div>
         </section>
@@ -130,7 +130,7 @@
                     </div>
                 </div>
                 <div id="tpl-selected-file" class="tpl-selected-file">
-                    <div class="tpl-selected-icon" id="tpl-selected-icon" aria-hidden="true">DOC</div>
+                    <div class="tpl-selected-icon" id="tpl-selected-icon" aria-hidden="true"></div>
                     <div class="tpl-selected-info"><strong id="tpl-selected-name"></strong><span id="tpl-selected-size"></span></div>
                     <button type="button" class="tpl-selected-remove" id="tpl-selected-remove">Remove</button>
                 </div>
@@ -170,7 +170,7 @@
                         <div class="tpl-row" data-template-row data-source="{{ $sourceValue }}" data-search="{{ $searchValue }}">
                             <div class="tpl-row-main">
                                 <div class="tpl-row-icon {{ $ext === 'PDF' ? '' : 'is-word' }}" aria-hidden="true">
-                                    <svg width="19" height="19" viewBox="0 0 24 24" fill="none"><path d="M7 3h8l4 4v14H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M14 3v5h5M9 13h6m-6 3h6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+                                    <x-document-type-icon :file-name="$t->original_name" :size="40" />
                                 </div>
                                 <div style="min-width:0">
                                     <div class="tpl-row-title">{{ $t->original_name }}</div>
@@ -243,10 +243,23 @@
             searchInput.addEventListener('input', filterRows);
             sourceFilter.addEventListener('change', filterRows);
 
-            const iconFor = (name) => name.split('.').pop().toLowerCase() === 'pdf' ? 'PDF' : 'DOC';
+            const documentIconAssets = {
+                pdf: @json(asset('images/document-icons/pdf.png')),
+                word: @json(asset('images/document-icons/word.png')),
+            };
+
+            const iconFor = (name) => name.split('.').pop().toLowerCase() === 'pdf' ? 'pdf' : 'word';
 
             const showFile = (file) => {
-                selectedIcon.textContent = iconFor(file.name);
+                const iconType = iconFor(file.name);
+                selectedIcon.innerHTML = '';
+                const iconImage = document.createElement('img');
+                iconImage.src = documentIconAssets[iconType];
+                iconImage.alt = iconType === 'pdf' ? 'PDF document' : 'Word document';
+                iconImage.width = 42;
+                iconImage.height = 42;
+                iconImage.style.cssText = 'display:block;width:42px;height:42px;object-fit:contain;';
+                selectedIcon.appendChild(iconImage);
                 selectedName.textContent = file.name;
                 selectedSize.textContent = `${(file.size / 1024 / 1024).toFixed(2)} MB`;
                 selectedFile.style.display = 'flex';
