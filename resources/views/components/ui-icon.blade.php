@@ -23,6 +23,8 @@
         @case('archive') <path d="M4 7h16v13H4z"/><path d="M3 4h18v3H3zM9 11h6"/> @break
         @case('building') <path d="M3 21h18M5 21V4h10v17m0-11h4v11M8 8h3m-3 4h3m-3 4h3"/> @break
         @case('file') <path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9Zm0 0v6h6M8 13h8m-8 4h5"/> @break
+        @case('eye') <path d="M2.5 12s3.5-5.5 9.5-5.5 9.5 5.5 9.5 5.5-3.5 5.5-9.5 5.5S2.5 12 2.5 12Z"/><circle cx="12" cy="12" r="2.5"/> @break
+        @case('download') <path d="M12 3v11m0 0 4-4m-4 4-4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/> @break
         @case('home') <path d="m3 10 9-7 9 7v10H3Zm6 10v-7h6v7"/> @break
         @case('settings') <circle cx="12" cy="12" r="3"/><path d="m9 3-.7 2.3-2.4.5L4 9l1.6 1.8v2.4L4 15l1.9 3.2 2.4.5L9 21h6l.7-2.3 2.4-.5L20 15l-1.6-1.8v-2.4L20 9l-1.9-3.2-2.4-.5L15 3Z"/> @break
         @default <circle cx="12" cy="12" r="9"/><path d="M12 8v4m0 4h.01"/>

@@ -67,8 +67,11 @@
         .tpl-source-unknown { background:#f1f5f9; color:#52665d; }
         .tpl-actions { display:flex; flex-wrap:wrap; align-items:center; gap:8px; }
         .tpl-download-btn, .tpl-replace-btn, .tpl-remove-btn { display:inline-flex; align-items:center; justify-content:center; padding:8px 11px; border-radius:8px; font:inherit; font-size:0.8rem; font-weight:700; text-decoration:none; cursor:pointer; }
-        .tpl-download-btn { border:1px solid #cce8d8; background:#eef8f2; color:#08734e; }
-        .tpl-download-btn:hover { background:#e1f2e8; }
+        .tpl-preview-btn, .tpl-download-btn { display:inline-flex; align-items:center; justify-content:center; gap:8px; min-width:124px; min-height:42px; padding:0 14px; border-radius:10px; font:inherit; font-size:0.9rem; font-weight:700; line-height:1; white-space:nowrap; }
+        .tpl-preview-btn { border:1px solid #087c5b; background:#fff; color:#087c5b; }
+        .tpl-preview-btn:hover { background:#ecfdf5; }
+        .tpl-download-btn { border:1px solid #087c5b; background:#087c5b; color:#fff; }
+        .tpl-download-btn:hover { background:#066348; border-color:#066348; color:#fff; }
         .tpl-replace-btn { border:1px solid #dce4e8; background:#fff; color:#334155; }
         .tpl-replace-btn:hover { border-color:#cbd5e1; background:#f8fafc; }
         .tpl-remove-btn { border:1px solid #fecaca; background:#fff; color:#b91c1c; }
@@ -88,7 +91,7 @@
             .tpl-row { align-items:flex-start; }
             .tpl-row-main { min-width:0; }
             .tpl-actions { width:100%; }
-            .tpl-download-btn, .tpl-replace-btn, .tpl-remove-btn { flex:1; }
+            .tpl-preview-btn, .tpl-download-btn, .tpl-replace-btn, .tpl-remove-btn { flex:1; min-width:0; }
         }
     </style>
 
@@ -182,7 +185,14 @@
                                 </div>
                             </div>
                             <div class="tpl-actions">
-                                <a href="{{ route('templates.download', $t->id) }}" class="tpl-download-btn">Download</a>
+                                <a href="{{ route('templates.preview', $t->id) }}" class="tpl-preview-btn" target="_blank" rel="noopener">
+                                    <x-ui-icon name="eye" :size="18" />
+                                    <span>Preview</span>
+                                </a>
+                                <a href="{{ route('templates.download', $t->id) }}" class="tpl-download-btn">
+                                    <x-ui-icon name="download" :size="18" />
+                                    <span>Download</span>
+                                </a>
                                 @if($t->canBeManagedBy(auth()->user()))
                                     <form method="POST" action="{{ route('templates.replace', $t->id) }}" enctype="multipart/form-data" style="margin:0" id="tpl-replace-{{ $t->id }}">
                                         @csrf

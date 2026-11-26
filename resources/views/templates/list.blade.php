@@ -25,9 +25,14 @@
         .tpl-source-celp { background:#eaf3ff; color:#2456a6; }
         .tpl-source-csa { background:#e7f8ef; color:#08734e; }
         .tpl-source-unknown { background:#f1f5f9; color:#52665d; }
-        .tpl-download-btn { color:#0b6a4a; text-decoration:none; font-weight:700; padding:10px 16px;
-                            border-radius:10px; background:#ecfdf5; border:1px solid #a7f3d0; }
-        .tpl-download-btn:hover { background:#d1fae5; }
+        .tpl-actions { display:flex; align-items:center; justify-content:flex-end; flex-wrap:wrap; gap:10px; }
+        .tpl-preview-btn, .tpl-download-btn { display:inline-flex; align-items:center; justify-content:center; gap:8px;
+                            min-width:124px; min-height:42px; padding:0 14px; border-radius:10px; font:inherit;
+                            font-size:0.9rem; font-weight:700; line-height:1; text-decoration:none; white-space:nowrap; }
+        .tpl-preview-btn { color:#087c5b; background:#fff; border:1px solid #087c5b; }
+        .tpl-preview-btn:hover { background:#ecfdf5; }
+        .tpl-download-btn { color:#fff; background:#087c5b; border:1px solid #087c5b; }
+        .tpl-download-btn:hover { color:#fff; background:#066348; border-color:#066348; }
         .tpl-empty { padding:48px; text-align:center; color:#52665d; }
         .tpl-toolbar { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:16px; }
         .tpl-search, .tpl-office { display:flex; align-items:center; gap:9px; background:#fff; border:1px solid #e2e8f0; border-radius:999px; padding:10px 14px; color:#52665d; }
@@ -99,7 +104,16 @@
                             </div>
                         </div>
                     </div>
-                    <a href="{{ route('templates.download', $t->id) }}" class="tpl-download-btn">Download</a>
+                    <div class="tpl-actions">
+                        <a href="{{ route('templates.preview', $t->id) }}" class="tpl-preview-btn" target="_blank" rel="noopener">
+                            <x-ui-icon name="eye" :size="18" />
+                            <span>Preview</span>
+                        </a>
+                        <a href="{{ route('templates.download', $t->id) }}" class="tpl-download-btn">
+                            <x-ui-icon name="download" :size="18" />
+                            <span>Download</span>
+                        </a>
+                    </div>
                 </div>
             @endforeach
         </div>

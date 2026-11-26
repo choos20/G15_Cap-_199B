@@ -181,6 +181,44 @@ class TemplateController extends Controller
         return redirect()->route('templates.manage')->with('status', 'Template removed successfully.');
     }
 
+    /** Preview PDFs inline; Word files receive a branded download guidance page. */
+    public function preview(Request $request, Template $template)
+    {
+        $extension = strtolower(pathinfo($template->original_name, PATHINFO_EXTENSION));
+
+        if ($extension !== 'pdf') {
+            return view('templates.preview', [
+                'template' => $template,
+                'extension' => strtoupper($extension ?: 'FILE'),
+            ]);
+        }
+
+        $headers = [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'inline; filename="'.$this->safeFileName($template->original_name).'"',
+            'Cache-Control' => 'private, max-age=0, must-revalidate',
+        ];
+
+        $data = $this->templateContents($template);
+        if ($data !== null) {
+            return response($data, 200, $headers);
+        }
+
+        if (! $template->file_path || ! Storage::disk('public')->exists($template->file_path)) {
+            abort(404);
+        }
+
+        $stream = Storage::disk('public')->readStream($template->file_path);
+        if (! is_resource($stream)) {
+            abort(404);
+        }
+
+        return response()->stream(function () use ($stream): void {
+            fpassthru($stream);
+            fclose($stream);
+        }, 200, $headers);
+    }
+
     /** Downloading is open to every authenticated user. */
     public function download(Request $request, Template $template)
     {
@@ -208,6 +246,11 @@ class TemplateController extends Controller
         }
 
         return Storage::disk('public')->download($template->file_path, $template->original_name);
+    }
+
+    private function safeFileName(string $fileName): string
+    {
+        return str_replace(["\r", "\n", '"'], '', basename($fileName));
     }
 
     private function ensureFileDataColumns(): bool
