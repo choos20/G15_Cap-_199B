@@ -13,7 +13,7 @@
         :root{--sidebar:#0b2926;--sidebar-deep:#08211f;--accent:#13b886;--muted:#334155;--text-secondary:#334155;--text-muted:#475569;--card:#ffffff;--text:#16352d}
         *{box-sizing:border-box}
         html{min-width:0; overflow-x:hidden}
-        body{font-family:Inter,system-ui,Segoe UI,Roboto,Arial; margin:0; background:#f6f7fb; color:var(--text); font-size:16px; line-height:1.55; min-width:0; overflow-x:hidden}
+        body{font-family:"Segoe UI",Inter,system-ui,-apple-system,BlinkMacSystemFont,Roboto,Arial,sans-serif; margin:0; background:#f6f7fb; color:var(--text); font-size:17px; line-height:1.6; min-width:0; overflow-x:hidden}
         body.nav-open{overflow:hidden}
         .app-shell{min-height:100vh}
         .sidebar{position:fixed; inset:0 auto 0 0; z-index:100; width:260px; height:auto; overflow:hidden; background:radial-gradient(ellipse at 15% 0%,#12463d 0%,transparent 42%),linear-gradient(180deg,var(--sidebar) 0%,var(--sidebar-deep) 100%); color:#e6f7f2; padding:22px 16px 16px; display:flex; flex-direction:column; border-right:1px solid rgba(255,255,255,0.06);}
@@ -359,6 +359,47 @@
         </div>
     </main>
 </div>
+<style id="readability-overrides">
+    /* Apply a consistent, high-readability baseline after page-specific styles. */
+    .content {
+        color:#0f172a;
+        font-size:1.0625rem;
+        line-height:1.6;
+    }
+    .content :where(p,li,dd,dt,time,figcaption) {
+        color:#1f2937;
+        font-size:1rem;
+        line-height:1.6;
+    }
+    .content :where(small) {
+        color:#334155;
+        font-size:.9rem;
+        line-height:1.5;
+    }
+    .content :where(label) {
+        color:#1f2937;
+        font-size:.95rem;
+        line-height:1.5;
+    }
+    .content :where(input,select,textarea) {
+        font-family:inherit;
+        font-size:1rem;
+        line-height:1.5;
+    }
+    .content :where(table th) {
+        color:#1e293b;
+        font-size:.82rem;
+        line-height:1.45;
+    }
+    .content :where(table td) {
+        color:#1f2937;
+        font-size:.95rem;
+        line-height:1.55;
+    }
+    .content :where([class*="muted"],[class*="subtitle"],[class*="hint"],[class*="help"],[class*="note"],[class*="detail"],[class*="time"]) {
+        color:#475569;
+    }
+</style>
 <script>
     (() => {
         const menuButton = document.getElementById('mobile-menu-toggle');

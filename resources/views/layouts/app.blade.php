@@ -12,7 +12,7 @@
 
     <style>
         :root {
-            --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-sans: 'Segoe UI', 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
             --bg-start: #91eec3;
             --bg-mid: #f5f5f5;
             --bg-end: #33b170;
@@ -47,6 +47,8 @@
                 linear-gradient(100deg, rgba(11, 58, 36, 0.82) 0%, rgba(20, 123, 70, 0.72)105%, rgba(51, 177, 112, 0.6) 100%), /*If ganahan ka adjust san  rgba(20, 123, 70, 0.72)1005%, and orig 65*/
                 url('{{ asset('images/login-bg.jpg') }}') center / cover no-repeat fixed;
             color: var(--text-light);
+            font-size: 17px;
+            line-height: 1.55;
             display: flex;
             justify-content: center;
             align-items: center;
