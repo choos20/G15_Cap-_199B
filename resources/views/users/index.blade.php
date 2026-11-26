@@ -29,8 +29,8 @@
 
     <style>
         .ua-table { width:100%; border-collapse:collapse; }
-        .ua-table th { text-align:left; padding:12px 16px; font-size:0.8rem; text-transform:uppercase; letter-spacing:0.04em; color:#5b7067; font-weight:700; border-bottom:1px solid #e5e7eb; }
-        .ua-table td { padding:14px 16px; border-bottom:1px solid #f1f5f9; vertical-align:middle; }
+        .ua-table th { text-align:left; padding:12px 16px; font-size:0.82rem; line-height:1.4; text-transform:uppercase; letter-spacing:0.04em; color:#334155; font-weight:700; border-bottom:1px solid #e5e7eb; }
+        .ua-table td { padding:14px 16px; border-bottom:1px solid #f1f5f9; vertical-align:middle; color:#1f2937; font-size:0.92rem; line-height:1.5; }
         .ua-table tr:last-child td { border-bottom:none; }
         .ua-table tr:hover td { background:#f8fafc; }
         .ua-group-row td { padding:16px 16px 8px; border-bottom:0; background:#f8fafc; }
@@ -134,10 +134,10 @@
             .ua-table tr.ua-row td {
                 display:flex; flex-direction:column; align-items:flex-start; justify-content:center;
                 min-width:0; padding:9px 0; border-bottom:1px solid #f1f5f9;
-                overflow-wrap:normal; word-break:normal; font-size:0.88rem; line-height:1.45;
+                overflow-wrap:normal; word-break:normal; font-size:0.92rem; line-height:1.5;
             }
             .ua-table tr.ua-row td::before {
-                content:attr(data-label); margin-bottom:5px; color:#5b7067; font-size:0.67rem;
+                content:attr(data-label); margin-bottom:5px; color:#475569; font-size:0.7rem;
                 font-weight:800; letter-spacing:0.06em; text-transform:uppercase;
             }
             .ua-table tr.ua-row td:first-child { grid-column:1 / -1; }

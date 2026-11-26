@@ -10,10 +10,10 @@
     <link rel="stylesheet" href="{{ asset('css/date-range-filters.css') }}?v={{ substr(md5_file(public_path('css/date-range-filters.css')), 0, 12) }}">
     <link rel="stylesheet" href="{{ asset('css/password-policy.css') }}?v={{ substr(md5_file(public_path('css/password-policy.css')), 0, 12) }}">
     <style>
-        :root{--sidebar:#0b2926;--sidebar-deep:#08211f;--accent:#13b886;--muted:#52665d;--text-secondary:#52665d;--text-muted:#5b7067;--card:#ffffff;--text:#16352d}
+        :root{--sidebar:#0b2926;--sidebar-deep:#08211f;--accent:#13b886;--muted:#334155;--text-secondary:#334155;--text-muted:#475569;--card:#ffffff;--text:#16352d}
         *{box-sizing:border-box}
         html{min-width:0; overflow-x:hidden}
-        body{font-family:Inter,system-ui,Segoe UI,Roboto,Arial; margin:0; background:#f6f7fb; color:var(--text); font-size:16px; line-height:1.45; min-width:0; overflow-x:hidden}
+        body{font-family:Inter,system-ui,Segoe UI,Roboto,Arial; margin:0; background:#f6f7fb; color:var(--text); font-size:16px; line-height:1.55; min-width:0; overflow-x:hidden}
         body.nav-open{overflow:hidden}
         .app-shell{min-height:100vh}
         .sidebar{position:fixed; inset:0 auto 0 0; z-index:100; width:260px; height:auto; overflow:hidden; background:radial-gradient(ellipse at 15% 0%,#12463d 0%,transparent 42%),linear-gradient(180deg,var(--sidebar) 0%,var(--sidebar-deep) 100%); color:#e6f7f2; padding:22px 16px 16px; display:flex; flex-direction:column; border-right:1px solid rgba(255,255,255,0.06);}
@@ -59,11 +59,11 @@
         .profile-avatar-action.is-remove{border-color:#fecaca; background:#fff; color:#b91c1c}
         .profile-avatar-error{margin-top:8px; color:#b91c1c; font-size:.75rem; line-height:1.4}
         .main{min-width:0; min-height:100vh; margin-left:260px; padding:28px}
-        .content{min-width:0; max-width:100%; color:var(--text); overflow-wrap:anywhere}
+        .content{min-width:0; max-width:100%; color:var(--text); font-size:1rem; overflow-wrap:anywhere}
         .content :where(input,select,textarea){min-width:0; max-width:100%}
         .content fieldset{min-inline-size:0}
         .content :where(img,video,canvas,iframe){max-width:100%}
-        .content :where(p,li,dd,dt,small,time,figcaption){line-height:1.5}
+        .content :where(p,li,dd,dt,small,time,figcaption){line-height:1.55}
         .content :where(input,select,textarea)::placeholder{color:var(--text-secondary);opacity:1}
         .content :where(a,button,input,select,textarea,summary):focus-visible{outline:3px solid rgba(4,120,87,.34);outline-offset:3px}
         @media (prefers-contrast: more){
