@@ -60,7 +60,7 @@
             inset: 0;
             z-index: -2;
             background:
-                linear-gradient(120deg, rgba(2, 42, 25, 0.68) 0%, rgba(5, 93, 53, 0.52) 46%, rgba(19, 145, 83, 0.34) 100%),
+                linear-gradient(120deg, rgba(2, 42, 25, 0.58) 0%, rgba(5, 93, 53, 0.42) 46%, rgba(19, 145, 83, 0.28) 100%),
                 radial-gradient(circle at 15% 12%, rgba(166, 255, 190, 0.24), transparent 32%),
                 radial-gradient(circle at 90% 92%, rgba(17, 255, 148, 0.22), transparent 28%);
             content: '';
@@ -90,13 +90,13 @@
             position: relative;
             overflow: hidden;
             background:
-                linear-gradient(145deg, rgba(48, 143, 94, 0.3), rgba(5, 59, 37, 0.22)) padding-box,
-                linear-gradient(135deg, rgba(225, 255, 233, 0.62), rgba(87, 220, 143, 0.38) 48%, rgba(255, 255, 255, 0.16)) border-box;
+                linear-gradient(145deg, rgba(22, 71, 51, 0.24), rgba(3, 35, 24, 0.18)) padding-box,
+                linear-gradient(135deg, rgba(235, 255, 240, 0.5), rgba(167, 255, 197, 0.22) 48%, rgba(255, 255, 255, 0.12)) border-box;
             border: 1px solid transparent;
-            -webkit-backdrop-filter: blur(20px) saturate(145%);
-            backdrop-filter: blur(20px) saturate(145%);
-            border-radius: 26px;
-            box-shadow: 0 28px 80px rgba(2, 27, 16, 0.42), inset 0 1px 0 rgba(255, 255, 255, 0.16);
+            -webkit-backdrop-filter: blur(24px) saturate(125%);
+            backdrop-filter: blur(24px) saturate(125%);
+            border-radius: 24px;
+            box-shadow: 0 24px 66px rgba(2, 27, 16, 0.34), inset 0 1px 0 rgba(255, 255, 255, 0.18);
             width: 100%;
             padding: 34px 40px 28px;
             transition: transform 0.22s ease, box-shadow 0.22s ease;
