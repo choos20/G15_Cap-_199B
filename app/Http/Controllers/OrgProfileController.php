@@ -79,6 +79,7 @@ class OrgProfileController extends Controller
             'org_year_founded.max' => 'The founding year cannot be in the future.',
         ]);
 
+        $oldLogoPath = null;
         if ($request->hasFile('org_logo')) {
             $oldLogoPath = $org->org_logo;
             $org->org_logo = null;
@@ -96,8 +97,15 @@ class OrgProfileController extends Controller
             'org_goals' => $validated['org_goals'] ?? null,
             // Unchecking every box submits no key at all, which must clear the list.
             'org_advocacies' => $validated['org_advocacies'] ?? [],
-            'org_profile_updated_at' => now(),
         ]);
+
+        if (! $org->isDirty()) {
+            return redirect()
+                ->route('org.about.edit')
+                ->with('status', 'No changes were made to your organization profile.');
+        }
+
+        $org->org_profile_updated_at = now();
         $org->save();
 
         if (isset($oldLogoPath) && ! preg_match('#^https?://#i', $oldLogoPath) && Storage::disk('public')->exists($oldLogoPath)) {

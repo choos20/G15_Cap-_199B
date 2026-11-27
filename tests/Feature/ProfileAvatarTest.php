@@ -31,6 +31,17 @@ class ProfileAvatarTest extends TestCase
             $table->string('password');
             $table->string('role')->default('participant');
             $table->string('profile_photo_path')->nullable();
+            $table->string('org_logo')->nullable();
+            $table->binary('org_logo_data')->nullable();
+            $table->string('org_logo_mime')->nullable();
+            $table->string('org_acronym')->nullable();
+            $table->string('org_college')->nullable();
+            $table->unsignedSmallInteger('org_year_founded')->nullable();
+            $table->text('org_description')->nullable();
+            $table->text('org_vision')->nullable();
+            $table->text('org_mission')->nullable();
+            $table->text('org_goals')->nullable();
+            $table->json('org_advocacies')->nullable();
             $table->timestamp('org_profile_updated_at')->nullable();
             $table->timestamps();
         });
@@ -44,6 +55,34 @@ class ProfileAvatarTest extends TestCase
             $table->string('avatar_path')->nullable();
             $table->timestamps();
         });
+    }
+
+    public function test_saving_an_unchanged_organization_profile_does_not_update_it(): void
+    {
+        $organization = $this->createUser('student_org');
+        $savedAt = now()->subDay()->startOfSecond();
+        $organization->forceFill([
+            'org_acronym' => 'TEST',
+            'org_college' => 'College of Testing',
+            'org_year_founded' => 2020,
+            'org_profile_updated_at' => $savedAt,
+            'org_advocacies' => [],
+        ])->save();
+        $organization->refresh();
+
+        $this->mockRedirector('route', ['org.about.edit'], new RedirectResponse('/student-org/about'));
+        $request = Request::create('/student-org/about', 'POST', [
+            'org_acronym' => 'TEST',
+            'org_college' => 'College of Testing',
+            'org_year_founded' => '2020',
+        ]);
+        $request->setUserResolver(fn () => $organization);
+
+        app(OrgProfileController::class)->update($request);
+
+        $organization->refresh();
+        $this->assertTrue($organization->org_profile_updated_at->equalTo($savedAt));
+        $this->assertSame('No changes were made to your organization profile.', session('status'));
     }
 
     public function test_any_user_can_upload_and_remove_their_own_profile_photo(): void
