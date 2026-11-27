@@ -41,6 +41,7 @@
             right: 8px;
             width: 34px;
             height: 34px;
+            min-height: 34px;
             margin: 0;
             padding: 0;
             display: inline-flex;
@@ -50,10 +51,12 @@
             background: transparent;
             border: 0;
             border-radius: 9px;
+            box-shadow: none;
+            font-size: inherit;
             transform: translateY(-50%);
         }
         .password-toggle[hidden] { display: none; }
-        .password-toggle:hover { background: rgba(44, 165, 111, .12); color: #146c43; transform: translateY(-50%); }
+        .password-toggle:hover { background: rgba(44, 165, 111, .12); color: #146c43; box-shadow: none; transform: translateY(-50%); }
         .password-toggle:focus-visible { outline: 2px solid #8be4a2; outline-offset: 2px; }
         .password-toggle svg { width: 19px; height: 19px; }
         .input-with-icon.has-error input {

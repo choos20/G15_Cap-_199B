@@ -7,18 +7,18 @@
     <link rel="icon" type="image/png" href="{{ asset('images/Logo_nobg.png') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('css/password-policy.css') }}?v={{ substr(md5_file(public_path('css/password-policy.css')), 0, 12) }}">
 
     <style>
         :root {
             --font-sans: 'Segoe UI', 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-            --bg-start: #91eec3;
+            --bg-start: #8de9bd;
             --bg-mid: #f5f5f5;
-            --bg-end: #33b170;
-            --panel: rgba(255, 255, 255, 0.18);
+            --bg-end: #27a96b;
+            --panel: rgba(8, 74, 46, 0.42);
             --panel-strong: rgba(255, 255, 255, 0.28);
-            --border-panel: rgba(255, 255, 255, 0.2);
+            --border-panel: rgba(235, 255, 241, 0.34);
             --text-light: #edf7ef;
             --text-muted: rgba(238, 247, 239, 0.82);
             --text-dark: #10331e;
@@ -39,13 +39,13 @@
         }
 
         body {
+            position: relative;
+            isolation: isolate;
+            overflow-x: hidden;
             min-height: 100vh;
             min-height: 100dvh;
             font-family: var(--font-sans);
-            background:
-                radial-gradient(circle at top left, rgba(141, 245, 184, 0.22), transparent 1%), /*(141, 245, 184, 0.22), orig*/
-                linear-gradient(100deg, rgba(11, 58, 36, 0.82) 0%, rgba(20, 123, 70, 0.72)105%, rgba(51, 177, 112, 0.6) 100%), /*If ganahan ka adjust san  rgba(20, 123, 70, 0.72)1005%, and orig 65*/
-                url('{{ asset('images/login-bg.jpg') }}') center / cover no-repeat fixed;
+            background: #073b25 url('{{ asset('images/projectlink-campus-bg.png') }}') center / cover no-repeat fixed;
             color: var(--text-light);
             font-size: 17px;
             line-height: 1.55;
@@ -55,31 +55,67 @@
             padding: 0 24px;
         }
 
+        body::before {
+            position: fixed;
+            inset: 0;
+            z-index: -2;
+            background:
+                linear-gradient(120deg, rgba(2, 42, 25, 0.86) 0%, rgba(5, 93, 53, 0.68) 46%, rgba(19, 145, 83, 0.48) 100%),
+                radial-gradient(circle at 15% 12%, rgba(166, 255, 190, 0.24), transparent 32%),
+                radial-gradient(circle at 90% 92%, rgba(17, 255, 148, 0.22), transparent 28%);
+            content: '';
+            pointer-events: none;
+        }
+
+        body::after {
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            background: linear-gradient(180deg, rgba(3, 42, 26, 0.08), rgba(2, 32, 20, 0.22));
+            content: '';
+            pointer-events: none;
+        }
+
         .page-wrapper {
             width: 100%;
-            max-width: 540px;
+            max-width: 560px;
             display: flex;
             align-items: center;
             justify-content: center;
             margin: 0 auto;
-            padding: 24px 0;
+            padding: 32px 0;
         }
 
         .page-card {
             position: relative;
-            background: linear-gradient(180deg, hsla(96, 8%, 88%, 0.22), rgba(237, 229, 229, 0.1));
+            overflow: hidden;
+            background: linear-gradient(145deg, rgba(17, 103, 65, 0.55), rgba(5, 59, 37, 0.36));
             border: 1px solid var(--border-panel);
-            backdrop-filter: blur(8px) saturate(120%); /*color sa glass*/
-            border-radius: 18px;
-            box-shadow: 0 20px 50px rgba(8, 23, 13, 0.28);
+            -webkit-backdrop-filter: blur(18px) saturate(135%);
+            backdrop-filter: blur(18px) saturate(135%);
+            border-radius: 26px;
+            box-shadow: 0 28px 80px rgba(2, 27, 16, 0.42), inset 0 1px 0 rgba(255, 255, 255, 0.16);
             width: 100%;
-            padding: 64px 40px 36px;
-            transition: transform 0.18s ease, box-shadow 0.18s ease;
+            padding: 46px 42px 34px;
+            transition: transform 0.22s ease, box-shadow 0.22s ease;
+        }
+
+        .page-card::before {
+            position: absolute;
+            top: -90px;
+            right: -80px;
+            width: 220px;
+            height: 220px;
+            border: 1px solid rgba(196, 255, 211, 0.2);
+            border-radius: 50%;
+            box-shadow: 0 0 0 32px rgba(190, 255, 207, 0.035), 0 0 0 64px rgba(190, 255, 207, 0.025);
+            content: '';
+            pointer-events: none;
         }
 
         .page-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 28px 70px rgba(8, 23, 13, 0.32);
+            transform: translateY(-3px);
+            box-shadow: 0 34px 88px rgba(2, 27, 16, 0.48), inset 0 1px 0 rgba(255, 255, 255, 0.18);
         }
 
         .brand {
@@ -87,52 +123,56 @@
             flex-direction: column;
             align-items: center;
             text-align: center;
-            margin-bottom: 22px;
+            margin-bottom: 28px;
         }
 
         .brand img {
-            width: 92px;
-            height: 92px;
+            width: 88px;
+            height: 88px;
             object-fit: contain;
-            margin-bottom: 14px;
+            margin-bottom: 12px;
+            filter: drop-shadow(0 8px 14px rgba(7, 31, 17, 0.35));
         }
 
         .brand-name {
-             font-family: 'Space Grotesk', var(--font-sans);
-            font-size: 1.7rem;
+            position: relative;
+            z-index: 1;
+            font-family: 'Space Grotesk', var(--font-sans);
+            font-size: 2rem;
             font-weight: 700;
             letter-spacing: -0.04em;
             color: var(--text-light);
+            text-shadow: 0 3px 14px rgba(2, 36, 19, 0.28);
         }
 
         .brand-sub {
-            font-size: 0.82rem;
-            color: rgba(241, 249, 241, 0.82);
-            margin-top: 4px;
+            font-size: 0.84rem;
+            color: rgba(241, 249, 241, 0.86);
+            margin-top: 5px;
             line-height: 1.5;
         }
 
         .section-title {
-            font-size: 1.25rem;
+            font-size: 1.42rem;
             font-weight: 700;
             color: var(--text-light);
-            margin: 0 0 6px;
-           /* text-align: center; */
+            margin: 0 0 5px;
+            letter-spacing: -0.025em;
         }
 
         .section-subtitle {
-            font-size: 0.92rem;
-            color: rgba(238, 247, 239, 0.78);
-            margin: 0 0 26px;
+            font-size: 0.9rem;
+            color: rgba(238, 247, 239, 0.82);
+            margin: 0 0 24px;
         }
 
         label {
             display: block;
             text-align: left;
-            font-size: 0.8rem;
-            font-weight: 500;
-            margin: 16px 0 6px;
-            color: #edf6ef;
+            font-size: 0.82rem;
+            font-weight: 650;
+            margin: 17px 0 7px;
+            color: #f1fbf3;
         }
 
         input,
@@ -142,20 +182,23 @@
 
         input {
             width: 100%;
-            padding: 12px 14px;
-            background: rgba(255, 255, 255, 0.95);
-            border: 1.5px solid rgba(255, 255, 255, 0.45);
-            border-radius: 12px;
+            min-height: 54px;
+            padding: 13px 15px;
+            background: rgba(255, 255, 255, 0.96);
+            border: 1px solid rgba(255, 255, 255, 0.72);
+            border-radius: 14px;
             color: var(--text-dark);
             font-size: 0.95rem;
-            transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+            box-shadow: 0 7px 18px rgba(3, 42, 24, 0.1);
+            transition: border-color 0.16s ease, box-shadow 0.16s ease, background 0.16s ease, transform 0.16s ease;
         }
 
         input:focus {
             outline: none;
-            border-color: rgba(236, 237, 235, 0.95);
-            box-shadow: 0 0 0 3px rgba(66, 198, 116, 0.2);
+            border-color: #b8ffd0;
+            box-shadow: 0 0 0 4px rgba(111, 255, 157, 0.2), 0 10px 22px rgba(3, 42, 24, 0.16);
             background: #ffffff;
+            transform: translateY(-1px);
         }
 
         input.is-invalid {
@@ -170,21 +213,24 @@
 
         button {
             width: 100%;
-            margin-top: 26px;
-            padding: 14px;
-            background: linear-gradient(135deg, var(--button-start), var(--button-end));
+            min-height: 54px;
+            margin-top: 25px;
+            padding: 14px 16px;
+            background: linear-gradient(135deg, #35d27e 0%, #08a65f 52%, #087e4e 100%);
             border: none;
-            border-radius: 12px;
-            font-size: 0.95rem;
+            border-radius: 14px;
+            font-size: 1rem;
             font-weight: 700;
             color: #ffffff;
-            cursor: pointer;    
-            transition: filter 0.15s ease, transform 0.15s ease;
+            cursor: pointer;
+            box-shadow: 0 10px 22px rgba(0, 145, 77, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.24);
+            transition: filter 0.16s ease, transform 0.16s ease, box-shadow 0.16s ease;
         }
 
         button:hover {
             filter: brightness(1.05);
             transform: translateY(-1px);
+            box-shadow: 0 14px 28px rgba(0, 145, 77, 0.34), inset 0 1px 0 rgba(255, 255, 255, 0.28);
         }
 
         .alert-error {
@@ -248,10 +294,10 @@
         }
 
         .links {
-            margin-top: 24px;
+            margin-top: 22px;
             text-align: center;
-            font-size: 0.78rem;
-            color: rgba(238, 247, 239, 0.78);
+            font-size: 0.8rem;
+            color: rgba(238, 247, 239, 0.84);
         }
 
         .links a {
@@ -271,14 +317,28 @@
         @media (max-width: 480px) {
             body {
                 padding: 16px;
+                background-attachment: scroll;
             }
 
             .page-card {
-                padding: 30px 24px;
+                border-radius: 22px;
+                padding: 34px 23px 28px;
             }
+
+            .brand img { width: 76px; height: 76px; }
+            .brand-name { font-size: 1.78rem; }
 
             input {
                 font-size: 1rem;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                scroll-behavior: auto !important;
+                transition-duration: 0.01ms !important;
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
             }
         }
     </style>
