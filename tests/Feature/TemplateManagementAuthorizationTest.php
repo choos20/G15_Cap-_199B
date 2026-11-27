@@ -8,6 +8,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
+use Tests\Support\DocumentFixtures;
 use Tests\TestCase;
 
 class TemplateManagementAuthorizationTest extends TestCase
@@ -15,6 +16,7 @@ class TemplateManagementAuthorizationTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+        Storage::fake('local');
 
         Schema::create('users', function (Blueprint $table) {
             $table->id();
@@ -40,6 +42,8 @@ class TemplateManagementAuthorizationTest extends TestCase
             $table->id();
             $table->string('original_name');
             $table->string('file_path');
+            $table->binary('file_data')->nullable();
+            $table->string('file_mime')->nullable();
             $table->foreignId('uploaded_by');
             $table->string('source')->nullable();
             $table->timestamps();
@@ -111,7 +115,7 @@ class TemplateManagementAuthorizationTest extends TestCase
             'uploaded_by' => $participant->id,
             'source' => 'celp',
         ]);
-        Storage::disk('public')->put($template->file_path, 'docx-preview-test-content');
+        Storage::disk('public')->put($template->file_path, DocumentFixtures::docx());
 
         $this->actingAs($participant)
             ->get(route('templates.preview', $template))
@@ -123,7 +127,7 @@ class TemplateManagementAuthorizationTest extends TestCase
         $this->get(route('templates.preview.content', $template))
             ->assertOk()
             ->assertHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document')
-            ->assertHeader('Content-Disposition', 'inline; filename="celp-requirements.docx"');
+            ->assertHeader('Content-Disposition', 'inline; filename=celp-requirements.docx');
 
         $this->get(route('templates.download', $template))
             ->assertOk();

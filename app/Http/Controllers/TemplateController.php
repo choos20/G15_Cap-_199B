@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Exceptions\DocumentPreviewException;
 use App\Models\Template;
+use App\Services\DocumentPreviewService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 /**
  * Proposal templates — the blank forms initiators download, fill in and submit.
@@ -15,7 +18,7 @@ use Illuminate\Support\Facades\Storage;
  */
 class TemplateController extends Controller
 {
-    private const MAX_PREVIEW_BYTES = 10485760;
+    public function __construct(private readonly DocumentPreviewService $documents) {}
 
     /**
      * Upload rules, shared by store() and replace().
@@ -53,8 +56,8 @@ class TemplateController extends Controller
             ->when(trim($filters['q'] ?? '') !== '', function ($query) use ($filters) {
                 $term = trim($filters['q']);
                 $query->where(function ($query) use ($term) {
-                    $query->where('original_name', 'like', '%' . $term . '%')
-                        ->orWhereHas('uploader', fn ($query) => $query->where('name', 'like', '%' . $term . '%'));
+                    $query->where('original_name', 'like', '%'.$term.'%')
+                        ->orWhereHas('uploader', fn ($query) => $query->where('name', 'like', '%'.$term.'%'));
                 });
             })
             ->when(isset($filters['source']), function ($query) use ($filters) {
@@ -103,71 +106,39 @@ class TemplateController extends Controller
     public function store(Request $request)
     {
         $request->validate(['template' => self::UPLOAD_RULES], self::UPLOAD_MESSAGES);
-
         $file = $request->file('template');
-        $originalName = $file->getClientOriginalName();
-        $storedPath = $file->store('templates', 'public');
-        $attributes = [
-            'original_name' => $originalName,
-            'file_path' => $storedPath,
+        if (Template::where('original_name', $file->getClientOriginalName())->exists()) {
+            return back()->withErrors(['template' => 'A template with that file name already exists. Use Replace on the existing row to update it.'])->withInput();
+        }
+        $this->validateTemplateUpload($file);
+        DB::transaction(fn () => $this->documents->storeUpload($file, new Template([
             'uploaded_by' => $request->user()->id,
             'source' => Template::sourceForRole($request->user()->role),
-        ];
-
-        if ($this->ensureFileDataColumns()) {
-            $attributes['file_data'] = $this->binaryValue($file->get());
-            $attributes['file_mime'] = $file->getMimeType();
-        }
-
-        if (Template::where('original_name', $originalName)->exists()) {
-            return back()
-                ->withErrors(['template' => 'A template with that file name already exists. Use Replace on the existing row to update it.'])
-                ->withInput();
-        }
-
-        Template::create($attributes);
+        ]), 'templates'));
 
         return redirect()->route('templates.manage')->with('status', 'Template uploaded.');
     }
 
-    /**
-     * Swap the file behind an existing template without changing its owner or
-     * source. CELP Head may replace another manager's template without taking
-     * ownership away from its original uploader.
-     */
     public function replace(Request $request, Template $template)
     {
         abort_unless($template->canBeManagedBy($request->user()), 403, 'You may only replace templates you uploaded.');
-
         $request->validate(['template' => self::UPLOAD_RULES], self::UPLOAD_MESSAGES);
-
         $file = $request->file('template');
-        $newContents = $file->get();
-
-        if ($this->isSameTemplateFile($template, $newContents)) {
-            return back()
-                ->withErrors(['template' => 'This is already the current file. Please choose a different file to replace it.'])
-                ->withInput();
+        $this->validateTemplateUpload($file);
+        try {
+            $current = $this->documents->contents($template);
+        } catch (DocumentPreviewException $error) {
+            if ($error->getStatusCode() >= 500) {
+                throw $error;
+            }
+            $current = null;
         }
-
-        $oldPath = $template->file_path;
-        $newPath = $file->store('templates', 'public');
-        $attributes = [
-            'original_name' => $file->getClientOriginalName(),
-            'file_path' => $newPath,
-        ];
-
-        if ($this->ensureFileDataColumns()) {
-            $attributes['file_data'] = $this->binaryValue($newContents);
-            $attributes['file_mime'] = $file->getMimeType();
+        if ($current !== null && hash_equals(hash('sha256', $current), hash('sha256', $file->get()))) {
+            return back()->withErrors(['template' => 'This is already the current file. Please choose a different file to replace it.'])->withInput();
         }
-
-        $template->update($attributes);
-
-        // Only drop the previous file once the new one is safely recorded.
-        if ($oldPath && $oldPath !== $template->file_path) {
-            Storage::disk('public')->delete($oldPath);
-        }
+        $previous = clone $template;
+        DB::transaction(fn () => $this->documents->storeUpload($file, $template, 'templates'));
+        $this->documents->deleteStoredFile($previous);
 
         return redirect()->route('templates.manage')->with('status', 'Template replaced.');
     }
@@ -175,165 +146,47 @@ class TemplateController extends Controller
     public function destroy(Request $request, Template $template)
     {
         abort_unless($template->canBeManagedBy($request->user()), 403, 'You may only remove templates you uploaded.');
-
-        Storage::disk('public')->delete($template->file_path);
+        $this->documents->deleteStoredFile($template);
         $template->delete();
 
         return redirect()->route('templates.manage')->with('status', 'Template removed successfully.');
     }
 
-    /** Render the protected document viewer shell for every template type. */
     public function preview(Request $request, Template $template)
     {
-        $extension = strtolower(pathinfo($template->original_name, PATHINFO_EXTENSION));
-
         abort_unless($request->user(), 403);
 
         return view('templates.preview', [
             'template' => $template,
-            'extension' => strtoupper($extension ?: 'FILE'),
-            'previewKind' => $this->previewKind($extension),
+            'extension' => strtoupper(pathinfo($template->original_name, PATHINFO_EXTENSION) ?: 'FILE'),
+            'previewKind' => $this->documents->previewKind($template->original_name),
             'contentUrl' => route('templates.preview.content', $template),
         ]);
     }
 
-    /**
-     * Return preview bytes only through the authenticated template route.
-     * The browser never receives a storage path, and unsupported formats remain
-     * download-only.
-     */
     public function previewContent(Request $request, Template $template)
     {
         abort_unless($request->user(), 403);
 
-        $extension = strtolower(pathinfo($template->original_name, PATHINFO_EXTENSION));
-        $mime = $this->previewMime($extension);
-
-        abort_unless($mime !== null, 415, 'This file type is available for download only.');
-
-        $data = $this->templateContents($template);
-        if ($data === null) {
-            abort(404);
-        }
-
-        if (strlen($data) > self::MAX_PREVIEW_BYTES) {
-            abort(413, 'This document is too large to preview safely.');
-        }
-
-        return response($data, 200, [
-            'Content-Type' => $mime,
-            'Content-Disposition' => 'inline; filename="'.$this->safeFileName($template->original_name).'"',
-            'Cache-Control' => 'private, no-store, max-age=0',
-            'X-Content-Type-Options' => 'nosniff',
-            'X-Robots-Tag' => 'noindex, nofollow',
-        ]);
+        return $this->documents->response($template);
     }
 
-    /** Downloading is open to every authenticated user. */
     public function download(Request $request, Template $template)
     {
         abort_unless($request->user(), 403);
 
-        if ($this->ensureFileDataColumns() && $template->file_data) {
-            $data = $template->file_data;
+        return $this->documents->response($template, true);
+    }
 
-            if (is_resource($data)) {
-                $data = stream_get_contents($data);
+    private function validateTemplateUpload(UploadedFile $file): void
+    {
+        try {
+            $this->documents->validateUpload($file);
+        } catch (DocumentPreviewException $error) {
+            if ($error->getStatusCode() >= 500) {
+                throw $error;
             }
-            if (is_string($data) && str_starts_with($data, '\\x')) {
-                $data = hex2bin(substr($data, 2));
-            }
-
-            return response()->streamDownload(
-                static function () use ($data): void {
-                    echo $data;
-                },
-                $template->original_name,
-                ['Content-Type' => $template->file_mime ?: 'application/octet-stream']
-            );
+            throw ValidationException::withMessages(['template' => $error->getMessage()]);
         }
-
-        if (! $template->file_path || ! Storage::disk('public')->exists($template->file_path)) {
-            abort(404);
-        }
-
-        return Storage::disk('public')->download($template->file_path, $template->original_name);
-    }
-
-    private function safeFileName(string $fileName): string
-    {
-        return str_replace(["\r", "\n", '"'], '', basename($fileName));
-    }
-
-    private function previewKind(string $extension): string
-    {
-        return match ($extension) {
-            'docx' => 'docx',
-            'pdf' => 'pdf',
-            'png', 'jpg', 'jpeg' => 'image',
-            default => 'unsupported',
-        };
-    }
-
-    private function previewMime(string $extension): ?string
-    {
-        return match ($extension) {
-            'docx' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-            'pdf' => 'application/pdf',
-            'png' => 'image/png',
-            'jpg', 'jpeg' => 'image/jpeg',
-            default => null,
-        };
-    }
-
-    private function ensureFileDataColumns(): bool
-    {
-        if (Schema::hasColumn('templates', 'file_data')) {
-            return true;
-        }
-
-        Schema::table('templates', function ($table): void {
-            $table->binary('file_data')->nullable();
-            $table->string('file_mime', 150)->nullable();
-        });
-
-        return true;
-    }
-
-    private function binaryValue(string $data): string
-    {
-        // Bind the binary payload as a normal parameter so SQLite, MySQL and
-        // PostgreSQL all receive the same bytes without database-specific SQL.
-        return $data;
-    }
-
-    private function isSameTemplateFile(Template $template, string $newContents): bool
-    {
-        $currentContents = $this->templateContents($template);
-
-        return $currentContents !== null
-            && hash('sha256', $currentContents) === hash('sha256', $newContents);
-    }
-
-    private function templateContents(Template $template): ?string
-    {
-        if ($this->ensureFileDataColumns() && $template->file_data) {
-            $data = $template->file_data;
-
-            if (is_resource($data)) {
-                $data = stream_get_contents($data);
-            }
-            if (is_string($data) && str_starts_with($data, '\\x')) {
-                $data = hex2bin(substr($data, 2));
-            }
-
-            return is_string($data) ? $data : null;
-        }
-
-        if ($template->file_path && Storage::disk('public')->exists($template->file_path)) {
-            return Storage::disk('public')->get($template->file_path);
-        }
-
-        return null;
     }
 }

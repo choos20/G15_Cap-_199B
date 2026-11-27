@@ -56,9 +56,7 @@
                                     <div class="review-attachment-meta">{{ strtoupper(pathinfo($attachment->file_name, PATHINFO_EXTENSION)) }} · {{ number_format($attachment->file_size / 1024 / 1024, 2) }} MB</div>
                                 </div>
                                 <div class="review-attachment-actions">
-                                    <a href="{{ route('projects.attachments.preview', $attachment) }}" class="review-attachment-action review-attachment-action--preview" data-file-preview
-                                       data-preview-name="{{ $attachment->file_name }}" data-preview-url="{{ route('projects.attachments.preview.content', $attachment) }}"
-                                       data-download-url="{{ route('projects.attachments.download', $attachment) }}">
+                                    <a href="{{ route('projects.attachments.preview', $attachment) }}" class="review-attachment-action review-attachment-action--preview">
                                         <x-ui-icon name="eye" :size="15" />
                                         <span>Preview</span>
                                     </a>

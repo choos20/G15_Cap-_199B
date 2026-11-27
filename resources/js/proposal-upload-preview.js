@@ -1,4 +1,5 @@
 import { renderAsync } from 'docx-preview';
+import { previewBlob, docxPreviewOptions } from './document-preview-response';
 
 // One shared viewer also handles links added after the page has loaded.
 if (!window.ProjectLinkFilePreview) {
@@ -12,6 +13,7 @@ if (!window.ProjectLinkFilePreview) {
     let zoom = 1;
     let remoteRequest = null;
     let downloadUrl = '';
+    let ready = false;
 
     const extensionOf = (file) => {
         const name = String(file?.name || '');
@@ -75,6 +77,7 @@ if (!window.ProjectLinkFilePreview) {
         modal.querySelector('[data-preview-zoom-in]')?.addEventListener('click', () => changeZoom(0.1));
         modal.querySelector('[data-preview-zoom-out]')?.addEventListener('click', () => changeZoom(-0.1));
         modal.querySelector('[data-preview-zoom-reset]')?.addEventListener('click', () => {
+            if (!ready) return;
             zoom = 1;
             updateZoom();
         });
@@ -91,10 +94,13 @@ if (!window.ProjectLinkFilePreview) {
 
         if (target) target.style.zoom = String(zoom);
         if (value) value.textContent = `${Math.round(zoom * 100)}%`;
-        if (reset) reset.disabled = zoom === 1;
+        modal.querySelector('[data-preview-zoom-in]').disabled = !ready || zoom >= 2;
+        modal.querySelector('[data-preview-zoom-out]').disabled = !ready || zoom <= 0.65;
+        if (reset) reset.disabled = !ready || zoom === 1;
     };
 
     const changeZoom = (amount) => {
+        if (!ready) return;
         zoom = Math.max(0.65, Math.min(2, Number((zoom + amount).toFixed(2))));
         updateZoom();
     };
@@ -112,8 +118,11 @@ if (!window.ProjectLinkFilePreview) {
         if (loading) loading.hidden = !isLoading;
     };
 
-    const setReady = () => {
+    const setReady = (rendered = true) => {
         if (!modal) return;
+        ready = rendered;
+        modal.setAttribute('aria-busy', 'false');
+        updateZoom();
         setLoading(false);
         const stage = modal.querySelector('[data-preview-stage]');
         const error = modal.querySelector('[data-preview-error]');
@@ -140,6 +149,9 @@ if (!window.ProjectLinkFilePreview) {
 
     const setError = (message, file) => {
         if (!modal) return;
+        ready = false;
+        modal.setAttribute('aria-busy', 'false');
+        updateZoom();
         setLoading(false);
 
         const stage = modal.querySelector('[data-preview-stage]');
@@ -154,6 +166,8 @@ if (!window.ProjectLinkFilePreview) {
     };
 
     const cleanContent = () => {
+        ready = false;
+        updateZoom();
         renderToken += 1;
         remoteRequest?.abort();
         remoteRequest = null;
@@ -221,15 +235,7 @@ if (!window.ProjectLinkFilePreview) {
         body.className = 'proposal-preview-docx-body';
         paper.append(styles, body);
 
-        await renderAsync(file, body, styles, {
-            className: 'docx',
-            breakPages: true,
-            renderHeaders: true,
-            renderFooters: true,
-            renderFootnotes: true,
-            renderEndnotes: true,
-            renderAltChunks: false,
-        });
+        await renderAsync(file, body, styles, docxPreviewOptions);
 
         if (token !== renderToken) throw new Error('Preview closed before rendering completed.');
     };
@@ -324,6 +330,7 @@ if (!window.ProjectLinkFilePreview) {
         currentModal.querySelector('[data-preview-error-message]').textContent = 'We could not render this file in the browser.';
         currentModal.querySelector('[data-preview-download]').hidden = true;
         setLoading(true);
+        currentModal.setAttribute('aria-busy', 'true');
         setDownload({ name });
         currentModal.querySelector('.proposal-preview-control--close')?.focus();
 
@@ -352,7 +359,7 @@ if (!window.ProjectLinkFilePreview) {
                 renderUnsupportedPreview(file, extension);
             }
 
-            if (token === renderToken) setReady();
+            if (token === renderToken) setReady(previewableExtensions.has(extension));
         } catch (error) {
             if (token !== renderToken) return;
             console.error('Proposal upload preview failed:', error);
@@ -372,22 +379,19 @@ if (!window.ProjectLinkFilePreview) {
         const extension = extensionOf({ name });
         if (!previewableExtensions.has(extension)) {
             renderUnsupportedPreview({ name }, extension);
-            setReady();
+            setReady(false);
             return;
         }
 
         const controller = new AbortController();
         remoteRequest = controller;
         try {
-            const response = await fetch(url.href, { credentials: 'same-origin', signal: controller.signal });
+            const response = await fetch(url.href, {
+                credentials: 'same-origin', signal: controller.signal,
+                headers: { Accept: 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+            });
             if (token !== renderToken) return;
-            if (response.status === 401 || response.status === 403) throw new Error('You no longer have permission to view this document.');
-            if (response.status === 413) throw new Error('This document is too large to preview safely.');
-            if (response.status === 422) throw new Error('This attachment is incomplete or corrupted. Ask the uploader to upload it again.');
-            if (!response.ok || response.headers.get('content-type')?.includes('text/html')) {
-                throw new Error('The document could not be loaded. Your session may have expired.');
-            }
-            const blob = await response.blob();
+            const blob = await previewBlob(response);
             if (token !== renderToken) return;
             await renderFile(new File([blob], name, { type: blob.type }), token);
         } catch (error) {
@@ -428,7 +432,7 @@ if (!window.ProjectLinkFilePreview) {
         }
         if (event.key === '+' || event.key === '=') changeZoom(0.1);
         if (event.key === '-') changeZoom(-0.1);
-        if (event.key === '0') {
+        if (event.key === '0' && ready) {
             zoom = 1;
             updateZoom();
         }

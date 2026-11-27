@@ -1,5 +1,6 @@
 import { renderAsync } from 'docx-preview';
 import * as XLSX from 'xlsx';
+import { previewBlob, docxPreviewOptions } from './document-preview-response';
 
 const viewer = document.querySelector('[data-document-viewer]');
 
@@ -22,12 +23,16 @@ if (viewer) {
 
     let zoom = 1;
     let objectUrl = null;
+    let ready = false;
 
     const setLoading = (isLoading) => {
         if (loading) loading.hidden = !isLoading;
     };
 
     const setError = (message) => {
+        ready = false;
+        viewer.setAttribute('aria-busy', 'false');
+        updateZoom();
         setLoading(false);
         if (stage) stage.hidden = true;
         if (errorMessage) errorMessage.textContent = message;
@@ -35,6 +40,9 @@ if (viewer) {
     };
 
     const setReady = () => {
+        ready = true;
+        viewer.setAttribute('aria-busy', 'false');
+        updateZoom();
         setLoading(false);
         if (error) error.hidden = true;
         if (stage) stage.hidden = false;
@@ -46,10 +54,13 @@ if (viewer) {
             zoomTarget.style.zoom = String(zoom);
         }
         if (zoomValue) zoomValue.textContent = `${Math.round(zoom * 100)}%`;
-        if (zoomReset) zoomReset.disabled = zoom === 1;
+        if (zoomIn) zoomIn.disabled = !ready || zoom >= 2;
+        if (zoomOut) zoomOut.disabled = !ready || zoom <= 0.65;
+        if (zoomReset) zoomReset.disabled = !ready || zoom === 1;
     };
 
     const changeZoom = (amount) => {
+        if (!ready) return;
         zoom = Math.max(0.65, Math.min(2, Number((zoom + amount).toFixed(2))));
         updateZoom();
     };
@@ -57,12 +68,13 @@ if (viewer) {
     zoomIn?.addEventListener('click', () => changeZoom(0.1));
     zoomOut?.addEventListener('click', () => changeZoom(-0.1));
     zoomReset?.addEventListener('click', () => {
+        if (!ready) return;
         zoom = 1;
         updateZoom();
     });
 
     document.addEventListener('keydown', (event) => {
-        if (!viewer.contains(document.activeElement)) return;
+        if (!ready || !viewer.contains(document.activeElement)) return;
         if (event.key === '+' || event.key === '=') changeZoom(0.1);
         if (event.key === '-') changeZoom(-0.1);
         if (event.key === '0') {
@@ -76,26 +88,10 @@ if (viewer) {
 
         const response = await fetch(contentUrl, {
             credentials: 'same-origin',
-            headers: { Accept: 'application/octet-stream, application/pdf, image/*' },
+            headers: { Accept: 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
         });
 
-        if (!response.ok) {
-            if (response.status === 403 || response.status === 401) {
-                throw new Error('You no longer have permission to view this document.');
-            }
-            if (response.status === 413) {
-                throw new Error('This document is too large to preview safely.');
-            }
-            if (response.status === 422) {
-                throw new Error('ProjectLink stored an incomplete copy of this attachment. Ask the applicant to upload it again.');
-            }
-            throw new Error('The document could not be loaded from ProjectLink.');
-        }
-
-        const blob = await response.blob();
-        if (!blob.size) throw new Error('The uploaded document is empty or corrupted.');
-
-        return blob;
+        return previewBlob(response);
     };
 
     const waitForNativePreview = (blob) => new Promise((resolve, reject) => {
@@ -220,15 +216,7 @@ if (viewer) {
             const blob = await fetchPreview();
 
             if (kind === 'docx') {
-                await renderAsync(blob, docxBody, docxStyles, {
-                    className: 'docx',
-                    breakPages: true,
-                    renderHeaders: true,
-                    renderFooters: true,
-                    renderFootnotes: true,
-                    renderEndnotes: true,
-                    renderAltChunks: false,
-                });
+                await renderAsync(blob, docxBody, docxStyles, docxPreviewOptions);
             } else if (kind === 'spreadsheet') {
                 await renderSpreadsheet(blob);
             } else {
@@ -237,12 +225,12 @@ if (viewer) {
 
             setReady();
         } catch (renderError) {
-            console.error('Template preview failed:', renderError);
+            console.error('Document preview failed:', renderError);
             const message = renderError instanceof Error
                 ? renderError.message
                 : 'The document could not be rendered.';
             setError(/corrupted zip|central directory/i.test(message)
-                ? 'This document is corrupted or incomplete. Ask the applicant to upload a fresh copy.'
+                ? 'The browser could not render this document. Download the original, or ask an administrator to check it.'
                 : message);
         }
     };

@@ -1,5 +1,6 @@
 <?php
 
+use App\Services\DocumentPreviewService;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
@@ -33,7 +34,10 @@ return new class extends Migration
                 DB::table('project_attachments')
                     ->where('id', $attachment->id)
                     ->update([
-                        'file_data' => Storage::disk('public')->get($attachment->file_path),
+                        'file_data' => DocumentPreviewService::databaseValue(
+                            Storage::disk('public')->get($attachment->file_path),
+                            DB::connection()->getDriverName()
+                        ),
                         'file_mime' => $attachment->mime_type,
                         'updated_at' => now(),
                     ]);

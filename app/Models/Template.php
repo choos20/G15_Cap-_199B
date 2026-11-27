@@ -2,9 +2,9 @@
 
 namespace App\Models;
 
+use App\Casts\BinaryFileData;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\Models\User;
 
 /**
  * @property int $id
@@ -12,7 +12,6 @@ use App\Models\User;
  * @property string $file_path
  * @property int $uploaded_by
  */
-
 class Template extends Model
 {
     use HasFactory;
@@ -22,7 +21,11 @@ class Template extends Model
         'csa' => 'CSA',
     ];
 
-    protected $fillable = ['original_name', 'file_path', 'file_data', 'file_mime', 'uploaded_by', 'source'];
+    protected $fillable = ['original_name', 'file_path', 'file_data', 'file_mime', 'uploaded_by', 'source', 'file_size', 'file_sha256', 'file_disk'];
+
+    protected $hidden = ['file_data'];
+
+    protected $casts = ['file_data' => BinaryFileData::class];
 
     public static function sourceForRole(string $role): ?string
     {

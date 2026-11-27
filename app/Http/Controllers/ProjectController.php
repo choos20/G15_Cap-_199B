@@ -2,26 +2,33 @@
 
 namespace App\Http\Controllers;
 
+use App\Exceptions\DocumentPreviewException;
 use App\Models\Announcement;
 use App\Models\AuditLog;
 use App\Models\Project;
 use App\Models\ProjectAttachment;
 use App\Models\User;
 use App\Notifications\ProjectStatusChanged;
-use Illuminate\Http\UploadedFile;
+use App\Services\DocumentPreviewService;
+use App\Services\ProjectDocumentAccess;
 use Illuminate\Http\Request;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Schema;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class ProjectController extends Controller
 {
     public const MAX_ATTACHMENTS = 10;
+
     public const MAX_ATTACHMENT_SIZE_KB = 5120;
-    private const MAX_PREVIEW_BYTES = 10485760;
+
+    public function __construct(
+        private readonly DocumentPreviewService $documents,
+        private readonly ProjectDocumentAccess $documentAccess,
+    ) {}
 
     public function create(Request $request)
     {
@@ -71,22 +78,26 @@ class ProjectController extends Controller
             ])->withInput();
         }
 
-        $project = Project::create([
-            'title' => $request->title,
-            'description' => $request->description,
-            'created_by' => $user->id,
-            'status' => 'submitted',
-        ]);
+        $project = DB::transaction(function () use ($request, $user): Project {
+            $project = Project::create([
+                'title' => $request->title,
+                'description' => $request->description,
+                'created_by' => $user->id,
+                'status' => 'submitted',
+            ]);
 
-        if ($request->hasFile('attachments')) {
-            foreach ($request->file('attachments') as $file) {
-                if (! $file->isValid()) {
-                    continue;
+            if ($request->hasFile('attachments')) {
+                foreach ($request->file('attachments') as $file) {
+                    if (! $file->isValid()) {
+                        continue;
+                    }
+
+                    $this->storeProjectAttachment($project->id, $file);
                 }
-
-                $this->storeProjectAttachment($project->id, $file);
             }
-        }
+
+            return $project;
+        });
 
         $request->session()->forget('project_submission_token');
 
@@ -172,28 +183,23 @@ class ProjectController extends Controller
             return back()->withErrors(['attachments' => 'You may upload no more than '.self::MAX_ATTACHMENTS.' files in total.'])->withInput();
         }
 
-        $project->title = $request->title;
-        $project->description = $request->description;
-        $project->status = 'submitted';
-        $project->review_comments = null;
-        $project->save();
+        $attachmentsToRemove = $project->attachments()->whereIn('id', $removeIds)->get();
+        DB::transaction(function () use ($request, $project, $attachmentsToRemove): void {
+            $project->title = $request->title;
+            $project->description = $request->description;
+            $project->status = 'submitted';
+            $project->review_comments = null;
+            $project->save();
 
-        if ($removeIds) {
-            $attachmentsToRemove = $project->attachments()->whereIn('id', $removeIds)->get();
-            foreach ($attachmentsToRemove as $attachment) {
-                Storage::disk('public')->delete($attachment->file_path);
-                $attachment->delete();
-            }
-        }
-
-        if ($request->hasFile('attachments')) {
-            foreach ($request->file('attachments') as $file) {
-                if (! $file->isValid()) {
-                    continue;
-                }
-
+            foreach ($request->file('attachments', []) as $file) {
                 $this->storeProjectAttachment($project->id, $file);
             }
+            foreach ($attachmentsToRemove as $attachment) {
+                $attachment->delete();
+            }
+        });
+        foreach ($attachmentsToRemove as $attachment) {
+            $this->documents->deleteStoredFile($attachment);
         }
 
         return redirect()->route('student_org.notifications')->with('status', 'Proposal updated and resubmitted. CELP Secretary will be notified.');
@@ -218,7 +224,7 @@ class ProjectController extends Controller
 
         $attachments = $project->attachments()->get();
         foreach ($attachments as $attachment) {
-            if ($attachment->file_path && ! Storage::disk('public')->delete($attachment->file_path)) {
+            if (! $this->documents->deleteStoredFile($attachment)) {
                 throw new \RuntimeException("Could not remove proposal attachment [{$attachment->file_path}].");
             }
         }
@@ -269,9 +275,7 @@ class ProjectController extends Controller
 
     public function showForReview(Request $request, Project $project)
     {
-        if (! in_array($request->user()->role, ['celp_secretary', 'coordinator', 'celp_head', 'csa_director'])) {
-            abort(403);
-        }
+        abort_unless($this->documentAccess->canReview($request->user(), $project), 403);
 
         return view('projects.show_review', ['project' => $project->load('attachments', 'creator')]);
     }
@@ -285,7 +289,7 @@ class ProjectController extends Controller
             'project' => $project->load('creator'),
             'attachment' => $attachment,
             'extension' => strtoupper($extension ?: 'FILE'),
-            'previewKind' => $this->attachmentPreviewKind($extension),
+            'previewKind' => $this->documents->previewKind($attachment->file_name),
             'contentUrl' => route('projects.attachments.preview.content', $attachment),
             'downloadUrl' => route('projects.attachments.download', $attachment),
         ]);
@@ -294,139 +298,32 @@ class ProjectController extends Controller
     public function previewAttachmentContent(Request $request, ProjectAttachment $attachment)
     {
         $this->reviewableAttachmentProject($request, $attachment);
-        $extension = strtolower(pathinfo($attachment->file_name, PATHINFO_EXTENSION));
-        $mime = $this->attachmentPreviewMime($extension);
 
-        abort_unless($mime !== null, 415, 'This file type is available for download only.');
-
-        $data = $this->attachmentContents($attachment, true);
-        if ($data === null) {
-            abort(422, 'This attachment is incomplete or corrupted.');
-        }
-
-        if (strlen($data) > self::MAX_PREVIEW_BYTES) {
-            abort(413, 'This document is too large to preview safely.');
-        }
-
-        return response($data, 200, [
-            'Content-Type' => $mime,
-            'Content-Disposition' => 'inline; filename="'.$this->safeAttachmentName($attachment->file_name).'"',
-            'Cache-Control' => 'private, no-store, max-age=0',
-            'X-Content-Type-Options' => 'nosniff',
-            'X-Robots-Tag' => 'noindex, nofollow',
-        ]);
+        return $this->documents->response($attachment);
     }
 
     public function downloadAttachment(Request $request, ProjectAttachment $attachment)
     {
         $this->reviewableAttachmentProject($request, $attachment);
 
-        $data = $this->attachmentContents($attachment);
-        abort_unless($data !== null, 404);
-
-        return response()->streamDownload(
-            static function () use ($data): void {
-                echo $data;
-            },
-            $attachment->file_name,
-            ['Content-Type' => $attachment->file_mime ?: $attachment->mime_type ?: 'application/octet-stream']
-        );
-    }
-
-    private function attachmentContents(ProjectAttachment $attachment, bool $requireUsable = false): ?string
-    {
-        $candidates = [];
-
-        if (Schema::hasColumn('project_attachments', 'file_data') && $attachment->file_data) {
-            $data = $this->normalizeBinaryPayload($attachment->file_data);
-
-            if (is_string($data)) {
-                $candidates[] = $data;
-            }
-        }
-
-        if ($attachment->file_path && Storage::disk('public')->exists($attachment->file_path)) {
-            $candidates[] = Storage::disk('public')->get($attachment->file_path);
-        }
-
-        foreach ($candidates as $data) {
-            if ($this->attachmentPayloadIsUsable($attachment, $data)) {
-                return $data;
-            }
-        }
-
-        return $requireUsable ? null : ($candidates[0] ?? null);
+        return $this->documents->response($attachment, true);
     }
 
     private function storeProjectAttachment(int $projectId, UploadedFile $file): void
     {
-        // Read the uploaded stream before writing it anywhere. The same byte
-        // string is then persisted to the database and public disk, so the
-        // reviewer always receives the exact file the initiator submitted.
-        $contents = $file->get();
-        if (! is_string($contents)) {
-            throw new \RuntimeException('The uploaded attachment could not be read.');
-        }
-
-        $extension = strtolower(pathinfo($file->getClientOriginalName(), PATHINFO_EXTENSION));
-        $storedPath = 'project_attachments/'.Str::uuid().($extension ? '.'.$extension : '');
-        if (! Storage::disk('public')->put($storedPath, $contents)) {
-            throw new \RuntimeException('The uploaded attachment could not be stored.');
-        }
-
-        $safeName = preg_replace('/[^A-Za-z0-9._-]+/', '_', $file->getClientOriginalName());
-        $attachmentAttributes = [
-            'project_id' => $projectId,
-            'file_name' => $safeName,
-            'file_path' => $storedPath,
-            'mime_type' => $file->getClientMimeType(),
-            'file_size' => strlen($contents),
-        ];
-
-        if (Schema::hasColumn('project_attachments', 'file_data')) {
-            $attachmentAttributes['file_data'] = $contents;
-            $attachmentAttributes['file_mime'] = $file->getMimeType();
-        }
-
-        ProjectAttachment::create($attachmentAttributes);
-    }
-
-    private function normalizeBinaryPayload(mixed $data): ?string
-    {
-        if (is_resource($data)) {
-            $data = stream_get_contents($data);
-        }
-
-        if (! is_string($data)) {
-            return null;
-        }
-
-        // PostgreSQL may return bytea values in its textual \\xHEX form.
-        if (str_starts_with($data, '\\x') && ctype_xdigit(substr($data, 2))) {
-            $decoded = hex2bin(substr($data, 2));
-            if ($decoded !== false) {
-                return $decoded;
-            }
-        }
-
-        return $data;
-    }
-
-    private function attachmentPayloadIsUsable(ProjectAttachment $attachment, string $data): bool
-    {
-        if ($attachment->file_size > 0 && strlen($data) !== (int) $attachment->file_size) {
-            return false;
-        }
-
-        return ! $this->requiresZipIntegrityCheck($attachment->file_name)
-            || $this->zipPayloadIsValid($data);
+        $this->documents->storeUpload($file, new ProjectAttachment(['project_id' => $projectId]), 'project_attachments');
     }
 
     private function firstCorruptOfficeAttachment(array $files): ?string
     {
         foreach ($files as $file) {
-            if ($this->requiresZipIntegrityCheck($file->getClientOriginalName())
-                && ! $this->zipPayloadIsValid($file->get())) {
+            try {
+                $this->documents->validateUpload($file);
+            } catch (DocumentPreviewException $error) {
+                if ($error->getStatusCode() >= 500) {
+                    throw $error;
+                }
+
                 return basename($file->getClientOriginalName());
             }
         }
@@ -434,83 +331,13 @@ class ProjectController extends Controller
         return null;
     }
 
-    private function requiresZipIntegrityCheck(string $fileName): bool
-    {
-        return in_array(strtolower(pathinfo($fileName, PATHINFO_EXTENSION)), ['docx', 'xlsx'], true);
-    }
-
-    private function zipPayloadIsValid(string $data): bool
-    {
-        if (! str_starts_with($data, "PK\x03\x04")) {
-            return false;
-        }
-
-        $temporaryPath = tempnam(sys_get_temp_dir(), 'projectlink-zip-');
-        if ($temporaryPath === false) {
-            return false;
-        }
-
-        try {
-            if (file_put_contents($temporaryPath, $data) !== strlen($data)) {
-                return false;
-            }
-
-            $zip = new \ZipArchive();
-            $opened = $zip->open($temporaryPath);
-            $isOpen = $opened === true || $opened === \ZipArchive::ER_OK;
-            $isValid = $isOpen && $zip->numFiles > 0;
-
-            if ($isOpen) {
-                $zip->close();
-            }
-
-            return $isValid;
-        } finally {
-            unlink($temporaryPath);
-        }
-    }
-
     private function reviewableAttachmentProject(Request $request, ProjectAttachment $attachment): Project
     {
-        abort_unless(
-            in_array($request->user()->role, ['celp_secretary', 'coordinator', 'celp_head', 'csa_director'], true),
-            403
-        );
-
         $project = $attachment->project()->first();
         abort_unless($project, 404);
+        abort_unless($this->documentAccess->canReview($request->user(), $project), 403);
 
         return $project;
-    }
-
-    private function attachmentPreviewKind(string $extension): string
-    {
-        return match ($extension) {
-            'docx' => 'docx',
-            'pdf' => 'pdf',
-            'png', 'jpg', 'jpeg', 'webp' => 'image',
-            'xls', 'xlsx' => 'spreadsheet',
-            default => 'unsupported',
-        };
-    }
-
-    private function attachmentPreviewMime(string $extension): ?string
-    {
-        return match ($extension) {
-            'docx' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-            'pdf' => 'application/pdf',
-            'png' => 'image/png',
-            'jpg', 'jpeg' => 'image/jpeg',
-            'webp' => 'image/webp',
-            'xlsx' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-            'xls' => 'application/vnd.ms-excel',
-            default => null,
-        };
-    }
-
-    private function safeAttachmentName(string $fileName): string
-    {
-        return str_replace(["\r", "\n", '"'], '', basename($fileName));
     }
 
     /**
