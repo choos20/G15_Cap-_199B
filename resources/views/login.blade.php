@@ -118,6 +118,21 @@
         .login-captcha .cf-turnstile iframe {
             max-width: 100%;
         }
+        .forgot-password {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 9px;
+            font-size: .84rem;
+        }
+        .forgot-password a {
+            color: #dfffe8;
+            font-weight: 700;
+            text-decoration: none;
+            text-underline-offset: 3px;
+        }
+        .forgot-password a:hover { color: #ffffff; text-decoration: underline; }
+        .login-submit { display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 52px; margin-top: 22px; }
+        .login-submit svg { flex: 0 0 auto; }
     </style>
 
     <div class="page-card">
@@ -154,6 +169,7 @@
                     id="user"
                     name="user"
                     value="{{ old('user') }}"
+                    placeholder="Enter your username or email"
                     class="{{ $errors->has('user') ? 'is-invalid' : '' }}"
                     aria-invalid="{{ $errors->has('user') ? 'true' : 'false' }}"
                     @if($errors->has('user')) aria-describedby="user-error" @endif
@@ -173,6 +189,7 @@
                     id="password"
                     name="password"
                     maxlength="{{ \App\Support\PasswordPolicy::MAX_LENGTH }}"
+                    placeholder="Enter your password"
                     class="{{ $errors->has('password') ? 'is-invalid' : '' }}"
                     aria-invalid="{{ $errors->has('password') ? 'true' : 'false' }}"
                     @if($errors->has('password')) aria-describedby="password-error" @endif
@@ -189,6 +206,10 @@
                 <div class="field-error" id="password-error">{{ $message }}</div>
             @enderror
 
+            <div class="forgot-password">
+                <a href="{{ route('password.request') }}">Forgot Password?</a>
+            </div>
+
             @if(session('captcha_required'))
                 @if(config('services.turnstile.site_key'))
                     <div class="login-captcha" aria-label="Security verification">
@@ -200,12 +221,14 @@
                 @endif
             @endif
 
-            <button type="submit">Login</button>
+            <button type="submit" class="login-submit">
+                <span>Sign in</span>
+                <x-ui-icon name="arrow-right" :size="18" />
+            </button>
         </form>
 
         <div class="links">
-            <p><a href="{{ route('password.request') }}">Forgot Password?</a></p>
-            <p style="opacity:0.85">Need an account? Contact the CELP Office.</p>
+            <p>Need an account? Contact the CELP Office.</p>
         </div>
     </div>
 

@@ -60,7 +60,7 @@
             inset: 0;
             z-index: -2;
             background:
-                linear-gradient(120deg, rgba(2, 42, 25, 0.86) 0%, rgba(5, 93, 53, 0.68) 46%, rgba(19, 145, 83, 0.48) 100%),
+                linear-gradient(120deg, rgba(2, 42, 25, 0.68) 0%, rgba(5, 93, 53, 0.52) 46%, rgba(19, 145, 83, 0.34) 100%),
                 radial-gradient(circle at 15% 12%, rgba(166, 255, 190, 0.24), transparent 32%),
                 radial-gradient(circle at 90% 92%, rgba(17, 255, 148, 0.22), transparent 28%);
             content: '';
@@ -78,7 +78,7 @@
 
         .page-wrapper {
             width: 100%;
-            max-width: 560px;
+            max-width: 520px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -89,14 +89,16 @@
         .page-card {
             position: relative;
             overflow: hidden;
-            background: linear-gradient(145deg, rgba(17, 103, 65, 0.55), rgba(5, 59, 37, 0.36));
-            border: 1px solid var(--border-panel);
-            -webkit-backdrop-filter: blur(18px) saturate(135%);
-            backdrop-filter: blur(18px) saturate(135%);
+            background:
+                linear-gradient(145deg, rgba(48, 143, 94, 0.3), rgba(5, 59, 37, 0.22)) padding-box,
+                linear-gradient(135deg, rgba(225, 255, 233, 0.62), rgba(87, 220, 143, 0.38) 48%, rgba(255, 255, 255, 0.16)) border-box;
+            border: 1px solid transparent;
+            -webkit-backdrop-filter: blur(20px) saturate(145%);
+            backdrop-filter: blur(20px) saturate(145%);
             border-radius: 26px;
             box-shadow: 0 28px 80px rgba(2, 27, 16, 0.42), inset 0 1px 0 rgba(255, 255, 255, 0.16);
             width: 100%;
-            padding: 46px 42px 34px;
+            padding: 34px 40px 28px;
             transition: transform 0.22s ease, box-shadow 0.22s ease;
         }
 
@@ -123,14 +125,14 @@
             flex-direction: column;
             align-items: center;
             text-align: center;
-            margin-bottom: 28px;
+            margin-bottom: 20px;
         }
 
         .brand img {
             width: 88px;
             height: 88px;
             object-fit: contain;
-            margin-bottom: 12px;
+            margin-bottom: 8px;
             filter: drop-shadow(0 8px 14px rgba(7, 31, 17, 0.35));
         }
 
@@ -138,7 +140,7 @@
             position: relative;
             z-index: 1;
             font-family: 'Space Grotesk', var(--font-sans);
-            font-size: 2rem;
+            font-size: 1.9rem;
             font-weight: 700;
             letter-spacing: -0.04em;
             color: var(--text-light);
@@ -146,14 +148,14 @@
         }
 
         .brand-sub {
-            font-size: 0.84rem;
+            font-size: 0.9rem;
             color: rgba(241, 249, 241, 0.86);
             margin-top: 5px;
             line-height: 1.5;
         }
 
         .section-title {
-            font-size: 1.42rem;
+            font-size: 1.35rem;
             font-weight: 700;
             color: var(--text-light);
             margin: 0 0 5px;
@@ -161,9 +163,9 @@
         }
 
         .section-subtitle {
-            font-size: 0.9rem;
+            font-size: 0.95rem;
             color: rgba(238, 247, 239, 0.82);
-            margin: 0 0 24px;
+            margin: 0 0 20px;
         }
 
         label {
@@ -171,7 +173,7 @@
             text-align: left;
             font-size: 0.82rem;
             font-weight: 650;
-            margin: 17px 0 7px;
+            margin: 15px 0 6px;
             color: #f1fbf3;
         }
 
@@ -182,8 +184,8 @@
 
         input {
             width: 100%;
-            min-height: 54px;
-            padding: 13px 15px;
+            min-height: 52px;
+            padding: 12px 15px;
             background: rgba(255, 255, 255, 0.96);
             border: 1px solid rgba(255, 255, 255, 0.72);
             border-radius: 14px;
