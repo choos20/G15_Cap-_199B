@@ -8,6 +8,7 @@ use App\Models\Project;
 use App\Models\ProjectAttachment;
 use App\Models\User;
 use App\Notifications\ProjectStatusChanged;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -83,22 +84,7 @@ class ProjectController extends Controller
                     continue;
                 }
 
-                $storedPath = $file->store('project_attachments', 'public');
-                $safeName = preg_replace('/[^A-Za-z0-9._-]+/', '_', $file->getClientOriginalName());
-                $attachmentAttributes = [
-                    'project_id' => $project->id,
-                    'file_name' => $safeName,
-                    'file_path' => $storedPath,
-                    'mime_type' => $file->getClientMimeType(),
-                    'file_size' => $file->getSize() ?? 0,
-                ];
-
-                if (Schema::hasColumn('project_attachments', 'file_data')) {
-                    $attachmentAttributes['file_data'] = $file->get();
-                    $attachmentAttributes['file_mime'] = $file->getMimeType();
-                }
-
-                ProjectAttachment::create($attachmentAttributes);
+                $this->storeProjectAttachment($project->id, $file);
             }
         }
 
@@ -206,22 +192,7 @@ class ProjectController extends Controller
                     continue;
                 }
 
-                $storedPath = $file->store('project_attachments', 'public');
-                $safeName = preg_replace('/[^A-Za-z0-9._-]+/', '_', $file->getClientOriginalName());
-                $attachmentAttributes = [
-                    'project_id' => $project->id,
-                    'file_name' => $safeName,
-                    'file_path' => $storedPath,
-                    'mime_type' => $file->getClientMimeType(),
-                    'file_size' => $file->getSize() ?? 0,
-                ];
-
-                if (Schema::hasColumn('project_attachments', 'file_data')) {
-                    $attachmentAttributes['file_data'] = $file->get();
-                    $attachmentAttributes['file_mime'] = $file->getMimeType();
-                }
-
-                ProjectAttachment::create($attachmentAttributes);
+                $this->storeProjectAttachment($project->id, $file);
             }
         }
 
@@ -328,9 +299,9 @@ class ProjectController extends Controller
 
         abort_unless($mime !== null, 415, 'This file type is available for download only.');
 
-        $data = $this->attachmentContents($attachment);
+        $data = $this->attachmentContents($attachment, true);
         if ($data === null) {
-            abort(404);
+            abort(422, 'This attachment is incomplete or corrupted.');
         }
 
         if (strlen($data) > self::MAX_PREVIEW_BYTES) {
@@ -362,22 +333,12 @@ class ProjectController extends Controller
         );
     }
 
-    private function attachmentContents(ProjectAttachment $attachment): ?string
+    private function attachmentContents(ProjectAttachment $attachment, bool $requireUsable = false): ?string
     {
         $candidates = [];
 
         if (Schema::hasColumn('project_attachments', 'file_data') && $attachment->file_data) {
-            $data = $attachment->file_data;
-
-            if (is_resource($data)) {
-                $data = stream_get_contents($data);
-            }
-            if (is_string($data) && str_starts_with($data, '\\x')) {
-                $decoded = hex2bin(substr($data, 2));
-                if ($decoded !== false) {
-                    $data = $decoded;
-                }
-            }
+            $data = $this->normalizeBinaryPayload($attachment->file_data);
 
             if (is_string($data)) {
                 $candidates[] = $data;
@@ -389,19 +350,83 @@ class ProjectController extends Controller
         }
 
         foreach ($candidates as $data) {
-            if (! $this->requiresZipIntegrityCheck($attachment->file_name) || $this->zipPayloadHasDirectory($data)) {
+            if ($this->attachmentPayloadIsUsable($attachment, $data)) {
                 return $data;
             }
         }
 
-        return $candidates[0] ?? null;
+        return $requireUsable ? null : ($candidates[0] ?? null);
+    }
+
+    private function storeProjectAttachment(int $projectId, UploadedFile $file): void
+    {
+        // Read the uploaded stream before writing it anywhere. The same byte
+        // string is then persisted to the database and public disk, so the
+        // reviewer always receives the exact file the initiator submitted.
+        $contents = $file->get();
+        if (! is_string($contents)) {
+            throw new \RuntimeException('The uploaded attachment could not be read.');
+        }
+
+        $extension = strtolower(pathinfo($file->getClientOriginalName(), PATHINFO_EXTENSION));
+        $storedPath = 'project_attachments/'.Str::uuid().($extension ? '.'.$extension : '');
+        if (! Storage::disk('public')->put($storedPath, $contents)) {
+            throw new \RuntimeException('The uploaded attachment could not be stored.');
+        }
+
+        $safeName = preg_replace('/[^A-Za-z0-9._-]+/', '_', $file->getClientOriginalName());
+        $attachmentAttributes = [
+            'project_id' => $projectId,
+            'file_name' => $safeName,
+            'file_path' => $storedPath,
+            'mime_type' => $file->getClientMimeType(),
+            'file_size' => strlen($contents),
+        ];
+
+        if (Schema::hasColumn('project_attachments', 'file_data')) {
+            $attachmentAttributes['file_data'] = $contents;
+            $attachmentAttributes['file_mime'] = $file->getMimeType();
+        }
+
+        ProjectAttachment::create($attachmentAttributes);
+    }
+
+    private function normalizeBinaryPayload(mixed $data): ?string
+    {
+        if (is_resource($data)) {
+            $data = stream_get_contents($data);
+        }
+
+        if (! is_string($data)) {
+            return null;
+        }
+
+        // PostgreSQL may return bytea values in its textual \\xHEX form.
+        if (str_starts_with($data, '\\x') && ctype_xdigit(substr($data, 2))) {
+            $decoded = hex2bin(substr($data, 2));
+            if ($decoded !== false) {
+                return $decoded;
+            }
+        }
+
+        return $data;
+    }
+
+    private function attachmentPayloadIsUsable(ProjectAttachment $attachment, string $data): bool
+    {
+        if ($attachment->file_size > 0 && strlen($data) !== (int) $attachment->file_size) {
+            return false;
+        }
+
+        return ! $this->requiresZipIntegrityCheck($attachment->file_name)
+            || $this->zipPayloadIsValid($data);
     }
 
     private function firstCorruptOfficeAttachment(array $files): ?string
     {
         foreach ($files as $file) {
             if ($this->requiresZipIntegrityCheck($file->getClientOriginalName())
-                && ! $this->zipPayloadHasDirectory($file->get())) {
+                && ! $this->zipPayloadIsValid($file->get())) {
                 return basename($file->getClientOriginalName());
             }
         }
@@ -411,16 +436,38 @@ class ProjectController extends Controller
 
     private function requiresZipIntegrityCheck(string $fileName): bool
     {
-        return in_array(strtolower(pathinfo($fileName, PATHINFO_EXTENSION)), ['docx', 'xls', 'xlsx'], true);
+        return in_array(strtolower(pathinfo($fileName, PATHINFO_EXTENSION)), ['docx', 'xlsx'], true);
     }
 
-    private function zipPayloadHasDirectory(string $data): bool
+    private function zipPayloadIsValid(string $data): bool
     {
-        $tail = substr($data, -65557);
+        if (! str_starts_with($data, "PK\x03\x04")) {
+            return false;
+        }
 
-        return str_contains($tail, "PK\x05\x06")
-            || str_contains($tail, "PK\x06\x06")
-            || str_contains($tail, "PK\x06\x07");
+        $temporaryPath = tempnam(sys_get_temp_dir(), 'projectlink-zip-');
+        if ($temporaryPath === false) {
+            return false;
+        }
+
+        try {
+            if (file_put_contents($temporaryPath, $data) !== strlen($data)) {
+                return false;
+            }
+
+            $zip = new \ZipArchive();
+            $opened = $zip->open($temporaryPath);
+            $isOpen = $opened === true || $opened === \ZipArchive::ER_OK;
+            $isValid = $isOpen && $zip->numFiles > 0;
+
+            if ($isOpen) {
+                $zip->close();
+            }
+
+            return $isValid;
+        } finally {
+            unlink($temporaryPath);
+        }
     }
 
     private function reviewableAttachmentProject(Request $request, ProjectAttachment $attachment): Project

@@ -160,7 +160,7 @@ class OrganizationProposalDeletionTest extends TestCase
         $reviewer = User::factory()->create(['role' => 'celp_secretary']);
         $projectId = $this->createProject($owner, 'submitted');
         $filePath = 'project_attachments/review.docx';
-        $fileContents = 'test docx bytes';
+        $fileContents = $this->minimalDocxBytes();
 
         Storage::disk('public')->put($filePath, $fileContents);
         $attachmentId = DB::table('project_attachments')->insertGetId([
@@ -177,7 +177,53 @@ class OrganizationProposalDeletionTest extends TestCase
             ->get(route('projects.attachments.preview.content', $attachmentId))
             ->assertOk()
             ->assertHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document')
-            ->assertSee($fileContents, false);
+            ->assertContent($fileContents);
+    }
+
+    public function test_incomplete_project_docx_is_not_rendered_but_remains_downloadable(): void
+    {
+        $owner = User::factory()->create(['role' => 'student_org']);
+        $reviewer = User::factory()->create(['role' => 'celp_secretary']);
+        $projectId = $this->createProject($owner, 'submitted');
+        $filePath = 'project_attachments/incomplete.docx';
+        $fileContents = 'incomplete docx bytes';
+
+        Storage::disk('public')->put($filePath, $fileContents);
+        $attachmentId = DB::table('project_attachments')->insertGetId([
+            'project_id' => $projectId,
+            'file_name' => 'incomplete.docx',
+            'file_path' => $filePath,
+            'mime_type' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            'file_size' => strlen($fileContents),
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        $this->actingAs($reviewer)
+            ->get(route('projects.attachments.preview.content', $attachmentId))
+            ->assertStatus(422);
+
+        $this->actingAs($reviewer)
+            ->get(route('projects.attachments.download', $attachmentId))
+            ->assertOk()
+            ->assertDownload('incomplete.docx');
+    }
+
+    private function minimalDocxBytes(): string
+    {
+        $path = tempnam(sys_get_temp_dir(), 'projectlink-docx-');
+        $zip = new \ZipArchive();
+        $opened = $zip->open($path, \ZipArchive::CREATE | \ZipArchive::OVERWRITE);
+        $this->assertTrue($opened === true || $opened === \ZipArchive::ER_OK);
+        $zip->addFromString('[Content_Types].xml', '<?xml version="1.0" encoding="UTF-8"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"></Types>');
+        $zip->addFromString('_rels/.rels', '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"></Relationships>');
+        $zip->addFromString('word/document.xml', '<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body><w:p><w:r><w:t>Preview test</w:t></w:r></w:p></w:body></w:document>');
+        $zip->close();
+
+        $bytes = file_get_contents($path);
+        unlink($path);
+
+        return $bytes;
     }
 
     private function createProject(User $owner, string $status): int

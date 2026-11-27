@@ -86,6 +86,9 @@ if (viewer) {
             if (response.status === 413) {
                 throw new Error('This document is too large to preview safely.');
             }
+            if (response.status === 422) {
+                throw new Error('ProjectLink stored an incomplete copy of this attachment. Ask the applicant to upload it again.');
+            }
             throw new Error('The document could not be loaded from ProjectLink.');
         }
 
