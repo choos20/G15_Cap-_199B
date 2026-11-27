@@ -167,7 +167,7 @@
                 <div class="ann-file-list">
                     @foreach($otherAttachments as $attachment)
                         <div>
-                            <a class="ann-file-card" href="{{ asset('storage/'.$attachment->file_path) }}" target="_blank" rel="noopener">
+                            <a class="ann-file-card" href="{{ asset('storage/'.$attachment->file_path) }}" data-file-preview data-preview-name="{{ $attachment->original_name }}">
                                 <div class="ann-file-icon">📄</div>
                                 <div class="ann-file-info">
                                     <strong>{{ $attachment->original_name }}</strong>

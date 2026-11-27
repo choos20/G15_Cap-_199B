@@ -1,9 +1,8 @@
 import { renderAsync } from 'docx-preview';
 
-const uploadForm = document.querySelector('[data-proposal-upload-form]');
-
-if (uploadForm) {
-    const previewableExtensions = new Set(['docx', 'pdf', 'png', 'jpg', 'jpeg', 'webp']);
+// One shared viewer also handles links added after the page has loaded.
+if (!window.ProjectLinkFilePreview) {
+    const previewableExtensions = new Set(['docx', 'pdf', 'png', 'jpg', 'jpeg', 'webp', 'xlsx', 'xls']);
     const imageExtensions = new Set(['png', 'jpg', 'jpeg', 'webp']);
     let modal = null;
     let objectUrl = null;
@@ -11,6 +10,8 @@ if (uploadForm) {
     let lastFocusedElement = null;
     let previousBodyOverflow = '';
     let zoom = 1;
+    let remoteRequest = null;
+    let downloadUrl = '';
 
     const extensionOf = (file) => {
         const name = String(file?.name || '');
@@ -35,11 +36,12 @@ if (uploadForm) {
             <section class="proposal-preview-modal__panel" role="dialog" aria-modal="true" aria-labelledby="proposal-preview-title">
                 <header class="proposal-preview-modal__toolbar">
                     <div class="proposal-preview-modal__heading">
-                        <span class="proposal-preview-modal__eyebrow">Local file preview</span>
+                        <span class="proposal-preview-modal__eyebrow">Document preview</span>
                         <h2 id="proposal-preview-title" data-preview-title></h2>
                         <p data-preview-meta></p>
                     </div>
                     <div class="proposal-preview-modal__controls" aria-label="Preview controls">
+                        <a class="proposal-preview-download" data-preview-download download hidden>Download file</a>
                         <button type="button" class="proposal-preview-control" data-preview-zoom-out aria-label="Zoom out">−</button>
                         <span class="proposal-preview-zoom-value" data-preview-zoom-value>100%</span>
                         <button type="button" class="proposal-preview-control" data-preview-zoom-in aria-label="Zoom in">+</button>
@@ -60,7 +62,6 @@ if (uploadForm) {
                     <div class="proposal-preview-error" data-preview-error role="alert" hidden>
                         <h3>Preview unavailable</h3>
                         <p data-preview-error-message>We could not render this file in the browser.</p>
-                        <a class="proposal-preview-download" data-preview-download download hidden>Download file</a>
                     </div>
                 </div>
             </section>
@@ -120,6 +121,23 @@ if (uploadForm) {
         if (error) error.hidden = true;
     };
 
+    const setDownload = (file) => {
+        const download = modal?.querySelector('[data-preview-download]');
+        if (!download) return;
+
+        if (downloadUrl) {
+            download.href = downloadUrl;
+        } else if (file instanceof Blob) {
+            objectUrl ||= URL.createObjectURL(file);
+            download.href = objectUrl;
+        } else {
+            return;
+        }
+
+        download.download = file?.name || '';
+        download.hidden = false;
+    };
+
     const setError = (message, file) => {
         if (!modal) return;
         setLoading(false);
@@ -127,23 +145,18 @@ if (uploadForm) {
         const stage = modal.querySelector('[data-preview-stage]');
         const error = modal.querySelector('[data-preview-error]');
         const errorMessage = modal.querySelector('[data-preview-error-message]');
-        const download = modal.querySelector('[data-preview-download]');
 
         if (stage) stage.hidden = true;
         if (errorMessage) errorMessage.textContent = message;
         if (error) error.hidden = false;
 
-        if (download && file) {
-            revokeObjectUrl();
-            objectUrl = URL.createObjectURL(file);
-            download.href = objectUrl;
-            download.download = file.name;
-            download.hidden = false;
-        }
+        setDownload(file);
     };
 
     const cleanContent = () => {
         renderToken += 1;
+        remoteRequest?.abort();
+        remoteRequest = null;
         revokeObjectUrl();
 
         if (!modal) return;
@@ -173,7 +186,7 @@ if (uploadForm) {
             return;
         }
 
-        objectUrl = URL.createObjectURL(file);
+        objectUrl ||= URL.createObjectURL(file);
         const element = extension === 'pdf'
             ? document.createElement('iframe')
             : document.createElement('img');
@@ -182,6 +195,7 @@ if (uploadForm) {
             ? 'proposal-preview-native proposal-preview-pdf'
             : 'proposal-preview-native proposal-preview-image';
         element.title = file.name;
+        if (extension !== 'pdf') element.alt = file.name;
 
         const onLoad = () => {
             if (token === renderToken) resolve();
@@ -235,42 +249,92 @@ if (uploadForm) {
         heading.textContent = 'This file type is not rendered in the browser';
         const details = document.createElement('p');
         details.textContent = (extension ? extension.toUpperCase() : 'This format')
-            + ' files can still be attached safely. Close this preview to remove the file or continue your submission.';
+            + ' files are available using the Download file button. Close this preview to return to your page.';
         message.append(icon, heading, details);
         paper.appendChild(message);
 
-        const download = modal.querySelector('[data-preview-download]');
-        if (download) {
-            objectUrl = URL.createObjectURL(file);
-            download.href = objectUrl;
-            download.download = file.name;
-            download.textContent = 'Download file';
-            download.hidden = false;
-        }
+        setDownload(file);
     };
 
-    const openPreview = async (file) => {
-        if (!file || !file.name) return;
+    const renderSpreadsheet = async (file, token) => {
+        const XLSX = await import('xlsx');
+        const bytes = await file.arrayBuffer();
+        if (token !== renderToken) return;
 
+        const workbook = XLSX.read(bytes, { type: 'array', cellDates: true, cellStyles: false });
+        if (!workbook.SheetNames.length) throw new Error('This workbook does not contain any sheets.');
+
+        const paper = modal.querySelector('[data-preview-paper]');
+        const tabs = document.createElement('div');
+        tabs.className = 'proposal-preview-sheet-tabs';
+        tabs.setAttribute('role', 'tablist');
+        tabs.setAttribute('aria-label', 'Workbook sheets');
+        const stage = document.createElement('div');
+        stage.className = 'proposal-preview-sheet-stage';
+        stage.setAttribute('role', 'tabpanel');
+
+        const showSheet = (name, selectedTab) => {
+            tabs.querySelectorAll('button').forEach((tab) => tab.setAttribute('aria-selected', String(tab === selectedTab)));
+            stage.replaceChildren();
+            const rows = XLSX.utils.sheet_to_json(workbook.Sheets[name], { header: 1, raw: false, defval: '' });
+            const table = document.createElement('table');
+            rows.slice(0, 200).forEach((row, index) => {
+                const tr = document.createElement('tr');
+                row.slice(0, 30).forEach((value) => {
+                    const cell = document.createElement(index === 0 ? 'th' : 'td');
+                    cell.textContent = String(value ?? '');
+                    tr.appendChild(cell);
+                });
+                table.appendChild(tr);
+            });
+            const note = document.createElement('p');
+            note.textContent = rows.length ? 'Preview shows up to 200 rows and 30 columns. Download the file for the complete workbook.' : 'This sheet is empty.';
+            stage.append(table, note);
+        };
+
+        workbook.SheetNames.forEach((name, index) => {
+            const tab = document.createElement('button');
+            tab.type = 'button';
+            tab.setAttribute('role', 'tab');
+            tab.setAttribute('aria-selected', String(index === 0));
+            tab.textContent = name;
+            tab.addEventListener('click', () => showSheet(name, tab));
+            tabs.appendChild(tab);
+        });
+        paper.append(tabs, stage);
+        showSheet(workbook.SheetNames[0], tabs.firstElementChild);
+    };
+
+    const preparePreview = (name, description, remoteDownloadUrl = '') => {
         const currentModal = ensureModal();
-        const extension = extensionOf(file);
-        const previouslyFocused = document.activeElement;
-
-        lastFocusedElement = previouslyFocused instanceof HTMLElement ? previouslyFocused : null;
-        previousBodyOverflow = document.body.style.overflow;
+        if (currentModal.hidden) {
+            const previouslyFocused = document.activeElement;
+            lastFocusedElement = previouslyFocused instanceof HTMLElement ? previouslyFocused : null;
+            previousBodyOverflow = document.body.style.overflow;
+        }
         document.body.style.overflow = 'hidden';
         currentModal.hidden = false;
         zoom = 1;
         updateZoom();
         cleanContent();
-        const token = renderToken;
+        downloadUrl = remoteDownloadUrl;
 
-        currentModal.querySelector('[data-preview-title]').textContent = file.name;
-        currentModal.querySelector('[data-preview-meta]').textContent = `${extension ? extension.toUpperCase() : 'FILE'} · ${formatBytes(file.size)}`;
+        currentModal.querySelector('[data-preview-title]').textContent = name;
+        currentModal.querySelector('[data-preview-meta]').textContent = description;
         currentModal.querySelector('[data-preview-error-message]').textContent = 'We could not render this file in the browser.';
         currentModal.querySelector('[data-preview-download]').hidden = true;
         setLoading(true);
+        setDownload({ name });
         currentModal.querySelector('.proposal-preview-control--close')?.focus();
+
+        return renderToken;
+    };
+
+    const renderFile = async (file, token) => {
+        if (token !== renderToken) return;
+        const extension = extensionOf(file);
+        modal.querySelector('[data-preview-meta]').textContent = `${extension ? extension.toUpperCase() : 'FILE'} · ${formatBytes(file.size)}`;
+        setDownload(file);
 
         if (!file.size) {
             setError('This file is empty or corrupted.', file);
@@ -280,6 +344,8 @@ if (uploadForm) {
         try {
             if (extension === 'docx') {
                 await renderDocxPreview(file, token);
+            } else if (extension === 'xlsx' || extension === 'xls') {
+                await renderSpreadsheet(file, token);
             } else if (extension === 'pdf' || imageExtensions.has(extension)) {
                 await renderNativePreview(file, extension, token);
             } else {
@@ -291,6 +357,44 @@ if (uploadForm) {
             if (token !== renderToken) return;
             console.error('Proposal upload preview failed:', error);
             setError(error instanceof Error ? error.message : 'The file could not be rendered.', file);
+        }
+    };
+
+    const openPreview = async (file) => {
+        if (!file || !file.name) return;
+        const token = preparePreview(file.name, 'Loading document preview...');
+        await renderFile(file, token);
+    };
+
+    const openRemotePreview = async (link, url) => {
+        const name = link.dataset.previewName || decodeURIComponent(url.pathname.split('/').pop()) || 'Document';
+        const token = preparePreview(name, 'Loading document preview...', link.dataset.downloadUrl || link.href);
+        const extension = extensionOf({ name });
+        if (!previewableExtensions.has(extension)) {
+            renderUnsupportedPreview({ name }, extension);
+            setReady();
+            return;
+        }
+
+        const controller = new AbortController();
+        remoteRequest = controller;
+        try {
+            const response = await fetch(url.href, { credentials: 'same-origin', signal: controller.signal });
+            if (token !== renderToken) return;
+            if (response.status === 401 || response.status === 403) throw new Error('You no longer have permission to view this document.');
+            if (response.status === 413) throw new Error('This document is too large to preview safely.');
+            if (response.status === 422) throw new Error('This attachment is incomplete or corrupted. Ask the uploader to upload it again.');
+            if (!response.ok || response.headers.get('content-type')?.includes('text/html')) {
+                throw new Error('The document could not be loaded. Your session may have expired.');
+            }
+            const blob = await response.blob();
+            if (token !== renderToken) return;
+            await renderFile(new File([blob], name, { type: blob.type }), token);
+        } catch (error) {
+            if (token !== renderToken || controller.signal.aborted) return;
+            setError(error instanceof Error ? error.message : 'The document could not be loaded.');
+        } finally {
+            if (remoteRequest === controller) remoteRequest = null;
         }
     };
 
@@ -306,7 +410,22 @@ if (uploadForm) {
 
     document.addEventListener('keydown', (event) => {
         if (!modal || modal.hidden) return;
-        if (event.key === 'Escape') closePreview();
+        if (event.key === 'Escape') {
+            event.preventDefault();
+            closePreview();
+        }
+        if (event.key === 'Tab') {
+            const controls = [...modal.querySelectorAll('button:not(:disabled), a[href], iframe')].filter((element) => !element.hidden);
+            const first = controls[0];
+            const last = controls[controls.length - 1];
+            if (event.shiftKey && document.activeElement === first) {
+                event.preventDefault();
+                last?.focus();
+            } else if (!event.shiftKey && document.activeElement === last) {
+                event.preventDefault();
+                first?.focus();
+            }
+        }
         if (event.key === '+' || event.key === '=') changeZoom(0.1);
         if (event.key === '-') changeZoom(-0.1);
         if (event.key === '0') {
@@ -315,11 +434,24 @@ if (uploadForm) {
         }
     });
 
+    // Capture preview clicks before unsaved-form navigation confirmation.
+    // Ordinary links, forms, downloads, and modified clicks keep browser defaults.
+    document.addEventListener('click', (event) => {
+        if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+        if (!(event.target instanceof Element)) return;
+        const link = event.target.closest('a[data-file-preview]');
+        if (!link || link.hasAttribute('download')) return;
+        const url = new URL(link.dataset.previewUrl || link.href, window.location.href);
+        if (url.origin !== window.location.origin || !['http:', 'https:', 'blob:'].includes(url.protocol)) return;
+        event.preventDefault();
+        void openRemotePreview(link, url);
+    }, { capture: true });
+
     window.ProjectLinkFilePreview = {
         open: openPreview,
         close: closePreview,
         canPreview: (file) => previewableExtensions.has(extensionOf(file)),
     };
 
-    window.addEventListener('beforeunload', revokeObjectUrl);
+    window.addEventListener('pagehide', closePreview);
 }

@@ -351,7 +351,7 @@
                         @if($announcement->attachments->isNotEmpty())
                             <div style="margin-top:12px; display:flex; flex-wrap:wrap; gap:10px;">
                                 @foreach($announcement->attachments as $attachment)
-                                    <a href="{{ asset('storage/'.$attachment->file_path) }}" target="_blank" rel="noopener" style="font-size:0.85rem; color:#2563eb; text-decoration:none; font-weight:600;">📎 {{ $attachment->original_name }}</a>
+                                    <a href="{{ asset('storage/'.$attachment->file_path) }}" data-file-preview data-preview-name="{{ $attachment->original_name }}" style="font-size:0.85rem; color:#2563eb; text-decoration:none; font-weight:600;">📎 {{ $attachment->original_name }}</a>
                                 @endforeach
                             </div>
                         @endif
@@ -471,8 +471,8 @@
                     preview.className = 'ann-upload-action';
                     preview.textContent = 'View';
                     preview.href = URL.createObjectURL(file);
-                    preview.target = '_blank';
-                    preview.rel = 'noopener';
+                    preview.dataset.filePreview = '';
+                    preview.dataset.previewName = file.name;
                     previewUrls.push(preview.href);
                     row.appendChild(preview);
 

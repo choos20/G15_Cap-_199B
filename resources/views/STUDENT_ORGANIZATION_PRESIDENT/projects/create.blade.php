@@ -4,8 +4,6 @@
 @section('subtitle', 'Create and submit a project (organization accounts only)')
 
 @section('content')
-    @vite('resources/js/proposal-upload-preview.js')
-    <link rel="stylesheet" href="{{ asset('css/proposal-upload-preview.css') }}">
     <style>
         .upload-page {
             min-height:calc(100vh - 100px);

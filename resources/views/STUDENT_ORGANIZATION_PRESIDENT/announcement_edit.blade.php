@@ -209,7 +209,7 @@
                                     {{ $attachment->original_name }}
                                     <span>{{ strtoupper(pathinfo($attachment->original_name, PATHINFO_EXTENSION)) }} · {{ number_format($attachment->size / 1024 / 1024, 2) }} MB</span>
                                 </div>
-                                <a href="{{ asset('storage/'.$attachment->file_path) }}" target="_blank" rel="noopener">View</a>
+                                <a href="{{ asset('storage/'.$attachment->file_path) }}" data-file-preview data-preview-name="{{ $attachment->original_name }}">View</a>
                                 <form method="POST" action="{{ route('student_org.announcements.attachments.destroy', [$announcement, $attachment]) }}"
                                       data-confirm
                                       data-confirm-title="Remove attachment?"
@@ -317,8 +317,8 @@
 
                     const preview = document.createElement('a');
                     preview.href = URL.createObjectURL(file);
-                    preview.target = '_blank';
-                    preview.rel = 'noopener';
+                    preview.dataset.filePreview = '';
+                    preview.dataset.previewName = file.name;
                     preview.textContent = 'View';
                     previewUrls.push(preview.href);
                     row.appendChild(preview);

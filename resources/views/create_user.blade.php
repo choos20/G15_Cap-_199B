@@ -156,7 +156,7 @@
                     <div>
                         <h3 class="cu-section-title">B. Participant details</h3>
                         <div class="cu-section-sub">Which kind of participant this account belongs to.</div>
-                        <a href="{{ route('academic-catalog.index') }}" target="_blank" rel="noopener" style="font-size:.85rem;color:#0b7656">Manage colleges &amp; programs</a>
+                        <a href="{{ route('academic-catalog.index') }}" style="font-size:.85rem;color:#0b7656">Manage colleges &amp; programs</a>
                     </div>
                 </div>
 

@@ -936,7 +936,7 @@
                 <details class="qr-modal-link-panel">
                     <summary>Need the direct link?</summary>
                     <div class="qr-modal-link-body">
-                        <a id="qr-modal-link" class="qr-modal-link" href="#" target="_blank" rel="noopener">Open scan link</a>
+                        <a id="qr-modal-link" class="qr-modal-link" href="#" target="_blank" rel="noopener" title="Open the participant scanner in a separate tab">Open scan link</a>
                         <button type="button" id="qr-modal-copy" class="qr-modal-copy">Copy link</button>
                     </div>
                 </details>

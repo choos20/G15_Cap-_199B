@@ -105,7 +105,9 @@
                         </div>
                     </div>
                     <div class="tpl-actions">
-                        <a href="{{ route('templates.preview', $t->id) }}" class="tpl-preview-btn" target="_blank" rel="noopener">
+                        <a href="{{ route('templates.preview', $t->id) }}" class="tpl-preview-btn" data-file-preview
+                           data-preview-name="{{ $t->original_name }}" data-preview-url="{{ route('templates.preview.content', $t) }}"
+                           data-download-url="{{ route('templates.download', $t) }}">
                             <x-ui-icon name="eye" :size="18" />
                             <span>Preview</span>
                         </a>

@@ -157,7 +157,7 @@
                         <span class="cu-section-icon" style="background:#ecf9f1;color:#08765a"><x-ui-icon name="building" /></span>
                         <div><h3 class="cu-section-title">Participant details</h3><p class="cu-section-sub" style="margin-bottom:0">Update the college and program shown on attendance reports.</p></div>
                     </div>
-                    @if($canEditAcademics)<a class="cu-manage-link" href="{{ route('academic-catalog.index') }}" target="_blank" rel="noopener"><x-ui-icon name="settings" :size="16" />Manage colleges &amp; programs</a>@endif
+                    @if($canEditAcademics)<a class="cu-manage-link" href="{{ route('academic-catalog.index') }}"><x-ui-icon name="settings" :size="16" />Manage colleges &amp; programs</a>@endif
                 </div>
                 @if($canEditAcademics)
                     <input type="hidden" name="academic_details" value="1">

@@ -103,7 +103,7 @@
                 <h4 style="margin:0 0 12px; color:#0f172a">Attachments</h4>
                 <div style="display:grid; gap:10px">
                     @foreach($announcement->attachments as $attachment)
-                        <a href="{{ asset('storage/'.$attachment->file_path) }}" target="_blank" rel="noopener"
+                        <a href="{{ asset('storage/'.$attachment->file_path) }}" data-file-preview data-preview-name="{{ $attachment->original_name }}"
                            style="display:flex; align-items:center; gap:14px; padding:12px 16px; border-radius:14px; border:1px solid #e5e7eb; background:#fff; text-decoration:none; color:inherit">
                             <x-document-type-icon :file-name="$attachment->original_name" :size="44" />
                             <div style="font-weight:600; color:#0f172a">{{ $attachment->original_name }}</div>
