@@ -7,9 +7,9 @@
     @php
         $greeting = now()->hour < 12 ? 'Good morning' : (now()->hour < 18 ? 'Good afternoon' : 'Good evening');
         $statusMeta = [
-            ['label' => 'Approved', 'count' => $approvedCount, 'fill' => '#16866c', 'icon' => '✓'],
-            ['label' => 'Pending', 'count' => $pendingCount, 'fill' => '#d18a1c', 'icon' => '◷'],
-            ['label' => 'Returned', 'count' => $returnedCount, 'fill' => '#c95f5f', 'icon' => '↶'],
+            ['key' => 'approved', 'label' => 'Approved', 'count' => $approvedCount, 'fill' => '#16866c', 'icon' => '✓'],
+            ['key' => 'pending', 'label' => 'Pending', 'count' => $pendingCount, 'fill' => '#d18a1c', 'icon' => '◷'],
+            ['key' => 'returned', 'label' => 'Returned', 'count' => $returnedCount, 'fill' => '#c95f5f', 'icon' => '↶'],
         ];
         $statusSum = $approvedCount + $pendingCount + $returnedCount;
         foreach ($statusMeta as $index => $status) {
@@ -22,38 +22,6 @@
             return collect($values)->values()->map(
                 fn ($value, $index) => sprintf('%.1f,%.1f', $index * 16, 23 - (($value - $minimum) / $range * 18))
             )->implode(' ');
-        };
-        $smoothTrendPath = function (array $points, ?float $baseline = null): string {
-            $first = $points[0];
-            $path = $baseline === null
-                ? sprintf('M %.2f,%.2f', $first['x'], $first['y'])
-                : sprintf('M %.2f,%.2f L %.2f,%.2f', $first['x'], $baseline, $first['x'], $first['y']);
-            $pointCount = count($points);
-
-            for ($index = 0; $index < $pointCount - 1; $index++) {
-                $previous = $points[max($index - 1, 0)];
-                $start = $points[$index];
-                $end = $points[$index + 1];
-                $next = $points[min($index + 2, $pointCount - 1)];
-                $controlOneX = $start['x'] + (($end['x'] - $previous['x']) / 6);
-                $controlOneY = $start['y'] + (($end['y'] - $previous['y']) / 6);
-                $controlTwoX = $end['x'] - (($next['x'] - $start['x']) / 6);
-                $controlTwoY = $end['y'] - (($next['y'] - $start['y']) / 6);
-
-                $path .= sprintf(
-                    ' C %.2f,%.2f %.2f,%.2f %.2f,%.2f',
-                    $controlOneX,
-                    $controlOneY,
-                    $controlTwoX,
-                    $controlTwoY,
-                    $end['x'],
-                    $end['y']
-                );
-            }
-
-            return $baseline === null
-                ? $path
-                : $path.sprintf(' L %.2f,%.2f Z', $points[$pointCount - 1]['x'], $baseline);
         };
     @endphp
 
@@ -107,11 +75,6 @@
         .chd-panel-icon { display:flex; align-items:center; justify-content:center; width:34px; height:34px; flex:0 0 34px; border-radius:11px; background:#edf6f3; color:#087f67; }
         .chd-panel-link { color:#087f67; font-size:0.77rem; font-weight:700; text-decoration:none; white-space:nowrap; }
         .chd-overview-chart { display:grid; grid-template-columns:150px minmax(0,1fr); align-items:center; gap:17px; margin-top:13px; padding:12px; border:1px solid #edf2f2; border-radius:14px; background:linear-gradient(140deg,#fff,#fbfdfc); }
-        .chd-donut { display:block; width:150px; height:150px; overflow:visible; }
-        .chd-donut-track { fill:none; stroke:#edf2f4; stroke-width:16; }
-        .chd-donut-segment { fill:none; stroke-width:16; transform:rotate(-90deg); transform-origin:80px 80px; }
-        .chd-donut-total { fill:#12304f; font-size:25px; font-weight:800; text-anchor:middle; }
-        .chd-donut-label { fill:#8290a0; font-size:10px; font-weight:650; text-anchor:middle; }
         .chd-legend { display:grid; gap:8px; }
         .chd-legend-row { display:grid; grid-template-columns:minmax(0,1fr) auto auto; align-items:center; gap:12px; padding:9px 10px; border:1px solid #edf1f3; border-radius:10px; background:#fbfdfc; }
         .chd-legend-name { display:flex; align-items:center; gap:8px; min-width:0; color:#42596a; font-size:0.77rem; font-weight:700; }
@@ -119,16 +82,6 @@
         .chd-legend-count { color:#12304f; font-size:0.9rem; font-weight:800; font-variant-numeric:tabular-nums; }
         .chd-legend-pct { min-width:38px; color:#8290a0; font-size:0.72rem; text-align:right; }
         .chd-chart-grid { display:grid; grid-template-columns:minmax(0,1.65fr) minmax(260px,0.95fr); gap:14px; align-items:stretch; }
-        .chd-trend-chart { display:block; width:100%; height:auto; margin-top:8px; overflow:visible; }
-        .chd-trend-plot { fill:#f3f6f8; }
-        .chd-trend-gridline { stroke:#dce5eb; stroke-width:1; }
-        .chd-trend-axis { fill:#718394; font-size:10px; }
-        .chd-trend-y-axis { fill:#718394; font-size:9px; font-variant-numeric:tabular-nums; }
-        .chd-trend-line { fill:none; stroke-width:3.2; stroke-linecap:round; stroke-linejoin:round; }
-        .chd-trend-area { stroke:none; }
-        .chd-trend-point { stroke:#f3f6f8; stroke-width:2.5; }
-        .chd-chart-legend { display:flex; flex-wrap:wrap; gap:14px; margin-top:4px; }
-        .chd-chart-legend-item { display:flex; align-items:center; gap:6px; color:#627384; font-size:0.72rem; font-weight:700; }
         .chd-status-breakdown { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:9px; margin-top:15px; }
         .chd-status-card { min-width:0; padding:12px 10px; border:1px solid #e8edf0; border-radius:12px; background:#fbfdfc; }
         .chd-status-card-head { display:flex; align-items:center; gap:7px; color:#5f7180; font-size:0.72rem; font-weight:700; }
@@ -178,7 +131,6 @@
             .chd-panel { padding:15px; }
             .chd-chart-grid { grid-template-columns:minmax(0,1fr); }
             .chd-overview-chart { grid-template-columns:120px minmax(0,1fr); gap:10px; }
-            .chd-donut { width:120px; height:120px; }
             .chd-status-breakdown { grid-template-columns:minmax(0,1fr); }
             .chd-attention-box { align-items:flex-start; flex-direction:column; }
         }
@@ -203,7 +155,7 @@
                 </span>
                 <span class="chd-stat-copy">
                     <span class="chd-stat-label">Pending CELP Head review</span>
-                    <span class="chd-stat-value" style="display:block">{{ $pendingProposals }}</span>
+                    <span class="chd-stat-value" style="display:block" data-count-up="{{ $pendingProposals }}" aria-label="{{ $pendingProposals }}">{{ $pendingProposals }}</span>
                     <span class="chd-stat-link">Open review queue</span>
                 </span>
                 <span class="chd-stat-arrow" aria-hidden="true">
@@ -216,7 +168,7 @@
                 </span>
                 <span class="chd-stat-copy">
                     <span class="chd-stat-label">Total projects</span>
-                    <span class="chd-stat-value" style="display:block">{{ $totalProjects }}</span>
+                    <span class="chd-stat-value" style="display:block" data-count-up="{{ $totalProjects }}" aria-label="{{ $totalProjects }}">{{ $totalProjects }}</span>
                     <span class="chd-stat-link">View org-initiated projects</span>
                     <span class="chd-stat-trend">
                         <svg class="chd-sparkline" viewBox="0 0 80 28" aria-hidden="true">
@@ -237,7 +189,7 @@
                 </span>
                 <span class="chd-stat-copy">
                     <span class="chd-stat-label">System accounts</span>
-                    <span class="chd-stat-value" style="display:block">{{ $totalUsers }}</span>
+                    <span class="chd-stat-value" style="display:block" data-count-up="{{ $totalUsers }}" aria-label="{{ $totalUsers }}">{{ $totalUsers }}</span>
                     <span class="chd-stat-link">Manage accounts</span>
                     <span class="chd-stat-trend">
                         <svg class="chd-sparkline" viewBox="0 0 80 28" aria-hidden="true">
@@ -258,51 +210,15 @@
                 </span>
                 <span class="chd-stat-copy">
                     <span class="chd-stat-label">Total volunteers</span>
-                    <span class="chd-stat-value" style="display:block">{{ $totalVolunteers }}</span>
+                    <span class="chd-stat-value" style="display:block" data-count-up="{{ $totalVolunteers }}" aria-label="{{ $totalVolunteers }}">{{ $totalVolunteers }}</span>
                     <span class="chd-stat-link">Across org-initiated projects</span>
                 </span>
             </div>
         </section>
 
         <div class="chd-content-grid">
-            <section class="chd-panel">
-                <div class="chd-panel-head">
-                    <h3 class="chd-panel-title">
-                        <span class="chd-panel-icon" aria-hidden="true">
-                            <svg width="19" height="19" viewBox="0 0 24 24" fill="none"><path d="M4 20V10m5 10V4m5 16v-7m5 7V7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>
-                        </span>
-                        Projects overview
-                    </h3>
-                    <a class="chd-panel-link chd-focus" href="{{ route('projects.all') }}">View all projects</a>
-                </div>
-                @php $donutOffset = 0; @endphp
-                <div class="chd-overview-chart">
-                    <svg class="chd-donut" viewBox="0 0 160 160" role="img" aria-label="Projects by status: {{ collect($statusMeta)->map(fn($status) => "{$status['label']} {$status['count']}")->implode(', ') }}.">
-                        <circle class="chd-donut-track" cx="80" cy="80" r="46"/>
-                        @foreach($statusMeta as $status)
-                            @if($status['count'] > 0)
-                                @php
-                                    $segmentLength = $status['count'] / max($statusSum, 1) * 289.03;
-                                    $segmentOffset = $donutOffset;
-                                    $donutOffset += $segmentLength;
-                                @endphp
-                                <circle class="chd-donut-segment" cx="80" cy="80" r="46" stroke="{{ $status['fill'] }}"
-                                        stroke-dasharray="{{ $segmentLength }} 289.03" stroke-dashoffset="{{ -$segmentOffset }}"/>
-                            @endif
-                        @endforeach
-                        <text class="chd-donut-total" x="80" y="78">{{ $statusSum }}</text>
-                        <text class="chd-donut-label" x="80" y="96">Total projects</text>
-                    </svg>
-                    <div class="chd-legend" aria-label="Project status details">
-                        @foreach($statusMeta as $status)
-                            <div class="chd-legend-row">
-                                <span class="chd-legend-name"><span class="chd-status-dot" style="background:{{ $status['fill'] }}"></span>{{ $status['label'] }}</span>
-                                <span class="chd-legend-count">{{ $status['count'] }}</span>
-                                <span class="chd-legend-pct">{{ $status['pct'] }}%</span>
-                            </div>
-                        @endforeach
-                    </div>
-                </div>
+            <x-analytics.radial title="Projects overview" description="Institution-wide project statuses" :items="$statusMeta" total-label="Projects" :links="['approved'=>route('projects.all',['status_group'=>'approved']),'pending'=>route('projects.all',['status_group'=>'pending']),'returned'=>route('projects.all',['status_group'=>'returned'])]">
+                <a class="chd-panel-link" href="{{ route('projects.all') }}">View all projects</a>
                 <button type="button" class="chd-toggle chd-focus" id="chd-projects-toggle" aria-expanded="false" aria-controls="chd-projects-table">Show project list</button>
                 <table class="chd-table" id="chd-projects-table" hidden>
                     <caption style="position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap">Project counts by status</caption>
@@ -317,7 +233,7 @@
                         @endforeach
                     </tbody>
                 </table>
-            </section>
+            </x-analytics.radial>
 
             <section class="chd-panel">
                 <div class="chd-panel-head">
@@ -362,67 +278,9 @@
         </div>
 
         <div class="chd-chart-grid">
-            <section class="chd-panel">
-                <div class="chd-panel-head">
-                    <h3 class="chd-panel-title">
-                        <span class="chd-panel-icon" aria-hidden="true">
-                            <svg width="19" height="19" viewBox="0 0 24 24" fill="none"><path d="M4 19V5m0 14h16M7 15l4-4 3 2 6-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                        </span>
-                        Monthly project submissions
-                    </h3>
-                    <span class="chd-overview-total">Last 6 months</span>
-                </div>
-                @php
-                    $trendMax = max(collect($projectTrend)->flatMap(fn ($month) => [$month['approved'], $month['pending'], $month['returned']])->max() ?? 0, 1);
-                    $trendAxisTicks = [['y' => 36, 'label' => $trendMax]];
-                    if ($trendMax >= 2) {
-                        $trendAxisTicks[] = ['y' => 92, 'label' => (int) round($trendMax / 2)];
-                    }
-                    $trendAxisTicks[] = ['y' => 148, 'label' => 0];
-                    $trendSeries = [
-                            ['key' => 'approved', 'label' => 'Approved', 'color' => '#078d70'],
-                            ['key' => 'pending', 'label' => 'Pending', 'color' => '#c98208'],
-                            ['key' => 'returned', 'label' => 'Returned', 'color' => '#d94e74'],
-                    ];
-                    $trendPoints = [];
-                    foreach ($trendSeries as $series) {
-                        $points = [];
-                        foreach ($projectTrend as $index => $month) {
-                            $x = 50 + ($index * 94);
-                            $y = 148 - (($month[$series['key']] / $trendMax) * 112);
-                            $points[] = ['x' => $x, 'y' => $y, 'count' => $month[$series['key']], 'label' => $month['label']];
-                        }
-                        $trendPoints[$series['key']] = $points;
-                    }
-                @endphp
-                <svg class="chd-trend-chart" viewBox="0 0 560 188" role="img" aria-label="Projects created each month over the last six months, grouped by current status. Vertical axis shows project counts.">
-                    <rect class="chd-trend-plot" x="22" y="16" width="534" height="148" rx="12"/>
-                    @foreach($trendAxisTicks as $tick)
-                        <line class="chd-trend-gridline" x1="50" y1="{{ $tick['y'] }}" x2="542" y2="{{ $tick['y'] }}"/>
-                        <text class="chd-trend-y-axis" x="42" y="{{ $tick['y'] + 3 }}" text-anchor="end">{{ $tick['label'] }}</text>
-                    @endforeach
-                    @foreach($trendSeries as $series)
-                        @php $points = $trendPoints[$series['key']]; @endphp
-                        <path class="chd-trend-area" fill="{{ $series['color'] }}" fill-opacity="0.06" d="{{ $smoothTrendPath($points, 148) }}"/>
-                        <path class="chd-trend-line" stroke="{{ $series['color'] }}" d="{{ $smoothTrendPath($points) }}"/>
-                        @foreach($points as $point)
-                            <circle class="chd-trend-point" cx="{{ $point['x'] }}" cy="{{ $point['y'] }}" r="3" fill="{{ $series['color'] }}">
-                                <title>{{ $point['label'] }}: {{ $point['count'] }} {{ \Illuminate\Support\Str::plural('project', $point['count']) }} {{ strtolower($series['label']) }}</title>
-                            </circle>
-                        @endforeach
-                    @endforeach
-                    @foreach($projectTrend as $index => $month)
-                        <text class="chd-trend-axis" x="{{ 50 + ($index * 94) }}" y="181" text-anchor="middle">{{ $month['label'] }}</text>
-                    @endforeach
-                </svg>
-                <div class="chd-chart-legend" aria-label="Trend chart legend">
-                    @foreach($trendSeries as $series)
-                        <span class="chd-chart-legend-item"><span class="chd-status-dot" style="background:{{ $series['color'] }}"></span>{{ $series['label'] }}</span>
-                    @endforeach
-                </div>
-            </section>
+            <x-analytics.columns title="Monthly project submissions" description="Organization-initiated projects · last 6 months" :data="$projectTrend" :series="[['key'=>'approved','label'=>'Approved','color'=>'#078d70'],['key'=>'pending','label'=>'Pending','color'=>'#c98208'],['key'=>'returned','label'=>'Returned','color'=>'#d94e74']]" :record-url="route('projects.all', ['initiators'=>1])" />
 
-            <section class="chd-panel">
+            <section class="chd-panel pl-analytics">
                 <div class="chd-panel-head">
                     <h3 class="chd-panel-title">
                         <span class="chd-panel-icon" aria-hidden="true">
@@ -431,15 +289,16 @@
                         Status breakdown
                     </h3>
                 </div>
-                <div class="chd-status-breakdown">
+                <div class="pl-distribution" aria-label="Current project status counts">
                     @foreach($statusMeta as $status)
-                        <div class="chd-status-card">
-                            <div class="chd-status-card-head"><span class="chd-status-dot" style="background:{{ $status['fill'] }}"></span>{{ $status['label'] }}</div>
-                            <div class="chd-status-pct">{{ $status['pct'] }}%</div>
-                            <div class="chd-status-count">{{ $status['count'] }} {{ \Illuminate\Support\Str::plural('project', $status['count']) }}</div>
-                        </div>
+                        <a class="pl-distribution-row" href="{{ route('projects.all', ['status_group' => $status['key']]) }}" style="--item-color:{{ $status['fill'] }}">
+                            <span class="pl-legend-label"><i class="pl-legend-dot" aria-hidden="true"></i>{{ $status['label'] }}</span><strong>{{ $status['pct'] }}%</strong>
+                            <span class="pl-mini-track" aria-hidden="true"><i style="width:{{ $status['pct'] }}%"></i></span>
+                            <small>{{ $status['count'] }} {{ \Illuminate\Support\Str::plural('project', $status['count']) }}</small>
+                        </a>
                     @endforeach
                 </div>
+                <p class="pl-chart-footnote">Current statuses across all projects.</p>
             </section>
         </div>
 

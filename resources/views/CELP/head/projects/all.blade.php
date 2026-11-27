@@ -18,6 +18,7 @@
             'returned_by_csa_director' => ['#fef2f2', '#b91c1c'],
         ];
         $totalAll = $statusCounts->sum();
+        $chartContext = array_filter(request()->only(['from', 'to', 'initiators']));
     @endphp
 
     <style>
@@ -50,6 +51,9 @@
             @if($activeStatus)
                 <input type="hidden" name="status" value="{{ $activeStatus }}">
             @endif
+            @foreach(array_filter(request()->only(['from', 'to', 'initiators', 'status_group'])) as $key => $value)
+                <input type="hidden" name="{{ $key }}" value="{{ $value }}">
+            @endforeach
         </form>
 
         <span style="margin-left:auto; background:#f1f5f9; color:#334155; font-weight:700; padding:8px 16px; border-radius:999px; font-size:0.9rem">
@@ -57,13 +61,23 @@
         </span>
     </div>
 
+    @if($chartContext || request('status_group'))
+        <div role="status" style="margin-bottom:16px;padding:10px 14px;border:1px solid #d7eade;border-radius:10px;background:#f1faf5;color:#24563c;font-size:.85rem">
+            Chart filter: {{ request('status_group') ? ucfirst(request('status_group')).' projects' : 'Projects' }}
+            @if(request('from')) · From {{ request('from') }} @endif
+            @if(request('to')) · Through {{ request('to') }} @endif
+            @if(request('initiators')) · Organization initiators @endif
+            <a href="{{ route('projects.all') }}" style="margin-left:10px;color:#08734e">Clear chart filters</a>
+        </div>
+    @endif
+
     <div class="ap-chips">
-        <a href="{{ route('projects.all', array_filter(['q' => $term])) }}" class="ap-chip {{ $activeStatus ? '' : 'is-on' }}">
+        <a href="{{ route('projects.all', array_merge($chartContext, array_filter(['q' => $term]))) }}" class="ap-chip {{ $activeStatus || request('status_group') ? '' : 'is-on' }}">
             All <span class="ap-chip-n">{{ $totalAll }}</span>
         </a>
         @foreach(\App\Models\Project::STATUS_LABELS as $key => $label)
             @if(($statusCounts[$key] ?? 0) > 0)
-                <a href="{{ route('projects.all', array_filter(['status' => $key, 'q' => $term])) }}"
+                <a href="{{ route('projects.all', array_merge($chartContext, array_filter(['status' => $key, 'q' => $term]))) }}"
                    class="ap-chip {{ $activeStatus === $key ? 'is-on' : '' }}">
                     {{ $label }} <span class="ap-chip-n">{{ $statusCounts[$key] }}</span>
                 </a>

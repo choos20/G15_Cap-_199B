@@ -8,33 +8,6 @@
         $greeting = now()->hour < 12 ? 'Good morning' : (now()->hour < 18 ? 'Good afternoon' : 'Good evening');
         $statusMeta = $workflowStages;
         $statusSum = $workflowTotal;
-        $smoothTrendPath = function (array $points, ?float $baseline = null): string {
-            $first = $points[0];
-            $path = $baseline === null
-                ? sprintf('M %.2f,%.2f', $first['x'], $first['y'])
-                : sprintf('M %.2f,%.2f L %.2f,%.2f', $first['x'], $baseline, $first['x'], $first['y']);
-            $pointCount = count($points);
-
-            for ($index = 0; $index < $pointCount - 1; $index++) {
-                $previous = $points[max($index - 1, 0)];
-                $start = $points[$index];
-                $end = $points[$index + 1];
-                $next = $points[min($index + 2, $pointCount - 1)];
-                $path .= sprintf(
-                    ' C %.2f,%.2f %.2f,%.2f %.2f,%.2f',
-                    $start['x'] + (($end['x'] - $previous['x']) / 6),
-                    $start['y'] + (($end['y'] - $previous['y']) / 6),
-                    $end['x'] - (($next['x'] - $start['x']) / 6),
-                    $end['y'] - (($next['y'] - $start['y']) / 6),
-                    $end['x'],
-                    $end['y']
-                );
-            }
-
-            return $baseline === null
-                ? $path
-                : $path.sprintf(' L %.2f,%.2f Z', $points[$pointCount - 1]['x'], $baseline);
-        };
     @endphp
 
     <style>
@@ -91,28 +64,9 @@
         .cd-oldest-title { color:#172f3e; font-size:0.88rem; font-weight:750; line-height:1.4; }
         .cd-oldest-meta { margin-top:5px; color:#718096; font-size:0.75rem; }
         .cd-chart-layout { display:grid; grid-template-columns:minmax(0,1.55fr) minmax(250px,0.9fr); gap:14px; align-items:stretch; }
-        .cd-status-overview { display:grid; grid-template-columns:150px minmax(0,1fr); align-items:center; gap:16px; margin-top:12px; padding:12px; border:1px solid #edf2f2; border-radius:14px; background:linear-gradient(140deg,#fff,#fbfdfc); }
-        .cd-donut { display:block; width:150px; height:150px; }
-        .cd-donut-track { fill:none; stroke:#e9eff2; stroke-width:16; }
-        .cd-donut-segment { fill:none; stroke-width:16; transform:rotate(-90deg); transform-origin:80px 80px; }
-        .cd-donut-total { fill:#183247; font-size:25px; font-weight:800; text-anchor:middle; }
-        .cd-donut-label { fill:#718394; font-size:10px; font-weight:650; text-anchor:middle; }
-        .cd-status-legend { display:grid; gap:8px; }
-        .cd-status-legend-row { display:grid; grid-template-columns:minmax(0,1fr) auto auto; align-items:center; gap:10px; padding:9px 10px; border:1px solid #edf1f3; border-radius:10px; background:#fff; }
-        .cd-status-legend-name { display:flex; align-items:center; gap:8px; color:#42596a; font-size:0.76rem; font-weight:700; }
         .cd-status-dot { width:9px; height:9px; flex:0 0 9px; border-radius:50%; }
         .cd-status-count { color:#183247; font-size:0.88rem; font-weight:800; font-variant-numeric:tabular-nums; }
         .cd-status-percent { min-width:36px; color:#7b8da4; font-size:0.7rem; text-align:right; }
-        .cd-trend-chart { display:block; width:100%; height:auto; margin-top:8px; overflow:visible; }
-        .cd-trend-plot { fill:#f3f6f8; }
-        .cd-trend-gridline { stroke:#dce5eb; stroke-width:1; }
-        .cd-trend-axis { fill:#718394; font-size:10px; }
-        .cd-trend-y-axis { fill:#718394; font-size:9px; font-variant-numeric:tabular-nums; }
-        .cd-trend-line { fill:none; stroke-width:3.2; stroke-linecap:round; stroke-linejoin:round; }
-        .cd-trend-area { stroke:none; }
-        .cd-trend-point { stroke:#f3f6f8; stroke-width:2.5; }
-        .cd-chart-legend { display:flex; flex-wrap:wrap; gap:14px; margin-top:5px; }
-        .cd-chart-legend-item { display:flex; align-items:center; gap:6px; color:#627384; font-size:0.72rem; font-weight:700; }
         .cd-announcements { display:flex; flex-direction:column; gap:10px; margin:10px 0 0; padding:0; list-style:none; }
         .cd-announcement { padding:10px 11px; border:1px solid #e8e4fb; border-radius:10px; background:#fbfaff; }
         .cd-announcement-title { color:#253b54; font-size:0.82rem; font-weight:750; line-height:1.4; overflow-wrap:anywhere; }
@@ -128,8 +82,6 @@
         @media(max-width:640px) {
         .cd-stats { grid-template-columns:minmax(0,1fr); }
             .cd-panel { padding:15px; }
-            .cd-status-overview { grid-template-columns:120px minmax(0,1fr); gap:10px; }
-            .cd-donut { width:120px; height:120px; }
             .cd-queue-item { align-items:flex-start; flex-direction:column; }
             .cd-review-actions { width:100%; justify-content:space-between; }
         }
@@ -154,7 +106,7 @@
                 </span>
                 <span class="cd-stat-copy">
                     <span class="cd-stat-label">Pending second-review</span>
-                    <span class="cd-stat-value" style="display:block">{{ $pendingSecondReview }}</span>
+                    <span class="cd-stat-value" style="display:block" data-count-up="{{ $pendingSecondReview }}" aria-label="{{ $pendingSecondReview }}">{{ $pendingSecondReview }}</span>
                     <span class="cd-stat-link">Open queue</span>
                 </span>
                 <span class="cd-stat-arrow" aria-hidden="true">›</span>
@@ -165,7 +117,7 @@
                 </span>
                 <span class="cd-stat-copy">
                     <span class="cd-stat-label">Active activities</span>
-                    <span class="cd-stat-value" style="display:block">{{ $activeActivities }}</span>
+                    <span class="cd-stat-value" style="display:block" data-count-up="{{ $activeActivities }}" aria-label="{{ $activeActivities }}">{{ $activeActivities }}</span>
                     <span class="cd-stat-link">Monitor activities</span>
                 </span>
                 <span class="cd-stat-arrow" aria-hidden="true">›</span>
@@ -176,7 +128,7 @@
                 </span>
                 <span class="cd-stat-copy">
                     <span class="cd-stat-label">Evaluation reports</span>
-                    <span class="cd-stat-value" style="display:block">{{ $evaluationSummaries }}</span>
+                    <span class="cd-stat-value" style="display:block" data-count-up="{{ $evaluationSummaries }}" aria-label="{{ $evaluationSummaries }}">{{ $evaluationSummaries }}</span>
                     <span class="cd-stat-link">View summaries</span>
                 </span>
                 <span class="cd-stat-arrow" aria-hidden="true">›</span>
@@ -273,101 +225,9 @@
         </div>
 
         <div class="cd-chart-layout">
-            <section class="cd-panel">
-                <div class="cd-panel-head">
-                    <h3 class="cd-panel-title">
-                        <span class="cd-panel-icon" aria-hidden="true">
-                            <svg width="19" height="19" viewBox="0 0 24 24" fill="none"><path d="M4 19V5m0 14h16M7 15l4-4 3 2 6-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                        </span>
-                        Coordinator review decisions
-                    </h3>
-                    <span style="color:#718096; font-size:0.72rem">Recorded decisions · last 6 months</span>
-                </div>
-                @php
-                    $trendMax = max((int) ceil((collect($reviewTrend)->flatMap(fn ($month) => [$month['advanced'], $month['returned']])->max() ?? 0) / 2) * 2, 2);
-                    $trendAxisTicks = [['y' => 36, 'label' => $trendMax]];
-                    $trendAxisTicks[] = ['y' => 92, 'label' => (int) ($trendMax / 2)];
-                    $trendAxisTicks[] = ['y' => 148, 'label' => 0];
-                    $trendSeries = [
-                        ['key' => 'advanced', 'label' => 'Endorsed to CELP Head', 'event' => 'endorsed', 'color' => '#078d70'],
-                        ['key' => 'returned', 'label' => 'Returned to applicants', 'event' => 'returned', 'color' => '#d94e74'],
-                    ];
-                    $trendPoints = [];
-                    foreach ($trendSeries as $series) {
-                        $points = [];
-                        foreach ($reviewTrend as $index => $month) {
-                            $x = 50 + ($index * 94);
-                            $y = 148 - (($month[$series['key']] / $trendMax) * 112);
-                            $points[] = ['x' => $x, 'y' => $y, 'count' => $month[$series['key']], 'label' => $month['label']];
-                        }
-                        $trendPoints[$series['key']] = $points;
-                    }
-                @endphp
-                <svg class="cd-trend-chart" viewBox="0 0 560 188" role="img" aria-label="CELP Coordinator decisions recorded each month over the last six months.">
-                    <rect class="cd-trend-plot" x="22" y="16" width="534" height="148" rx="12"/>
-                    @foreach($trendAxisTicks as $tick)
-                        <line class="cd-trend-gridline" x1="50" y1="{{ $tick['y'] }}" x2="542" y2="{{ $tick['y'] }}"/>
-                        <text class="cd-trend-y-axis" x="42" y="{{ $tick['y'] + 3 }}" text-anchor="end">{{ $tick['label'] }}</text>
-                    @endforeach
-                    @foreach($trendSeries as $series)
-                        @php $points = $trendPoints[$series['key']]; @endphp
-                        <path class="cd-trend-area" fill="{{ $series['color'] }}" fill-opacity="0.06" d="{{ $smoothTrendPath($points, 148) }}"/>
-                        <path class="cd-trend-line" stroke="{{ $series['color'] }}" d="{{ $smoothTrendPath($points) }}"/>
-                        @foreach($points as $point)
-                            <circle class="cd-trend-point" cx="{{ $point['x'] }}" cy="{{ $point['y'] }}" r="3" fill="{{ $series['color'] }}">
-                                <title>{{ $point['label'] }}: {{ $point['count'] }} proposals {{ $series['event'] }}</title>
-                            </circle>
-                        @endforeach
-                    @endforeach
-                    @foreach($reviewTrend as $index => $month)
-                        <text class="cd-trend-axis" x="{{ 50 + ($index * 94) }}" y="181" text-anchor="middle">{{ $month['label'] }}</text>
-                    @endforeach
-                </svg>
-                <div class="cd-chart-legend" aria-label="Trend chart legend">
-                    @foreach($trendSeries as $series)
-                        <span class="cd-chart-legend-item"><span class="cd-status-dot" style="background:{{ $series['color'] }}"></span>{{ $series['label'] }}</span>
-                    @endforeach
-                </div>
-            </section>
+            <x-analytics.columns title="Coordinator review decisions" description="Recorded decisions · last 6 months" :data="$reviewTrend" :series="[['key'=>'advanced','label'=>'Endorsed to CELP Head','color'=>'#078d70'],['key'=>'returned','label'=>'Returned to applicants','color'=>'#d94e74']]" unit="decisions" breakdown-label="By decision" mode="grouped" />
 
-            <section class="cd-panel">
-                <div class="cd-panel-head">
-                    <h3 class="cd-panel-title">
-                        <span class="cd-panel-icon" aria-hidden="true">
-                            <svg width="19" height="19" viewBox="0 0 24 24" fill="none"><path d="M4 20V10m5 10V4m5 16v-7m5 7V7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>
-                        </span>
-                        Coordinator pipeline
-                    </h3>
-                </div>
-                @php $donutOffset = 0; @endphp
-                <div class="cd-status-overview">
-                    <svg class="cd-donut" viewBox="0 0 160 160" role="img" aria-label="Current Coordinator workflow: {{ collect($statusMeta)->map(fn ($status) => $status['label'].' '.$status['count'])->implode(', ') }}">
-                        <circle class="cd-donut-track" cx="80" cy="80" r="46"/>
-                        @foreach($statusMeta as $status)
-                            @if($status['count'] > 0)
-                                @php
-                                    $segmentLength = $status['count'] / max($statusSum, 1) * 289.03;
-                                    $segmentOffset = $donutOffset;
-                                    $donutOffset += $segmentLength;
-                                @endphp
-                                <circle class="cd-donut-segment" cx="80" cy="80" r="46" stroke="{{ $status['color'] }}"
-                                        stroke-dasharray="{{ $segmentLength }} 289.03" stroke-dashoffset="{{ -$segmentOffset }}"/>
-                            @endif
-                        @endforeach
-                        <text class="cd-donut-total" x="80" y="78">{{ $statusSum }}</text>
-                        <text class="cd-donut-label" x="80" y="96">In workflow</text>
-                    </svg>
-                    <div class="cd-status-legend">
-                        @foreach($statusMeta as $status)
-                            <div class="cd-status-legend-row">
-                                <span class="cd-status-legend-name"><span class="cd-status-dot" style="background:{{ $status['color'] }}"></span>{{ $status['label'] }}</span>
-                                <span class="cd-status-count">{{ $status['count'] }}</span>
-                                <span class="cd-status-percent">{{ $status['percent'] }}%</span>
-                            </div>
-                        @endforeach
-                    </div>
-                </div>
-            </section>
+            <x-analytics.radial title="Coordinator pipeline" description="Current workflow status" :items="$workflowStages" total-label="In workflow" :pipeline="true" :links="['pending'=>route('projects.coordinator_review')]" />
         </div>
 
         <div class="cd-content-grid">

@@ -12,6 +12,8 @@
         @case('arrow-right') <path d="M4 12h16m-6-6 6 6-6 6"/> @break
         @case('arrow-left') <path d="M20 12H4m6-6-6 6 6 6"/> @break
         @case('chevron-right') <path d="m9 5 7 7-7 7"/> @break
+        @case('chevron-down') <path d="m5 9 7 7 7-7"/> @break
+        @case('shield') <path d="m12 3 8 3v6c0 5-8 9-8 9s-8-4-8-9V6Z"/><path d="m8 12 3 3 5-6"/> @break
         @case('mail') <rect x="3" y="5" width="18" height="14" rx="2"/><path d="m4 7 8 6 8-6"/> @break
         @case('send') <path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/> @break
         @case('location') <path d="M20 10c0 6-8 11-8 11S4 16 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/> @break

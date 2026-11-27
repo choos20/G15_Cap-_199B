@@ -9,35 +9,16 @@
     @endif
 
     @php
+        $organizationWorkflowLinks = [
+            'secretary' => route('student_org.proposals', ['status' => 'submitted']),
+            'coordinator' => route('student_org.proposals', ['status' => 'endorsed_by_secretary']),
+            'celp_head' => route('student_org.proposals', ['status' => 'endorsed_by_coordinator']),
+            'csa' => route('student_org.proposals', ['status' => 'approved']),
+            'approved' => route('student_org.proposals', ['status' => 'csa_cleared']),
+            'returned' => route('student_org.proposals', ['status_group' => 'returned']),
+        ];
         $statusMeta = $workflowStages;
         $statusSum = $workflowTotal;
-        $smoothTrendPath = function (array $points, ?float $baseline = null): string {
-            $first = $points[0];
-            $path = $baseline === null
-                ? sprintf('M %.2f,%.2f', $first['x'], $first['y'])
-                : sprintf('M %.2f,%.2f L %.2f,%.2f', $first['x'], $baseline, $first['x'], $first['y']);
-            $pointCount = count($points);
-
-            for ($index = 0; $index < $pointCount - 1; $index++) {
-                $previous = $points[max($index - 1, 0)];
-                $start = $points[$index];
-                $end = $points[$index + 1];
-                $next = $points[min($index + 2, $pointCount - 1)];
-                $path .= sprintf(
-                    ' C %.2f,%.2f %.2f,%.2f %.2f,%.2f',
-                    $start['x'] + (($end['x'] - $previous['x']) / 6),
-                    $start['y'] + (($end['y'] - $previous['y']) / 6),
-                    $end['x'] - (($next['x'] - $start['x']) / 6),
-                    $end['y'] - (($next['y'] - $start['y']) / 6),
-                    $end['x'],
-                    $end['y']
-                );
-            }
-
-            return $baseline === null
-                ? $path
-                : $path.sprintf(' L %.2f,%.2f Z', $points[$pointCount - 1]['x'], $baseline);
-        };
     @endphp
 
     <style>
@@ -57,25 +38,6 @@
         .org-chart-title{display:flex;align-items:center;gap:9px;margin:0;color:#123d33;font-size:1rem}
         .org-chart-icon{display:flex;align-items:center;justify-content:center;width:34px;height:34px;flex:0 0 34px;border-radius:11px;background:#edf6f3;color:#087f67}
         .org-chart-period{color:#52665d;font-size:.72rem;white-space:nowrap}
-        .org-trend-chart{display:block;width:100%;height:auto;margin-top:8px;overflow:visible}
-        .org-trend-plot{fill:#f3f6f8}
-        .org-trend-gridline{stroke:#dce5eb;stroke-width:1}
-        .org-trend-axis,.org-trend-y-axis{fill:#718394;font-size:10px}
-        .org-trend-y-axis{font-size:9px;font-variant-numeric:tabular-nums}
-        .org-trend-line{fill:none;stroke-width:3.2;stroke-linecap:round;stroke-linejoin:round}
-        .org-trend-area{stroke:none}
-        .org-trend-point{stroke:#f3f6f8;stroke-width:2.5}
-        .org-chart-legend{display:flex;flex-wrap:wrap;gap:14px;margin-top:5px}
-        .org-chart-legend-item{display:flex;align-items:center;gap:6px;color:#627384;font-size:.72rem;font-weight:700}
-        .org-status-overview{display:grid;grid-template-columns:145px minmax(0,1fr);align-items:center;gap:12px;margin-top:12px;padding:12px;border:1px solid #edf2f2;border-radius:14px;background:linear-gradient(140deg,#fff,#fbfdfc)}
-        .org-donut{display:block;width:145px;height:145px}
-        .org-donut-track{fill:none;stroke:#e9eff2;stroke-width:16}
-        .org-donut-segment{fill:none;stroke-width:16;transform:rotate(-90deg);transform-origin:80px 80px}
-        .org-donut-total{fill:#183b32;font-size:25px;font-weight:800;text-anchor:middle}
-        .org-donut-label{fill:#52665d;font-size:10px;font-weight:650;text-anchor:middle}
-        .org-status-legend{display:grid;gap:7px}
-        .org-status-legend-row{display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:center;gap:7px;padding:7px;border:1px solid #edf1f3;border-radius:10px;background:#fff}
-        .org-status-legend-name{display:flex;align-items:center;gap:7px;color:#52645e;font-size:.7rem;font-weight:700}
         .org-status-dot{width:9px;height:9px;flex:0 0 9px;border-radius:50%}
         .org-status-count{color:#183b32;font-size:.82rem;font-weight:800;font-variant-numeric:tabular-nums}
         .org-status-percent{min-width:30px;color:#7b8d84;font-size:.67rem;text-align:right}
@@ -129,137 +91,32 @@
                 <div class="org-stat-icon" aria-hidden="true">
                     <svg viewBox="0 0 24 24" fill="none"><path d="M5 4h14v16H5zM8 8h8M8 12h8M8 16h5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
                 </div>
-                <div><div class="org-stat-label">Total proposals</div><div class="org-stat-value">{{ $totalProposals }}</div></div>
+                <div><div class="org-stat-label">Total proposals</div><div class="org-stat-value" data-count-up="{{ $totalProposals }}" aria-label="{{ $totalProposals }}">{{ $totalProposals }}</div></div>
             </article>
             <article class="org-stat">
                 <div class="org-stat-icon is-review" aria-hidden="true">
                     <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/><path d="M12 7v5l3 2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
                 </div>
-                <div><div class="org-stat-label">In review</div><div class="org-stat-value">{{ $projectsInReview }}</div></div>
+                <div><div class="org-stat-label">In review</div><div class="org-stat-value" data-count-up="{{ $projectsInReview }}" aria-label="{{ $projectsInReview }}">{{ $projectsInReview }}</div></div>
             </article>
             <article class="org-stat">
                 <div class="org-stat-icon is-returned" aria-hidden="true">
                     <svg viewBox="0 0 24 24" fill="none"><path d="M9 14 4 9l5-5M4 9h9a7 7 0 1 1 0 14h-2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
                 </div>
-                <div><div class="org-stat-label">Returned for updates</div><div class="org-stat-value">{{ $projectsReturned }}</div></div>
+                <div><div class="org-stat-label">Returned for updates</div><div class="org-stat-value" data-count-up="{{ $projectsReturned }}" aria-label="{{ $projectsReturned }}">{{ $projectsReturned }}</div></div>
             </article>
             <article class="org-stat">
                 <div class="org-stat-icon is-approved" aria-hidden="true">
                     <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/><path d="m8 12 2.5 2.5L16 9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
                 </div>
-                <div><div class="org-stat-label">Fully approved</div><div class="org-stat-value">{{ $approvedActivities }}</div></div>
+                <div><div class="org-stat-label">Fully approved</div><div class="org-stat-value" data-count-up="{{ $approvedActivities }}" aria-label="{{ $approvedActivities }}">{{ $approvedActivities }}</div></div>
             </article>
         </section>
 
         <div class="org-chart-layout">
-            <section class="org-chart-panel">
-                <div class="org-chart-head">
-                    <h3 class="org-chart-title">
-                        <span class="org-chart-icon" aria-hidden="true">
-                            <svg width="19" height="19" viewBox="0 0 24 24" fill="none"><path d="M4 19V5m0 14h16M7 15l4-4 3 2 6-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                        </span>
-                        Monthly proposal activity
-                    </h3>
-                    <span class="org-chart-period">Last 6 months</span>
-                </div>
-                @php
-                    $trendMax = max(collect($projectTrend)->flatMap(fn ($month) => [$month['approved'], $month['pending'], $month['returned']])->max() ?? 0, 1);
-                    $trendAxisTicks = [['y' => 36, 'label' => $trendMax]];
-                    if ($trendMax >= 2) {
-                        $trendAxisTicks[] = ['y' => 92, 'label' => (int) round($trendMax / 2)];
-                    }
-                    $trendAxisTicks[] = ['y' => 148, 'label' => 0];
-                    $trendSeries = [
-                        ['key' => 'approved', 'label' => 'Approved', 'color' => '#078d70'],
-                        ['key' => 'pending', 'label' => 'In review', 'color' => '#c98208'],
-                        ['key' => 'returned', 'label' => 'Returned', 'color' => '#d94e74'],
-                    ];
-                    $trendPoints = [];
-                    foreach ($trendSeries as $series) {
-                        $points = [];
-                        foreach ($projectTrend as $index => $month) {
-                            $x = 50 + ($index * 94);
-                            $y = 148 - (($month[$series['key']] / $trendMax) * 112);
-                            $points[] = ['x' => $x, 'y' => $y, 'count' => $month[$series['key']], 'label' => $month['label']];
-                        }
-                        $trendPoints[$series['key']] = $points;
-                    }
-                @endphp
-                <svg class="org-trend-chart" viewBox="0 0 560 188" role="img" aria-label="Your proposals created each month over the last six months, grouped by current status.">
-                    <defs>
-                        <filter id="org-trend-glow" x="-30%" y="-30%" width="160%" height="160%">
-                            <feGaussianBlur stdDeviation="1.5" result="blur"/>
-                            <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
-                        </filter>
-                        <filter id="org-point-glow" x="-100%" y="-100%" width="300%" height="300%">
-                            <feGaussianBlur stdDeviation="1.5" result="blur"/>
-                            <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
-                        </filter>
-                    </defs>
-                    <rect class="org-trend-plot" x="22" y="16" width="534" height="148" rx="12"/>
-                    @foreach($trendAxisTicks as $tick)
-                        <line class="org-trend-gridline" x1="50" y1="{{ $tick['y'] }}" x2="542" y2="{{ $tick['y'] }}"/>
-                        <text class="org-trend-y-axis" x="42" y="{{ $tick['y'] + 3 }}" text-anchor="end">{{ $tick['label'] }}</text>
-                    @endforeach
-                    @foreach($trendSeries as $series)
-                        @php $points = $trendPoints[$series['key']]; @endphp
-                        <path class="org-trend-area" fill="{{ $series['color'] }}" fill-opacity="0.06" d="{{ $smoothTrendPath($points, 148) }}"/>
-                        <path class="org-trend-line" stroke="{{ $series['color'] }}" d="{{ $smoothTrendPath($points) }}"/>
-                        @foreach($points as $point)
-                            <circle class="org-trend-point" cx="{{ $point['x'] }}" cy="{{ $point['y'] }}" r="3" fill="{{ $series['color'] }}">
-                                <title>{{ $point['label'] }}: {{ $point['count'] }} {{ \Illuminate\Support\Str::plural('proposal', $point['count']) }} {{ strtolower($series['label']) }}</title>
-                            </circle>
-                        @endforeach
-                    @endforeach
-                    @foreach($projectTrend as $index => $month)
-                        <text class="org-trend-axis" x="{{ 50 + ($index * 94) }}" y="181" text-anchor="middle">{{ $month['label'] }}</text>
-                    @endforeach
-                </svg>
-                <div class="org-chart-legend" aria-label="Proposal trend chart legend">
-                    @foreach($trendSeries as $series)
-                        <span class="org-chart-legend-item"><span class="org-status-dot" style="background:{{ $series['color'] }}"></span>{{ $series['label'] }}</span>
-                    @endforeach
-                </div>
-            </section>
+            <x-analytics.columns title="Monthly proposal activity" description="Monitor your organization’s proposal activity" :data="$projectTrend" :series="[['key'=>'approved','label'=>'Approved','color'=>'#078d70'],['key'=>'pending','label'=>'In review','color'=>'#c98208'],['key'=>'returned','label'=>'Returned','color'=>'#d94e74']]" :record-url="route('student_org.proposals')" />
 
-            <section class="org-chart-panel">
-                <div class="org-chart-head">
-                    <h3 class="org-chart-title">
-                        <span class="org-chart-icon" aria-hidden="true">
-                            <svg width="19" height="19" viewBox="0 0 24 24" fill="none"><path d="M4 20V10m5 10V4m5 16v-7m5 7V7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>
-                        </span>
-                        Proposal status breakdown
-                    </h3>
-                </div>
-                @php $donutOffset = 0; @endphp
-                <div class="org-status-overview">
-                    <svg class="org-donut" viewBox="0 0 160 160" role="img" aria-label="Your proposal statuses: {{ collect($statusMeta)->map(fn ($status) => $status['label'].' '.$status['count'])->implode(', ') }}">
-                        <circle class="org-donut-track" cx="80" cy="80" r="46"/>
-                        @foreach($statusMeta as $status)
-                            @if($status['count'] > 0)
-                                @php
-                                    $segmentLength = $status['count'] / max($statusSum, 1) * 289.03;
-                                    $segmentOffset = $donutOffset;
-                                    $donutOffset += $segmentLength;
-                                @endphp
-                                <circle class="org-donut-segment" cx="80" cy="80" r="46" stroke="{{ $status['color'] }}"
-                                        stroke-dasharray="{{ $segmentLength }} 289.03" stroke-dashoffset="{{ -$segmentOffset }}"/>
-                            @endif
-                        @endforeach
-                        <text class="org-donut-total" x="80" y="78">{{ $statusSum }}</text>
-                        <text class="org-donut-label" x="80" y="96">Proposals</text>
-                    </svg>
-                    <div class="org-status-legend">
-                        @foreach($statusMeta as $status)
-                            <div class="org-status-legend-row">
-                                <span class="org-status-legend-name"><span class="org-status-dot" style="background:{{ $status['color'] }}"></span>{{ $status['label'] }}</span>
-                                <span class="org-status-count">{{ $status['count'] }}</span>
-                                <span class="org-status-percent">{{ $status['percent'] }}%</span>
-                            </div>
-                        @endforeach
-                    </div>
-                </div>
-            </section>
+            <x-analytics.radial title="Proposal status breakdown" description="Your organization’s current proposal statuses" :items="$workflowStages" total-label="Proposals" :links="$organizationWorkflowLinks" />
         </div>
 
         <div class="org-content-grid">
@@ -270,12 +127,7 @@
                         <a class="org-panel-link" href="{{ route('student_org.proposals') }}">View my proposals</a>
                     </div>
                     <p class="org-panel-description">See how many proposals are currently waiting at each review stage.</p>
-                    <div class="org-pipeline">
-                        <div class="org-pipeline-step"><div class="org-pipeline-label">CELP Secretary</div><div class="org-pipeline-count">{{ $projectsAwaitingSecretary }}</div></div>
-                        <div class="org-pipeline-step"><div class="org-pipeline-label">CELP Coordinator</div><div class="org-pipeline-count">{{ $projectsAwaitingCoordinator }}</div></div>
-                        <div class="org-pipeline-step"><div class="org-pipeline-label">CELP Head</div><div class="org-pipeline-count">{{ $projectsAwaitingCelpHead }}</div></div>
-                        <div class="org-pipeline-step"><div class="org-pipeline-label">CSA Director</div><div class="org-pipeline-count">{{ $projectsAwaitingCsa }}</div></div>
-                    </div>
+                    <x-analytics.pipeline :stages="collect($workflowStages)->take(4)->all()" :total="$projectsInReview" :links="$organizationWorkflowLinks" />
                     @if($projectsReturned > 0)
                         <div class="org-pipeline-note">{{ $projectsReturned }} {{ \Illuminate\Support\Str::plural('proposal', $projectsReturned) }} {{ $projectsReturned === 1 ? 'needs' : 'need' }} updates. Check My proposals for reviewer feedback.</div>
                     @endif

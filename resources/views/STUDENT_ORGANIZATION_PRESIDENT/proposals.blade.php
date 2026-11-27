@@ -159,13 +159,22 @@
                     <option value="coordinator review">Coordinator review</option>
                     <option value="approved">Approved</option>
                     <option value="rejected">Rejected</option>
+                    @foreach(\App\Models\Project::STATUS_LABELS as $key => $label)
+                        @if(! in_array($key, ['submitted', 'approved'], true))
+                            <option value="{{ str_replace('_', ' ', $key) }}">{{ $label }}</option>
+                        @endif
+                    @endforeach
+                    <option value="group:returned">All returned proposals</option>
+                    <option value="group:pending">All in-review proposals</option>
+                    <option value="group:approved">Approved / CSA cleared</option>
                 </select>
             </div>
         </div>
 
         <div class="proposals-summary">
-            Showing <strong>{{ $projects->count() }}</strong> proposal{{ $projects->count() === 1 ? '' : 's' }}. Use search and status filters to narrow results instantly.
+            <span id="proposal-summary-count">Showing <strong>{{ $projects->count() }}</strong> proposal{{ $projects->count() === 1 ? '' : 's' }}.</span> Use search and status filters to narrow results instantly.
         </div>
+        <div data-proposal-chart-context hidden style="margin-bottom:14px;padding:10px 14px;border:1px solid #d7eade;border-radius:10px;background:#f1faf5;color:#24563c;font-size:.85rem"><span></span> <a href="{{ route('student_org.proposals') }}" style="margin-left:8px;color:#08734e">Clear chart filters</a></div>
 
         @if($projects->isEmpty())
             <div class="no-results">
@@ -189,7 +198,7 @@
                                 $statusSlug = str_replace(' ', '-', strtolower(str_replace('_', ' ', $project->status)));
                                 $statusLabel = str_replace('_', ' ', $project->status);
                             @endphp
-                            <tr data-title="{{ strtolower($project->title) }}" data-status="{{ strtolower($statusLabel) }}">
+                            <tr data-title="{{ strtolower($project->title) }}" data-status="{{ strtolower($statusLabel) }}" data-month="{{ $project->created_at?->format('Y-m') }}">
                                 <td>
                                     <span class="proposal-title">{{ $project->title }}</span>
                                     <span class="proposal-reference">Ref: PRP-{{ str_pad($project->id, 4, '0', STR_PAD_LEFT) }}</span>
@@ -234,6 +243,20 @@
             const statusFilter = document.getElementById('status-filter');
             const rows = Array.from(document.querySelectorAll('#proposal-table tbody tr'));
             const countText = document.getElementById('proposal-count-text');
+            if (!searchInput || !statusFilter || !countText) return;
+            const chartParams = new URLSearchParams(window.location.search);
+            const requestedStatus = chartParams.get('status')?.replaceAll('_', ' ');
+            const requestedGroup = chartParams.get('status_group');
+            const chartStatus = requestedStatus || (['returned', 'pending', 'approved'].includes(requestedGroup) ? `group:${requestedGroup}` : '');
+            if ([...statusFilter.options].some(option => option.value === chartStatus)) statusFilter.value = chartStatus;
+            const validMonth = value => /^\d{4}-(0[1-9]|1[0-2])$/.test(value || '');
+            const from = validMonth(chartParams.get('from')) ? chartParams.get('from') : '';
+            const to = validMonth(chartParams.get('to')) ? chartParams.get('to') : '';
+            const chartContext = document.querySelector('[data-proposal-chart-context]');
+            if (chartContext && (from || to || chartStatus)) {
+                chartContext.hidden = false;
+                chartContext.querySelector('span').textContent = `Chart filter${from ? ` · From ${from}` : ''}${to ? ` · Through ${to}` : ''}${chartStatus ? ' · Selected proposal status' : ''}`;
+            }
 
             const updateFilter = () => {
                 const query = searchInput.value.trim().toLowerCase();
@@ -244,17 +267,23 @@
                     const title = row.dataset.title;
                     const rowStatus = row.dataset.status;
                     const matchSearch = !query || title.includes(query) || rowStatus.includes(query);
-                    const matchStatus = !status || rowStatus === status;
-                    const show = matchSearch && matchStatus;
+                    const groupMatches = status === 'group:returned' ? rowStatus.startsWith('returned by ')
+                        : status === 'group:pending' ? ['submitted', 'endorsed by secretary', 'endorsed by coordinator'].includes(rowStatus)
+                        : status === 'group:approved' ? ['approved', 'csa cleared'].includes(rowStatus) : rowStatus === status;
+                    const matchStatus = !status || groupMatches;
+                    const matchMonth = (!from || row.dataset.month >= from) && (!to || row.dataset.month <= to);
+                    const show = matchSearch && matchStatus && matchMonth;
                     row.style.display = show ? '' : 'none';
                     if (show) visible += 1;
                 });
 
                 countText.textContent = `Showing ${visible} of ${rows.length} proposals`;
+                document.getElementById('proposal-summary-count').textContent = `Showing ${visible} proposal${visible === 1 ? '' : 's'}.`;
             };
 
             searchInput.addEventListener('input', updateFilter);
             statusFilter.addEventListener('change', updateFilter);
+            updateFilter();
         });
     </script>
 @endsection

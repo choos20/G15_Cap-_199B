@@ -8,6 +8,7 @@ export default defineConfig({
             input: [
                 'resources/css/app.css',
                 'resources/js/app.js',
+                'resources/js/dashboard-analytics.js',
                 'resources/js/document-viewer.js',
                 'resources/js/proposal-upload-preview.js',
                 'resources/js/proposal-success-modal.js',

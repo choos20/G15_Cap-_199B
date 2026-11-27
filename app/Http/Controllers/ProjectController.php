@@ -13,11 +13,13 @@ use App\Services\DocumentPreviewService;
 use App\Services\ProjectDocumentAccess;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 
 class ProjectController extends Controller
 {
@@ -506,6 +508,28 @@ class ProjectController extends Controller
 
         $status = $request->query('status');
         $term = trim((string) $request->query('q', ''));
+        // Optional chart drill-downs refine this existing Head-only listing.
+        // Dashboard metrics and the listing's default query stay unchanged.
+        $chartFilters = $request->validate([
+            'status_group' => ['nullable', 'in:approved,pending,returned'],
+            'from' => ['nullable', 'date_format:Y-m'],
+            'to' => ['nullable', 'date_format:Y-m'],
+            'initiators' => ['nullable', 'boolean'],
+        ]);
+        if (! empty($chartFilters['from']) && ! empty($chartFilters['to']) && $chartFilters['from'] > $chartFilters['to']) {
+            throw ValidationException::withMessages(['to' => 'The final month must be on or after the first month.']);
+        }
+        $chartScope = function ($query) use ($chartFilters): void {
+            if (! empty($chartFilters['initiators'])) {
+                $query->whereHas('creator', fn ($creator) => $creator->whereIn('role', ['student_org', 'college_department']));
+            }
+            if (! empty($chartFilters['from'])) {
+                $query->where('created_at', '>=', Carbon::createFromFormat('!Y-m', $chartFilters['from'])->startOfMonth());
+            }
+            if (! empty($chartFilters['to'])) {
+                $query->where('created_at', '<', Carbon::createFromFormat('!Y-m', $chartFilters['to'])->addMonth()->startOfMonth());
+            }
+        };
 
         // LOWER(...) on both sides rather than LIKE: this app runs on Postgres,
         // where plain LIKE is case-sensitive and would miss most searches.
@@ -527,6 +551,10 @@ class ProjectController extends Controller
             ->withCount('attachments')
             ->when($status && array_key_exists($status, Project::STATUS_LABELS),
                 fn ($q) => $q->where('status', $status))
+            ->when(($chartFilters['status_group'] ?? '') === 'approved', fn ($query) => $query->whereIn('status', ['approved', 'csa_cleared']))
+            ->when(($chartFilters['status_group'] ?? '') === 'pending', fn ($query) => $query->whereIn('status', ['submitted', 'endorsed_by_secretary', 'endorsed_by_coordinator']))
+            ->when(($chartFilters['status_group'] ?? '') === 'returned', fn ($query) => $query->where('status', 'like', 'returned_by_%'))
+            ->where($chartScope)
             ->where($search)
             ->orderByDesc('created_at')
             ->paginate(15)
@@ -535,6 +563,7 @@ class ProjectController extends Controller
         // Counts ignore the status filter so every tab keeps showing its true
         // total; they do respect the search term so the tabs match the results.
         $statusCounts = Project::query()
+            ->where($chartScope)
             ->where($search)
             ->selectRaw('status, count(*) as total')
             ->groupBy('status')

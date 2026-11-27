@@ -15,22 +15,22 @@
         <section class="ph-stats" aria-label="Your participation summary">
             <a class="ph-stat ph-amber" href="{{ route('participant.applications') }}">
                 <span class="ph-stat-icon"><x-ui-icon name="clock" /></span>
-                <span class="ph-stat-copy"><span class="ph-stat-label">Pending applications</span><strong>{{ $pendingCount }}</strong></span>
+                <span class="ph-stat-copy"><span class="ph-stat-label">Pending applications</span><strong data-count-up="{{ $pendingCount }}" aria-label="{{ $pendingCount }}">{{ $pendingCount }}</strong></span>
                 <x-ui-icon class="ph-stat-arrow" name="chevron-right" :size="16" />
             </a>
             <a class="ph-stat ph-green" href="{{ route('participant.applications') }}">
                 <span class="ph-stat-icon"><x-ui-icon name="check-circle" /></span>
-                <span class="ph-stat-copy"><span class="ph-stat-label">Approved / enrolled</span><strong>{{ $approvedCount }}</strong></span>
+                <span class="ph-stat-copy"><span class="ph-stat-label">Approved / enrolled</span><strong data-count-up="{{ $approvedCount }}" aria-label="{{ $approvedCount }}">{{ $approvedCount }}</strong></span>
                 <x-ui-icon class="ph-stat-arrow" name="chevron-right" :size="16" />
             </a>
             <a class="ph-stat ph-teal" href="{{ route('participant.attendance') }}">
                 <span class="ph-stat-icon"><x-ui-icon name="calendar-check" /></span>
-                <span class="ph-stat-copy"><span class="ph-stat-label">Activities attended</span><strong>{{ $totalAttendedActivities }}</strong><small>Last 6 months</small></span>
+                <span class="ph-stat-copy"><span class="ph-stat-label">Activities attended</span><strong data-count-up="{{ $totalAttendedActivities }}" aria-label="{{ $totalAttendedActivities }}">{{ $totalAttendedActivities }}</strong><small>Last 6 months</small></span>
                 <x-ui-icon class="ph-stat-arrow" name="chevron-right" :size="16" />
             </a>
             <a class="ph-stat ph-slate" href="#next-activity">
                 <span class="ph-stat-icon"><x-ui-icon name="calendar" /></span>
-                <span class="ph-stat-copy"><span class="ph-stat-label">Upcoming activities</span><strong>{{ $upcomingCount }}</strong></span>
+                <span class="ph-stat-copy"><span class="ph-stat-label">Upcoming activities</span><strong data-count-up="{{ $upcomingCount }}" aria-label="{{ $upcomingCount }}">{{ $upcomingCount }}</strong></span>
                 <x-ui-icon class="ph-stat-arrow" name="chevron-right" :size="16" />
             </a>
         </section>
@@ -72,32 +72,12 @@
                 </div>
             </section>
 
-            <section class="ph-panel ph-participation" aria-labelledby="ph-participation-title">
-                <div class="ph-panel-heading"><h3 id="ph-participation-title"><x-ui-icon name="chart" :size="19" /> Your participation</h3><a class="ph-link" href="{{ route('participant.attendance') }}">View attendance <x-ui-icon name="arrow-right" :size="16" /></a></div>
-                <p class="ph-chart-caption">Activities attended per month <span>Last 6 months</span></p>
-                <div class="ph-summary">
-                    <span><strong>{{ $totalApplications }}</strong> {{ \Illuminate\Support\Str::plural('application', $totalApplications) }}</span>
-                    <span><strong>{{ $organizationsSupported }}</strong> {{ \Illuminate\Support\Str::plural('organization', $organizationsSupported) }} supported</span>
-                </div>
-                @if($totalAttendedActivities > 0)
-                    @php
-                        $chartMax = max(1, (int) $participationMonths->max('count'));
-                    @endphp
-                    <div class="ph-chart" role="img" aria-labelledby="ph-participation-title" aria-describedby="ph-chart-summary">
-                        <p class="ph-sr-only" id="ph-chart-summary">{{ $totalAttendedActivities }} {{ \Illuminate\Support\Str::plural('activity', $totalAttendedActivities) }} attended over the last six months. @foreach($participationMonths as $month){{ $month['label'] }}: {{ $month['count'] }}{{ $loop->last ? '.' : '; ' }}@endforeach</p>
-                        <div class="ph-chart-plot" aria-hidden="true">
-                            @foreach($participationMonths as $month)
-                                <div class="ph-chart-month" style="--ph-bar:{{ number_format($month['count'] / $chartMax * 100, 2, '.', '') }}%">
-                                    <div class="ph-chart-track"><span class="ph-chart-value">{{ $month['count'] }}</span><span class="ph-chart-bar"></span></div>
-                                    <span class="ph-chart-label">{{ $month['label'] }}</span>
-                                </div>
-                            @endforeach
-                        </div>
-                    </div>
-                @else
-                    <div class="ph-empty ph-chart-empty"><span class="ph-empty-icon"><x-ui-icon name="chart" :size="26" /></span><div><h4>Your journey starts here</h4><p>Attend your first activity to build your participation history.</p></div></div>
-                @endif
-            </section>
+            <x-analytics.columns title="Your participation" description="Activities attended per month · last 6 months" :data="$participationMonths" :series="[['key'=>'count','label'=>'Activities attended','color'=>'#078d70']]" unit="activities" mode="total" class="ph-participation" aria-describedby="ph-chart-summary">
+                    <p class="pl-sr-only" id="ph-chart-summary">{{ $totalAttendedActivities }} {{ \Illuminate\Support\Str::plural('activity', $totalAttendedActivities) }} attended over the last six months.</p>
+                    <div class="ph-summary"><span><strong data-count-up="{{ $totalApplications }}" aria-label="{{ $totalApplications }}">{{ $totalApplications }}</strong> {{ \Illuminate\Support\Str::plural('application', $totalApplications) }}</span><span><strong data-count-up="{{ $organizationsSupported }}" aria-label="{{ $organizationsSupported }}">{{ $organizationsSupported }}</strong> {{ \Illuminate\Support\Str::plural('organization', $organizationsSupported) }} supported</span></div>
+                    <a class="ph-link" href="{{ route('participant.attendance') }}">View attendance <x-ui-icon name="arrow-right" :size="16" /></a>
+                    @if($totalAttendedActivities === 0)<p class="ph-muted">Your journey starts here. Attend your first activity to build your participation history.</p>@endif
+                </x-analytics.columns>
 
             <section class="ph-panel" aria-labelledby="ph-updates-title">
                 <div class="ph-panel-heading"><h3 id="ph-updates-title">Recent updates</h3><a class="ph-link" href="{{ route('notifications.index') }}">View all <x-ui-icon name="arrow-right" :size="16" /></a></div>

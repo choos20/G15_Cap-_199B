@@ -7,33 +7,6 @@
     @php
         $statusMeta = $workflowStages;
         $statusSum = $workflowTotal;
-        $smoothTrendPath = function (array $points, ?float $baseline = null): string {
-            $first = $points[0];
-            $path = $baseline === null
-                ? sprintf('M %.2f,%.2f', $first['x'], $first['y'])
-                : sprintf('M %.2f,%.2f L %.2f,%.2f', $first['x'], $baseline, $first['x'], $first['y']);
-            $pointCount = count($points);
-
-            for ($index = 0; $index < $pointCount - 1; $index++) {
-                $previous = $points[max($index - 1, 0)];
-                $start = $points[$index];
-                $end = $points[$index + 1];
-                $next = $points[min($index + 2, $pointCount - 1)];
-                $path .= sprintf(
-                    ' C %.2f,%.2f %.2f,%.2f %.2f,%.2f',
-                    $start['x'] + (($end['x'] - $previous['x']) / 6),
-                    $start['y'] + (($end['y'] - $previous['y']) / 6),
-                    $end['x'] - (($next['x'] - $start['x']) / 6),
-                    $end['y'] - (($next['y'] - $start['y']) / 6),
-                    $end['x'],
-                    $end['y']
-                );
-            }
-
-            return $baseline === null
-                ? $path
-                : $path.sprintf(' L %.2f,%.2f Z', $points[$pointCount - 1]['x'], $baseline);
-        };
     @endphp
 
     <style>
@@ -72,25 +45,6 @@
         .csd-chart-title { display:flex; align-items:center; gap:9px; margin:0; color:#203b50; font-size:0.98rem; letter-spacing:-.01em; }
         .csd-chart-icon { display:flex; align-items:center; justify-content:center; width:34px; height:34px; flex:0 0 34px; border-radius:11px; background:#edf6f3; color:#087f67; }
         .csd-chart-period { color:#718096; font-size:0.72rem; }
-        .csd-trend-chart { display:block; width:100%; height:auto; margin-top:8px; overflow:visible; }
-        .csd-trend-plot { fill:#f3f6f8; }
-        .csd-trend-gridline { stroke:#dce5eb; stroke-width:1; }
-        .csd-trend-axis { fill:#718394; font-size:10px; }
-        .csd-trend-y-axis { fill:#718394; font-size:9px; font-variant-numeric:tabular-nums; }
-        .csd-trend-line { fill:none; stroke-width:3.2; stroke-linecap:round; stroke-linejoin:round; }
-        .csd-trend-area { stroke:none; }
-        .csd-trend-point { stroke:#f3f6f8; stroke-width:2.5; }
-        .csd-chart-legend { display:flex; flex-wrap:wrap; gap:14px; margin-top:5px; }
-        .csd-chart-legend-item { display:flex; align-items:center; gap:6px; color:#627384; font-size:0.72rem; font-weight:700; }
-        .csd-status-overview { display:grid; grid-template-columns:145px minmax(0,1fr); align-items:center; gap:12px; margin-top:12px; padding:10px; border:1px solid #edf2f2; border-radius:14px; background:linear-gradient(140deg,#fff,#fbfdfc); }
-        .csd-donut { display:block; width:145px; height:145px; }
-        .csd-donut-track { fill:none; stroke:#e9eff2; stroke-width:16; }
-        .csd-donut-segment { fill:none; stroke-width:16; transform:rotate(-90deg); transform-origin:80px 80px; }
-        .csd-donut-total { fill:#183247; font-size:25px; font-weight:800; text-anchor:middle; }
-        .csd-donut-label { fill:#718394; font-size:10px; font-weight:650; text-anchor:middle; }
-        .csd-status-legend { display:grid; gap:7px; }
-        .csd-status-legend-row { display:grid; grid-template-columns:minmax(0,1fr) auto auto; align-items:center; gap:8px; padding:8px; border:1px solid #edf1f3; border-radius:9px; background:#fff; }
-        .csd-status-legend-name { display:flex; align-items:center; gap:7px; color:#42596a; font-size:0.72rem; font-weight:700; }
         .csd-status-dot { width:9px; height:9px; flex:0 0 9px; border-radius:50%; }
         .csd-status-count { color:#183247; font-size:0.84rem; font-weight:800; font-variant-numeric:tabular-nums; }
         .csd-status-percent { min-width:32px; color:#7b8da4; font-size:0.68rem; text-align:right; }
@@ -124,8 +78,6 @@
         .csd-stats, .csd-aside { grid-template-columns:minmax(0,1fr); }
             .csd-panel { padding:16px; }
             .csd-chart-panel { padding:15px; }
-            .csd-status-overview { grid-template-columns:115px minmax(0,1fr); gap:8px; padding:8px; }
-            .csd-donut { width:115px; height:115px; }
             .csd-queue-item, .csd-oldest { align-items:flex-start; flex-direction:column; }
             .csd-review-link { align-self:flex-start; }
         }
@@ -150,7 +102,7 @@
                 </span>
                 <div>
                     <div class="csd-stat-label">Pending proposals</div>
-                    <div class="csd-stat-value">{{ $pendingProposals }}</div>
+                    <div class="csd-stat-value" data-count-up="{{ $pendingProposals }}" aria-label="{{ $pendingProposals }}">{{ $pendingProposals }}</div>
                     <a class="csd-stat-link csd-focus" href="{{ route('projects.secretary_review') }}">Open review queue</a>
                 </div>
             </div>
@@ -160,7 +112,7 @@
                 </span>
                 <div>
                     <div class="csd-stat-label">Returned to applicants</div>
-                    <div class="csd-stat-value">{{ $returnedCount }}</div>
+                    <div class="csd-stat-value" data-count-up="{{ $returnedCount }}" aria-label="{{ $returnedCount }}">{{ $returnedCount }}</div>
                 </div>
             </div>
             <div class="csd-stat">
@@ -169,7 +121,7 @@
                 </span>
                 <div>
                     <div class="csd-stat-label">Evaluation templates</div>
-                    <div class="csd-stat-value">{{ $templatesCount }}</div>
+                    <div class="csd-stat-value" data-count-up="{{ $templatesCount }}" aria-label="{{ $templatesCount }}">{{ $templatesCount }}</div>
                     <a class="csd-stat-link csd-focus" href="{{ route('templates.manage') }}">Manage templates</a>
                 </div>
             </div>
@@ -179,108 +131,16 @@
                 </span>
                 <div>
                     <div class="csd-stat-label">Records &amp; archives</div>
-                    <div class="csd-stat-value">{{ $recordsCount }}</div>
+                    <div class="csd-stat-value" data-count-up="{{ $recordsCount }}" aria-label="{{ $recordsCount }}">{{ $recordsCount }}</div>
                     <a class="csd-stat-link csd-focus" href="{{ route('records.index') }}">View records</a>
                 </div>
             </div>
         </section>
 
         <div class="csd-chart-grid">
-            <section class="csd-chart-panel">
-                <div class="csd-chart-head">
-                    <h3 class="csd-chart-title">
-                        <span class="csd-chart-icon" aria-hidden="true">
-                            <svg width="19" height="19" viewBox="0 0 24 24" fill="none"><path d="M4 19V5m0 14h16M7 15l4-4 3 2 6-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                        </span>
-                        Secretary review decisions
-                    </h3>
-                    <span class="csd-chart-period">Recorded decisions · last 6 months</span>
-                </div>
-                @php
-                    $trendMax = max((int) ceil((collect($reviewTrend)->flatMap(fn ($month) => [$month['advanced'], $month['returned']])->max() ?? 0) / 2) * 2, 2);
-                    $trendAxisTicks = [['y' => 36, 'label' => $trendMax]];
-                    $trendAxisTicks[] = ['y' => 92, 'label' => (int) ($trendMax / 2)];
-                    $trendAxisTicks[] = ['y' => 148, 'label' => 0];
-                    $trendSeries = [
-                        ['key' => 'advanced', 'label' => 'Endorsed to Coordinator', 'event' => 'endorsed', 'color' => '#078d70'],
-                        ['key' => 'returned', 'label' => 'Returned to applicants', 'event' => 'returned', 'color' => '#d94e74'],
-                    ];
-                    $trendPoints = [];
-                    foreach ($trendSeries as $series) {
-                        $points = [];
-                        foreach ($reviewTrend as $index => $month) {
-                            $x = 50 + ($index * 94);
-                            $y = 148 - (($month[$series['key']] / $trendMax) * 112);
-                            $points[] = ['x' => $x, 'y' => $y, 'count' => $month[$series['key']], 'label' => $month['label']];
-                        }
-                        $trendPoints[$series['key']] = $points;
-                    }
-                @endphp
-                <svg class="csd-trend-chart" viewBox="0 0 560 188" role="img" aria-label="CELP Secretary decisions recorded each month over the last six months.">
-                    <rect class="csd-trend-plot" x="22" y="16" width="534" height="148" rx="12"/>
-                    @foreach($trendAxisTicks as $tick)
-                        <line class="csd-trend-gridline" x1="50" y1="{{ $tick['y'] }}" x2="542" y2="{{ $tick['y'] }}"/>
-                        <text class="csd-trend-y-axis" x="42" y="{{ $tick['y'] + 3 }}" text-anchor="end">{{ $tick['label'] }}</text>
-                    @endforeach
-                    @foreach($trendSeries as $series)
-                        @php $points = $trendPoints[$series['key']]; @endphp
-                        <path class="csd-trend-area" fill="{{ $series['color'] }}" fill-opacity="0.06" d="{{ $smoothTrendPath($points, 148) }}"/>
-                        <path class="csd-trend-line" stroke="{{ $series['color'] }}" d="{{ $smoothTrendPath($points) }}"/>
-                        @foreach($points as $point)
-                            <circle class="csd-trend-point" cx="{{ $point['x'] }}" cy="{{ $point['y'] }}" r="3" fill="{{ $series['color'] }}">
-                                <title>{{ $point['label'] }}: {{ $point['count'] }} proposals {{ $series['event'] }}</title>
-                            </circle>
-                        @endforeach
-                    @endforeach
-                    @foreach($reviewTrend as $index => $month)
-                        <text class="csd-trend-axis" x="{{ 50 + ($index * 94) }}" y="181" text-anchor="middle">{{ $month['label'] }}</text>
-                    @endforeach
-                </svg>
-                <div class="csd-chart-legend" aria-label="Trend chart legend">
-                    @foreach($trendSeries as $series)
-                        <span class="csd-chart-legend-item"><span class="csd-status-dot" style="background:{{ $series['color'] }}"></span>{{ $series['label'] }}</span>
-                    @endforeach
-                </div>
-            </section>
+            <x-analytics.columns title="Secretary review decisions" description="Recorded decisions · last 6 months" :data="$reviewTrend" :series="[['key'=>'advanced','label'=>'Endorsed to Coordinator','color'=>'#078d70'],['key'=>'returned','label'=>'Returned to applicants','color'=>'#d94e74']]" unit="decisions" breakdown-label="By decision" mode="grouped" />
 
-            <section class="csd-chart-panel">
-                <div class="csd-chart-head">
-                    <h3 class="csd-chart-title">
-                        <span class="csd-chart-icon" aria-hidden="true">
-                            <svg width="19" height="19" viewBox="0 0 24 24" fill="none"><path d="M4 20V10m5 10V4m5 16v-7m5 7V7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>
-                        </span>
-                        Secretary pipeline
-                    </h3>
-                </div>
-                @php $donutOffset = 0; @endphp
-                <div class="csd-status-overview">
-                    <svg class="csd-donut" viewBox="0 0 160 160" role="img" aria-label="Current Secretary workflow: {{ collect($statusMeta)->map(fn ($status) => $status['label'].' '.$status['count'])->implode(', ') }}">
-                        <circle class="csd-donut-track" cx="80" cy="80" r="46"/>
-                        @foreach($statusMeta as $status)
-                            @if($status['count'] > 0)
-                                @php
-                                    $segmentLength = $status['count'] / max($statusSum, 1) * 289.03;
-                                    $segmentOffset = $donutOffset;
-                                    $donutOffset += $segmentLength;
-                                @endphp
-                                <circle class="csd-donut-segment" cx="80" cy="80" r="46" stroke="{{ $status['color'] }}"
-                                        stroke-dasharray="{{ $segmentLength }} 289.03" stroke-dashoffset="{{ -$segmentOffset }}"/>
-                            @endif
-                        @endforeach
-                        <text class="csd-donut-total" x="80" y="78">{{ $statusSum }}</text>
-                        <text class="csd-donut-label" x="80" y="96">In workflow</text>
-                    </svg>
-                    <div class="csd-status-legend">
-                        @foreach($statusMeta as $status)
-                            <div class="csd-status-legend-row">
-                                <span class="csd-status-legend-name"><span class="csd-status-dot" style="background:{{ $status['color'] }}"></span>{{ $status['label'] }}</span>
-                                <span class="csd-status-count">{{ $status['count'] }}</span>
-                                <span class="csd-status-percent">{{ $status['percent'] }}%</span>
-                            </div>
-                        @endforeach
-                    </div>
-                </div>
-            </section>
+            <x-analytics.radial title="Secretary pipeline" description="Current workflow status" :items="$workflowStages" total-label="In workflow" :pipeline="true" :links="['pending'=>route('projects.secretary_review')]" />
         </div>
 
         <div class="csd-main-grid">
