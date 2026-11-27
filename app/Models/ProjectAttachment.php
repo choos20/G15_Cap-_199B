@@ -15,6 +15,8 @@ class ProjectAttachment extends Model
         'file_path',
         'mime_type',
         'file_size',
+        'file_data',
+        'file_mime',
     ];
 
     public function project()

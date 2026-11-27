@@ -79,14 +79,20 @@ class ProjectController extends Controller
 
                 $storedPath = $file->store('project_attachments', 'public');
                 $safeName = preg_replace('/[^A-Za-z0-9._-]+/', '_', $file->getClientOriginalName());
-
-                ProjectAttachment::create([
+                $attachmentAttributes = [
                     'project_id' => $project->id,
                     'file_name' => $safeName,
                     'file_path' => $storedPath,
                     'mime_type' => $file->getClientMimeType(),
                     'file_size' => $file->getSize() ?? 0,
-                ]);
+                ];
+
+                if (Schema::hasColumn('project_attachments', 'file_data')) {
+                    $attachmentAttributes['file_data'] = $file->get();
+                    $attachmentAttributes['file_mime'] = $file->getMimeType();
+                }
+
+                ProjectAttachment::create($attachmentAttributes);
             }
         }
 
@@ -190,14 +196,20 @@ class ProjectController extends Controller
 
                 $storedPath = $file->store('project_attachments', 'public');
                 $safeName = preg_replace('/[^A-Za-z0-9._-]+/', '_', $file->getClientOriginalName());
-
-                ProjectAttachment::create([
+                $attachmentAttributes = [
                     'project_id' => $project->id,
                     'file_name' => $safeName,
                     'file_path' => $storedPath,
                     'mime_type' => $file->getClientMimeType(),
                     'file_size' => $file->getSize() ?? 0,
-                ]);
+                ];
+
+                if (Schema::hasColumn('project_attachments', 'file_data')) {
+                    $attachmentAttributes['file_data'] = $file->get();
+                    $attachmentAttributes['file_mime'] = $file->getMimeType();
+                }
+
+                ProjectAttachment::create($attachmentAttributes);
             }
         }
 
@@ -304,11 +316,11 @@ class ProjectController extends Controller
 
         abort_unless($mime !== null, 415, 'This file type is available for download only.');
 
-        if (! $attachment->file_path || ! Storage::disk('public')->exists($attachment->file_path)) {
+        $data = $this->attachmentContents($attachment);
+        if ($data === null) {
             abort(404);
         }
 
-        $data = Storage::disk('public')->get($attachment->file_path);
         if (strlen($data) > self::MAX_PREVIEW_BYTES) {
             abort(413, 'This document is too large to preview safely.');
         }
@@ -326,12 +338,41 @@ class ProjectController extends Controller
     {
         $this->reviewableAttachmentProject($request, $attachment);
 
-        abort_unless(
-            $attachment->file_path && Storage::disk('public')->exists($attachment->file_path),
-            404
-        );
+        $data = $this->attachmentContents($attachment);
+        abort_unless($data !== null, 404);
 
-        return Storage::disk('public')->download($attachment->file_path, $attachment->file_name);
+        return response()->streamDownload(
+            static function () use ($data): void {
+                echo $data;
+            },
+            $attachment->file_name,
+            ['Content-Type' => $attachment->file_mime ?: $attachment->mime_type ?: 'application/octet-stream']
+        );
+    }
+
+    private function attachmentContents(ProjectAttachment $attachment): ?string
+    {
+        if (Schema::hasColumn('project_attachments', 'file_data') && $attachment->file_data) {
+            $data = $attachment->file_data;
+
+            if (is_resource($data)) {
+                $data = stream_get_contents($data);
+            }
+            if (is_string($data) && str_starts_with($data, '\\x')) {
+                $decoded = hex2bin(substr($data, 2));
+                if ($decoded !== false) {
+                    $data = $decoded;
+                }
+            }
+
+            return is_string($data) ? $data : null;
+        }
+
+        if ($attachment->file_path && Storage::disk('public')->exists($attachment->file_path)) {
+            return Storage::disk('public')->get($attachment->file_path);
+        }
+
+        return null;
     }
 
     private function reviewableAttachmentProject(Request $request, ProjectAttachment $attachment): Project

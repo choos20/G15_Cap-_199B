@@ -154,6 +154,32 @@ class OrganizationProposalDeletionTest extends TestCase
         $this->assertDatabaseHas('projects', ['id' => $projectId]);
     }
 
+    public function test_authorized_reviewer_can_load_a_project_docx_for_preview(): void
+    {
+        $owner = User::factory()->create(['role' => 'student_org']);
+        $reviewer = User::factory()->create(['role' => 'celp_secretary']);
+        $projectId = $this->createProject($owner, 'submitted');
+        $filePath = 'project_attachments/review.docx';
+        $fileContents = 'test docx bytes';
+
+        Storage::disk('public')->put($filePath, $fileContents);
+        $attachmentId = DB::table('project_attachments')->insertGetId([
+            'project_id' => $projectId,
+            'file_name' => 'review.docx',
+            'file_path' => $filePath,
+            'mime_type' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            'file_size' => strlen($fileContents),
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        $this->actingAs($reviewer)
+            ->get(route('projects.attachments.preview.content', $attachmentId))
+            ->assertOk()
+            ->assertHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document')
+            ->assertSee($fileContents, false);
+    }
+
     private function createProject(User $owner, string $status): int
     {
         return DB::table('projects')->insertGetId([
