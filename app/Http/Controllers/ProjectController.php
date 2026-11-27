@@ -64,6 +64,12 @@ class ProjectController extends Controller
             'attachments.*.max' => 'Each file must be 5MB or smaller.',
         ]);
 
+        if ($corruptFile = $this->firstCorruptOfficeAttachment($request->file('attachments', []))) {
+            return back()->withErrors([
+                'attachments' => 'The file "'.$corruptFile.'" appears corrupted or incomplete. Open it and save a fresh copy before uploading.',
+            ])->withInput();
+        }
+
         $project = Project::create([
             'title' => $request->title,
             'description' => $request->description,
@@ -157,6 +163,12 @@ class ProjectController extends Controller
             'attachments.*.mimes' => 'Only PDF, DOC, DOCX, XLS, XLSX, PNG, JPG, JPEG, WEBP, and ZIP files are allowed.',
             'attachments.*.max' => 'Each file must be 5MB or smaller.',
         ]);
+
+        if ($corruptFile = $this->firstCorruptOfficeAttachment($request->file('attachments', []))) {
+            return back()->withErrors([
+                'attachments' => 'The file "'.$corruptFile.'" appears corrupted or incomplete. Open it and save a fresh copy before uploading.',
+            ])->withInput();
+        }
 
         $requestedRemoveIds = collect($request->input('remove_attachments', []))
             ->map(fn ($id) => (int) $id)
@@ -352,6 +364,8 @@ class ProjectController extends Controller
 
     private function attachmentContents(ProjectAttachment $attachment): ?string
     {
+        $candidates = [];
+
         if (Schema::hasColumn('project_attachments', 'file_data') && $attachment->file_data) {
             $data = $attachment->file_data;
 
@@ -365,14 +379,48 @@ class ProjectController extends Controller
                 }
             }
 
-            return is_string($data) ? $data : null;
+            if (is_string($data)) {
+                $candidates[] = $data;
+            }
         }
 
         if ($attachment->file_path && Storage::disk('public')->exists($attachment->file_path)) {
-            return Storage::disk('public')->get($attachment->file_path);
+            $candidates[] = Storage::disk('public')->get($attachment->file_path);
+        }
+
+        foreach ($candidates as $data) {
+            if (! $this->requiresZipIntegrityCheck($attachment->file_name) || $this->zipPayloadHasDirectory($data)) {
+                return $data;
+            }
+        }
+
+        return $candidates[0] ?? null;
+    }
+
+    private function firstCorruptOfficeAttachment(array $files): ?string
+    {
+        foreach ($files as $file) {
+            if ($this->requiresZipIntegrityCheck($file->getClientOriginalName())
+                && ! $this->zipPayloadHasDirectory($file->get())) {
+                return basename($file->getClientOriginalName());
+            }
         }
 
         return null;
+    }
+
+    private function requiresZipIntegrityCheck(string $fileName): bool
+    {
+        return in_array(strtolower(pathinfo($fileName, PATHINFO_EXTENSION)), ['docx', 'xls', 'xlsx'], true);
+    }
+
+    private function zipPayloadHasDirectory(string $data): bool
+    {
+        $tail = substr($data, -65557);
+
+        return str_contains($tail, "PK\x05\x06")
+            || str_contains($tail, "PK\x06\x06")
+            || str_contains($tail, "PK\x06\x07");
     }
 
     private function reviewableAttachmentProject(Request $request, ProjectAttachment $attachment): Project

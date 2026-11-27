@@ -235,9 +235,12 @@ if (viewer) {
             setReady();
         } catch (renderError) {
             console.error('Template preview failed:', renderError);
-            setError(renderError instanceof Error
+            const message = renderError instanceof Error
                 ? renderError.message
-                : 'The document could not be rendered.');
+                : 'The document could not be rendered.';
+            setError(/corrupted zip|central directory/i.test(message)
+                ? 'This document is corrupted or incomplete. Ask the applicant to upload a fresh copy.'
+                : message);
         }
     };
 
