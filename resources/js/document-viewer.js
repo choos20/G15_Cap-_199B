@@ -1,4 +1,5 @@
 import { renderAsync } from 'docx-preview';
+import * as XLSX from 'xlsx';
 
 const viewer = document.querySelector('[data-document-viewer]');
 
@@ -16,6 +17,7 @@ if (viewer) {
     const zoomReset = viewer.querySelector('[data-preview-zoom-reset]');
     const docxBody = viewer.querySelector('[data-docx-body]');
     const docxStyles = viewer.querySelector('[data-docx-styles]');
+    const spreadsheetBody = viewer.querySelector('[data-spreadsheet-body]');
     const nativePreview = viewer.querySelector('[data-native-preview]');
 
     let zoom = 1;
@@ -106,6 +108,105 @@ if (viewer) {
         nativePreview.src = objectUrl;
     });
 
+    const renderSpreadsheet = async (blob) => {
+        if (!spreadsheetBody) {
+            throw new Error('The spreadsheet preview container is unavailable.');
+        }
+
+        const workbook = XLSX.read(await blob.arrayBuffer(), {
+            type: 'array',
+            cellDates: true,
+            cellNF: false,
+            cellStyles: false,
+        });
+
+        if (!workbook.SheetNames.length) {
+            throw new Error('This workbook does not contain any sheets.');
+        }
+
+        spreadsheetBody.replaceChildren();
+
+        const tabs = document.createElement('div');
+        tabs.className = 'tpl-viewer-sheet-tabs';
+        tabs.setAttribute('role', 'tablist');
+
+        const sheetStage = document.createElement('div');
+        sheetStage.className = 'tpl-viewer-sheet-stage';
+
+        const renderSheet = (sheetName, activeTab) => {
+            const worksheet = workbook.Sheets[sheetName];
+            const rows = XLSX.utils.sheet_to_json(worksheet, {
+                header: 1,
+                raw: false,
+                defval: '',
+            });
+            const limitedRows = rows.slice(0, 200);
+            const columnCount = Math.min(
+                limitedRows.reduce((largest, row) => Math.max(largest, row.length), 0),
+                30
+            );
+
+            sheetStage.replaceChildren();
+
+            if (!columnCount || !limitedRows.length) {
+                const empty = document.createElement('p');
+                empty.className = 'tpl-viewer-sheet-empty';
+                empty.textContent = 'This sheet is empty.';
+                sheetStage.appendChild(empty);
+                return;
+            }
+
+            const table = document.createElement('table');
+            table.className = 'tpl-viewer-spreadsheet-table';
+
+            limitedRows.forEach((row, rowIndex) => {
+                const tableRow = document.createElement('tr');
+                const rowNumber = document.createElement('th');
+                rowNumber.className = 'tpl-viewer-spreadsheet-row-number';
+                rowNumber.scope = 'row';
+                rowNumber.textContent = String(rowIndex + 1);
+                tableRow.appendChild(rowNumber);
+
+                for (let columnIndex = 0; columnIndex < columnCount; columnIndex += 1) {
+                    const cell = document.createElement(rowIndex === 0 ? 'th' : 'td');
+                    if (rowIndex === 0) cell.scope = 'col';
+                    cell.textContent = row[columnIndex] == null ? '' : String(row[columnIndex]);
+                    tableRow.appendChild(cell);
+                }
+
+                table.appendChild(tableRow);
+            });
+
+            const note = document.createElement('p');
+            note.className = 'tpl-viewer-sheet-note';
+            note.textContent = rows.length > limitedRows.length || columnCount < Math.max(...rows.map((row) => row.length), 0)
+                ? `Preview limited to ${limitedRows.length} rows and ${columnCount} columns for safe browser rendering.`
+                : `${limitedRows.length} row${limitedRows.length === 1 ? '' : 's'} displayed.`;
+
+            sheetStage.append(table, note);
+            activeTab.setAttribute('aria-selected', 'true');
+        };
+
+        workbook.SheetNames.forEach((sheetName, index) => {
+            const tab = document.createElement('button');
+            tab.type = 'button';
+            tab.className = 'tpl-viewer-sheet-tab';
+            tab.setAttribute('role', 'tab');
+            tab.setAttribute('aria-selected', index === 0 ? 'true' : 'false');
+            tab.textContent = sheetName;
+            tab.addEventListener('click', () => {
+                tabs.querySelectorAll('[role="tab"]').forEach((otherTab) => {
+                    otherTab.setAttribute('aria-selected', otherTab === tab ? 'true' : 'false');
+                });
+                renderSheet(sheetName, tab);
+            });
+            tabs.appendChild(tab);
+        });
+
+        spreadsheetBody.append(tabs, sheetStage);
+        renderSheet(workbook.SheetNames[0], tabs.querySelector('[role="tab"]'));
+    };
+
     const renderDocument = async () => {
         if (kind === 'unsupported') {
             setError('This file type cannot be rendered in the browser. Use Download to open it.');
@@ -125,6 +226,8 @@ if (viewer) {
                     renderEndnotes: true,
                     renderAltChunks: false,
                 });
+            } else if (kind === 'spreadsheet') {
+                await renderSpreadsheet(blob);
             } else {
                 await waitForNativePreview(blob);
             }

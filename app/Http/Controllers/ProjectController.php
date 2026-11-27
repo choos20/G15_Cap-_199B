@@ -20,6 +20,7 @@ class ProjectController extends Controller
 {
     public const MAX_ATTACHMENTS = 10;
     public const MAX_ATTACHMENT_SIZE_KB = 5120;
+    private const MAX_PREVIEW_BYTES = 10485760;
 
     public function create(Request $request)
     {
@@ -278,6 +279,102 @@ class ProjectController extends Controller
         }
 
         return view('projects.show_review', ['project' => $project->load('attachments', 'creator')]);
+    }
+
+    public function previewAttachment(Request $request, ProjectAttachment $attachment)
+    {
+        $project = $this->reviewableAttachmentProject($request, $attachment);
+        $extension = strtolower(pathinfo($attachment->file_name, PATHINFO_EXTENSION));
+
+        return view('projects.attachment_preview', [
+            'project' => $project->load('creator'),
+            'attachment' => $attachment,
+            'extension' => strtoupper($extension ?: 'FILE'),
+            'previewKind' => $this->attachmentPreviewKind($extension),
+            'contentUrl' => route('projects.attachments.preview.content', $attachment),
+            'downloadUrl' => route('projects.attachments.download', $attachment),
+        ]);
+    }
+
+    public function previewAttachmentContent(Request $request, ProjectAttachment $attachment)
+    {
+        $this->reviewableAttachmentProject($request, $attachment);
+        $extension = strtolower(pathinfo($attachment->file_name, PATHINFO_EXTENSION));
+        $mime = $this->attachmentPreviewMime($extension);
+
+        abort_unless($mime !== null, 415, 'This file type is available for download only.');
+
+        if (! $attachment->file_path || ! Storage::disk('public')->exists($attachment->file_path)) {
+            abort(404);
+        }
+
+        $data = Storage::disk('public')->get($attachment->file_path);
+        if (strlen($data) > self::MAX_PREVIEW_BYTES) {
+            abort(413, 'This document is too large to preview safely.');
+        }
+
+        return response($data, 200, [
+            'Content-Type' => $mime,
+            'Content-Disposition' => 'inline; filename="'.$this->safeAttachmentName($attachment->file_name).'"',
+            'Cache-Control' => 'private, no-store, max-age=0',
+            'X-Content-Type-Options' => 'nosniff',
+            'X-Robots-Tag' => 'noindex, nofollow',
+        ]);
+    }
+
+    public function downloadAttachment(Request $request, ProjectAttachment $attachment)
+    {
+        $this->reviewableAttachmentProject($request, $attachment);
+
+        abort_unless(
+            $attachment->file_path && Storage::disk('public')->exists($attachment->file_path),
+            404
+        );
+
+        return Storage::disk('public')->download($attachment->file_path, $attachment->file_name);
+    }
+
+    private function reviewableAttachmentProject(Request $request, ProjectAttachment $attachment): Project
+    {
+        abort_unless(
+            in_array($request->user()->role, ['celp_secretary', 'coordinator', 'celp_head', 'csa_director'], true),
+            403
+        );
+
+        $project = $attachment->project()->first();
+        abort_unless($project, 404);
+
+        return $project;
+    }
+
+    private function attachmentPreviewKind(string $extension): string
+    {
+        return match ($extension) {
+            'docx' => 'docx',
+            'pdf' => 'pdf',
+            'png', 'jpg', 'jpeg', 'webp' => 'image',
+            'xls', 'xlsx' => 'spreadsheet',
+            default => 'unsupported',
+        };
+    }
+
+    private function attachmentPreviewMime(string $extension): ?string
+    {
+        return match ($extension) {
+            'docx' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            'pdf' => 'application/pdf',
+            'png' => 'image/png',
+            'jpg', 'jpeg' => 'image/jpeg',
+            'webp' => 'image/webp',
+            'xlsx' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'xls' => 'application/vnd.ms-excel',
+            default => null,
+        };
+    }
+
+    private function safeAttachmentName(string $fileName): string
+    {
+        return str_replace(["\r", "\n", '"'], '', basename($fileName));
     }
 
     /**

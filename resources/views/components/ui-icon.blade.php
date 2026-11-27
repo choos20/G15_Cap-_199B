@@ -26,6 +26,7 @@
         @case('eye') <path d="M2.5 12s3.5-5.5 9.5-5.5 9.5 5.5 9.5 5.5-3.5 5.5-9.5 5.5S2.5 12 2.5 12Z"/><circle cx="12" cy="12" r="2.5"/> @break
         @case('download') <path d="M12 3v11m0 0 4-4m-4 4-4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/> @break
         @case('cloud-upload') <path d="M7 18h10a4 4 0 0 0 .7-7.94A6 6 0 0 0 6.2 9.2 4.5 4.5 0 0 0 7 18Z"/><path d="M12 12v7m0-7-3 3m3-3 3 3"/> @break
+        @case('paperclip') <path d="m20.5 11.5-7.6 7.6a5 5 0 0 1-7.1-7.1l8.1-8.1a3.5 3.5 0 0 1 5 5l-8.2 8.2a2 2 0 0 1-2.8-2.8l7.6-7.6"/> @break
         @case('home') <path d="m3 10 9-7 9 7v10H3Zm6 10v-7h6v7"/> @break
         @case('settings') <circle cx="12" cy="12" r="3"/><path d="m9 3-.7 2.3-2.4.5L4 9l1.6 1.8v2.4L4 15l1.9 3.2 2.4.5L9 21h6l.7-2.3 2.4-.5L20 15l-1.6-1.8v-2.4L20 9l-1.9-3.2-2.4-.5L15 3Z"/> @break
         @default <circle cx="12" cy="12" r="9"/><path d="M12 8v4m0 4h.01"/>

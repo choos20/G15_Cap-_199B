@@ -15,6 +15,7 @@
         "vite": "^7.0.7"
     },
     "dependencies": {
-        "docx-preview": "^0.4.1"
+        "docx-preview": "^0.4.1",
+        "xlsx": "^0.18.5"
     }
 }

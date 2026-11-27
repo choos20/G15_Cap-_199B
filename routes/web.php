@@ -1317,6 +1317,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/projects/third-review', [ProjectController::class, 'celpHeadIndex'])->name('projects.celp_head_review');
     Route::get('/projects/fourth-review', [ProjectController::class, 'csaDirectorIndex'])->name('projects.csa_review');
     Route::get('/projects/{project}/review', [ProjectController::class, 'showForReview'])->name('projects.show_review');
+    Route::get('/projects/attachments/{attachment}/preview', [ProjectController::class, 'previewAttachment'])->name('projects.attachments.preview');
+    Route::get('/projects/attachments/{attachment}/preview/content', [ProjectController::class, 'previewAttachmentContent'])->name('projects.attachments.preview.content');
+    Route::get('/projects/attachments/{attachment}/download', [ProjectController::class, 'downloadAttachment'])->name('projects.attachments.download');
     Route::post('/projects/{project}/secretary-review', [ProjectController::class, 'secretaryReview'])->name('projects.secretary_review.update');
     Route::post('/projects/{project}/coordinator-review', [ProjectController::class, 'coordinatorReview'])->name('projects.coordinator_review.update');
     Route::post('/projects/{project}/celp-head-review', [ProjectController::class, 'celpHeadReview'])->name('projects.celp_head_review.update');
