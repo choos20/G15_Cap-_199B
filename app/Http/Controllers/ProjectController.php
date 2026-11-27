@@ -101,7 +101,13 @@ class ProjectController extends Controller
         );
 
         if (in_array($user->role, ['student_org', 'college_department'])) {
-            return redirect()->route('student_org.dashboard')->with('status', 'Project submitted successfully. CELP Secretary will be notified.');
+            return redirect()->route('student_org.dashboard')->with('proposal_success', [
+                'status' => $project->status,
+                'status_label' => $project->status === 'submitted'
+                    ? 'Pending review'
+                    : Project::statusLabel($project->status),
+                'project_id' => $project->id,
+            ]);
         }
 
         return redirect()->route('dashboard')->with('status', 'Project submitted successfully. CELP Secretary will be notified.');

@@ -10,6 +10,7 @@ export default defineConfig({
                 'resources/js/app.js',
                 'resources/js/document-viewer.js',
                 'resources/js/proposal-upload-preview.js',
+                'resources/js/proposal-success-modal.js',
             ],
             refresh: true,
         }),

@@ -1,0 +1,230 @@
+.proposal-success-modal[hidden] {
+    display: none !important;
+}
+
+.proposal-success-modal {
+    position: fixed;
+    z-index: 3100;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    padding: 24px;
+    background: rgba(15, 55, 43, 0.54);
+    backdrop-filter: blur(9px);
+    animation: proposal-success-fade-in 220ms ease-out both;
+}
+
+.proposal-success-modal__backdrop {
+    position: absolute;
+    inset: 0;
+}
+
+.proposal-success-dialog {
+    position: relative;
+    z-index: 1;
+    width: min(100%, 520px);
+    padding: 42px 32px 30px;
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    border-radius: 28px;
+    background: #ffffff;
+    box-shadow: 0 28px 90px rgba(10, 54, 42, 0.28);
+    text-align: center;
+    animation: proposal-success-pop-in 420ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.proposal-success-close {
+    position: absolute;
+    top: 14px;
+    right: 16px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border: 1px solid #dbe9e2;
+    border-radius: 10px;
+    background: #ffffff;
+    color: #52665d;
+    cursor: pointer;
+    font: inherit;
+    font-size: 1.35rem;
+    line-height: 1;
+}
+
+.proposal-success-close:hover {
+    border-color: #9bd8bd;
+    background: #f1faf5;
+    color: #12634c;
+}
+
+.proposal-success-close:focus-visible,
+.proposal-success-primary:focus-visible,
+.proposal-success-secondary:focus-visible {
+    outline: 3px solid rgba(16, 185, 129, 0.3);
+    outline-offset: 3px;
+}
+
+.proposal-success-mark {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 112px;
+    height: 112px;
+    margin: 0 auto 30px;
+    border-radius: 50%;
+    background: #dff9eb;
+    box-shadow: 0 0 0 14px #f0fdf6, 0 16px 32px rgba(8, 124, 91, 0.12);
+}
+
+.proposal-success-mark::before,
+.proposal-success-mark::after {
+    position: absolute;
+    color: #25c98b;
+    content: '+';
+    font-size: 1.65rem;
+    font-weight: 800;
+    line-height: 1;
+}
+
+.proposal-success-mark::before { top: -25px; left: 50%; }
+.proposal-success-mark::after { right: -30px; top: 12px; }
+
+.proposal-success-mark svg {
+    display: block;
+    width: 72px;
+    height: 72px;
+    overflow: visible;
+}
+
+.proposal-success-mark__circle {
+    fill: #079b6e;
+}
+
+.proposal-success-mark__check {
+    fill: none;
+    stroke: #ffffff;
+    stroke-width: 5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-dasharray: 62;
+    stroke-dashoffset: 62;
+    animation: proposal-success-check 900ms 140ms cubic-bezier(0.65, 0, 0.35, 1) forwards;
+}
+
+.proposal-success-dialog h2 {
+    margin: 0;
+    color: #075c45;
+    font-size: clamp(1.55rem, 4vw, 2rem);
+    letter-spacing: -0.03em;
+}
+
+.proposal-success-dialog__message {
+    max-width: 425px;
+    margin: 14px auto 22px;
+    color: #5b6e87;
+    font-size: 1rem;
+    line-height: 1.6;
+}
+
+.proposal-success-status {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    margin: 0 0 16px;
+    padding: 16px 17px;
+    border-radius: 13px;
+    background: #f1f5f9;
+    color: #475569;
+    font-size: 0.95rem;
+    text-align: left;
+}
+
+.proposal-success-status strong {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: #c45f00;
+    font-weight: 750;
+}
+
+.proposal-success-status__dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: #f59e0b;
+    box-shadow: 0 0 0 4px #ffedd5;
+}
+
+.proposal-success-actions {
+    display: grid;
+    gap: 14px;
+}
+
+.proposal-success-primary,
+.proposal-success-secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 54px;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 750;
+    text-decoration: none;
+}
+
+.proposal-success-primary {
+    background: #079b6e;
+    color: #ffffff;
+    box-shadow: 0 12px 24px rgba(8, 124, 91, 0.16);
+}
+
+.proposal-success-primary:hover {
+    background: #067d5a;
+    color: #ffffff;
+    transform: translateY(-1px);
+}
+
+.proposal-success-secondary {
+    min-height: 34px;
+    color: #087c5b;
+}
+
+.proposal-success-secondary:hover {
+    color: #065f46;
+    text-decoration: underline;
+}
+
+@keyframes proposal-success-fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes proposal-success-pop-in {
+    from { opacity: 0; transform: translateY(14px) scale(0.96); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes proposal-success-check {
+    to { stroke-dashoffset: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .proposal-success-modal,
+    .proposal-success-dialog,
+    .proposal-success-mark__check {
+        animation: none;
+    }
+
+    .proposal-success-mark__check {
+        stroke-dashoffset: 0;
+    }
+}
+
+@media (max-width: 560px) {
+    .proposal-success-modal { padding: 16px; }
+    .proposal-success-dialog { padding: 38px 20px 24px; border-radius: 22px; }
+    .proposal-success-mark { width: 96px; height: 96px; margin-bottom: 26px; }
+    .proposal-success-mark svg { width: 64px; height: 64px; }
+    .proposal-success-status { align-items: flex-start; flex-direction: column; gap: 8px; }
+}

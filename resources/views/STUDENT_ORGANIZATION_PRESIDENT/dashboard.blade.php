@@ -4,6 +4,10 @@
 @section('subtitle','Manage your organization activities and approvals')
 
 @section('content')
+    @if(session('proposal_success'))
+        @include('partials.proposal-success-modal', ['success' => session('proposal_success')])
+    @endif
+
     @php
         $statusMeta = $workflowStages;
         $statusSum = $workflowTotal;
@@ -113,9 +117,8 @@
     <div class="org-dashboard">
         @if(session('status'))
             <div class="org-panel" style="border-left:4px solid #16a34a;background:#ecfdf5;color:#134e4a">
-                <strong style="display:block;margin-bottom:5px">Submission received</strong>
+                <strong style="display:block;margin-bottom:5px">ProjectLink update</strong>
                 <div>{{ session('status') }}</div>
-                <a class="org-panel-link" style="display:inline-block;margin-top:12px" href="{{ route('projects.create') }}">Submit another proposal</a>
             </div>
         @endif
 
