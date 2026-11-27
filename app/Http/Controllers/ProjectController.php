@@ -18,6 +18,9 @@ use Illuminate\Support\Str;
 
 class ProjectController extends Controller
 {
+    public const MAX_ATTACHMENTS = 10;
+    public const MAX_ATTACHMENT_SIZE_KB = 5120;
+
     public function create(Request $request)
     {
         $user = $request->user();
@@ -50,12 +53,12 @@ class ProjectController extends Controller
         $request->validate([
             'title' => 'required|string|max:120',
             'description' => 'nullable|string|max:300',
-            'attachments' => 'nullable|array|max:5',
-            'attachments.*' => 'file|mimes:pdf,doc,docx,xls,xlsx,png,jpg,jpeg,webp,zip|max:5120',
+            'attachments' => 'nullable|array|max:'.self::MAX_ATTACHMENTS,
+            'attachments.*' => 'file|mimes:pdf,doc,docx,xls,xlsx,png,jpg,jpeg,webp,zip|max:'.self::MAX_ATTACHMENT_SIZE_KB,
         ], [
             'title.max' => 'Title may not exceed 120 characters.',
             'description.max' => 'Description may not exceed 300 characters.',
-            'attachments.max' => 'You may upload up to 5 files only.',
+            'attachments.max' => 'You may upload up to '.self::MAX_ATTACHMENTS.' files only.',
             'attachments.*.mimes' => 'Only PDF, DOC, DOCX, XLS, XLSX, PNG, JPG, JPEG, WEBP, and ZIP files are allowed.',
             'attachments.*.max' => 'Each file must be 5MB or smaller.',
         ]);
@@ -130,17 +133,33 @@ class ProjectController extends Controller
         $request->validate([
             'title' => 'required|string|max:120',
             'description' => 'nullable|string|max:300',
-            'attachments' => 'nullable|array|max:5',
-            'attachments.*' => 'file|mimes:pdf,doc,docx,xls,xlsx,png,jpg,jpeg,webp,zip|max:5120',
+            'attachments' => 'nullable|array|max:'.self::MAX_ATTACHMENTS,
+            'attachments.*' => 'file|mimes:pdf,doc,docx,xls,xlsx,png,jpg,jpeg,webp,zip|max:'.self::MAX_ATTACHMENT_SIZE_KB,
             'remove_attachments' => 'nullable|array',
             'remove_attachments.*' => 'integer|exists:project_attachments,id',
         ], [
             'title.max' => 'Title may not exceed 120 characters.',
             'description.max' => 'Description may not exceed 300 characters.',
-            'attachments.max' => 'You may upload up to 5 files only.',
+            'attachments.max' => 'You may upload up to '.self::MAX_ATTACHMENTS.' files only.',
             'attachments.*.mimes' => 'Only PDF, DOC, DOCX, XLS, XLSX, PNG, JPG, JPEG, WEBP, and ZIP files are allowed.',
             'attachments.*.max' => 'Each file must be 5MB or smaller.',
         ]);
+
+        $requestedRemoveIds = collect($request->input('remove_attachments', []))
+            ->map(fn ($id) => (int) $id)
+            ->all();
+        $removeIds = $project->attachments()
+            ->whereIn('id', $requestedRemoveIds)
+            ->pluck('id')
+            ->all();
+        $remainingAttachments = $project->attachments()
+            ->when($removeIds, fn ($query) => $query->whereNotIn('id', $removeIds))
+            ->count();
+        $newFiles = $request->file('attachments') ? count($request->file('attachments')) : 0;
+
+        if ($remainingAttachments + $newFiles > self::MAX_ATTACHMENTS) {
+            return back()->withErrors(['attachments' => 'You may upload no more than '.self::MAX_ATTACHMENTS.' files in total.'])->withInput();
+        }
 
         $project->title = $request->title;
         $project->description = $request->description;
@@ -148,21 +167,12 @@ class ProjectController extends Controller
         $project->review_comments = null;
         $project->save();
 
-        $existingAttachmentCount = $project->attachments()->count();
-
-        if ($request->filled('remove_attachments')) {
-            $removeIds = collect($request->input('remove_attachments'))->map(fn ($id) => (int) $id)->all();
+        if ($removeIds) {
             $attachmentsToRemove = $project->attachments()->whereIn('id', $removeIds)->get();
             foreach ($attachmentsToRemove as $attachment) {
                 Storage::disk('public')->delete($attachment->file_path);
                 $attachment->delete();
             }
-        }
-
-        $remainingAttachments = $project->attachments()->count();
-        $newFiles = $request->file('attachments') ? count($request->file('attachments')) : 0;
-        if ($remainingAttachments + $newFiles > 5) {
-            return back()->withErrors(['attachments' => 'You may upload no more than 5 files in total.'])->withInput();
         }
 
         if ($request->hasFile('attachments')) {

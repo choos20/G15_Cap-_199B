@@ -9,6 +9,7 @@ export default defineConfig({
                 'resources/css/app.css',
                 'resources/js/app.js',
                 'resources/js/document-viewer.js',
+                'resources/js/proposal-upload-preview.js',
             ],
             refresh: true,
         }),

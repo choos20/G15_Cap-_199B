@@ -4,6 +4,8 @@
 @section('subtitle', 'Create and submit a project (organization accounts only)')
 
 @section('content')
+    @vite('resources/js/proposal-upload-preview.js')
+    <link rel="stylesheet" href="{{ asset('css/proposal-upload-preview.css') }}">
     <style>
         .upload-page {
             min-height:calc(100vh - 100px);
@@ -84,8 +86,8 @@
         }
         .dropzone.active,
         .dropzone:hover {
-            border-color:#3b82f6;
-            background:#eff6ff;
+            border-color:#20b978;
+            background:#ecfdf5;
         }
         .dropzone-inner {
             display:flex;
@@ -98,8 +100,8 @@
             width:56px;
             height:56px;
             border-radius:18px;
-            background:#dbeafe;
-            color:#1d4ed8;
+            background:#e5f8ed;
+            color:#087c5b;
             display:flex;
             align-items:center;
             justify-content:center;
@@ -244,9 +246,18 @@
     </style>
     <div class="upload-page">
         <div class="upload-card">
+            <div class="proposal-form-header">
+                <a class="proposal-back-link" href="{{ route('student_org.dashboard') }}">
+                    <x-ui-icon name="arrow-left" :size="17" />
+                    <span>Back to Dashboard</span>
+                </a>
+            </div>
             <h3>Submit a new project</h3>
             <p class="intro">Upload your proposal documents clearly and securely. Remove any wrong files before submission so your package is complete and compliant.</p>
             <form method="post" action="{{ route('projects.store') }}" enctype="multipart/form-data"
+                  data-proposal-upload-form
+                  data-max-files="{{ \App\Http\Controllers\ProjectController::MAX_ATTACHMENTS }}"
+                  data-existing-count="0"
                   data-confirm-navigation
                   data-confirm-title="Leave proposal submission?"
                   data-confirm-body="You have unsaved changes. If you leave now, they will be lost."
@@ -272,36 +283,39 @@
                     <input id="attachments" class="hidden-input" type="file" name="attachments[]" multiple accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg,.webp,.zip">
                     <div id="dropzone" class="dropzone" tabindex="0">
                         <div class="dropzone-inner">
-                            <div class="dropzone-icon">⬆</div>
+                            <div class="dropzone-icon"><x-ui-icon name="cloud-upload" :size="30" /></div>
                             <div>
                                 <strong>Drag and drop files here</strong>
-                                <p class="dropzone-text">or click to browse. Upload up to 5 files, 5MB each.</p>
+                                <p class="dropzone-text">or click to browse. Upload up to {{ \App\Http\Controllers\ProjectController::MAX_ATTACHMENTS }} files, 5MB each.</p>
                             </div>
+                            <span class="dropzone-select-button">Choose files</span>
                         </div>
                     </div>
                     <div class="attachment-meta">
                         <span id="attachment-count">No files selected.</span>
-                        <span>Max 5 files, 5MB each.</span>
+                        <span>Max {{ \App\Http\Controllers\ProjectController::MAX_ATTACHMENTS }} files, 5MB each.</span>
                     </div>
                     <div id="attachment-error" class="error-text" style="display:none"></div>
                     <div id="attachment-list" class="attachment-list" style="display:none"></div>
-                    <div class="file-note">Upload 1–5 files only. Allowed types: PDF, DOC, DOCX, XLS, XLSX, PNG, JPG, JPEG, WEBP, ZIP.</div>
+                    <div class="file-note">Upload 1-{{ \App\Http\Controllers\ProjectController::MAX_ATTACHMENTS }} files only. Allowed types: PDF, DOC, DOCX, XLS, XLSX, PNG, JPG, JPEG, WEBP, ZIP.</div>
                     @error('attachments')<div class="error-text">{{ $message }}</div>@enderror
                     @error('attachments.*')<div class="error-text">{{ $message }}</div>@enderror
                 </div>
                 <div class="upload-actions">
-                    <x-back-button href="{{ route('student_org.dashboard') }}">Back to Dashboard</x-back-button>
                     <button type="submit" class="button-primary">Submit</button>
                 </div>
             </form>
             <script>
                 document.addEventListener('DOMContentLoaded', function () {
-                    const maxFiles = 5;
                     const fileInput = document.getElementById('attachments');
                     const dropzone = document.getElementById('dropzone');
                     const attachmentCount = document.getElementById('attachment-count');
                     const attachmentList = document.getElementById('attachment-list');
                     const attachmentError = document.getElementById('attachment-error');
+                    const form = fileInput.closest('form');
+                    const maxFiles = Number(form?.dataset.maxFiles || {{ \App\Http\Controllers\ProjectController::MAX_ATTACHMENTS }});
+                    const maxFileSize = 5 * 1024 * 1024;
+                    const allowedExtensions = new Set(['pdf', 'doc', 'docx', 'xls', 'xlsx', 'png', 'jpg', 'jpeg', 'webp', 'zip']);
                     const selectedFiles = [];
 
                     const iconMap = {
@@ -348,7 +362,6 @@
                         attachmentList.innerHTML = '';
                         attachmentList.style.display = 'grid';
                         attachmentCount.textContent = `${files.length} file${files.length === 1 ? '' : 's'} selected.`;
-                        clearError();
 
                         files.forEach((file, index) => {
                             const item = document.createElement('div');
@@ -367,19 +380,37 @@
                             info.appendChild(nameEl);
                             info.appendChild(metaEl);
 
+                            const actions = document.createElement('div');
+                            actions.className = 'attachment-actions';
+
+                            const previewButton = document.createElement('button');
+                            previewButton.type = 'button';
+                            previewButton.className = 'attachment-action';
+                            previewButton.textContent = 'Preview';
+                            previewButton.addEventListener('click', () => {
+                                if (window.ProjectLinkFilePreview?.open) {
+                                    window.ProjectLinkFilePreview.open(file);
+                                } else {
+                                    showError('The preview viewer is still loading. Please try again.');
+                                }
+                            });
+
                             const removeButton = document.createElement('button');
                             removeButton.type = 'button';
-                            removeButton.className = 'attachment-remove';
+                            removeButton.className = 'attachment-action attachment-action--remove';
                             removeButton.textContent = 'Remove';
                             removeButton.addEventListener('click', () => {
+                                clearError();
                                 selectedFiles.splice(index, 1);
                                 updateInputFiles(selectedFiles);
                                 renderFileList(selectedFiles);
                             });
 
+                            actions.appendChild(previewButton);
+                            actions.appendChild(removeButton);
                             item.appendChild(icon);
                             item.appendChild(info);
-                            item.appendChild(removeButton);
+                            item.appendChild(actions);
                             attachmentList.appendChild(item);
                         });
                     };
@@ -388,9 +419,20 @@
                         clearError();
                         const fileArray = Array.from(incomingFiles);
                         const duplicateNames = [];
+                        const invalidNames = [];
+                        const oversizedNames = [];
                         let overflow = false;
 
                         fileArray.forEach((file) => {
+                            const extension = file.name.split('.').pop().toLowerCase();
+                            if (!allowedExtensions.has(extension)) {
+                                invalidNames.push(file.name);
+                                return;
+                            }
+                            if (file.size > maxFileSize) {
+                                oversizedNames.push(file.name);
+                                return;
+                            }
                             const duplicate = selectedFiles.some((existing) =>
                                 existing.name === file.name && existing.size === file.size && existing.lastModified === file.lastModified
                             );
@@ -405,15 +447,15 @@
                             }
                         });
 
-                        if (overflow) {
-                            showError('Only 5 files are allowed. Remove one before adding another.');
-                        }
-                        if (duplicateNames.length) {
-                            showError(`Duplicate files skipped: ${duplicateNames.join(', ')}`);
-                        }
-
                         updateInputFiles(selectedFiles);
                         renderFileList(selectedFiles);
+
+                        const messages = [];
+                        if (overflow) messages.push(`Only ${maxFiles} files are allowed. Remove one before adding another.`);
+                        if (duplicateNames.length) messages.push(`Duplicate files skipped: ${duplicateNames.join(', ')}`);
+                        if (invalidNames.length) messages.push(`Unsupported file type skipped: ${invalidNames.join(', ')}`);
+                        if (oversizedNames.length) messages.push(`Files over 5MB skipped: ${oversizedNames.join(', ')}`);
+                        if (messages.length) showError(messages.join(' '));
                     };
 
                     const onDrop = (event) => {
@@ -452,14 +494,14 @@
                         }
                     });
 
-                    const form = fileInput.closest('form');
                     const submitButton = form.querySelector('button[type="submit"]');
                     form.addEventListener('submit', () => {
-                        submitButton.disabled = true;
-                        submitButton.textContent = 'Submitting...';
+                        if (submitButton) {
+                            submitButton.disabled = true;
+                            submitButton.textContent = 'Submitting...';
+                        }
                     });
                 });
             </script>
-        </form>
     </div>
 @endsection

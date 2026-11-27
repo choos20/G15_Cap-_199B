@@ -4,6 +4,8 @@
 @section('subtitle', 'Review reviewer comments, update your proposal, and resubmit')
 
 @section('content')
+    @vite('resources/js/proposal-upload-preview.js')
+    <link rel="stylesheet" href="{{ asset('css/proposal-upload-preview.css') }}">
     <style>
         .upload-page {
             min-height:calc(100vh - 100px);
@@ -77,8 +79,8 @@
         }
         .dropzone.active,
         .dropzone:hover {
-            border-color:#3b82f6;
-            background:#eff6ff;
+            border-color:#20b978;
+            background:#ecfdf5;
         }
         .dropzone-inner {
             display:flex;
@@ -91,8 +93,8 @@
             width:56px;
             height:56px;
             border-radius:18px;
-            background:#dbeafe;
-            color:#1d4ed8;
+            background:#e5f8ed;
+            color:#087c5b;
             display:flex;
             align-items:center;
             justify-content:center;
@@ -210,6 +212,12 @@
 
     <div class="upload-page">
         <div class="upload-card">
+            <div class="proposal-form-header">
+                <a class="proposal-back-link" href="{{ route('student_org.notifications') }}">
+                    <x-ui-icon name="arrow-left" :size="17" />
+                    <span>Back to Notifications</span>
+                </a>
+            </div>
             <h3>Edit returned proposal</h3>
             <p class="intro">Review the comments from your reviewer, update the activity, and resubmit the proposal when ready.</p>
 
@@ -221,6 +229,9 @@
             @endif
 
             <form method="post" action="{{ route('projects.update', $project) }}" enctype="multipart/form-data"
+                  data-proposal-upload-form
+                  data-max-files="{{ \App\Http\Controllers\ProjectController::MAX_ATTACHMENTS }}"
+                  data-existing-count="{{ $project->attachments->count() }}"
                   data-confirm-navigation
                   data-confirm-title="Leave proposal editing?"
                   data-confirm-body="You have unsaved changes. If you leave now, they will be lost."
@@ -248,16 +259,17 @@
                     <input id="attachments" class="hidden-input" type="file" name="attachments[]" multiple accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg,.webp,.zip">
                     <div id="dropzone" class="dropzone" tabindex="0">
                         <div class="dropzone-inner">
-                            <div class="dropzone-icon">⬆</div>
+                            <div class="dropzone-icon"><x-ui-icon name="cloud-upload" :size="30" /></div>
                             <div>
                                 <strong>Drag and drop files here</strong>
-                                <p class="dropzone-text">or click to browse. Upload up to 5 files total.</p>
+                                <p class="dropzone-text">or click to browse. Upload up to {{ \App\Http\Controllers\ProjectController::MAX_ATTACHMENTS }} files total.</p>
                             </div>
+                            <span class="dropzone-select-button">Choose files</span>
                         </div>
                     </div>
                     <div class="attachment-meta">
                         <span id="attachment-count">No new files selected.</span>
-                        <span>Max 5 files total, including existing attachments.</span>
+                        <span id="attachment-capacity">Max {{ \App\Http\Controllers\ProjectController::MAX_ATTACHMENTS }} files total, including existing attachments.</span>
                     </div>
                     <div id="attachment-error" class="error-text" style="display:none"></div>
                     <div id="attachment-list" class="attachment-list" style="display:none"></div>
@@ -277,7 +289,7 @@
                                         <strong>{{ $attachment->file_name }}</strong>
                                         <span>{{ strtoupper(pathinfo($attachment->file_name, PATHINFO_EXTENSION)) }} · {{ number_format($attachment->file_size / 1024 / 1024, 2) }} MB</span>
                                     </div>
-                                    <input type="checkbox" name="remove_attachments[]" value="{{ $attachment->id }}" style="margin-left:auto"> Remove
+                                    <input type="checkbox" name="remove_attachments[]" value="{{ $attachment->id }}" data-existing-removal style="margin-left:auto"> Remove
                                 </label>
                             @endforeach
                         </div>
@@ -286,7 +298,6 @@
                 @endif
 
                 <div class="upload-actions">
-                    <x-back-button href="{{ route('student_org.notifications') }}">Back to Notifications</x-back-button>
                     <button type="submit" class="button-primary">Resubmit Proposal</button>
                 </div>
             </form>
@@ -295,13 +306,27 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            const maxFiles = 5;
             const fileInput = document.getElementById('attachments');
             const dropzone = document.getElementById('dropzone');
             const attachmentCount = document.getElementById('attachment-count');
             const attachmentList = document.getElementById('attachment-list');
             const attachmentError = document.getElementById('attachment-error');
+            const form = fileInput.closest('form');
+            const maxFiles = Number(form?.dataset.maxFiles || {{ \App\Http\Controllers\ProjectController::MAX_ATTACHMENTS }});
+            const maxFileSize = 5 * 1024 * 1024;
+            const allowedExtensions = new Set(['pdf', 'doc', 'docx', 'xls', 'xlsx', 'png', 'jpg', 'jpeg', 'webp', 'zip']);
+            const existingCount = Number(form?.dataset.existingCount || 0);
+            const removalInputs = Array.from(form.querySelectorAll('[data-existing-removal]'));
             const selectedFiles = [];
+
+            const availableFileSlots = () => Math.max(0, maxFiles - (existingCount - removalInputs.filter((input) => input.checked).length));
+
+            const updateCapacity = () => {
+                const capacity = document.getElementById('attachment-capacity');
+                if (!capacity) return;
+                const slots = availableFileSlots();
+                capacity.textContent = slots + ' new file' + (slots === 1 ? '' : 's') + ' available (' + maxFiles + ' files total maximum).';
+            };
 
             const iconMap = {
                 pdf: '📄',
@@ -366,19 +391,37 @@
                     info.appendChild(nameEl);
                     info.appendChild(metaEl);
 
+                    const actions = document.createElement('div');
+                    actions.className = 'attachment-actions';
+
+                    const previewButton = document.createElement('button');
+                    previewButton.type = 'button';
+                    previewButton.className = 'attachment-action';
+                    previewButton.textContent = 'Preview';
+                    previewButton.addEventListener('click', () => {
+                        if (window.ProjectLinkFilePreview?.open) {
+                            window.ProjectLinkFilePreview.open(file);
+                        } else {
+                            showError('The preview viewer is still loading. Please try again.');
+                        }
+                    });
+
                     const removeButton = document.createElement('button');
                     removeButton.type = 'button';
-                    removeButton.className = 'attachment-remove';
+                    removeButton.className = 'attachment-action attachment-action--remove';
                     removeButton.textContent = 'Remove';
                     removeButton.addEventListener('click', () => {
+                        clearError();
                         selectedFiles.splice(index, 1);
                         updateInputFiles(selectedFiles);
                         renderFileList(selectedFiles);
                     });
 
+                    actions.appendChild(previewButton);
+                    actions.appendChild(removeButton);
                     item.appendChild(icon);
                     item.appendChild(info);
-                    item.appendChild(removeButton);
+                    item.appendChild(actions);
                     attachmentList.appendChild(item);
                 });
             };
@@ -387,9 +430,20 @@
                 clearError();
                 const fileArray = Array.from(incomingFiles);
                 const duplicateNames = [];
+                const invalidNames = [];
+                const oversizedNames = [];
                 let overflow = false;
 
                 fileArray.forEach((file) => {
+                    const extension = file.name.split('.').pop().toLowerCase();
+                    if (!allowedExtensions.has(extension)) {
+                        invalidNames.push(file.name);
+                        return;
+                    }
+                    if (file.size > maxFileSize) {
+                        oversizedNames.push(file.name);
+                        return;
+                    }
                     const duplicate = selectedFiles.some((existing) =>
                         existing.name === file.name && existing.size === file.size && existing.lastModified === file.lastModified
                     );
@@ -397,7 +451,7 @@
                         duplicateNames.push(file.name);
                         return;
                     }
-                    if (selectedFiles.length < maxFiles) {
+                    if (selectedFiles.length < availableFileSlots()) {
                         selectedFiles.push(file);
                     } else {
                         overflow = true;
@@ -405,7 +459,7 @@
                 });
 
                 if (overflow) {
-                    showError('Only 5 new files are allowed. Remove one before adding another.');
+                    showError('Only ' + availableFileSlots() + ' new file slots are available. Remove an existing file or a new file before adding another.');
                 }
                 if (duplicateNames.length) {
                     showError(`Duplicate files skipped: ${duplicateNames.join(', ')}`);
@@ -413,6 +467,13 @@
 
                 updateInputFiles(selectedFiles);
                 renderFileList(selectedFiles);
+
+                const messages = [];
+                if (overflow) messages.push('Only ' + availableFileSlots() + ' new file slots are available. Remove an existing file or a new file before adding another.');
+                if (duplicateNames.length) messages.push('Duplicate files skipped: ' + duplicateNames.join(', '));
+                if (invalidNames.length) messages.push('Unsupported file type skipped: ' + invalidNames.join(', '));
+                if (oversizedNames.length) messages.push('Files over 5MB skipped: ' + oversizedNames.join(', '));
+                if (messages.length) showError(messages.join(' '));
             };
 
             const onDrop = (event) => {
@@ -451,11 +512,29 @@
                 }
             });
 
-            const form = fileInput.closest('form');
+            removalInputs.forEach((input) => {
+                input.addEventListener('change', () => {
+                    updateCapacity();
+                    if (selectedFiles.length > availableFileSlots()) {
+                        showError('Remove some new files or mark more existing files for removal before resubmitting.');
+                    } else {
+                        clearError();
+                    }
+                });
+            });
+
+            updateCapacity();
             const submitButton = form.querySelector('button[type="submit"]');
-            form.addEventListener('submit', () => {
-                submitButton.disabled = true;
-                submitButton.textContent = 'Submitting...';
+            form.addEventListener('submit', (event) => {
+                if (selectedFiles.length > availableFileSlots()) {
+                    event.preventDefault();
+                    showError('You have selected more files than the remaining attachment slots.');
+                    return;
+                }
+                if (submitButton) {
+                    submitButton.disabled = true;
+                    submitButton.textContent = 'Submitting...';
+                }
             });
         });
     </script>
