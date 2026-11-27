@@ -100,6 +100,49 @@ class TemplateManagementAuthorizationTest extends TestCase
         $this->assertDatabaseMissing('templates', ['id' => $csaTemplate->id]);
     }
 
+    public function test_preview_and_download_share_authenticated_read_access(): void
+    {
+        Storage::fake('public');
+
+        $participant = User::factory()->create(['role' => 'participant']);
+        $template = Template::create([
+            'original_name' => 'celp-requirements.docx',
+            'file_path' => 'templates/celp-requirements.docx',
+            'uploaded_by' => $participant->id,
+            'source' => 'celp',
+        ]);
+        Storage::disk('public')->put($template->file_path, 'docx-preview-test-content');
+
+        $this->actingAs($participant)
+            ->get(route('templates.preview', $template))
+            ->assertOk()
+            ->assertSee('Loading document preview...')
+            ->assertSee('Uploaded by')
+            ->assertSee('Responsible office');
+
+        $this->get(route('templates.preview.content', $template))
+            ->assertOk()
+            ->assertHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document')
+            ->assertHeader('Content-Disposition', 'inline; filename="celp-requirements.docx"');
+
+        $this->get(route('templates.download', $template))
+            ->assertOk();
+    }
+
+    public function test_guests_cannot_preview_or_download_templates(): void
+    {
+        $template = Template::create([
+            'original_name' => 'guest-check.pdf',
+            'file_path' => 'templates/guest-check.pdf',
+            'uploaded_by' => User::factory()->create()->id,
+            'source' => 'celp',
+        ]);
+
+        $this->get(route('templates.preview', $template))->assertRedirect(route('login'));
+        $this->get(route('templates.preview.content', $template))->assertRedirect(route('login'));
+        $this->get(route('templates.download', $template))->assertRedirect(route('login'));
+    }
+
     private function templateUploadedBy(User $uploader): Template
     {
         return Template::create([

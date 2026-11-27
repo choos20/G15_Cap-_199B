@@ -1335,6 +1335,7 @@ Route::middleware('auth')->group(function () {
      */
     Route::get('/templates', [TemplateController::class, 'index'])->name('templates.index');
     Route::get('/templates/{template}/preview', [TemplateController::class, 'preview'])->name('templates.preview');
+    Route::get('/templates/{template}/preview/content', [TemplateController::class, 'previewContent'])->name('templates.preview.content');
     Route::get('/templates/{template}/download', [TemplateController::class, 'download'])->name('templates.download');
 
     Route::middleware('can.manage.templates')->group(function () {

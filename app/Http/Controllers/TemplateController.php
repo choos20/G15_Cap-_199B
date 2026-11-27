@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Template;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 
@@ -16,6 +15,8 @@ use Illuminate\Support\Facades\Storage;
  */
 class TemplateController extends Controller
 {
+    private const MAX_PREVIEW_BYTES = 10485760;
+
     /**
      * Upload rules, shared by store() and replace().
      *
@@ -181,47 +182,58 @@ class TemplateController extends Controller
         return redirect()->route('templates.manage')->with('status', 'Template removed successfully.');
     }
 
-    /** Preview PDFs inline; Word files receive a branded download guidance page. */
+    /** Render the protected document viewer shell for every template type. */
     public function preview(Request $request, Template $template)
     {
         $extension = strtolower(pathinfo($template->original_name, PATHINFO_EXTENSION));
 
-        if ($extension !== 'pdf') {
-            return view('templates.preview', [
-                'template' => $template,
-                'extension' => strtoupper($extension ?: 'FILE'),
-            ]);
-        }
+        abort_unless($request->user(), 403);
 
-        $headers = [
-            'Content-Type' => 'application/pdf',
-            'Content-Disposition' => 'inline; filename="'.$this->safeFileName($template->original_name).'"',
-            'Cache-Control' => 'private, max-age=0, must-revalidate',
-        ];
+        return view('templates.preview', [
+            'template' => $template,
+            'extension' => strtoupper($extension ?: 'FILE'),
+            'previewKind' => $this->previewKind($extension),
+            'contentUrl' => route('templates.preview.content', $template),
+        ]);
+    }
+
+    /**
+     * Return preview bytes only through the authenticated template route.
+     * The browser never receives a storage path, and unsupported formats remain
+     * download-only.
+     */
+    public function previewContent(Request $request, Template $template)
+    {
+        abort_unless($request->user(), 403);
+
+        $extension = strtolower(pathinfo($template->original_name, PATHINFO_EXTENSION));
+        $mime = $this->previewMime($extension);
+
+        abort_unless($mime !== null, 415, 'This file type is available for download only.');
 
         $data = $this->templateContents($template);
-        if ($data !== null) {
-            return response($data, 200, $headers);
-        }
-
-        if (! $template->file_path || ! Storage::disk('public')->exists($template->file_path)) {
+        if ($data === null) {
             abort(404);
         }
 
-        $stream = Storage::disk('public')->readStream($template->file_path);
-        if (! is_resource($stream)) {
-            abort(404);
+        if (strlen($data) > self::MAX_PREVIEW_BYTES) {
+            abort(413, 'This document is too large to preview safely.');
         }
 
-        return response()->stream(function () use ($stream): void {
-            fpassthru($stream);
-            fclose($stream);
-        }, 200, $headers);
+        return response($data, 200, [
+            'Content-Type' => $mime,
+            'Content-Disposition' => 'inline; filename="'.$this->safeFileName($template->original_name).'"',
+            'Cache-Control' => 'private, no-store, max-age=0',
+            'X-Content-Type-Options' => 'nosniff',
+            'X-Robots-Tag' => 'noindex, nofollow',
+        ]);
     }
 
     /** Downloading is open to every authenticated user. */
     public function download(Request $request, Template $template)
     {
+        abort_unless($request->user(), 403);
+
         if ($this->ensureFileDataColumns() && $template->file_data) {
             $data = $template->file_data;
 
@@ -253,6 +265,27 @@ class TemplateController extends Controller
         return str_replace(["\r", "\n", '"'], '', basename($fileName));
     }
 
+    private function previewKind(string $extension): string
+    {
+        return match ($extension) {
+            'docx' => 'docx',
+            'pdf' => 'pdf',
+            'png', 'jpg', 'jpeg' => 'image',
+            default => 'unsupported',
+        };
+    }
+
+    private function previewMime(string $extension): ?string
+    {
+        return match ($extension) {
+            'docx' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            'pdf' => 'application/pdf',
+            'png' => 'image/png',
+            'jpg', 'jpeg' => 'image/jpeg',
+            default => null,
+        };
+    }
+
     private function ensureFileDataColumns(): bool
     {
         if (Schema::hasColumn('templates', 'file_data')) {
@@ -267,9 +300,11 @@ class TemplateController extends Controller
         return true;
     }
 
-    private function binaryValue(string $data): mixed
+    private function binaryValue(string $data): string
     {
-        return DB::raw("decode('" . base64_encode($data) . "', 'base64')");
+        // Bind the binary payload as a normal parameter so SQLite, MySQL and
+        // PostgreSQL all receive the same bytes without database-specific SQL.
+        return $data;
     }
 
     private function isSameTemplateFile(Template $template, string $newContents): bool
