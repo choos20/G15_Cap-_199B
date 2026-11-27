@@ -118,6 +118,32 @@
         .login-captcha .cf-turnstile iframe {
             max-width: 100%;
         }
+        .brand-logo-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 88px;
+            height: 88px;
+            min-height: 0;
+            margin: 0 0 8px;
+            padding: 0;
+            border: 0;
+            border-radius: 50%;
+            background: transparent;
+            box-shadow: none;
+            cursor: pointer;
+            perspective: 700px;
+            transition: transform .2s ease, filter .2s ease;
+        }
+        .brand-logo-button img { width: 88px; height: 88px; margin: 0; transform-style: preserve-3d; }
+        .brand-logo-button:hover { transform: scale(1.07); filter: drop-shadow(0 0 16px rgba(94, 255, 137, .5)); }
+        .brand-logo-button:focus-visible { outline: 3px solid rgba(206, 255, 219, .82); outline-offset: 5px; }
+        .brand-logo-button.is-rotating img { animation: projectlink-logo-turn 1.2s cubic-bezier(.32, .72, .34, 1) both; }
+        @keyframes projectlink-logo-turn {
+            0% { transform: rotateY(0deg) scale(1); }
+            45% { transform: rotateY(180deg) scale(1.04); }
+            100% { transform: rotateY(360deg) scale(1); }
+        }
         .forgot-password {
             display: flex;
             justify-content: flex-end;
@@ -137,7 +163,9 @@
 
     <div class="page-card">
         <div class="brand">
-            <img src="{{ asset('images/Logo_nobg.png') }}" alt="ProjectLink Logo">
+            <button type="button" class="brand-logo-button" id="brand-logo-trigger" aria-label="Animate ProjectLink logo" title="Animate logo">
+                <img src="{{ asset('images/Logo_nobg.png') }}" alt="ProjectLink Logo">
+            </button>
             <div class="brand-name">ProjectLink</div>
             <div class="brand-sub">Community Extension Project Monitoring &amp; <br>
             Volunteer Management System</div>
@@ -233,6 +261,21 @@
     </div>
 
     <script>
+        (() => {
+            const logoButton = document.getElementById('brand-logo-trigger');
+            const logo = logoButton?.querySelector('img');
+            if (!logoButton || !logo) return;
+
+            logoButton.addEventListener('click', () => {
+                logoButton.classList.remove('is-rotating');
+                void logo.offsetWidth;
+                logoButton.classList.add('is-rotating');
+                window.setTimeout(() => logoButton.classList.remove('is-rotating'), 1200);
+            });
+
+            logo.addEventListener('animationend', () => logoButton.classList.remove('is-rotating'));
+        })();
+
         (() => {
             const password = document.getElementById('password');
             const toggle = document.getElementById('password-toggle');
