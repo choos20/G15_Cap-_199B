@@ -717,16 +717,25 @@
 
             const map = L.map(mapEl).setView([hasInitial ? initialLat : fallbackLat, hasInitial ? initialLng : fallbackLng], hasInitial ? 17 : 6);
             mapEl._leafletMap = map;
-            const streetLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
-                maxZoom: 19,
-                attribution: 'Tiles &copy; Esri — Sources: Esri, TomTom, Garmin, FAO, NOAA, USGS, &copy; OpenStreetMap contributors, and the GIS User Community',
-            }).addTo(map);
             const satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-                maxZoom: 20,
-                maxNativeZoom: 18,
-                attribution: 'Tiles &copy; Esri',
-            });
-            L.control.layers({ 'Street': streetLayer, 'Satellite': satelliteLayer }, null, { position: 'topright' }).addTo(map);
+                tileSize: 256,
+                detectRetina: true,
+                maxZoom: 19,
+                maxNativeZoom: 19,
+                keepBuffer: 3,
+                updateWhenZooming: false,
+                updateWhenIdle: true,
+                attribution: 'Imagery &copy; Esri, Maxar, Earthstar Geographics, and the GIS User Community',
+            }).addTo(map);
+            const hybridLayer = L.layerGroup([
+                L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+                    tileSize: 256, detectRetina: true, maxZoom: 19, maxNativeZoom: 19, attribution: 'Imagery &copy; Esri',
+                }),
+                L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Transportation/MapServer/tile/{z}/{y}/{x}', {
+                    tileSize: 256, detectRetina: true, maxZoom: 19, maxNativeZoom: 19, opacity: 0.88, attribution: 'Labels &copy; Esri',
+                }),
+            ]);
+            L.control.layers({ 'Satellite': satelliteLayer, 'Hybrid': hybridLayer }, null, { position: 'topright' }).addTo(map);
             L.control.scale({ imperial: false, position: 'bottomleft' }).addTo(map);
             setTimeout(() => map.invalidateSize(), 150);
 

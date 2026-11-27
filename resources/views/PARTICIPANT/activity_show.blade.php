@@ -9,17 +9,28 @@
         <link rel="stylesheet" href="https://unpkg.com/mapillary-js@4.1.2/dist/mapillary.css" />
     @endif
     <style>
-        #activity-map {
-            width:100%;
-            min-width:0;
-            aspect-ratio: 4 / 3;
-            max-height:440px;
-            min-height:300px;
-            max-width:600px;
-            border-radius:16px;
-            margin:14px auto 0;
-            border:1px solid #d1d5db;
-        }
+        #activity-map-shell { position:relative; width:100%; max-width:920px; margin:18px auto 0; padding:10px;
+            border:1px solid #d7e8df; border-radius:20px; background:linear-gradient(145deg,#f8fcfa,#eef6f2);
+            box-shadow:0 12px 28px rgba(15,55,43,.08); }
+        #activity-map { position:relative; width:100%; min-width:0; aspect-ratio:16 / 10; max-height:520px;
+            min-height:320px; border-radius:14px; border:1px solid #cbded5; overflow:hidden; background:#dfeae5; }
+        .activity-map-toolbar { display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; padding:4px 4px 10px; }
+        .activity-map-heading { display:flex; align-items:baseline; gap:8px; min-width:0; }
+        .activity-map-heading strong { color:#173b30; font-size:.9rem; }
+        .activity-map-heading span { color:#71827b; font-size:.75rem; }
+        .activity-map-actions { display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
+        .activity-map-action { display:inline-flex; align-items:center; justify-content:center; min-height:32px; padding:0 10px;
+            border:1px solid #cfe1d8; border-radius:9px; background:#fff; color:#28604c; font:inherit; font-size:.74rem;
+            font-weight:800; cursor:pointer; transition:background .16s ease,border-color .16s ease,color .16s ease,transform .16s ease; }
+        .activity-map-action:hover { border-color:#8ec9ad; background:#f3fbf6; transform:translateY(-1px); }
+        .activity-map-action.is-active { border-color:#087c5b; background:#087c5b; color:#fff; }
+        .activity-map-action:focus-visible { outline:3px solid rgba(8,124,91,.25); outline-offset:2px; }
+        .activity-map-loading { position:absolute; inset:0; z-index:500; display:flex; align-items:center; justify-content:center;
+            background:linear-gradient(135deg,rgba(238,246,242,.94),rgba(255,255,255,.86)); color:#28604c; font-size:.82rem; font-weight:800; }
+        .activity-map-loading.is-ready { opacity:0; pointer-events:none; transition:opacity .25s ease; }
+        .activity-map-status { min-height:18px; margin:7px 3px 0; color:#71827b; font-size:.74rem; }
+        #activity-map-shell:fullscreen { width:100vw; max-width:none; height:100vh; margin:0; padding:18px; border:0; border-radius:0; background:#e8f0ec; }
+        #activity-map-shell:fullscreen #activity-map { height:calc(100vh - 76px); max-height:none; aspect-ratio:auto; }
         .plink-pin svg { filter:drop-shadow(0 5px 8px rgba(15,23,42,0.4)); }
         .leaflet-control-layers { border-radius:12px !important; overflow:hidden; box-shadow:0 10px 25px rgba(15,23,42,0.15) !important; border:none !important; }
         .leaflet-bar { border-radius:10px !important; overflow:hidden; border:none !important; box-shadow:0 6px 16px rgba(15,23,42,0.15) !important; }
@@ -55,6 +66,12 @@
         .sv-caption { color:#52665d; font-size:0.82rem; margin-top:10px; }
         .sv-modal-note { color:#5b7067; font-size:0.82rem; margin-top:6px; }
         .sv-modal-note a { color:#93c5fd; }
+        @media (max-width:640px) {
+            #activity-map { min-height:300px; aspect-ratio:4 / 3; }
+            .activity-map-toolbar { align-items:flex-start; }
+            .activity-map-actions { width:100%; }
+            .activity-map-action { flex:1 1 auto; }
+        }
     </style>
 
     <x-back-button href="{{ route('participant.activities') }}">Back to activities</x-back-button>
@@ -135,14 +152,32 @@
         @endif
 
         @if($isRecruitment && $announcement->latitude && $announcement->longitude)
-            <div id="activity-map"></div>
+            <div id="activity-map-shell" aria-label="Activity location map">
+                <div class="activity-map-toolbar">
+                    <div class="activity-map-heading">
+                        <strong>Activity location</strong>
+                        <span id="activity-map-mode-label">Satellite imagery</span>
+                    </div>
+                    <div class="activity-map-actions" aria-label="Map controls">
+                        <button type="button" class="activity-map-action is-active" data-map-mode="satellite">Satellite</button>
+                        <button type="button" class="activity-map-action" data-map-mode="hybrid">Hybrid</button>
+                        <button type="button" class="activity-map-action" id="activity-map-locate">Locate me</button>
+                        <button type="button" class="activity-map-action" id="activity-map-reset">Reset</button>
+                        <button type="button" class="activity-map-action" id="activity-map-fullscreen">Full screen</button>
+                    </div>
+                </div>
+                <div id="activity-map">
+                    <div id="activity-map-loading" class="activity-map-loading" role="status">Loading satellite imagery...</div>
+                </div>
+                <div id="activity-map-status" class="activity-map-status" role="status" aria-live="polite">Satellite imagery is ready for exploring.</div>
+            </div>
             <div style="text-align:center;">
-                <button type="button" id="street-view-btn" class="sv-btn" disabled>Street view</button>
+                <button type="button" id="street-view-btn" class="sv-btn" disabled>Street-level imagery</button>
             </div>
             <div id="sv-modal-backdrop" class="sv-modal-backdrop" aria-hidden="true">
                 <div class="sv-modal" role="dialog" aria-modal="true" aria-labelledby="sv-modal-title">
                     <div class="sv-modal-header">
-                        <h3 id="sv-modal-title">Street view</h3>
+                        <h3 id="sv-modal-title">Street-level imagery</h3>
                         <button type="button" id="sv-modal-close" class="sv-modal-close">Close</button>
                     </div>
                     <div class="sv-viewer-wrap">
@@ -316,23 +351,27 @@
 
                     const checkStreetView = (lat, lng) => {
                         svBtn.disabled = true;
-                        svBtn.textContent = 'Checking street view…';
+                        svBtn.textContent = 'Checking street-level imagery…';
                         const d = 0.0008;
                         const bbox = [lng - d, lat - d, lng + d, lat + d].join(',');
-                        fetch(`https://graph.mapillary.com/images?access_token=${MAPILLARY_TOKEN}&fields=id,captured_at&bbox=${bbox}&limit=20`)
+                        const params = new URLSearchParams({ fields: 'id,captured_at', bbox, limit: '30' });
+                        fetch(`https://graph.mapillary.com/images?${params.toString()}`, {
+                            headers: { Authorization: `OAuth ${MAPILLARY_TOKEN}` },
+                        })
                             .then((r) => r.json())
                             .then((json) => {
                                 const results = (json.data || []).slice().sort((a, b) => (b.captured_at || 0) - (a.captured_at || 0));
                                 const found = results.length ? results[0] : null;
                                 currentImageId = found ? found.id : null;
                                 svBtn.disabled = !found;
-                                svBtn.textContent = found ? 'Street view available' : 'No street view here yet';
+                                svBtn.textContent = found ? 'Street-level imagery available' : 'No street imagery here yet';
                             })
                             .catch(() => {
                                 svBtn.disabled = true;
-                                svBtn.textContent = 'Street view unavailable';
+                                svBtn.textContent = 'Street imagery unavailable';
                             });
                     };
+                    window.__plinkCheckStreetView = checkStreetView;
 
                     svBtn.addEventListener('click', () => {
                         if (!currentImageId) return;
@@ -386,19 +425,102 @@
                 });
                 const lat = {{ $announcement->latitude }};
                 const lng = {{ $announcement->longitude }};
-                const map = L.map('activity-map', { scrollWheelZoom: false }).setView([lat, lng], 16);
-                const streetLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
-                    maxZoom: 19,
-                    attribution: 'Tiles &copy; Esri — Sources: Esri, TomTom, Garmin, FAO, NOAA, USGS, &copy; OpenStreetMap contributors, and the GIS User Community',
-                }).addTo(map);
+                const map = L.map('activity-map', { scrollWheelZoom: true, zoomControl: true, preferCanvas: true }).setView([lat, lng], 16);
                 const satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-                    maxZoom: 20,
-                    maxNativeZoom: 18,
-                    attribution: 'Tiles &copy; Esri',
+                    tileSize: 256,
+                    detectRetina: true,
+                    maxZoom: 19,
+                    maxNativeZoom: 19,
+                    keepBuffer: 3,
+                    updateWhenZooming: false,
+                    updateWhenIdle: true,
+                    attribution: 'Imagery &copy; Esri, Maxar, Earthstar Geographics, and the GIS User Community',
+                }).addTo(map);
+                const fallbackImageryLayer = L.tileLayer('https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+                    tileSize: 256,
+                    detectRetina: true,
+                    maxZoom: 19,
+                    maxNativeZoom: 19,
+                    keepBuffer: 3,
+                    updateWhenZooming: false,
+                    updateWhenIdle: true,
+                    attribution: 'Imagery &copy; Esri',
                 });
-                L.control.layers({ 'Street': streetLayer, 'Satellite': satelliteLayer }, null, { position: 'topright' }).addTo(map);
+                const referenceLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Transportation/MapServer/tile/{z}/{y}/{x}', {
+                    tileSize: 256,
+                    detectRetina: true,
+                    maxZoom: 19,
+                    maxNativeZoom: 19,
+                    opacity: 0.88,
+                    attribution: 'Labels &copy; Esri',
+                });
+                let hybridMode = false;
+                const modeLabel = document.getElementById('activity-map-mode-label');
+                const status = document.getElementById('activity-map-status');
+                const loading = document.getElementById('activity-map-loading');
+                const setMapStatus = (message) => { if (status) status.textContent = message; };
+                let tileErrors = 0;
+                let fallbackActivated = false;
+                const activateFallback = () => {
+                    if (fallbackActivated) return;
+                    fallbackActivated = true;
+                    if (map.hasLayer(satelliteLayer)) map.removeLayer(satelliteLayer);
+                    fallbackImageryLayer.addTo(map);
+                    setMapStatus('Using the satellite fallback layer. Imagery detail depends on source coverage.');
+                };
+                document.querySelectorAll('[data-map-mode]').forEach((button) => {
+                    button.addEventListener('click', () => {
+                        hybridMode = button.dataset.mapMode === 'hybrid';
+                        if (hybridMode) {
+                            referenceLayer.addTo(map);
+                            if (modeLabel) modeLabel.textContent = 'Hybrid imagery with labels';
+                            setMapStatus('Hybrid mode adds readable roads and place labels over the satellite imagery.');
+                        } else {
+                            if (map.hasLayer(referenceLayer)) map.removeLayer(referenceLayer);
+                            if (modeLabel) modeLabel.textContent = 'Satellite imagery';
+                            setMapStatus('Satellite imagery is ready for exploring.');
+                        }
+                        document.querySelectorAll('[data-map-mode]').forEach((item) => item.classList.toggle('is-active', item === button));
+                    });
+                });
+                satelliteLayer.once('load', () => loading?.classList.add('is-ready'));
+                fallbackImageryLayer.once('load', () => loading?.classList.add('is-ready'));
+                satelliteLayer.on('tileerror', () => {
+                    tileErrors += 1;
+                    if (tileErrors >= 3) activateFallback();
+                    else setMapStatus('Some imagery tiles could not be loaded.');
+                });
+                const mapShell = document.getElementById('activity-map-shell');
+                document.getElementById('activity-map-reset')?.addEventListener('click', () => map.setView([lat, lng], 16, { animate: true }));
+                document.getElementById('activity-map-locate')?.addEventListener('click', () => {
+                    setMapStatus('Requesting your current location...');
+                    map.locate({ setView: true, maxZoom: 18, enableHighAccuracy: true });
+                });
+                let userLocation = null;
+                map.on('locationfound', (event) => {
+                    if (userLocation) map.removeLayer(userLocation);
+                    userLocation = L.circleMarker(event.latlng, { radius: 7, color: '#fff', weight: 3, fillColor: '#2563eb', fillOpacity: 1 }).addTo(map);
+                    setMapStatus('Your approximate location is shown in blue.');
+                });
+                map.on('locationerror', () => setMapStatus('Location permission was unavailable. You can still explore the map manually.'));
+                const fullscreenButton = document.getElementById('activity-map-fullscreen');
+                fullscreenButton?.addEventListener('click', () => {
+                    if (document.fullscreenElement) document.exitFullscreen?.();
+                    else mapShell?.requestFullscreen?.();
+                });
+                document.addEventListener('fullscreenchange', () => {
+                    if (fullscreenButton) fullscreenButton.textContent = document.fullscreenElement ? 'Exit full screen' : 'Full screen';
+                    window.setTimeout(() => map.invalidateSize({ animate: true }), 250);
+                });
+                map.on('click', (event) => {
+                    if (window.__plinkCheckStreetView) {
+                        setMapStatus('Checking for street-level imagery near the selected point...');
+                        window.__plinkCheckStreetView(event.latlng.lat, event.latlng.lng);
+                    }
+                });
                 L.control.scale({ imperial: false, position: 'bottomleft' }).addTo(map);
                 setTimeout(() => map.invalidateSize(), 150);
+                if (window.ResizeObserver && mapShell) new ResizeObserver(() => map.invalidateSize()).observe(mapShell);
                 L.marker([lat, lng], { icon: pinIcon }).addTo(map).bindPopup('Activity location').openPopup();
                 L.circle([lat, lng], {
                     radius: 50,

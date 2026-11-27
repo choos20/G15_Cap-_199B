@@ -669,7 +669,7 @@
                                 <div id="location-map"></div>
                                 <div class="attendance-location-actions">
                                     <button type="button" id="use-my-location" class="map-locate-btn"><x-ui-icon name="location" :size="15" /><span>Use my current location</span></button>
-                                    <button type="button" id="street-view-btn" class="sv-btn" disabled><x-ui-icon name="desktop" :size="15" /><span>Street view</span></button>
+                                    <button type="button" id="street-view-btn" class="sv-btn" disabled><x-ui-icon name="desktop" :size="15" /><span>Street-level imagery</span></button>
                                 </div>
                                 <div class="form-note">Search, click the map, or drag the pin to set the exact activity location.</div>
                             </div>
@@ -886,7 +886,7 @@
     <div id="sv-modal-backdrop" class="sv-modal-backdrop" aria-hidden="true">
         <div class="sv-modal" role="dialog" aria-modal="true" aria-labelledby="sv-modal-title">
             <div class="sv-modal-header">
-                <h3 id="sv-modal-title">Street view</h3>
+                <h3 id="sv-modal-title">Street-level imagery</h3>
                 <button type="button" id="sv-modal-close" class="sv-modal-close">Close</button>
             </div>
             <div class="sv-viewer-wrap">
@@ -974,12 +974,15 @@
 
                 window.__plinkCheckStreetView = (lat, lng) => {
                     svBtn.disabled = true;
-                    setIconButtonLabel(svBtn, 'Checking street view…');
+                    setIconButtonLabel(svBtn, 'Checking street-level imagery…');
                     currentImageId = null;
                     const thisCheck = ++checkToken;
                     const d = 0.0008;
                     const bbox = [lng - d, lat - d, lng + d, lat + d].join(',');
-                    fetch(`https://graph.mapillary.com/images?access_token=${MAPILLARY_TOKEN}&fields=id,captured_at&bbox=${bbox}&limit=20`)
+                    const params = new URLSearchParams({ fields: 'id,captured_at', bbox, limit: '30' });
+                    fetch(`https://graph.mapillary.com/images?${params.toString()}`, {
+                        headers: { Authorization: `OAuth ${MAPILLARY_TOKEN}` },
+                    })
                         .then((r) => r.json())
                         .then((json) => {
                             if (thisCheck !== checkToken) return;
@@ -987,12 +990,12 @@
                             const found = results.length ? results[0] : null;
                             currentImageId = found ? found.id : null;
                             svBtn.disabled = !found;
-                            setIconButtonLabel(svBtn, found ? 'Street view available' : 'No street view here yet');
+                            setIconButtonLabel(svBtn, found ? 'Street-level imagery available' : 'No street imagery here yet');
                         })
                         .catch(() => {
                             if (thisCheck !== checkToken) return;
                             svBtn.disabled = true;
-                            setIconButtonLabel(svBtn, 'Street view unavailable');
+                            setIconButtonLabel(svBtn, 'Street imagery unavailable');
                         });
                 };
 
@@ -1066,18 +1069,25 @@
                     hasInitial ? 17 : 6
                 );
 
-                const streetLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
-                    maxZoom: 19,
-                    attribution: 'Tiles &copy; Esri — Sources: Esri, TomTom, Garmin, FAO, NOAA, USGS, &copy; OpenStreetMap contributors, and the GIS User Community',
-                }).addTo(map);
-
                 const satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-                    maxZoom: 20,
-                    maxNativeZoom: 18,
-                    attribution: 'Tiles &copy; Esri',
-                });
-
-                L.control.layers({ 'Street': streetLayer, 'Satellite': satelliteLayer }, null, { position: 'topright' }).addTo(map);
+                    tileSize: 256,
+                    detectRetina: true,
+                    maxZoom: 19,
+                    maxNativeZoom: 19,
+                    keepBuffer: 3,
+                    updateWhenZooming: false,
+                    updateWhenIdle: true,
+                    attribution: 'Imagery &copy; Esri, Maxar, Earthstar Geographics, and the GIS User Community',
+                }).addTo(map);
+                const hybridLayer = L.layerGroup([
+                    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+                        tileSize: 256, detectRetina: true, maxZoom: 19, maxNativeZoom: 19, attribution: 'Imagery &copy; Esri',
+                    }),
+                    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Transportation/MapServer/tile/{z}/{y}/{x}', {
+                        tileSize: 256, detectRetina: true, maxZoom: 19, maxNativeZoom: 19, opacity: 0.88, attribution: 'Labels &copy; Esri',
+                    }),
+                ]);
+                L.control.layers({ 'Satellite': satelliteLayer, 'Hybrid': hybridLayer }, null, { position: 'topright' }).addTo(map);
                 L.control.attribution({ prefix: false, position: 'bottomright' }).addTo(map);
                 setTimeout(() => map.invalidateSize(), 150);
 
