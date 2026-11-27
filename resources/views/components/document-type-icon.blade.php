@@ -9,16 +9,22 @@
     $resolvedExtension = strtolower(trim((string) ($extension ?: pathinfo((string) $fileName, PATHINFO_EXTENSION))));
     $isPdf = $resolvedExtension === 'pdf';
     $isWord = in_array($resolvedExtension, ['doc', 'docx'], true);
+    $isExcel = in_array($resolvedExtension, ['xls', 'xlsx'], true);
     $documentLabel = $label ?: match (true) {
         $isPdf => 'PDF document',
         $isWord => 'Word document',
+        $isExcel => 'Excel spreadsheet',
         default => 'Document',
     };
 @endphp
 
-@if($isPdf || $isWord)
+@if($isPdf || $isWord || $isExcel)
     <img
-        src="{{ asset($isPdf ? 'images/document-icons/pdf.png' : 'images/document-icons/word.png') }}"
+        src="{{ asset(match (true) {
+            $isPdf => 'images/document-icons/pdf.png',
+            $isWord => 'images/document-icons/word.png',
+            default => 'images/document-icons/excel.svg',
+        }) }}"
         alt="{{ $documentLabel }}"
         width="{{ (int) $size }}"
         height="{{ (int) $size }}"

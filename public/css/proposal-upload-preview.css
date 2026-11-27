@@ -67,6 +67,22 @@
     flex-wrap: wrap;
 }
 
+.attachment-file-icon {
+    display: block;
+    width: 42px;
+    height: 42px;
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+.attachment-icon--text {
+    color: #12634c;
+    font-size: 0.68rem;
+    font-weight: 850;
+    letter-spacing: 0.02em;
+}
+
 .attachment-action {
     min-height: 36px;
     padding: 0 12px;

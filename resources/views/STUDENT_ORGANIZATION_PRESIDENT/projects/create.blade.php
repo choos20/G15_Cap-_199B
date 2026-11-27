@@ -318,22 +318,20 @@
                     const allowedExtensions = new Set(['pdf', 'doc', 'docx', 'xls', 'xlsx', 'png', 'jpg', 'jpeg', 'webp', 'zip']);
                     const selectedFiles = [];
 
-                    const iconMap = {
-                        pdf: '📄',
-                        doc: '📝',
-                        docx: '📝',
-                        xls: '📊',
-                        xlsx: '📊',
-                        png: '🖼️',
-                        jpg: '🖼️',
-                        jpeg: '🖼️',
-                        webp: '🖼️',
-                        zip: '🗜️',
+                    const iconAssets = {
+                        pdf: @json(asset('images/document-icons/pdf.png')),
+                        word: @json(asset('images/document-icons/word.png')),
+                        excel: @json(asset('images/document-icons/excel.svg')),
                     };
 
-                    const getFileIcon = (name) => {
-                        const ext = name.split('.').pop().toLowerCase();
-                        return iconMap[ext] || '📎';
+                    const getFileExtension = (name) => name.split('.').pop().toLowerCase();
+
+                    const getFileIconAsset = (name) => {
+                        const extension = getFileExtension(name);
+                        if (extension === 'pdf') return iconAssets.pdf;
+                        if (['doc', 'docx'].includes(extension)) return iconAssets.word;
+                        if (['xls', 'xlsx'].includes(extension)) return iconAssets.excel;
+                        return null;
                     };
 
                     const updateInputFiles = (files) => {
@@ -369,7 +367,18 @@
 
                             const icon = document.createElement('div');
                             icon.className = 'attachment-icon';
-                            icon.textContent = getFileIcon(file.name);
+                            const extension = getFileExtension(file.name);
+                            const iconAsset = getFileIconAsset(file.name);
+                            if (iconAsset) {
+                                const iconImage = document.createElement('img');
+                                iconImage.className = 'attachment-file-icon';
+                                iconImage.src = iconAsset;
+                                iconImage.alt = `${extension.toUpperCase()} file`;
+                                icon.appendChild(iconImage);
+                            } else {
+                                icon.classList.add('attachment-icon--text');
+                                icon.textContent = extension ? extension.toUpperCase().slice(0, 4) : 'FILE';
+                            }
 
                             const info = document.createElement('div');
                             info.className = 'attachment-info';

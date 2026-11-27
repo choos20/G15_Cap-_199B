@@ -284,7 +284,9 @@
                         <div class="attachment-list" style="display:grid">
                             @foreach($project->attachments as $attachment)
                                 <label class="attachment-item" style="padding:16px 18px;">
-                                    <div class="attachment-icon">📎</div>
+                                    <div class="attachment-icon">
+                                        <x-document-type-icon :file-name="$attachment->file_name" :size="42" />
+                                    </div>
                                     <div class="attachment-info">
                                         <strong>{{ $attachment->file_name }}</strong>
                                         <span>{{ strtoupper(pathinfo($attachment->file_name, PATHINFO_EXTENSION)) }} · {{ number_format($attachment->file_size / 1024 / 1024, 2) }} MB</span>
@@ -328,22 +330,20 @@
                 capacity.textContent = slots + ' new file' + (slots === 1 ? '' : 's') + ' available (' + maxFiles + ' files total maximum).';
             };
 
-            const iconMap = {
-                pdf: '📄',
-                doc: '📝',
-                docx: '📝',
-                xls: '📊',
-                xlsx: '📊',
-                png: '🖼️',
-                jpg: '🖼️',
-                jpeg: '🖼️',
-                webp: '🖼️',
-                zip: '🗜️',
+            const iconAssets = {
+                pdf: @json(asset('images/document-icons/pdf.png')),
+                word: @json(asset('images/document-icons/word.png')),
+                excel: @json(asset('images/document-icons/excel.svg')),
             };
 
-            const getFileIcon = (name) => {
-                const ext = name.split('.').pop().toLowerCase();
-                return iconMap[ext] || '📎';
+            const getFileExtension = (name) => name.split('.').pop().toLowerCase();
+
+            const getFileIconAsset = (name) => {
+                const extension = getFileExtension(name);
+                if (extension === 'pdf') return iconAssets.pdf;
+                if (['doc', 'docx'].includes(extension)) return iconAssets.word;
+                if (['xls', 'xlsx'].includes(extension)) return iconAssets.excel;
+                return null;
             };
 
             const updateInputFiles = (files) => {
@@ -380,7 +380,18 @@
 
                     const icon = document.createElement('div');
                     icon.className = 'attachment-icon';
-                    icon.textContent = getFileIcon(file.name);
+                    const extension = getFileExtension(file.name);
+                    const iconAsset = getFileIconAsset(file.name);
+                    if (iconAsset) {
+                        const iconImage = document.createElement('img');
+                        iconImage.className = 'attachment-file-icon';
+                        iconImage.src = iconAsset;
+                        iconImage.alt = `${extension.toUpperCase()} file`;
+                        icon.appendChild(iconImage);
+                    } else {
+                        icon.classList.add('attachment-icon--text');
+                        icon.textContent = extension ? extension.toUpperCase().slice(0, 4) : 'FILE';
+                    }
 
                     const info = document.createElement('div');
                     info.className = 'attachment-info';
