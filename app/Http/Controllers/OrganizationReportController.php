@@ -18,7 +18,7 @@ class OrganizationReportController extends Controller
     private const REPORTS = [
         'activity-completion' => [
             'title' => 'Activity completion',
-            'description' => 'Review your activities, event dates, completion status, and service hours.',
+            'description' => 'Review your activities, event dates, completion status, and evaluations.',
         ],
         'participant-involvement' => [
             'title' => 'Approved volunteer involvement',
@@ -50,6 +50,8 @@ class OrganizationReportController extends Controller
             'department' => ['nullable', 'string', 'max:255'],
             'program' => ['nullable', 'string', 'max:160'],
             'participant_type' => ['nullable', Rule::in(array_merge(array_keys(User::PARTICIPANT_TYPES), ['external_participant', '_unspecified']))],
+            'approval_status' => ['nullable', Rule::in(array_keys(Project::STATUS_LABELS))],
+            'evaluation_status' => ['nullable', Rule::in(['submitted', 'not_submitted'])],
         ]);
         $ay = $validated['ay'] ?? AcademicPeriod::current();
         $range = AcademicPeriod::range($ay, $validated['term'] ?? null);
@@ -66,6 +68,8 @@ class OrganizationReportController extends Controller
             'department' => $validated['department'] ?? '',
             'program' => $validated['program'] ?? '',
             'participant_type' => $validated['participant_type'] ?? '',
+            'approval_status' => $validated['approval_status'] ?? '',
+            'evaluation_status' => $validated['evaluation_status'] ?? '',
             'start' => $range[0],
             'end' => $range[1],
         ];
@@ -79,7 +83,7 @@ class OrganizationReportController extends Controller
             ->when($filters['project'] ?? null, fn (Builder $query, $projectId) => $query->where('p.id', $projectId))
             ->when($filters['from'], fn (Builder $query) => $query->whereDate('p.created_at', '>=', $filters['from']))
             ->when($filters['to'], fn (Builder $query) => $query->whereDate('p.created_at', '<=', $filters['to']))
-            ->select(['p.id', 'p.title', 'p.status', 'p.hours_rendered', 'p.created_at'])
+            ->select(['p.id', 'p.title', 'p.status', 'p.created_at'])
             ->orderByDesc('p.created_at')
             ->get();
     }
@@ -160,11 +164,13 @@ class OrganizationReportController extends Controller
                 ->leftJoin('announcements as a', 'a.project_id', '=', 'p.id')
                 ->leftJoin('evaluations as e', 'e.announcement_id', '=', 'a.id')
                 ->whereIn('p.id', $projectIds ?: [0])
+                ->when($filters['approval_status'], fn (Builder $query, $status) => $query->where('p.status', $status))
+                ->when($filters['evaluation_status'] === 'submitted', fn (Builder $query) => $query->whereNotNull('e.submitted_at'))
+                ->when($filters['evaluation_status'] === 'not_submitted', fn (Builder $query) => $query->whereNull('e.submitted_at'))
                 ->select([
                     'p.id as project_id',
                     'p.title as project',
                     'p.status as project_status',
-                    'p.hours_rendered',
                     'p.created_at',
                     'a.title as activity',
                     'a.event_date',
@@ -183,16 +189,14 @@ class OrganizationReportController extends Controller
                     $activity->event_date ? \Illuminate\Support\Carbon::parse($activity->event_date)->format('M j, Y') : '—',
                     $completion,
                     Project::statusLabel($activity->project_status),
-                    $activity->hours_rendered ?? 0,
                     $activity->evaluation_submitted_at ? 'Submitted' : 'Not submitted',
                 ];
             });
             $summary = [
-                'Projects' => $projects->count(),
+                'Projects' => $activities->pluck('project_id')->unique()->count(),
                 'Activities completed' => $activities->filter(fn ($activity) => $activity->event_date && now()->greaterThanOrEqualTo($activity->event_date))->count(),
-                'Hours rendered' => (int) $projects->sum('hours_rendered'),
             ];
-            $headings = ['Project', 'Activity', 'Event date', 'Completion', 'Approval status', 'Hours rendered', 'Evaluation'];
+            $headings = ['Project', 'Activity', 'Event date', 'Completion', 'Approval status', 'Evaluation'];
         } elseif ($report === 'participant-involvement') {
             $volunteers = DB::table('volunteer_applications as applications')
                 ->join('announcements as a', 'a.id', '=', 'applications.announcement_id')

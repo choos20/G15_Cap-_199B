@@ -97,6 +97,13 @@
         .or-feedback { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; }
         .or-comment { margin-top:9px; padding:11px 13px; border-left:3px solid #add9c2; border-radius:0 8px 8px 0; background:#f7faf8; color:#40564c; font-size:.84rem; line-height:1.5; white-space:pre-line; overflow-wrap:anywhere; }
         .or-print-header { display:none; }
+        .or-report--completion .or-toolbar { background:#fff; border-color:#e1e5e3; border-radius:10px; box-shadow:none; }
+        .or-report--completion .or-metric,.or-report--completion .or-table-wrap { border-color:#e1e5e3; border-radius:10px; box-shadow:none; }
+        .or-report--completion .or-metric::after { display:none; }
+        .or-report--completion .or-table th { background:#f8f9f8; color:#52605a; }
+        .or-report--completion .or-table tbody tr:hover { background:#f8f9f8; }
+        .or-actions { flex-wrap:wrap; }
+        .or-button svg { width:16px; height:16px; margin-right:6px; }
         @media(max-width:700px) {
             .or-toolbar { padding:14px; }
             .or-field,.or-field--date { flex:1 1 calc(50% - 8px); min-width:0; }
@@ -140,11 +147,14 @@
             .or-section { margin:12pt 0; padding:12pt; border-color:#d9e5df; box-shadow:none; break-inside:avoid; }
         }
     </style>
-    <div class="or-report">
+    <div class="or-report{{ $report === 'activity-completion' ? ' or-report--completion' : '' }}">
         <div class="or-print-header">
             <div class="or-print-kicker">ProjectLink · Performance report</div>
             <div class="or-print-title">{{ $reportInfo['title'] }}</div>
             <div class="or-print-meta">Academic year {{ $filters['ay'] }} · {{ $termLabel }} · Submitted {{ $formatReportDate($filters['from']) }} to {{ $formatReportDate($filters['to']) }}</div>
+            @if($report === 'activity-completion')
+                <div class="or-print-meta">Approval status: {{ $filters['approval_status'] ? \App\Models\Project::statusLabel($filters['approval_status']) : 'All' }} · Evaluation status: {{ match($filters['evaluation_status']) { 'submitted' => 'Submitted', 'not_submitted' => 'Not submitted', default => 'All' } }}</div>
+            @endif
             @if($report === 'attendance')
                 <div class="or-print-meta">Activity: {{ $activityOptions->firstWhere('id', $filters['project'])?->title ?? 'All activities' }} · College / department: {{ $filters['department'] === '_unspecified' ? 'Not specified' : ($filters['department'] ?: 'All') }} · Program: {{ $filters['program'] === '_unspecified' ? 'Not specified' : ($filters['program'] ?: 'All') }} · Participant type: {{ \App\Models\User::PARTICIPANT_TYPES[$filters['participant_type']] ?? match($filters['participant_type']) { 'external_participant' => 'External participant', '_unspecified' => 'Not specified', default => 'All' } }}</div>
             @endif
@@ -168,6 +178,23 @@
                 @endforeach
             </select>
         </div>
+        @if($report === 'activity-completion')
+        <div class="or-field">
+            <label for="approval_status">Approval status</label>
+            <select name="approval_status" id="approval_status">
+                <option value="">All approval statuses</option>
+                @foreach(\App\Models\Project::STATUS_LABELS as $value => $label)<option value="{{ $value }}" @selected($filters['approval_status'] === $value)>{{ $label }}</option>@endforeach
+            </select>
+        </div>
+        <div class="or-field">
+            <label for="evaluation_status">Evaluation status</label>
+            <select name="evaluation_status" id="evaluation_status">
+                <option value="">All evaluation statuses</option>
+                <option value="submitted" @selected($filters['evaluation_status'] === 'submitted')>Submitted</option>
+                <option value="not_submitted" @selected($filters['evaluation_status'] === 'not_submitted')>Not submitted</option>
+            </select>
+        </div>
+        @endif
         @if($report === 'attendance')
             <div class="or-field" style="min-width:230px; flex:1 1 230px;">
                 <label for="project">Activity</label>
@@ -259,8 +286,8 @@
             </div>
         </div>
         <div class="or-actions">
-            <button type="submit" class="or-button or-button-primary pl-date-action pl-date-action-primary">Apply filters</button>
-            @if($report === 'attendance')<a class="or-button pl-date-action pl-date-action-secondary" href="{{ route('student_org.reports.show', ['report' => $report]) }}">Reset</a>@endif
+            <button type="submit" class="or-button or-button-primary pl-date-action pl-date-action-primary">@if($report === 'activity-completion')<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 6h16l-6.5 7.3V19l-3 1v-6.7L4 6Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>@endif Apply filters</button>
+            @if(in_array($report, ['attendance', 'activity-completion'], true))<a class="or-button pl-date-action pl-date-action-secondary" href="{{ route('student_org.reports.show', ['report' => $report]) }}">Reset</a>@endif
             <a class="or-button" href="{{ route('student_org.reports.show', array_merge(['report' => $report], request()->query(), ['format' => 'csv'])) }}">CSV</a>
             <button type="button" class="or-button" onclick="window.print()">Print</button>
         </div>

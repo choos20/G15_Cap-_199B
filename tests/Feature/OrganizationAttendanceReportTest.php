@@ -38,6 +38,13 @@ class OrganizationAttendanceReportTest extends TestCase
         Schema::create('announcements', function (Blueprint $table) {
             $table->id();
             $table->foreignId('project_id');
+            $table->string('title')->nullable();
+            $table->date('event_date')->nullable();
+        });
+        Schema::create('evaluations', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('announcement_id');
+            $table->timestamp('submitted_at')->nullable();
         });
         Schema::create('volunteer_applications', function (Blueprint $table) {
             $table->id();
@@ -215,6 +222,39 @@ class OrganizationAttendanceReportTest extends TestCase
         $csv = $this->get($url.'?format=csv')->assertOk()->streamedContent();
         $this->assertStringNotContainsString('Assigned participants', $csv);
         $this->assertDatabaseHas('project_participant_enrollments', ['participant_name' => 'Historical participant']);
+    }
+
+    public function test_activity_completion_filters_summary_print_and_csv_remain_scoped(): void
+    {
+        $owner = User::factory()->create(['role' => 'student_org']);
+        $other = User::factory()->create(['role' => 'student_org']);
+        $project = $this->project($owner, 'Matching project');
+        DB::table('projects')->where('id', $project)->update(['status' => 'csa_cleared']);
+        $a = DB::table('announcements')->insertGetId(['project_id' => $project, 'title' => 'Completed activity', 'event_date' => '2026-11-01']);
+        DB::table('evaluations')->insert(['announcement_id' => $a, 'submitted_at' => now()]);
+        DB::table('announcements')->insert(['project_id' => $project, 'title' => 'Unsubmitted activity', 'event_date' => '2026-12-01']);
+        $otherProject = $this->project($other, 'Private project');
+        DB::table('projects')->where('id', $otherProject)->update(['status' => 'csa_cleared']);
+        $private = DB::table('announcements')->insertGetId(['project_id' => $otherProject, 'title' => 'Private activity']);
+        DB::table('evaluations')->insert(['announcement_id' => $private, 'submitted_at' => now()]);
+
+        $params = ['report' => 'activity-completion', 'ay' => '2026-2027', 'approval_status' => 'csa_cleared', 'evaluation_status' => 'submitted'];
+        $response = $this->actingAs($owner)->get(route('student_org.reports.show', $params))->assertOk()
+            ->assertSee('Completed activity')->assertDontSee('Unsubmitted activity')->assertDontSee('Private project')
+            ->assertDontSee('Hours rendered')->assertSee('Approval status: CSA Cleared')->assertSee('Evaluation status: Submitted');
+        $this->assertSame(['Projects' => 1, 'Activities completed' => 1], $response->viewData('summary'));
+        $this->assertCount(1, $response->viewData('rows'));
+        $csv = $this->get(route('student_org.reports.show', $params + ['format' => 'csv']))->assertOk()->streamedContent();
+        $this->assertStringContainsString('Completed activity', $csv);
+        $this->assertStringNotContainsString('Unsubmitted activity', $csv);
+        $this->assertStringNotContainsString('Private project', $csv);
+        $this->assertStringNotContainsString('Hours rendered', $csv);
+        $this->get(route('student_org.reports.show', array_merge($params, ['evaluation_status' => 'not_submitted'])))
+            ->assertOk()->assertSee('Unsubmitted activity')->assertDontSee('Completed activity');
+        $this->get(route('student_org.reports.show', array_merge($params, ['approval_status' => 'submitted'])))
+            ->assertOk()->assertDontSee('Completed activity');
+        $this->get(route('student_org.reports.show', ['report' => 'activity-completion']))
+            ->assertOk()->assertSee('Completed activity')->assertSee('Unsubmitted activity');
     }
 
     public function test_empty_results_and_ownership_and_role_limits(): void
