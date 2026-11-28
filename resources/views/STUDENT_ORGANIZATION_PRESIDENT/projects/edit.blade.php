@@ -239,15 +239,15 @@
                 @csrf
 
                 <div class="upload-field">
-                    <label for="title">Title</label>
-                    <input id="title" name="title" class="text-input" maxlength="120" value="{{ old('title', $project->title) }}" placeholder="Enter proposal title">
+                    <label for="title">Title (required)</label>
+                    <input id="title" name="title" class="text-input" maxlength="120" required value="{{ old('title', $project->title) }}" placeholder="Enter proposal title">
                     <div class="field-helper">Maximum 120 characters.</div>
                     @error('title')<div class="error-text">{{ $message }}</div>@enderror
                 </div>
 
                 <div class="upload-field">
-                    <label for="description">Description</label>
-                    <textarea id="description" name="description" class="textarea-field" maxlength="300" rows="4" placeholder="Write a short description for your project">{{ old('description', $project->description) }}</textarea>
+                    <label for="description">Description (required)</label>
+                    <textarea id="description" name="description" class="textarea-field" maxlength="300" rows="4" required placeholder="Write a short description for your project">{{ old('description', $project->description) }}</textarea>
                     <div class="field-helper">Maximum 300 characters.</div>
                     @error('description')<div class="error-text">{{ $message }}</div>@enderror
                 </div>
@@ -269,9 +269,9 @@
                         <span id="attachment-count">No new files selected.</span>
                         <span id="attachment-capacity">Max {{ \App\Http\Controllers\ProjectController::MAX_ATTACHMENTS }} files total, including existing attachments.</span>
                     </div>
-                    <div id="attachment-error" class="error-text" style="display:none"></div>
+                    <div id="attachment-error" class="error-text" role="alert" style="display:none"></div>
                     <div id="attachment-list" class="attachment-list" style="display:none"></div>
-                    <div class="file-note">You can add new files and remove existing attachments before resubmitting.</div>
+                    <div class="file-note">Keep or upload at least one file, up to {{ \App\Http\Controllers\ProjectController::MAX_ATTACHMENTS }} files in total.</div>
                     @error('attachments')<div class="error-text">{{ $message }}</div>@enderror
                     @error('attachments.*')<div class="error-text">{{ $message }}</div>@enderror
                 </div>
@@ -542,11 +542,18 @@
                 }
             });
             form.addEventListener('submit', (event) => {
+                if (existingCount - removalInputs.filter((input) => input.checked).length + selectedFiles.length < 1) {
+                    event.preventDefault();
+                    showError('Keep or upload at least one attachment.');
+                    dropzone.focus();
+                    return;
+                }
                 if (selectedFiles.length > availableFileSlots()) {
                     event.preventDefault();
                     showError('You have selected more files than the remaining attachment slots.');
                     return;
                 }
+                if (event.defaultPrevented) return;
                 if (submitButton) {
                     submitButton.disabled = true;
                     submitButton.textContent = 'Submitting...';

@@ -63,11 +63,14 @@ class ProjectController extends Controller
 
         $request->validate([
             'title' => 'required|string|max:120',
-            'description' => 'nullable|string|max:300',
-            'attachments' => 'nullable|array|max:'.self::MAX_ATTACHMENTS,
+            'description' => 'required|string|max:300',
+            'attachments' => 'required|array|min:1|max:'.self::MAX_ATTACHMENTS,
             'attachments.*' => 'file|mimes:pdf,doc,docx,xls,xlsx,png,jpg,jpeg,webp,zip|max:'.self::MAX_ATTACHMENT_SIZE_KB,
         ], [
             'title.max' => 'Title may not exceed 120 characters.',
+            'description.required' => 'Please enter a project description.',
+            'attachments.required' => 'Please upload at least one attachment.',
+            'attachments.min' => 'Please upload at least one attachment.',
             'description.max' => 'Description may not exceed 300 characters.',
             'attachments.max' => 'You may upload up to '.self::MAX_ATTACHMENTS.' files only.',
             'attachments.*.mimes' => 'Only PDF, DOC, DOCX, XLS, XLSX, PNG, JPG, JPEG, WEBP, and ZIP files are allowed.',
@@ -150,13 +153,14 @@ class ProjectController extends Controller
 
         $request->validate([
             'title' => 'required|string|max:120',
-            'description' => 'nullable|string|max:300',
+            'description' => 'required|string|max:300',
             'attachments' => 'nullable|array|max:'.self::MAX_ATTACHMENTS,
             'attachments.*' => 'file|mimes:pdf,doc,docx,xls,xlsx,png,jpg,jpeg,webp,zip|max:'.self::MAX_ATTACHMENT_SIZE_KB,
             'remove_attachments' => 'nullable|array',
             'remove_attachments.*' => 'integer|exists:project_attachments,id',
         ], [
             'title.max' => 'Title may not exceed 120 characters.',
+            'description.required' => 'Please enter a project description.',
             'description.max' => 'Description may not exceed 300 characters.',
             'attachments.max' => 'You may upload up to '.self::MAX_ATTACHMENTS.' files only.',
             'attachments.*.mimes' => 'Only PDF, DOC, DOCX, XLS, XLSX, PNG, JPG, JPEG, WEBP, and ZIP files are allowed.',
@@ -180,6 +184,10 @@ class ProjectController extends Controller
             ->when($removeIds, fn ($query) => $query->whereNotIn('id', $removeIds))
             ->count();
         $newFiles = $request->file('attachments') ? count($request->file('attachments')) : 0;
+
+        if ($remainingAttachments + $newFiles < 1) {
+            return back()->withErrors(['attachments' => 'Keep or upload at least one attachment.'])->withInput();
+        }
 
         if ($remainingAttachments + $newFiles > self::MAX_ATTACHMENTS) {
             return back()->withErrors(['attachments' => 'You may upload no more than '.self::MAX_ATTACHMENTS.' files in total.'])->withInput();

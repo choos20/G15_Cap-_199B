@@ -103,6 +103,48 @@ class DocumentPreviewTest extends TestCase
         ];
     }
 
+    public function test_proposal_requires_title_description_and_one_to_ten_files(): void
+    {
+        $owner = User::factory()->create(['role' => 'student_org']);
+        $this->actingAs($owner)->withSession(['project_submission_token' => 'required-fields'])
+            ->post(route('projects.store'), ['submission_token' => 'required-fields', 'title' => 'Only a title'])
+            ->assertSessionHasErrors(['description', 'attachments']);
+        $this->assertDatabaseCount('projects', 0);
+
+        $this->withSession(['project_submission_token' => 'missing-title'])->post(route('projects.store'), [
+            'submission_token' => 'missing-title', 'description' => 'Details',
+            'attachments' => [UploadedFile::fake()->createWithContent('file.pdf', '%PDF-1.4 test')],
+        ])->assertSessionHasErrors(['title']);
+        $this->assertDatabaseCount('projects', 0);
+
+        $files = array_map(fn ($index) => UploadedFile::fake()->createWithContent("file-{$index}.pdf", '%PDF-1.4 test'), range(1, 11));
+        $this->withSession(['project_submission_token' => 'too-many'])->post(route('projects.store'), [
+            'submission_token' => 'too-many', 'title' => 'Proposal', 'description' => 'Details', 'attachments' => $files,
+        ])->assertSessionHasErrors(['attachments']);
+        $this->assertDatabaseCount('projects', 0);
+
+        $files = array_map(fn ($index) => UploadedFile::fake()->createWithContent("file-{$index}.pdf", '%PDF-1.4 test'), range(1, 10));
+        $this->withSession(['project_submission_token' => 'ten-files'])->post(route('projects.store'), [
+            'submission_token' => 'ten-files', 'title' => 'Proposal', 'description' => 'Details', 'attachments' => $files,
+        ])->assertSessionHasNoErrors()->assertRedirect(route('student_org.dashboard'));
+        $this->assertDatabaseCount('project_attachments', 10);
+    }
+
+    public function test_returned_proposal_must_keep_or_replace_an_attachment(): void
+    {
+        $owner = User::factory()->create(['role' => 'student_org']);
+        $project = Project::create(['title' => 'Returned', 'description' => 'Details', 'created_by' => $owner->id, 'status' => 'returned_by_secretary']);
+        $attachment = ProjectAttachment::create(['project_id' => $project->id, 'file_name' => 'existing.pdf', 'file_path' => 'existing.pdf']);
+        $this->actingAs($owner)->post(route('projects.update', $project), [
+            'title' => 'Revised', 'description' => 'Details', 'remove_attachments' => [$attachment->id],
+        ])->assertSessionHasErrors(['attachments']);
+        $this->assertDatabaseHas('project_attachments', ['id' => $attachment->id]);
+        $this->assertSame('returned_by_secretary', $project->fresh()->status);
+        $this->post(route('projects.update', $project), ['title' => 'Revised', 'description' => 'Details'])
+            ->assertSessionHasNoErrors()->assertRedirect();
+        $this->assertSame('submitted', $project->fresh()->status);
+    }
+
     #[DataProvider('reviewers')]
     public function test_same_multipage_docx_survives_both_upload_workflows_and_each_reviewer(string $role, string $stage): void
     {
@@ -116,7 +158,7 @@ class DocumentPreviewTest extends TestCase
         $template = Template::firstOrFail();
         $token = (string) Str::uuid();
         $this->actingAs($owner)->withSession(['project_submission_token' => $token])->post(route('projects.store'), [
-            'submission_token' => $token, 'title' => 'Shared preview proposal',
+            'submission_token' => $token, 'title' => 'Shared preview proposal', 'description' => 'Proposal description',
             'attachments' => [UploadedFile::fake()->createWithContent('same-proposal.docx', $bytes)],
         ])->assertSessionHasNoErrors()->assertRedirect(route('student_org.dashboard'));
         $attachment = ProjectAttachment::firstOrFail();
@@ -247,7 +289,7 @@ class DocumentPreviewTest extends TestCase
         $bytes = substr(DocumentFixtures::docx(), 0, 200);
         $owner = User::factory()->create(['role' => 'student_org']);
         $this->actingAs($owner)->withSession(['project_submission_token' => 'upload-once'])->post(route('projects.store'), [
-            'submission_token' => 'upload-once', 'title' => 'Broken submission',
+            'submission_token' => 'upload-once', 'title' => 'Broken submission', 'description' => 'Proposal description',
             'attachments' => [UploadedFile::fake()->createWithContent('damaged.docx', $bytes)],
         ])->assertSessionHasErrors();
         $this->actingAs(User::factory()->create(['role' => 'celp_secretary']))->post(route('templates.store'), [
@@ -335,7 +377,7 @@ class DocumentPreviewTest extends TestCase
         $bytes = DocumentFixtures::docx();
         $token = (string) Str::uuid();
         $this->actingAs($owner)->withSession(['project_submission_token' => $token])->post(route('projects.store'), [
-            'title' => 'Workflow proposal', 'submission_token' => $token,
+            'title' => 'Workflow proposal', 'description' => 'Proposal description', 'submission_token' => $token,
             'attachments' => [UploadedFile::fake()->createWithContent('workflow.docx', $bytes)],
         ])->assertSessionHasNoErrors()->assertRedirect();
         $document = ProjectAttachment::firstOrFail();
@@ -363,7 +405,7 @@ class DocumentPreviewTest extends TestCase
             $this->actingAs($users[$role])->post(route('projects.'.$route.'_review.update', $project), ['action' => 'return', 'comments' => 'Please revise the project schedule.'])->assertSessionHasNoErrors()->assertRedirect();
             $this->assertSame($returned, $project->fresh()->status);
             $this->assertGreaterThan($beforeNotifications, $owner->notifications()->count());
-            $this->actingAs($owner)->post(route('projects.update', $project), ['title' => 'Revised workflow proposal'])->assertSessionHasNoErrors()->assertRedirect();
+            $this->actingAs($owner)->post(route('projects.update', $project), ['title' => 'Revised workflow proposal', 'description' => 'Updated description'])->assertSessionHasNoErrors()->assertRedirect();
             $this->assertSame('submitted', $project->fresh()->status);
             $this->assertSame($bytes, $document->fresh()->file_data);
         }

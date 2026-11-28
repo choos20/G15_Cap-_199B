@@ -265,19 +265,19 @@
                 @csrf
                 <input type="hidden" name="submission_token" value="{{ $submissionToken }}">
                 <div class="upload-field">
-                    <label for="title">Title</label>
-                    <input id="title" name="title" class="text-input" maxlength="120" value="{{ old('title') }}" placeholder="Enter proposal title">
+                    <label for="title">Title (required)</label>
+                    <input id="title" name="title" class="text-input" maxlength="120" required value="{{ old('title') }}" placeholder="Enter proposal title">
                     <div class="field-helper">Maximum 120 characters.</div>
                     @error('title')<div class="error-text">{{ $message }}</div>@enderror
                 </div>
                 <div class="upload-field">
-                    <label for="description">Description</label>
-                    <textarea id="description" name="description" class="textarea-field" maxlength="300" rows="4" placeholder="Write a short description for your project">{{ old('description') }}</textarea>
+                    <label for="description">Description (required)</label>
+                    <textarea id="description" name="description" class="textarea-field" maxlength="300" rows="4" required placeholder="Write a short description for your project">{{ old('description') }}</textarea>
                     <div class="field-helper">Maximum 300 characters.</div>
                     @error('description')<div class="error-text">{{ $message }}</div>@enderror
                 </div>
                 <div class="upload-field">
-                    <label for="attachments">Upload files</label>
+                    <label for="attachments">Upload files (required)</label>
                     <input id="attachments" class="hidden-input" type="file" name="attachments[]" multiple accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg,.webp,.zip">
                     <div id="dropzone" class="dropzone" tabindex="0">
                         <div class="dropzone-inner">
@@ -293,7 +293,7 @@
                         <span id="attachment-count">No files selected.</span>
                         <span>Max {{ \App\Http\Controllers\ProjectController::MAX_ATTACHMENTS }} files, 5MB each.</span>
                     </div>
-                    <div id="attachment-error" class="error-text" style="display:none"></div>
+                    <div id="attachment-error" class="error-text" role="alert" style="display:none"></div>
                     <div id="attachment-list" class="attachment-list" style="display:none"></div>
                     <div class="file-note">Upload 1-{{ \App\Http\Controllers\ProjectController::MAX_ATTACHMENTS }} files only. Allowed types: PDF, DOC, DOCX, XLS, XLSX, PNG, JPG, JPEG, WEBP, ZIP.</div>
                     @error('attachments')<div class="error-text">{{ $message }}</div>@enderror
@@ -509,7 +509,14 @@
                             submitButton.textContent = originalSubmitText;
                         }
                     });
-                    form.addEventListener('submit', () => {
+                    form.addEventListener('submit', (event) => {
+                        if (!selectedFiles.length) {
+                            event.preventDefault();
+                            showError('Please upload at least one attachment.');
+                            dropzone.focus();
+                            return;
+                        }
+                        if (event.defaultPrevented) return;
                         if (submitButton) {
                             submitButton.disabled = true;
                             submitButton.textContent = 'Submitting...';
