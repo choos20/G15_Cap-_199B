@@ -10,11 +10,14 @@
     <link rel="stylesheet" href="{{ asset('css/date-range-filters.css') }}?v={{ substr(md5_file(public_path('css/date-range-filters.css')), 0, 12) }}">
     <link rel="stylesheet" href="{{ asset('css/password-policy.css') }}?v={{ substr(md5_file(public_path('css/password-policy.css')), 0, 12) }}">
     <link rel="stylesheet" href="{{ asset('css/proposal-upload-preview.css') }}?v={{ substr(md5_file(public_path('css/proposal-upload-preview.css')), 0, 12) }}">
+    @if(session()->has('proposal_success'))
+        <link rel="stylesheet" href="{{ asset('css/proposal-success-modal.css') }}?v={{ substr(md5_file(public_path('css/proposal-success-modal.css')), 0, 12) }}">
+    @endif
     @vite('resources/js/proposal-upload-preview.js')
     <style>
         :root{--sidebar:#0b2926;--sidebar-deep:#08211f;--accent:#13b886;--muted:#334155;--text-secondary:#334155;--text-muted:#475569;--card:#ffffff;--text:#16352d}
         *{box-sizing:border-box}
-        html{min-width:0; overflow-x:hidden}
+        html{min-width:0; overflow-x:hidden; scrollbar-gutter:stable}
         body{font-family:"Segoe UI",Inter,system-ui,-apple-system,BlinkMacSystemFont,Roboto,Arial,sans-serif; margin:0; background:#f6f7fb; color:var(--text); font-size:17px; line-height:1.6; min-width:0; overflow-x:hidden}
         body.nav-open{overflow:hidden}
         .app-shell{min-height:100vh}

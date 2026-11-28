@@ -253,6 +253,10 @@
             event.returnValue = '';
         });
 
+        window.addEventListener('pageshow', (event) => {
+            if (event.persisted) allowUnload = false;
+        });
+
         okBtn.addEventListener('click', () => {
             const form = pendingForm;
             const submitter = pendingSubmitter;

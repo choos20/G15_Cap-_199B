@@ -3,7 +3,6 @@
 @endphp
 
 @vite('resources/js/proposal-success-modal.js')
-<link rel="stylesheet" href="{{ asset('css/proposal-success-modal.css') }}">
 
 <div class="proposal-success-modal" data-proposal-success aria-hidden="false">
     <div class="proposal-success-modal__backdrop" data-success-close></div>

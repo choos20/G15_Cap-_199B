@@ -502,6 +502,13 @@
                     });
 
                     const submitButton = form.querySelector('button[type="submit"]');
+                    const originalSubmitText = submitButton?.textContent;
+                    window.addEventListener('pageshow', (event) => {
+                        if (event.persisted && submitButton) {
+                            submitButton.disabled = false;
+                            submitButton.textContent = originalSubmitText;
+                        }
+                    });
                     form.addEventListener('submit', () => {
                         if (submitButton) {
                             submitButton.disabled = true;
