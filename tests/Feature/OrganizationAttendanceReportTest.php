@@ -127,6 +127,11 @@ class OrganizationAttendanceReportTest extends TestCase
         $response = $this->actingAs($owner)->get($this->url($filters));
         $response->assertOk()->assertSee('IT Student')->assertDontSee('CE Student')->assertDontSee('IT Alumni')->assertDontSee('Private participant')->assertDontSee('PRIVATE')
             ->assertSee('College / department: COECS')->assertSee('Program: BSIT')->assertSee('Participant type: Student');
+        $this->assertMatchesRegularExpression('/<select[^>]*name="participant_type"[^>]*>(.*?)<\/select>/s', $response->getContent());
+        preg_match('/<select[^>]*name="participant_type"[^>]*>(.*?)<\/select>/s', $response->getContent(), $select);
+        $this->assertStringNotContainsString('external_participant', $select[1]);
+        $this->assertStringNotContainsString('_unspecified', $select[1]);
+        foreach (['student', 'employee', 'alumni'] as $type) $this->assertStringContainsString('value="'.$type.'"', $select[1]);
         $this->assertSame(['IT Student'], $response->viewData('attendanceRows')->pluck('name')->all());
         $this->assertSame(['Projects' => 1, 'Attendance records' => 2, 'Recorded as attended' => 1, 'Participants listed' => 1], $response->viewData('summary'));
         $csv = $this->get($this->url($filters + ['format' => 'csv']))->assertOk()->streamedContent();

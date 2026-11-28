@@ -209,8 +209,6 @@
                 <select name="participant_type" id="participant_type">
                     <option value="">All participant types</option>
                     @foreach(\App\Models\User::PARTICIPANT_TYPES as $value => $label)<option value="{{ $value }}" @selected($filters['participant_type'] === $value)>{{ $label }}</option>@endforeach
-                    <option value="external_participant" @selected($filters['participant_type'] === 'external_participant')>External participant</option>
-                    <option value="_unspecified" @selected($filters['participant_type'] === '_unspecified')>Not specified</option>
                 </select>
             </div>
         @endif
