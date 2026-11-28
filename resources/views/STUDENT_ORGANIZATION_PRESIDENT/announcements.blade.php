@@ -751,9 +751,9 @@
                     radiusCircle.setLatLng([lat, lng]);
                 } else {
                     marker = L.marker([lat, lng], { draggable: true, icon: pinIcon }).addTo(map);
-                    marker.bindPopup('Participants must check in within 50m of this pin.');
+                    marker.bindPopup('New attendance sessions require check-in within {{ \App\Models\AttendanceSession::RADIUS_METERS }}m of this pin.');
                     radiusCircle = L.circle([lat, lng], {
-                        radius: 50,
+                        radius: {{ \App\Models\AttendanceSession::RADIUS_METERS }},
                         color: '#0fbf91',
                         weight: 2,
                         fillColor: '#0fbf91',

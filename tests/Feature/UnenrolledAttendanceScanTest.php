@@ -113,6 +113,37 @@ class UnenrolledAttendanceScanTest extends TestCase
         });
     }
 
+    public function test_new_radius_is_enforced_for_check_in_and_check_out_and_older_sessions_keep_their_radius(): void
+    {
+        $organizer = User::factory()->create(['role' => 'student_org']);
+        $participant = User::factory()->create(['role' => 'participant']);
+        $projectId = DB::table('projects')->insertGetId(['title' => 'Activity', 'created_by' => $organizer->id, 'status' => 'approved', 'created_at' => now(), 'updated_at' => now()]);
+        $announcementId = DB::table('announcements')->insertGetId(['project_id' => $projectId, 'created_by' => $organizer->id, 'title' => 'Opportunity', 'status' => 'published', 'created_at' => now(), 'updated_at' => now()]);
+        DB::table('volunteer_applications')->insert(['announcement_id' => $announcementId, 'user_id' => $participant->id, 'status' => 'approved', 'created_at' => now(), 'updated_at' => now()]);
+        $session = AttendanceSession::create(['project_id' => $projectId, 'latitude' => 14.5995, 'longitude' => 120.9842, 'opens_at' => now()->subHour(), 'closes_at' => now()->addHour(), 'status' => 'open']);
+        $this->assertSame(20, (int) $session->radius_meters);
+
+        $scan = function (AttendanceSession $target, string $action, float $latitude) use ($participant): array {
+            $challenge = Str::random(64);
+            DB::table('attendance_scan_challenges')->insert(['attendance_session_id' => $target->id, 'user_id' => $participant->id, 'challenge_hash' => hash('sha256', $challenge), 'expires_at' => now()->addMinutes(2), 'created_at' => now(), 'updated_at' => now()]);
+            $request = Request::create('/attendance/scan/'.$target->qr_token, 'POST', ['action' => $action, 'scan_challenge' => $challenge, 'latitude' => $latitude, 'longitude' => 120.9842]);
+            $request->setUserResolver(fn () => $participant);
+            return app(AttendanceController::class)->scan($request, $target->qr_token)->getData(true);
+        };
+        $outside = $scan($session, 'check_in', 14.59969);
+        $this->assertSame('out_of_range', $outside['status']);
+        $this->assertGreaterThan(20, $outside['distance_meters']);
+        $inside = $scan($session, 'check_in', 14.59967);
+        $this->assertSame('valid', $inside['status']);
+        $this->assertLessThan(20, $inside['distance_meters']);
+        $this->assertSame('out_of_range', $scan($session, 'check_out', 14.59969)['status']);
+        $this->assertSame('completed', $scan($session, 'check_out', 14.59967)['status']);
+
+        $legacy = AttendanceSession::create(['project_id' => $projectId, 'latitude' => 14.5995, 'longitude' => 120.9842, 'radius_meters' => 50, 'opens_at' => now()->subHour(), 'closes_at' => now()->addHour(), 'status' => 'open']);
+        $this->assertSame('valid', $scan($legacy, 'check_in', 14.59977)['status']);
+        $this->assertSame(50, (int) $legacy->fresh()->radius_meters);
+    }
+
     public function test_unenrolled_participant_gets_a_clear_message_without_creating_an_attendance_record(): void
     {
         $organizer = User::factory()->create(['role' => 'student_org']);

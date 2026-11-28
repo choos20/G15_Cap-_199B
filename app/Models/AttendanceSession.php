@@ -32,7 +32,7 @@ class AttendanceSession extends Model
 {
     use HasFactory;
 
-    public const RADIUS_METERS = 50;
+    public const RADIUS_METERS = 20;
 
     protected $fillable = [
         'project_id',

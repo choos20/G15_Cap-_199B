@@ -692,8 +692,8 @@
                                         <p class="attendance-form-section-title"><x-ui-icon name="qr" :size="16" /> Check-in rules</p>
                                         <div class="form-field">
                                             <label for="radius_meters">Check-in radius</label>
-                                            <input id="radius_meters" type="text" value="50 meters (fixed)" disabled>
-                                            <div class="form-note">Participants must be within 50 meters of the activity location to check in.</div>
+                                            <input id="radius_meters" type="text" value="{{ \App\Models\AttendanceSession::RADIUS_METERS }} meters (fixed)" disabled>
+                                            <div class="form-note">Participants must be within {{ \App\Models\AttendanceSession::RADIUS_METERS }} meters of the activity location to check in.</div>
                                         </div>
                                     </div>
 
@@ -726,7 +726,7 @@
                                     </div>
                                     <div class="attendance-readiness-statuses">
                                         <span class="attendance-readiness-status" id="attendance-location-status"><x-ui-icon name="location" :size="13" /><span data-status-text>Location needed</span></span>
-                                        <span class="attendance-readiness-status is-ready" id="attendance-radius-status"><x-ui-icon name="check-circle" :size="13" /><span data-status-text>50 m radius</span></span>
+                                        <span class="attendance-readiness-status is-ready" id="attendance-radius-status"><x-ui-icon name="check-circle" :size="13" /><span data-status-text>{{ \App\Models\AttendanceSession::RADIUS_METERS }} m radius</span></span>
                                         <span class="attendance-readiness-status" id="attendance-schedule-status"><x-ui-icon name="clock" :size="13" /><span data-status-text>Schedule needed</span></span>
                                     </div>
                                     <p class="attendance-readiness-note" id="attendance-readiness-note">Set the location and session times to enable a verified QR check-in window.</p>
@@ -819,7 +819,7 @@
                     </div>
                     <div class="attendance-step-grid">
                         <div class="attendance-step"><div class="attendance-step-icon"><x-ui-icon name="building" :size="17" /></div><span class="attendance-step-number">Step 1</span><strong>Choose activity</strong><p>Use an approved activity.</p></div>
-                        <div class="attendance-step"><div class="attendance-step-icon"><x-ui-icon name="location" :size="17" /></div><span class="attendance-step-number">Step 2</span><strong>Set location</strong><p>Place the 50m check-in pin.</p></div>
+                        <div class="attendance-step"><div class="attendance-step-icon"><x-ui-icon name="location" :size="17" /></div><span class="attendance-step-number">Step 2</span><strong>Set location</strong><p>Place the {{ \App\Models\AttendanceSession::RADIUS_METERS }}m check-in pin.</p></div>
                         <div class="attendance-step"><div class="attendance-step-icon"><x-ui-icon name="qr" :size="17" /></div><span class="attendance-step-number">Step 3</span><strong>Generate QR</strong><p>Participants scan on-site.</p></div>
                         <div class="attendance-step"><div class="attendance-step-icon"><x-ui-icon name="check-circle" :size="17" /></div><span class="attendance-step-number">Step 4</span><strong>Track attendance</strong><p>Review verified records.</p></div>
                     </div>
@@ -1107,9 +1107,9 @@
                         radiusCircle.setLatLng([lat, lng]);
                     } else {
                         marker = L.marker([lat, lng], { draggable: true, icon: pinIcon }).addTo(map);
-                        marker.bindPopup('Participants must check in within 50m of this pin.');
+                        marker.bindPopup('Participants must check in within {{ \App\Models\AttendanceSession::RADIUS_METERS }}m of this pin.');
                         radiusCircle = L.circle([lat, lng], {
-                            radius: 50,
+                            radius: {{ \App\Models\AttendanceSession::RADIUS_METERS }},
                             color: '#0fbf91',
                             weight: 2,
                             fillColor: '#0fbf91',

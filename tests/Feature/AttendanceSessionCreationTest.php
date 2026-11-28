@@ -95,6 +95,8 @@ class AttendanceSessionCreationTest extends TestCase
             ->assertSessionHasNoErrors();
 
         $this->assertSame(2, AttendanceSession::count());
+        $this->assertDatabaseHas('attendance_sessions', ['project_id' => $todayProject->id, 'radius_meters' => 20]);
+        $this->assertDatabaseHas('attendance_sessions', ['project_id' => $futureProject->id, 'radius_meters' => 20]);
     }
 
     private function createApprovedProject(User $organizer): Project
