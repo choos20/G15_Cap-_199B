@@ -19,7 +19,7 @@
         ];
     @endphp
     <style>
-        .or-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(270px,1fr)); gap:16px; }
+        .or-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(270px,100%),1fr)); gap:16px; }
         .or-card { display:flex; gap:15px; min-height:130px; padding:20px; border:1px solid #e4ebe7; border-radius:16px; background:#fff; color:inherit; text-decoration:none; transition:transform .16s ease,box-shadow .16s ease,border-color .16s ease; }
         .or-card:hover { transform:translateY(-2px); border-color:#b9d8c8; box-shadow:0 12px 26px rgba(11,42,42,.08); }
         .or-icon { display:grid; place-items:center; width:44px; height:44px; flex:0 0 44px; border-radius:14px; }

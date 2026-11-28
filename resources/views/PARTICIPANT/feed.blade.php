@@ -9,6 +9,7 @@
                   font-size:0.9rem; text-decoration:none; }
         .pf-org:hover { text-decoration:underline; }
         .pf-filters { display:grid; grid-template-columns:minmax(220px, 1fr) minmax(180px, 260px) auto auto; gap:12px; align-items:end; }
+        .pf-filter-field { min-width:0; }
         .pf-filter-field label { display:block; margin-bottom:6px; color:#334155; font-size:0.85rem; font-weight:700; }
         .pf-filter-field input, .pf-filter-field select { width:100%; padding:11px 12px; border:1px solid #cbd5e1; border-radius:10px; background:#fff; color:#0f172a; }
         .pf-filter-btn { display:inline-flex; justify-content:center; align-items:center; padding:11px 16px; border:0; border-radius:10px; background:#0b6a4a; color:#fff; text-decoration:none; font-weight:700; cursor:pointer; }
@@ -25,8 +26,9 @@
         .pf-announcement-description { margin-top:8px; color:#475569; font-size:.88rem; line-height:1.5; }
         .pf-announcement-link { flex-shrink:0; color:#08734e; font-size:.85rem; font-weight:700; text-decoration:none; }
         .pf-announcement-link:hover { text-decoration:underline; }
-        @media(max-width:700px) { .pf-filters { grid-template-columns:1fr 1fr; } }
+        @media(min-width:901px) and (max-width:1200px), (max-width:700px) { .pf-filters { grid-template-columns:repeat(2,minmax(0,1fr)); } }
         @media(max-width:460px) { .pf-filters { grid-template-columns:1fr; } }
+        @media(max-width:600px) { .pf-announcement { flex-wrap:wrap; } .pf-announcement > div { min-width:0; overflow-wrap:anywhere; } .pf-announcement-link { max-width:100%; } }
     </style>
 
     <form method="GET" action="{{ route('participant.activities') }}" class="card pf-filters" style="padding:18px; margin-bottom:18px;">

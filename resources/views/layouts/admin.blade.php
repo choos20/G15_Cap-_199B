@@ -163,8 +163,8 @@
             .topbar .title-group{gap:9px}
             .topbar-actions{gap:6px}
             .topbar-actions > *{flex:0 0 auto}
-            .mobile-menu-toggle,.topbar-actions a.logout{width:40px; height:40px}
-            .topbar-actions button[aria-label="Notifications"]{width:40px !important; height:40px !important}
+            .mobile-menu-toggle,.topbar-actions a.logout{width:44px; height:44px}
+            .topbar-actions button[aria-label="Notifications"]{width:44px !important; height:44px !important}
         }
     </style>
 </head>
