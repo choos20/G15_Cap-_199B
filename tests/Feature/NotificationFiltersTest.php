@@ -122,6 +122,12 @@ class NotificationFiltersTest extends TestCase
 
     public function test_initiator_filters_combine_and_are_scoped_to_the_recipient(): void
     {
+        $metadataQueries = [];
+        \DB::listen(function ($query) use (&$metadataQueries) {
+            if (str_contains(strtolower($query->sql), 'select distinct') && str_contains($query->sql, 'actor_role')) {
+                $metadataQueries[] = strtolower($query->sql);
+            }
+        });
         $viewer = User::factory()->create(['role' => 'student_org']);
         $other = User::factory()->create(['role' => 'student_org']);
         $secretary = User::factory()->create(['role' => 'celp_secretary', 'name' => 'Leah Secretary']);
@@ -137,6 +143,8 @@ class NotificationFiltersTest extends TestCase
         ]))->assertOk()->assertViewHas('notifications', fn ($rows) => $rows->total() === 1 && $rows->first()->data['title'] === 'Proposal endorsed')
             ->assertViewHas('senderOptions', fn ($options) => ! $options->contains('csa_director'))
             ->assertViewHas('categoryOptions', fn ($options) => ! $options->contains('security'));
+        $this->assertNotEmpty($metadataQueries);
+        $this->assertStringNotContainsString('order by', $metadataQueries[0]);
 
         $this->actingAs($viewer)->get(route('notifications.index', ['sender' => 'unknown', 'category' => 'uncategorized']))
             ->assertOk()->assertViewHas('notifications', fn ($rows) => $rows->total() === 1 && $rows->first()->data['title'] === 'Old notice');

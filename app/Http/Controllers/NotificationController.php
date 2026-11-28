@@ -42,7 +42,7 @@ class NotificationController extends Controller
         $categoryOptions = collect();
         $actors = collect();
         if ($advanced) {
-            $metadata = $request->user()->notifications()->selectRaw("DISTINCT {$actorExpr} as actor_id, {$roleExpr} as actor_role, {$categoryExpr} as category")->get();
+            $metadata = $request->user()->notifications()->reorder()->selectRaw("DISTINCT {$actorExpr} as actor_id, {$roleExpr} as actor_role, {$categoryExpr} as category")->get();
             $actors = User::query()->whereIn('id', $metadata->pluck('actor_id')->filter()->unique())->get()->keyBy('id');
             $senderOptions = $metadata->map(fn ($row) => $row->actor_role ?: $actors->get($row->actor_id)?->role ?: 'unknown')->unique()->sort()->values();
             $categoryOptions = $metadata->map(fn ($row) => $row->category ?: 'uncategorized')->unique()->sort()->values();
