@@ -130,20 +130,7 @@
             @if($typeResponses->isEmpty())
                 <div style="padding:24px 0; color:#5b7067">No {{ strtolower($label) }} forms have been encoded yet.</div>
             @else
-                @foreach($typeCriteria as $criterion)
-                    @php $avg = $averages[$type][$criterion->id] ?? null; @endphp
-                    <div class="su-row">
-                        <div class="nm">
-                            {{ $criterion->short_label }}
-                            @unless($criterion->is_active)
-                                <span style="font-size:0.76rem; color:#5b7067">(legacy)</span>
-                            @endunless
-                        </div>
-                        <div class="su-track"><i style="width:{{ $avg ? ($avg / 5 * 100) : 0 }}%"></i></div>
-                        <div class="su-val">{{ $avg ? number_format($avg, 2) : '—' }}</div>
-                    </div>
-                @endforeach
-                <div class="su-axis"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div>
+                <x-evaluation-ratings :show-type="false" :items="$typeCriteria->map(fn ($criterion) => ['label' => $criterion->short_label, 'respondent_type' => $type, 'average' => $averages[$type][$criterion->id] ?? null, 'legacy' => ! $criterion->is_active])" :overall="['Overall average' => $overallByType[$type] ?? null]" />
             @endif
         </div>
     @endforeach

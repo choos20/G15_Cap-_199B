@@ -101,17 +101,7 @@
     <section class="ef-panel">
         <h2>Average rating by evaluation area</h2>
         <p class="ef-panel-intro">Ratings use a 1 to 5 scale and are shown separately for beneficiaries and volunteers / implementers.</p>
-        @if($responseCount === 0)
-            <div class="ef-empty">No evaluation forms have been encoded for this period yet.</div>
-        @else
-            @foreach($criteria as $criterion)
-                <div class="ef-criterion">
-                    <div class="ef-criterion-name">{{ $criterion['label'] }} <small>({{ $criterion['respondent_type'] === 'implementer' ? 'Volunteer / implementer' : 'Beneficiary' }})</small></div>
-                    <div class="ef-track"><span style="width:{{ $criterion['average'] !== null ? ($criterion['average'] / 5 * 100) : 0 }}%"></span></div>
-                    <div class="ef-score">{{ $criterion['average'] !== null ? number_format($criterion['average'], 2) : '—' }}</div>
-                </div>
-            @endforeach
-        @endif
+        <x-evaluation-ratings :items="$criteria" :overall="['Beneficiary average' => $overallAverageByType['beneficiary'], 'Volunteer / implementer average' => $overallAverageByType['implementer']]" />
     </section>
 
     <section class="card" style="padding:0; overflow:auto; margin-bottom:18px">

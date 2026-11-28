@@ -339,15 +339,7 @@
     @if($report === 'evaluation-results')
         <section class="or-section">
             <h2>Average rating by evaluation area</h2>
-            @forelse($criteria as $criterion)
-                <div class="or-criterion">
-                    <span>{{ $criterion->short_label }} <small style="color:#82918b">({{ $criterion->respondent_type === 'implementer' ? 'Volunteer / implementer' : 'Beneficiary' }})</small></span>
-                    <span class="or-track"><span style="width:{{ $criterion->average / 5 * 100 }}%"></span></span>
-                    <strong style="text-align:right">{{ number_format($criterion->average, 2) }}</strong>
-                </div>
-            @empty
-                <div class="or-empty">No participant ratings have been recorded.</div>
-            @endforelse
+            <x-evaluation-ratings :items="$criteria" :overall="['Beneficiary average' => is_numeric(explode(' ', $summary['Beneficiary average'])[0]) ? (float) $summary['Beneficiary average'] : null, 'Volunteer / implementer average' => is_numeric(explode(' ', $summary['Volunteer / implementer average'])[0]) ? (float) $summary['Volunteer / implementer average'] : null]" />
         </section>
         <div class="or-feedback">
             @foreach(['suggestions' => 'Participant suggestions', 'observations' => 'Participant observations'] as $field => $label)
