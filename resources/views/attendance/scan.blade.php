@@ -128,9 +128,10 @@
                 scanData.innerHTML = `<div><strong>Latitude:</strong> ${coords.latitude}</div><div><strong>Longitude:</strong> ${coords.longitude}</div><div><strong>Accuracy:</strong> ${coords.accuracy} meters</div>`;
             };
 
-            const getLocation = () => {
+            const getLocation = (onReady = null, onFailure = null) => {
                 if (!navigator.geolocation) {
                     updateMessage('Geolocation is not supported by your browser.', 'error');
+                    if (onFailure) onFailure();
                     return;
                 }
 
@@ -138,27 +139,26 @@
                 navigator.geolocation.getCurrentPosition((position) => {
                     currentCoords = position.coords;
                     updateData(currentCoords);
-                    updateMessage('Location ready. Choose Check in or Check out below.', 'success');
+                    if (onReady) onReady();
+                    else updateMessage(currentCoords.accuracy > {{ (int) $session->radius_meters }} ? 'Location accuracy is low. Move to an open area and refresh your location.' : 'Location ready. Choose Check in or Check out below.', currentCoords.accuracy > {{ (int) $session->radius_meters }} ? 'error' : 'success');
                 }, (error) => {
+                    currentCoords = null;
                     updateMessage('Unable to fetch your location. Make sure location access is allowed and refresh the page.', 'error');
+                    if (onFailure) onFailure();
                 }, {
                     enableHighAccuracy: true,
-                    maximumAge: 10000,
+                    maximumAge: 0,
                     timeout: 20000,
                 });
             };
 
             const sendScan = (action) => {
                 if (submitting) return;
-                if (!currentCoords) {
-                    updateMessage('Please allow location access before scanning.', 'error');
-                    return;
-                }
-
-                updateMessage('Submitting attendance...');
                 submitting = true;
                 checkInButton.disabled = true;
                 checkOutButton.disabled = true;
+                getLocation(() => {
+                updateMessage(currentCoords.accuracy > {{ (int) $session->radius_meters }} ? 'Location accuracy is low; submitting your fresh location...' : 'Submitting attendance...');
                 fetch(`{{ route('attendance.scan.submit', ['token' => $session->qr_token]) }}`, {
                     method: 'POST',
                     headers: {
@@ -204,11 +204,16 @@
                     checkOutButton.disabled = !canCheckOut;
                     updateMessage(error.message || 'Could not submit the scan. Reload this page to get a fresh scan challenge.', 'error');
                 });
+                }, () => {
+                    submitting = false;
+                    checkInButton.disabled = !canCheckIn;
+                    checkOutButton.disabled = !canCheckOut;
+                });
             };
 
             checkInButton.addEventListener('click', () => sendScan('check_in'));
             checkOutButton.addEventListener('click', () => sendScan('check_out'));
-            refreshGeo.addEventListener('click', getLocation);
+            refreshGeo.addEventListener('click', () => getLocation());
             getLocation();
         });
     </script>

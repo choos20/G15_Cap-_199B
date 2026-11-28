@@ -99,6 +99,26 @@ class AttendanceSessionCreationTest extends TestCase
         $this->assertDatabaseHas('attendance_sessions', ['project_id' => $futureProject->id, 'radius_meters' => 20]);
     }
 
+    public function test_rotation_replaces_the_token_and_is_forbidden_after_expiry(): void
+    {
+        $organizer = User::factory()->create(['role' => 'student_org', 'must_change_password' => false]);
+        $project = $this->createApprovedProject($organizer);
+        $session = AttendanceSession::create([
+            'project_id' => $project->id, 'latitude' => 14.5995, 'longitude' => 120.9842,
+            'opens_at' => now()->subHour(), 'closes_at' => now()->addHour(), 'status' => 'open',
+        ]);
+        $oldToken = $session->qr_token;
+
+        $this->actingAs($organizer)->post(route('student_org.attendance.regenerate', $session))->assertRedirect();
+        $newToken = $session->fresh()->qr_token;
+        $this->assertNotSame($oldToken, $newToken);
+        $this->get(route('attendance.scan.view', $oldToken))->assertNotFound();
+
+        $session->update(['closes_at' => now()->subMinute()]);
+        $this->post(route('student_org.attendance.regenerate', $session))->assertForbidden();
+        $this->assertSame($newToken, $session->fresh()->qr_token);
+    }
+
     private function createApprovedProject(User $organizer): Project
     {
         return Project::create([

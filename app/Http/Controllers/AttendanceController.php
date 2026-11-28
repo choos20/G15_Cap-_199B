@@ -6,6 +6,7 @@ use App\Models\Announcement;
 use App\Models\ActivityParticipant;
 use App\Models\AttendanceRecord;
 use App\Models\AttendanceSession;
+use App\Models\AuditLog;
 use App\Models\Project;
 use App\Models\User;
 use App\Models\VolunteerApplication;
@@ -102,13 +103,14 @@ class AttendanceController extends Controller
             ->whereIn('status', ['approved', 'csa_cleared'])
             ->firstOrFail();
 
-        if (AttendanceSession::where('project_id', $project->id)->exists()) {
-            throw ValidationException::withMessages([
-                'project_id' => 'This activity already has an attendance session. Once it is closed, a new session cannot be created.',
-            ]);
-        }
-
-        AttendanceSession::create([
+        DB::transaction(function () use ($project, $data) {
+            Project::whereKey($project->id)->lockForUpdate()->firstOrFail();
+            if (AttendanceSession::where('project_id', $project->id)->exists()) {
+                throw ValidationException::withMessages([
+                    'project_id' => 'This activity already has an attendance session. Once it is closed, a new session cannot be created.',
+                ]);
+            }
+            AttendanceSession::create([
             'project_id' => $project->id,
             'qr_token' => Str::random(40),
             'latitude' => $data['latitude'],
@@ -117,7 +119,8 @@ class AttendanceController extends Controller
             'opens_at' => $data['opens_at'],
             'closes_at' => $data['closes_at'],
             'status' => 'open',
-        ]);
+            ]);
+        });
 
         return Redirect::route('student_org.attendance')->with('status', 'Attendance session opened and QR code generated.');
     }
@@ -127,9 +130,12 @@ class AttendanceController extends Controller
         $this->ensureOrg($request);
 
         abort_unless($attendanceSession->project && $attendanceSession->project->created_by === $request->user()->id, 403);
-        abort_if($attendanceSession->isClosed(), 403, 'Closed sessions cannot be modified.');
-
-        $attendanceSession->update(['qr_token' => Str::random(40)]);
+        DB::transaction(function () use ($attendanceSession) {
+            $session = AttendanceSession::whereKey($attendanceSession->id)->lockForUpdate()->firstOrFail();
+            abort_if($session->isClosed() || ! $session->closes_at || now()->greaterThanOrEqualTo($session->closes_at), 403, 'Closed or expired sessions cannot be modified.');
+            $session->update(['qr_token' => Str::random(40)]);
+        });
+        AuditLog::record('attendance.token_rotated', 'Attendance QR token rotated.', $attendanceSession);
 
         return Redirect::back()->with('status', 'QR token rotated for this session.');
     }
@@ -139,9 +145,12 @@ class AttendanceController extends Controller
         $this->ensureOrg($request);
 
         abort_unless($attendanceSession->project && $attendanceSession->project->created_by === $request->user()->id, 403);
-        abort_if($attendanceSession->isClosed(), 403, 'This session is already closed.');
-
-        $attendanceSession->update(['status' => 'closed']);
+        DB::transaction(function () use ($attendanceSession) {
+            $session = AttendanceSession::whereKey($attendanceSession->id)->lockForUpdate()->firstOrFail();
+            abort_if($session->isClosed(), 403, 'This session is already closed.');
+            $session->update(['status' => 'closed']);
+        });
+        AuditLog::record('attendance.session_closed', 'Attendance session closed.', $attendanceSession);
 
         return Redirect::back()->with('status', 'Attendance session closed permanently.');
     }
@@ -545,7 +554,8 @@ class AttendanceController extends Controller
             ]);
         }
 
-        $savedCount = DB::transaction(function () use ($validRows, $attendanceSession, $accountUserIds): int {
+        $changes = [];
+        $savedCount = DB::transaction(function () use ($validRows, $attendanceSession, $accountUserIds, &$changes): int {
             $lockedSession = AttendanceSession::whereKey($attendanceSession->id)
                 ->lockForUpdate()
                 ->firstOrFail();
@@ -587,6 +597,7 @@ class AttendanceController extends Controller
                         ->where('project_id', $lockedSession->project_id)
                         ->lockForUpdate()
                         ->firstOrFail();
+                    $before = $enrollment->only(['attendance_status', 'attendance_check_in', 'attendance_check_out']);
                     $enrollment->update([
                         'attendance_session_id' => $lockedSession->id,
                         'attendance_status' => $row['status'],
@@ -594,6 +605,7 @@ class AttendanceController extends Controller
                         'attendance_check_out' => $row['check_out'],
                         'attendance_recorded_at' => now(),
                     ]);
+                    $changes[] = ['enrollment_id' => $enrollment->id, 'before' => $before, 'after' => $enrollment->only(['attendance_status', 'attendance_check_in', 'attendance_check_out'])];
 
                     continue;
                 }
@@ -611,18 +623,23 @@ class AttendanceController extends Controller
                     'note' => 'Imported from manually completed attendance CSV.',
                 ];
 
+                $before = $record?->only(['status', 'check_in_status', 'check_out_status']);
+
                 if ($record) {
                     $record->update($attributes);
                 } else {
-                    AttendanceRecord::create($attributes + [
+                    $record = AttendanceRecord::create($attributes + [
                         'session_id' => $lockedSession->id,
                         'user_id' => $row['user_id'],
                     ]);
                 }
+                $changes[] = ['user_id' => $row['user_id'], 'before' => $before, 'after' => $record->only(['status', 'check_in_status', 'check_out_status'])];
             }
 
             return $validRows->count();
         });
+
+        AuditLog::record('attendance.csv_imported', "Imported {$savedCount} attendance record(s).", $attendanceSession, ['changes' => $changes]);
 
         Cache::forget($cacheKey);
 
@@ -960,6 +977,7 @@ class AttendanceController extends Controller
 
         $session = AttendanceSession::with('project')->where('qr_token', $token)->firstOrFail();
         $user = $request->user();
+        abort_if(array_key_exists('is_active', $user->getAttributes()) && ! $user->is_active, 403, 'Your account is inactive. Contact CELP for assistance.');
         $challengeConsumed = DB::table('attendance_scan_challenges')
             ->where('attendance_session_id', $session->id)
             ->where('user_id', $user->id)
@@ -985,8 +1003,9 @@ class AttendanceController extends Controller
             $latitude,
             $longitude,
         );
-        $result = DB::transaction(function () use ($session, $user, $action, $distance, $latitude, $longitude): array {
+        $result = DB::transaction(function () use ($session, $user, $action, $distance, $latitude, $longitude, $token): array {
             $lockedSession = AttendanceSession::whereKey($session->id)->lockForUpdate()->firstOrFail();
+            abort_unless(hash_equals($lockedSession->qr_token, $token), 404, 'This QR code has been replaced. Scan the current QR code.');
             $attendanceRecord = $this->participantAttendanceRecord($lockedSession, $user->id, true);
             $hasCheckIn = $attendanceRecord && (
                 $attendanceRecord->check_in_at !== null

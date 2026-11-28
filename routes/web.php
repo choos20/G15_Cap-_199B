@@ -566,7 +566,7 @@ Route::post('/student-org/attendance', [AttendanceController::class, 'store'])
     ->name('student_org.attendance.store');
 
 Route::post('/student-org/attendance/{attendanceSession}/regenerate', [AttendanceController::class, 'regenerate'])
-    ->middleware('auth')
+    ->middleware(['auth', 'throttle:30,1'])
     ->name('student_org.attendance.regenerate');
 
 Route::post('/student-org/attendance/{attendanceSession}/close', [AttendanceController::class, 'close'])
@@ -602,7 +602,7 @@ Route::get('/attendance/scan/{token}', [AttendanceController::class, 'scanView']
     ->name('attendance.scan.view');
 
 Route::post('/attendance/scan/{token}', [AttendanceController::class, 'scan'])
-    ->middleware('auth')
+    ->middleware(['auth', 'throttle:60,1'])
     ->name('attendance.scan.submit');
 
 /*

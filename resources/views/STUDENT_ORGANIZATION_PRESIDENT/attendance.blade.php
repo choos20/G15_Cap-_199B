@@ -863,11 +863,13 @@
                                         <a href="{{ route('student_org.attendance.signature-sheet', $session) }}" class="btn-secondary"><x-ui-icon name="clipboard" :size="16" /><span>Download signature sheet (DOCX)</span></a>
                                         <a href="{{ route('student_org.attendance.import', $session) }}" class="btn-secondary"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11m0 0 4-4m-4 4-4-4M5 20h14"/></svg><span>Upload attendance CSV (online)</span></a>
                                         <a href="{{ route('student_org.attendance.records', $session) }}" class="btn-secondary"><x-ui-icon name="clipboard" :size="16" /><span>View check-ins</span></a>
-                                        @if(!$session->isClosed())
+                                        @if(!$session->isClosed() && $session->closes_at && now()->lt($session->closes_at))
                                             <form method="post" action="{{ route('student_org.attendance.regenerate', $session) }}" style="display:contents;">
                                                 @csrf
                                                 <button type="submit" class="btn-secondary" title="Generate a new QR token"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11a8 8 0 0 0-14.9-4L3 10m0 0V5m0 5h5M4 13a8 8 0 0 0 14.9 4L21 14m0 0v5m0-5h-5"/></svg><span>Rotate token</span></button>
                                             </form>
+                                        @endif
+                                        @if(!$session->isClosed())
                                             <form method="post" action="{{ route('student_org.attendance.close', $session) }}" style="display:contents;" data-confirm data-confirm-title="Close this session?" data-confirm-body="Scanning stops immediately and no new session can be created for this activity." data-confirm-note="Attendance already recorded is kept. This cannot be undone." data-confirm-ok="Close session" data-confirm-cancel="Keep it open">
                                                 @csrf
                                                 <button type="submit" class="btn-danger"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v9m0 0-3-3m3 3 3-3M5.6 10a8 8 0 1 0 12.8 0"/></svg><span>Close session</span></button>
