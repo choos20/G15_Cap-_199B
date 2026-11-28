@@ -399,7 +399,8 @@ class ParticipantController extends Controller
                     'New volunteer application',
                     "{$user->name} applied to \"{$announcement->title}\".",
                     route('student_org.volunteers.show', $announcement),
-                    $user instanceof User ? $user : null
+                    $user instanceof User ? $user : null,
+                    'volunteer_applications'
                 ));
             } catch (\Exception $e) {
                 // non-fatal

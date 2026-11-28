@@ -101,7 +101,7 @@ final class NotificationSourceResolver
 
         return [
             'label' => $context ?: $displayName,
-            'detail' => $context ? $displayName : null,
+            'detail' => $context ? $displayName : role_label($user->role),
             'initials' => self::initialsFor($displayName),
             'avatar_url' => $isOrganization ? $user->orgLogoUrl() : $user->profilePhotoUrl(),
             'avatar_type' => $isOrganization ? 'organization' : 'person',

@@ -63,7 +63,7 @@
 .notification-filter select { min-width: 140px; }
 .notification-filter input:focus,
 .notification-filter select:focus { border-color: #0a8a61; box-shadow: 0 0 0 3px rgba(10, 138, 97, .13); outline: 0; }
-.notification-filter-apply { min-height: 42px; padding: 9px 16px; border: 1px solid #2563eb; border-radius: 10px; background: #2563eb; color: #fff; font: inherit; font-weight: 700; cursor: pointer; }
+.notification-filter-apply { min-height: 42px; padding: 9px 16px; border: 1px solid #087c5b; border-radius: 10px; background: #087c5b; color: #fff; font: inherit; font-weight: 700; cursor: pointer; }
 .notification-filter-clear { min-height: 42px; padding: 9px 12px; color: #3f5d4e; font-weight: 700; line-height: 1.5; }
 .notification-filter :is(input, select, button, a):focus-visible { outline: 3px solid #8bd5b8; outline-offset: 3px; }
 
@@ -89,7 +89,9 @@
     transition: border-color 160ms ease, box-shadow 160ms ease, background-color 160ms ease, transform 160ms ease;
 }
 
-.notification-row.is-unread { border-color: #bfe7cf; background: #f0faf5; }
+.notification-row.is-unread { border-color: #bfe7cf; }
+.notification-count { color: #52665d; font-size: .88rem; }
+.notification-date-group { margin: 12px 2px 2px; color: #52665d; font-size: .85rem; }
 .notification-row:hover { border-color: #91d6ad; box-shadow: 0 8px 20px rgba(15, 78, 55, .09); transform: translateY(-1px); }
 .notification-row:focus-visible { outline: 3px solid #8bd5b8; outline-offset: 3px; }
 .notification-copy { display: flex; flex: 1 1 auto; min-width: 0; flex-direction: column; gap: 3px; }

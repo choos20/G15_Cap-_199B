@@ -34,6 +34,12 @@ class NotificationFiltersTest extends TestCase
             $table->timestamp('read_at')->nullable();
             $table->timestamps();
         });
+        Schema::create('projects', function (Blueprint $table) {
+            $table->id();
+            $table->unsignedBigInteger('created_by');
+            $table->string('title');
+            $table->string('status');
+        });
     }
 
     public function test_notifications_can_be_filtered_by_read_status_and_searched(): void
@@ -112,6 +118,30 @@ class NotificationFiltersTest extends TestCase
                     && $removedSource['fallback'] === true
                     && $removedSource['avatar_url'] === null;
             });
+    }
+
+    public function test_initiator_filters_combine_and_are_scoped_to_the_recipient(): void
+    {
+        $viewer = User::factory()->create(['role' => 'student_org']);
+        $other = User::factory()->create(['role' => 'student_org']);
+        $secretary = User::factory()->create(['role' => 'celp_secretary', 'name' => 'Leah Secretary']);
+        $coordinator = User::factory()->create(['role' => 'coordinator']);
+        $this->createNotification($viewer, 'Proposal endorsed', 'Review complete', null, ['actor_id' => $secretary->id, 'category' => 'proposal_updates']);
+        $this->createNotification($viewer, 'Another update', 'Review complete', now(), ['actor_id' => $secretary->id, 'category' => 'proposal_updates']);
+        $this->createNotification($viewer, 'Application', 'Volunteer joined', null, ['actor_id' => $coordinator->id, 'category' => 'volunteer_applications']);
+        $this->createNotification($viewer, 'Old notice', 'Legacy record');
+        $this->createNotification($other, 'Private notice', 'Not yours', null, ['actor_role' => 'csa_director', 'category' => 'security']);
+
+        $this->actingAs($viewer)->get(route('notifications.index', [
+            'filter' => 'unread', 'sender' => 'celp_secretary', 'category' => 'proposal_updates', 'search' => 'Leah', 'date' => 'today',
+        ]))->assertOk()->assertViewHas('notifications', fn ($rows) => $rows->total() === 1 && $rows->first()->data['title'] === 'Proposal endorsed')
+            ->assertViewHas('senderOptions', fn ($options) => ! $options->contains('csa_director'))
+            ->assertViewHas('categoryOptions', fn ($options) => ! $options->contains('security'));
+
+        $this->actingAs($viewer)->get(route('notifications.index', ['sender' => 'unknown', 'category' => 'uncategorized']))
+            ->assertOk()->assertViewHas('notifications', fn ($rows) => $rows->total() === 1 && $rows->first()->data['title'] === 'Old notice');
+        $this->actingAs($viewer)->get(route('notifications.index', ['category' => 'security']))
+            ->assertOk()->assertViewHas('notifications', fn ($rows) => $rows->total() === 0);
     }
 
     public function test_notification_avatar_uses_only_logo_or_initials_fallback(): void

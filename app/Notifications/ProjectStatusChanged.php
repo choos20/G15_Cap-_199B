@@ -17,14 +17,18 @@ class ProjectStatusChanged extends Notification
     public string $body;
     public string $url;
     public ?int $actorId;
+    public ?string $actorRole;
+    public string $category;
 
-    public function __construct(Project $project, string $title, string $body, string $url, ?User $actor = null)
+    public function __construct(Project $project, string $title, string $body, string $url, ?User $actor = null, string $category = 'proposal_updates')
     {
         $this->project = $project;
         $this->title = $title;
         $this->body = $body;
         $this->url = $url;
         $this->actorId = $actor?->getKey();
+        $this->actorRole = $actor?->role;
+        $this->category = $category;
     }
 
     public function via($notifiable)
@@ -65,6 +69,8 @@ class ProjectStatusChanged extends Notification
             'project_id' => $this->project->id,
             'actor_id' => $this->actorId,
             'actor_type' => $this->actorId ? 'user' : null,
+            'actor_role' => $this->actorRole,
+            'category' => $this->category,
             'title' => $this->title,
             'body' => $this->body,
             'url' => $storedUrl,

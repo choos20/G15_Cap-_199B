@@ -319,7 +319,7 @@ class StudentOrgController extends Controller
         try {
             Notification::send(
                 $application->applicant,
-                new ProjectStatusChanged($application->announcement->project, $title, $body, route('participant.applications'), $actor)
+                new ProjectStatusChanged($application->announcement->project, $title, $body, route('participant.applications'), $actor, 'volunteer_applications')
             );
         } catch (\Exception $e) {
             // non-fatal
