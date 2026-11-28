@@ -21,8 +21,8 @@ class OrganizationReportController extends Controller
             'description' => 'Review your activities, event dates, completion status, and service hours.',
         ],
         'participant-involvement' => [
-            'title' => 'Participant and volunteer involvement',
-            'description' => 'See approved volunteers and assigned participants for each activity.',
+            'title' => 'Approved volunteer involvement',
+            'description' => 'See approved volunteer applications for each project.',
         ],
         'attendance' => [
             'title' => 'Attendance & participant roster',
@@ -201,23 +201,15 @@ class OrganizationReportController extends Controller
                 ->selectRaw('a.project_id, COUNT(DISTINCT applications.user_id) as total')
                 ->groupBy('a.project_id')
                 ->pluck('total', 'project_id');
-            $participants = DB::table('project_participant_enrollments')
-                ->whereIn('project_id', $projectIds ?: [0])
-                ->selectRaw('project_id, COUNT(DISTINCT user_id) + SUM(CASE WHEN user_id IS NULL THEN 1 ELSE 0 END) as total')
-                ->groupBy('project_id')
-                ->pluck('total', 'project_id');
             $rows = $projects->map(fn ($project) => [
                 $project->title,
                 (int) ($volunteers[$project->id] ?? 0),
-                (int) ($participants[$project->id] ?? 0),
-                (int) ($volunteers[$project->id] ?? 0) + (int) ($participants[$project->id] ?? 0),
             ]);
             $summary = [
                 'Projects' => $projects->count(),
                 'Approved volunteers' => (int) $volunteers->sum(),
-                'Assigned participants' => (int) $participants->sum(),
             ];
-            $headings = ['Project', 'Approved volunteers', 'Assigned participants', 'Involvement records'];
+            $headings = ['Project', 'Approved volunteers'];
         } elseif ($report === 'attendance') {
             $catalog = app(AcademicCatalog::class);
             $departments = $catalog->departments();
@@ -277,7 +269,7 @@ class OrganizationReportController extends Controller
                         'department' => $department ?: 'Not specified',
                         'participation_role' => isset($volunteerUserIds[$record->project_id.':'.$record->user_id])
                             ? 'Approved volunteer'
-                            : 'Assigned participant',
+                            : 'Participant',
                         'status' => $this->attendanceStatusLabel($record->status),
                         'check_in' => $record->check_in_at
                             ? $this->attendanceTime($record->check_in_at)

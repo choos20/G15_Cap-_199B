@@ -188,7 +188,28 @@ class OrganizationAttendanceReportTest extends TestCase
         $this->attendance($otherProject, $participant);
         $rows = $this->actingAs($owner)->get($this->url())->assertOk()->viewData('attendanceRows')->keyBy('activity');
         $this->assertSame('Approved volunteer', $rows['Volunteer activity']['participation_role']);
-        $this->assertSame('Assigned participant', $rows['Assigned activity']['participation_role']);
+        $this->assertSame('Participant', $rows['Assigned activity']['participation_role']);
+    }
+
+    public function test_involvement_report_counts_approved_applications_without_assignments(): void
+    {
+        $owner = User::factory()->create(['role' => 'student_org']);
+        $project = $this->project($owner);
+        $announcement = DB::table('announcements')->insertGetId(['project_id' => $project]);
+        $approved = $this->participant('Approved applicant');
+        $pending = $this->participant('Pending applicant');
+        DB::table('volunteer_applications')->insert([
+            ['announcement_id' => $announcement, 'user_id' => $approved->id, 'status' => 'approved'],
+            ['announcement_id' => $announcement, 'user_id' => $pending->id, 'status' => 'pending'],
+        ]);
+        DB::table('project_participant_enrollments')->insert(['project_id' => $project, 'participant_name' => 'Historical participant']);
+        $url = route('student_org.reports.show', ['report' => 'participant-involvement']);
+        $response = $this->actingAs($owner)->get($url)->assertOk()->assertDontSee('Assigned participants');
+        $this->assertSame(['Project', 'Approved volunteers'], $response->viewData('headings'));
+        $this->assertSame(['HRE Rollout', 1], $response->viewData('rows')->first());
+        $csv = $this->get($url.'?format=csv')->assertOk()->streamedContent();
+        $this->assertStringNotContainsString('Assigned participants', $csv);
+        $this->assertDatabaseHas('project_participant_enrollments', ['participant_name' => 'Historical participant']);
     }
 
     public function test_empty_results_and_ownership_and_role_limits(): void
